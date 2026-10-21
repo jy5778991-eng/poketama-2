@@ -15,7 +15,7 @@
     <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치 및 개체값"></div>
     <div class="home-stats-footer"><span class="stat-note">★ 흰 0 · 동 1~6 · 은 7~11 · 금 12~15 · 빨강 16</span><span id="ivSummary" class="iv-summary"></span></div>
   </section>
-  <section class="pick-panel"><h2>스타팅 선택 <small>다른 스타팅을 선택하면 기존 육성 데이터가 교체돼 · 현재 진화는 준비 중</small></h2><div id="starters" class="starters"></div></section>
+  <section class="pick-panel"><h2>스타팅 선택 <small>레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 현재 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
   <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치 획득</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
 </section>
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><span>BW BATTLE PLAYTEST</span></div>
@@ -30,5 +30,6 @@
 <div id="battleResult" class="battle-result" hidden aria-live="polite"><strong id="resultTitle"></strong><div id="resultDetail"></div><button id="resultHome" class="secondary">메인으로 돌아가기</button></div>
 <section class="logpanel"><h2>배틀 기록</h2><div id="log" class="log" aria-live="polite"></div></section>
 </section>
+<div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>팬 제작 전투 프로토타입 · 공식 포켓몬 게임과 무관 · 스프라이트 제공 여부에 따라 대체 이미지 표시</footer>
 </main><script type="module" src="./app.js"></script></body></html>
