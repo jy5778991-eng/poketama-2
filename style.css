@@ -89,3 +89,19 @@
 .battle-result strong{display:block;font-size:21px;color:#294e88;margin-bottom:8px}
 .battle-result #resultDetail{font-size:13px;color:#405b83;line-height:1.8;white-space:pre-line;margin:6px 0 15px}
 .battle-result button{min-width:180px}
+
+/* Starter selection includes the ninth Pokémon: Magikarp. */
+@media(min-width:601px){.starters{grid-template-columns:repeat(9,minmax(0,1fr))}}
+@media(max-width:600px){.starters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.evolution-overlay{position:fixed;inset:0;z-index:100;background:#112340e8;display:grid;place-items:center;padding:20px}
+.evolution-box{width:min(440px,94vw);padding:28px 20px;text-align:center;background:linear-gradient(#f8fbff,#e4ecfa);border:5px solid #5873a5;box-shadow:0 14px 45px #0008;border-radius:16px}
+.evolution-heading{font-size:15px;letter-spacing:4px;font-weight:1000;color:#5579b5}
+.evolution-art{height:210px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#ffffff 8%,#cbd8ee 56%,transparent 76%);margin:10px auto 8px}
+.evolution-art img{width:170px;height:170px;object-fit:contain;image-rendering:pixelated;animation:evolution-pulse .42s ease-in-out infinite alternate}
+.evolution-art span{font-size:84px}
+.evolution-art.evolved img{animation:evolution-reveal .9s ease-out both}
+.evolution-box strong{display:block;font-size:25px;color:#283d66}
+.evolution-box #evolutionMessage{font-size:13px;color:#506a96;margin-top:8px;font-weight:700}
+@keyframes evolution-pulse{0%{filter:brightness(.3) saturate(0);transform:scale(.90)}100%{filter:brightness(3) saturate(0);transform:scale(1.14)}}
+@keyframes evolution-reveal{0%{filter:brightness(5);transform:scale(.7)}65%{filter:brightness(1.8);transform:scale(1.14)}100%{filter:brightness(1);transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.evolution-art img,.evolution-art.evolved img{animation:none}}
