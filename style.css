@@ -105,3 +105,8 @@
 @keyframes evolution-pulse{0%{filter:brightness(.3) saturate(0);transform:scale(.90)}100%{filter:brightness(3) saturate(0);transform:scale(1.14)}}
 @keyframes evolution-reveal{0%{filter:brightness(5);transform:scale(.7)}65%{filter:brightness(1.8);transform:scale(1.14)}100%{filter:brightness(1);transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){.evolution-art img,.evolution-art.evolved img{animation:none}}
+
+/* Money balance on main screen */
+.home-wallet{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+#homeMoney{display:inline-flex;align-items:center;padding:7px 11px;min-height:32px;border:2px solid #c2a366;border-radius:14px;background:#fff6d5;color:#74501b;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 #d9caa3}
+@media(max-width:420px){.home-wallet{gap:5px}#homeMoney{font-size:12px;padding:5px 7px}.home-badges{font-size:10px;padding:5px 7px}}
