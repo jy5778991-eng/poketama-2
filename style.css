@@ -61,3 +61,17 @@
 .battle-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:10px}
 .battle-top span{font-size:11px;letter-spacing:1px;color:#647ba4;font-weight:900}
 @media(max-width:420px){.home-actions{gap:8px}.home-action{font-size:14px;padding:12px 9px}.home-card{padding:12px}.home-sprite-wrap{min-height:150px}.home-sprite-wrap img{height:145px;width:145px}}
+
+/* Unified home Pokémon card: artwork and IV stats in the same frame. */
+.home-card{overflow:hidden}
+.home-stats-divider{height:2px;background:linear-gradient(90deg,transparent,#c5d0e2 15%,#c5d0e2 85%,transparent);margin:20px 0 15px}
+.home-card .stat-grid{margin:0}
+.home-card .stat-card{background:linear-gradient(#fff,#edf3fc);border-color:#a3b1c9}
+.home-stats-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:11px}
+.home-stats-footer .stat-note{margin:0;text-align:left;font-size:10px}
+.iv-summary{font-size:10px;color:#8190a9;font-weight:800;white-space:nowrap}
+.home-sprite-wrap{overflow:hidden}
+.home-sprite-wrap img{animation:home-idle 2.8s ease-in-out infinite;transform-origin:center 90%;will-change:transform}
+.home-sprite-wrap .home-fallback{animation:home-idle 2.8s ease-in-out infinite;transform-origin:center 90%}
+@keyframes home-idle{0%,100%{transform:translateY(0) rotate(-1deg)}40%{transform:translateY(-6px) rotate(1deg)}70%{transform:translateY(-2px) rotate(-.5deg)}}
+@media(prefers-reduced-motion:reduce){.home-sprite-wrap img,.home-sprite-wrap .home-fallback{animation:none}}
