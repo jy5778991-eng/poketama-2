@@ -146,3 +146,16 @@
 .capture-chip{display:inline-flex;gap:5px;align-items:center;background:#e7eefc;border:1px solid #c2d0e7;padding:4px 8px;border-radius:18px;color:#354c74;font-weight:700}
 .enemy-captured{animation:ball-capture .65s ease-in forwards}
 @keyframes ball-capture{0%{transform:scale(1);opacity:1}55%{filter:brightness(1.7);transform:scale(.4)}100%{transform:scale(0);opacity:0}}
+
+/* Optional double-speed playback, including animation keyframes. */
+.battle-speed-toggle{border:2px solid #657da5;background:#f8fbff;color:#344f7b;padding:8px 11px;border-radius:7px;font-size:12px;font-weight:900;white-space:nowrap}
+.battle-speed-toggle[aria-pressed="true"]{background:#416baf;border-color:#2d528e;color:white}
+.battle-fast .sprite.attacking.player,.battle-fast .sprite.attacking.enemy{animation-duration:.18s}
+.battle-fast .sprite.hit,.battle-fast .sprite.hit::after{animation-duration:.175s}
+.battle-fast .damage-popup.visible{animation-duration:.425s}
+.battle-fast .enemy-captured{animation-duration:.325s}
+.battle-fast .evolution-art img{animation-duration:.21s}
+.battle-fast .evolution-art.evolved img{animation-duration:.45s}
+.battle-fast .hp>div{transition-duration:.175s}
+.damage-popup .critical{font-size:26px}
+@media(max-width:600px){.damage-popup .critical{font-size:22px}}
