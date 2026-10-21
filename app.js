@@ -14,7 +14,7 @@ const STARTERS=[
 const base='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/';
 const staticImage=(id,back=false)=>base+(back?'back/':'')+id+'.png';
 const animatedImage=(id,back=false)=>base+'animated/'+(back?'back/':'')+id+'.gif';
-const SAVE_KEY='poketama-2-progress-v1';
+const SAVE_KEY='poketama-2-progress-v2'; // Lv.1 + money: separate from the older Lv.5 preview save
 const WILD=[
  {name:'구구',dex:16,base:{hp:40,attack:45,defense:40,speed:56},emoji:'🐦'},
  {name:'꼬렛',dex:19,base:{hp:30,attack:56,defense:35,speed:72},emoji:'🐭'},
@@ -34,15 +34,15 @@ const START_BASES={
 };
 /* Each threshold produces an immediate, unskippable evolution. IV/EV, EXP and level persist. */
 const EVOLUTIONS={
- snorlax:[{level:5,name:'먹고자',dex:446,base:START_BASES.snorlax},{level:40,name:'잠만보',dex:143,base:{hp:160,attack:110,defense:88,speed:30}}],
- dragonite:[{level:5,name:'미뇽',dex:147,base:START_BASES.dragonite},{level:30,name:'신뇽',dex:148,base:{hp:61,attack:84,defense:67,speed:70}},{level:55,name:'망나뇽',dex:149,base:{hp:91,attack:134,defense:98,speed:80}}],
- venusaur:[{level:5,name:'이상해씨',dex:1,base:START_BASES.venusaur},{level:16,name:'이상해풀',dex:2,base:{hp:60,attack:80,defense:71,speed:60}},{level:32,name:'이상해꽃',dex:3,base:{hp:80,attack:100,defense:92,speed:80}}],
- charizard:[{level:5,name:'파이리',dex:4,base:START_BASES.charizard},{level:16,name:'리자드',dex:5,base:{hp:58,attack:80,defense:61,speed:80}},{level:36,name:'리자몽',dex:6,base:{hp:78,attack:109,defense:82,speed:100}}],
- blastoise:[{level:5,name:'꼬부기',dex:7,base:START_BASES.blastoise},{level:16,name:'어니부기',dex:8,base:{hp:59,attack:65,defense:80,speed:58}},{level:36,name:'거북왕',dex:9,base:{hp:79,attack:85,defense:103,speed:78}}],
- raichu:[{level:5,name:'피츄',dex:172,base:START_BASES.raichu},{level:15,name:'피카츄',dex:25,base:{hp:35,attack:55,defense:45,speed:90}},{level:30,name:'라이츄',dex:26,base:{hp:60,attack:90,defense:68,speed:110}}],
- butterfree:[{level:5,name:'캐터피',dex:10,base:START_BASES.butterfree},{level:7,name:'단데기',dex:11,base:{hp:50,attack:25,defense:55,speed:30}},{level:10,name:'버터플',dex:12,base:{hp:60,attack:90,defense:65,speed:70}}],
- gengar:[{level:5,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:53,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
- gyarados:[{level:5,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
+ snorlax:[{level:1,name:'먹고자',dex:446,base:START_BASES.snorlax},{level:40,name:'잠만보',dex:143,base:{hp:160,attack:110,defense:88,speed:30}}],
+ dragonite:[{level:1,name:'미뇽',dex:147,base:START_BASES.dragonite},{level:30,name:'신뇽',dex:148,base:{hp:61,attack:84,defense:67,speed:70}},{level:55,name:'망나뇽',dex:149,base:{hp:91,attack:134,defense:98,speed:80}}],
+ venusaur:[{level:1,name:'이상해씨',dex:1,base:START_BASES.venusaur},{level:16,name:'이상해풀',dex:2,base:{hp:60,attack:80,defense:71,speed:60}},{level:32,name:'이상해꽃',dex:3,base:{hp:80,attack:100,defense:92,speed:80}}],
+ charizard:[{level:1,name:'파이리',dex:4,base:START_BASES.charizard},{level:16,name:'리자드',dex:5,base:{hp:58,attack:80,defense:61,speed:80}},{level:36,name:'리자몽',dex:6,base:{hp:78,attack:109,defense:82,speed:100}}],
+ blastoise:[{level:1,name:'꼬부기',dex:7,base:START_BASES.blastoise},{level:16,name:'어니부기',dex:8,base:{hp:59,attack:65,defense:80,speed:58}},{level:36,name:'거북왕',dex:9,base:{hp:79,attack:85,defense:103,speed:78}}],
+ raichu:[{level:1,name:'피츄',dex:172,base:START_BASES.raichu},{level:15,name:'피카츄',dex:25,base:{hp:35,attack:55,defense:45,speed:90}},{level:30,name:'라이츄',dex:26,base:{hp:60,attack:90,defense:68,speed:110}}],
+ butterfree:[{level:1,name:'캐터피',dex:10,base:START_BASES.butterfree},{level:7,name:'단데기',dex:11,base:{hp:50,attack:25,defense:55,speed:30}},{level:10,name:'버터플',dex:12,base:{hp:60,attack:90,defense:65,speed:70}}],
+ gengar:[{level:1,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:53,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
+ gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
 const getForm=(id,level)=>[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
 const getMoves=(id,level)=>{
@@ -53,12 +53,12 @@ const getMoves=(id,level)=>{
 
 const levelNeed=level=>level>=100?0:Math.round(24+level*13);
 const validIVs=ivs=>ivs&&['hp','attack','defense','speed'].every(k=>Number.isInteger(ivs[k])&&ivs[k]>=0&&ivs[k]<=16);
-function readSave(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x&&STARTERS.some(s=>s.id===x.id)&&validIVs(x.ivs)&&Number.isInteger(x.level)&&x.level>=5&&x.level<=100&&Number.isInteger(x.exp)&&x.exp>=0&&x.exp<levelNeed(x.level)||x?.level===100&&x?.exp===0?x:null;}catch{return null;}}
-function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,ivs:playerIVs}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function readSave(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x&&STARTERS.some(s=>s.id===x.id)&&validIVs(x.ivs)&&Number.isInteger(x.level)&&x.level>=1&&x.level<=100&&Number.isInteger(x.exp)&&x.exp>=0&&x.exp<levelNeed(x.level)&&Number.isSafeInteger(x.money)&&x.money>=0||x?.level===100&&x?.exp===0&&Number.isSafeInteger(x.money)&&x.money>=0?x:null;}catch{return null;}}
+function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const saved=readSave();
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
-let progress={level:saved?.level||5,exp:saved?.exp||0};
+let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false;
 const STAT_KEYS=['hp','attack','defense','speed'];
 const STAT_LABELS={hp:'HP',attack:'ATK',defense:'DEF',speed:'SPD'};
@@ -94,7 +94,9 @@ function awardExperience(){
  if(rewardClaimed||battle.result!=='victory')return [];
  rewardClaimed=true;
  const gained=12+wildEnemy.level*6;
- const messages=['+'+gained+' EXP 획득!'];
+ const prize=20+wildEnemy.level*15;
+ const messages=['+'+gained+' EXP 획득!','+'+prize+'원 획득!'];
+ progress.money+=prize;
  const evolutions=[];
  progress.exp+=gained;
  while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
@@ -125,7 +127,7 @@ function reset(){
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=WILD[Math.floor(Math.random()*WILD.length)];
- const level=Math.max(2,Math.min(100,progress.level-2+Math.floor(Math.random()*3)));
+ const level=Math.max(1,Math.min(100,progress.level-1+Math.floor(Math.random()*3)));
  wildEnemy={...wild,level};
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,getMoves(chosen,progress.level));
  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,{hp:8,attack:8,defense:8,speed:8},{}),moveIds:['tackle']});
@@ -143,6 +145,7 @@ function showScreen(next){if(animating)return;screen=next;$('homeScreen').hidden
 function renderHome(){
  const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);
  $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
+ $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('homeHpText').textContent=battle.player.stats.hp+' / '+battle.player.stats.hp;
  $('homeHpBar').style.width='100%';
  const need=levelNeed(progress.level);
@@ -178,5 +181,5 @@ async function act(a){
  }catch(err){alert(err.message);console.error(err);}
  finally{animating=false;render();}
 }
-function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 현재 레벨과 경험치가 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();progress={level:5,exp:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});saveProgress();reset();showScreen('home');}
+function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 현재 레벨, 경험치, 보유금이 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});saveProgress();reset();showScreen('home');}
 setup();
