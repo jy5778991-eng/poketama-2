@@ -46,7 +46,7 @@ function reset(){if(animating)return;const s=STARTERS.find(x=>x.id===chosen);con
 function showScreen(next){if(animating)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';window.scrollTo({top:0,behavior:'instant'});}
 function renderHome(){
  const s=STARTERS.find(x=>x.id===chosen);
- $('homeName').textContent=s.form;$('homeLevel').innerHTML='Lv.50 <small>테스트</small>';
+ $('homeName').textContent=s.form;$('homeLevel').textContent='LV '+battle.player.level;
  $('homeHpText').textContent=battle.player.stats.hp+' / '+battle.player.stats.hp;
  $('homeHpBar').style.width='100%';
  const img=$('homeSprite'),fallback=$('homeFallback');
