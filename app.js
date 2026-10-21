@@ -181,5 +181,46 @@ async function act(a){
  }catch(err){alert(err.message);console.error(err);}
  finally{animating=false;render();}
 }
-function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 현재 레벨, 경험치, 보유금이 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});saveProgress();reset();showScreen('home');}
+
+// Developer controls are for local playtesting, not real account security.
+function closeDeveloper(){
+ $('developerOverlay').hidden=true;
+ $('developerLogin').hidden=false;$('developerEditor').hidden=true;
+ $('developerPassword').value='';$('developerError').textContent='';$('developerSaveError').textContent='';
+}
+function openDeveloper(){
+ if(animating)return;
+ $('developerOverlay').hidden=false;$('developerLogin').hidden=false;$('developerEditor').hidden=true;
+ $('developerError').textContent='';$('developerSaveError').textContent='';
+ $('developerPassword').value='';$('developerPassword').focus();
+}
+function unlockDeveloper(e){
+ e.preventDefault();
+ if($('developerPassword').value!=='1646'){
+  $('developerError').textContent='비밀번호가 올바르지 않아.';
+  $('developerPassword').value='';$('developerPassword').focus();return;
+ }
+ $('developerError').textContent='';
+ $('developerLogin').hidden=true;$('developerEditor').hidden=false;
+ $('developerLevel').value=String(progress.level);
+ $('developerMoney').value=String(progress.money);
+ $('developerLevel').focus();
+}
+function applyDeveloperChanges(e){
+ e.preventDefault();
+ if(animating)return;
+ const level=Number($('developerLevel').value),money=Number($('developerMoney').value);
+ if(!Number.isInteger(level)||level<1||level>100||!Number.isSafeInteger(money)||money<0||money>999999999){
+  $('developerSaveError').textContent='레벨은 1~100, 보유금은 0~999,999,999의 정수로 입력해줘.';
+  return;
+ }
+ // Direct level edits use the existing evolutionary form lookup; no battle reward is issued.
+ const levelChanged=progress.level!==level;
+ progress.level=level;progress.money=money;
+ if(levelChanged)progress.exp=0;
+ saveProgress();
+ closeDeveloper();
+ reset();
+}
+function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 현재 레벨, 경험치, 보유금이 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');}
 setup();
