@@ -61,6 +61,7 @@ const saved=readSave();
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
+let pendingLevelUp=null;
 let battleSpeed=1;
 let lastBattleReward=saved?.lastBattleReward&&Number.isSafeInteger(saved.lastBattleReward.exp)&&Number.isSafeInteger(saved.lastBattleReward.money)?saved.lastBattleReward:null;
 let capturedPokemon=Array.isArray(saved?.captures)?saved.captures.filter(validCaptured).slice(0,200):[];
@@ -103,6 +104,7 @@ function awardExperience(){
  const messages=['+'+gained+' EXP 획득!','+'+prize+'원 획득!'];
  progress.money+=prize;
  const evolutions=[];
+ const previousLevel=progress.level;
  progress.exp+=gained;
  while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
   progress.exp-=levelNeed(progress.level);progress.level++;
@@ -112,7 +114,7 @@ function awardExperience(){
  }
  if(progress.level===100)progress.exp=0;
  saveProgress();
- return {messages,evolutions};
+ return {messages,evolutions,previousLevel,newLevel:progress.level};
 }
 async function showEvolutions(evolutions){
  for(const evolution of evolutions){
@@ -152,6 +154,15 @@ function showMenu(page='main'){
  $('battleCommands').hidden=page!=='main';$('battleSubmenu').hidden=page==='main';
  $('moves').hidden=page!=='fight';$('ballOptions').hidden=page!=='ball';$('healOptions').hidden=page!=='heal';
  $('submenuTitle').textContent=page==='fight'?'사용할 기술 선택':page==='ball'?'몬스터볼 선택':'회복 아이템 선택';
+}
+function playHomeLevelUp(previousLevel,newLevel){
+ const effect=$('homeLevelUp');
+ if(newLevel<=previousLevel)return;
+ $('homeLevelUpDetail').textContent='LV '+previousLevel+' → LV '+newLevel;
+ effect.hidden=false;
+ effect.classList.remove('playing');
+ void effect.offsetWidth; // Restart the CSS animation on consecutive level-ups.
+ effect.classList.add('playing');
 }
 function renderCaptures(){
  $('captureCount').textContent=String(capturedPokemon.length);
@@ -199,7 +210,7 @@ async function act(a){
  if(animating||battle.ended)return;
  const previousHp={player:battle.player.hp,enemy:battle.enemies[battle.enemyIndex].hp};
  try{
-  animating=true;takeTurn(battle,a);showMenu('main');
+  animating=true;takeTurn(battle,a);
   const events=[...battle.events];shownHp={...previousHp};render();await playEvents(events);
   if(battle.ended){
     if(battle.result==='capture'){
@@ -209,6 +220,7 @@ async function act(a){
     }
     if(battle.result!=='victory'){lastBattleReward={exp:0,money:0};saveProgress();}
     const reward=awardExperience();
+    if(reward?.newLevel>reward?.previousLevel)pendingLevelUp={previous:reward.previousLevel,current:reward.newLevel};
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
     $('battleResult').hidden=false;
     $('resultTitle').textContent=battle.result==='victory'?'승리!':battle.result==='capture'?'포획 성공!':'패배!';
@@ -216,7 +228,15 @@ async function act(a){
     renderHome();
   }
  }catch(err){alert(err.message);console.error(err);}
- finally{animating=false;render();if(battle.ended){renderHome();showScreen('home');}}
+ finally{
+  animating=false;
+  render();
+  if(battle.ended){
+   showMenu('main');
+   renderHome();showScreen('home');
+   if(pendingLevelUp){const levels=pendingLevelUp;pendingLevelUp=null;playHomeLevelUp(levels.previous,levels.current);}
+  }
+ }
 }
 
 // Developer controls are for local playtesting, not real account security.
@@ -270,7 +290,8 @@ function setup(){
  $('commandBall').addEventListener('click',()=>showMenu('ball'));
  $('commandHeal').addEventListener('click',()=>showMenu('heal'));
  $('commandRun').addEventListener('click',()=>{if(animating||battle.ended||!battle.wild)return;showMenu('main');renderHome();showScreen('home')});
- $('submenuBack').addEventListener('click',()=>showMenu('main'));
+ $('submenuBack').addEventListener('click',()=>{if(!animating&&!battle.ended)showMenu('main')});
+ $('homeLevelUp').addEventListener('animationend',e=>{if(e.target!==$('homeLevelUp'))return;$('homeLevelUp').classList.remove('playing');$('homeLevelUp').hidden=true;});
  $('throwBall').addEventListener('click',()=>act({type:'ball'}));
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();capturedPokemon=[];lastBattleReward=null;progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;playerIVs=randomIVs();capturedPokemon=[];lastBattleReward=null;progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');}
 setup();
