@@ -8,7 +8,8 @@ const STARTERS=[
 {id:'blastoise',name:'꼬부기',form:'거북왕',dex:9,baby:7,base:{hp:79,attack:85,defense:103,speed:78},moves:['surf','waterSpout','swift','recover'],emoji:'💧'},
 {id:'raichu',name:'피츄',form:'라이츄',dex:26,baby:172,base:{hp:60,attack:90,defense:68,speed:110},moves:['thunderbolt','voltTackle','quickAttack','thunderWave'],emoji:'⚡'},
 {id:'butterfree',name:'캐터피',form:'버터플',dex:12,baby:10,base:{hp:60,attack:90,defense:65,speed:70},moves:['psybeam','poisonPowder','harden','swift'],emoji:'🦋'},
-{id:'gengar',name:'고오스',form:'팬텀',dex:94,baby:92,base:{hp:60,attack:130,defense:68,speed:110},moves:['shadowBall','hypnosis','dreamEater','swift'],emoji:'👻'}
+{id:'gengar',name:'고오스',form:'팬텀',dex:94,baby:92,base:{hp:60,attack:130,defense:68,speed:110},moves:['shadowBall','hypnosis','dreamEater','swift'],emoji:'👻'},
+{id:'gyarados',name:'잉어킹',form:'갸라도스',dex:130,baby:129,base:{hp:95,attack:125,defense:90,speed:81},moves:['surf','dragonDance','bodySlam','swift'],emoji:'🐟'}
 ];
 const base='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/';
 const staticImage=(id,back=false)=>base+(back?'back/':'')+id+'.png';
@@ -28,8 +29,28 @@ const START_BASES={
  blastoise:{hp:44,attack:50,defense:65,speed:43},
  raichu:{hp:20,attack:40,defense:30,speed:60},
  butterfree:{hp:45,attack:30,defense:35,speed:45},
- gengar:{hp:30,attack:100,defense:33,speed:80}
+ gengar:{hp:30,attack:100,defense:33,speed:80},
+ gyarados:{hp:20,attack:10,defense:47,speed:80}
 };
+/* Each threshold produces an immediate, unskippable evolution. IV/EV, EXP and level persist. */
+const EVOLUTIONS={
+ snorlax:[{level:5,name:'먹고자',dex:446,base:START_BASES.snorlax},{level:40,name:'잠만보',dex:143,base:{hp:160,attack:110,defense:88,speed:30}}],
+ dragonite:[{level:5,name:'미뇽',dex:147,base:START_BASES.dragonite},{level:30,name:'신뇽',dex:148,base:{hp:61,attack:84,defense:67,speed:70}},{level:55,name:'망나뇽',dex:149,base:{hp:91,attack:134,defense:98,speed:80}}],
+ venusaur:[{level:5,name:'이상해씨',dex:1,base:START_BASES.venusaur},{level:16,name:'이상해풀',dex:2,base:{hp:60,attack:80,defense:71,speed:60}},{level:32,name:'이상해꽃',dex:3,base:{hp:80,attack:100,defense:92,speed:80}}],
+ charizard:[{level:5,name:'파이리',dex:4,base:START_BASES.charizard},{level:16,name:'리자드',dex:5,base:{hp:58,attack:80,defense:61,speed:80}},{level:36,name:'리자몽',dex:6,base:{hp:78,attack:109,defense:82,speed:100}}],
+ blastoise:[{level:5,name:'꼬부기',dex:7,base:START_BASES.blastoise},{level:16,name:'어니부기',dex:8,base:{hp:59,attack:65,defense:80,speed:58}},{level:36,name:'거북왕',dex:9,base:{hp:79,attack:85,defense:103,speed:78}}],
+ raichu:[{level:5,name:'피츄',dex:172,base:START_BASES.raichu},{level:15,name:'피카츄',dex:25,base:{hp:35,attack:55,defense:45,speed:90}},{level:30,name:'라이츄',dex:26,base:{hp:60,attack:90,defense:68,speed:110}}],
+ butterfree:[{level:5,name:'캐터피',dex:10,base:START_BASES.butterfree},{level:7,name:'단데기',dex:11,base:{hp:50,attack:25,defense:55,speed:30}},{level:10,name:'버터플',dex:12,base:{hp:60,attack:90,defense:65,speed:70}}],
+ gengar:[{level:5,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:53,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
+ gyarados:[{level:5,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
+};
+const getForm=(id,level)=>[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
+const getMoves=(id,level)=>{
+ if(level<10)return ['tackle','quickAttack'];
+ const starter=STARTERS.find(s=>s.id===id);
+ return level>=20?starter.moves:['tackle','quickAttack'];
+};
+
 const levelNeed=level=>level>=100?0:Math.round(24+level*13);
 const validIVs=ivs=>ivs&&['hp','attack','defense','speed'].every(k=>Number.isInteger(ivs[k])&&ivs[k]>=0&&ivs[k]<=16);
 function readSave(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x&&STARTERS.some(s=>s.id===x.id)&&validIVs(x.ivs)&&Number.isInteger(x.level)&&x.level>=5&&x.level<=100&&Number.isInteger(x.exp)&&x.exp>=0&&x.exp<levelNeed(x.level)||x?.level===100&&x?.exp===0?x:null;}catch{return null;}}
@@ -45,7 +66,7 @@ const randomIVs=()=>Object.fromEntries(STAT_KEYS.map(key=>[key,Math.floor(Math.r
 const ivTier=value=>value===16?'red':value>=12?'gold':value>=7?'silver':value>=1?'bronze':'white';
 let playerIVs=saved?.ivs||randomIVs();
 function renderStatPanel(){
-  const grid=$('statGrid'),s=STARTERS.find(x=>x.id===chosen),stats=calculateStats(START_BASES[s.id],progress.level,playerIVs,{});
+  const grid=$('statGrid'),form=getForm(chosen,progress.level),stats=calculateStats(form.base,progress.level,playerIVs,{});
   grid.replaceChildren(...STAT_KEYS.map(key=>{
     const card=document.createElement('div');card.className='stat-card';
     const iv=document.createElement('div');iv.className='iv-wrap';
@@ -74,37 +95,54 @@ function awardExperience(){
  rewardClaimed=true;
  const gained=12+wildEnemy.level*6;
  const messages=['+'+gained+' EXP 획득!'];
+ const evolutions=[];
  progress.exp+=gained;
  while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
   progress.exp-=levelNeed(progress.level);progress.level++;
   messages.push('LEVEL UP! LV '+progress.level);
+  const form=EVOLUTIONS[chosen].find(f=>f.level===progress.level);
+  if(form){const before=getForm(chosen,progress.level-1);evolutions.push({before,after:form,level:progress.level});messages.push(before.name+' → '+form.name+' 진화!');}
  }
  if(progress.level===100)progress.exp=0;
  saveProgress();
- return messages;
+ return {messages,evolutions};
+}
+async function showEvolutions(evolutions){
+ for(const evolution of evolutions){
+  const layer=$('evolutionOverlay'),art=document.querySelector('.evolution-art'),image=$('evolutionSprite'),fallback=$('evolutionFallback');
+  const load=(form)=>{fallback.hidden=true;image.hidden=false;image.onerror=()=>{image.hidden=true;fallback.hidden=false};image.src=animatedImage(form.dex)};
+  art.classList.remove('evolved');$('evolutionName').textContent=evolution.before.name;
+  $('evolutionMessage').textContent='포켓몬이 진화하고 있어!';load(evolution.before);layer.hidden=false;
+  await pause(1500);
+  art.classList.add('evolved');load(evolution.after);
+  $('evolutionName').textContent=evolution.after.name;
+  $('evolutionMessage').textContent=evolution.before.name+' → '+evolution.after.name+' 진화 성공! (LV '+evolution.level+')';
+  await pause(1900);layer.hidden=true;
+ }
 }
 function reset(){
  if(animating)return;
  const s=STARTERS.find(x=>x.id===chosen);
+ const form=getForm(chosen,progress.level);
  const wild=WILD[Math.floor(Math.random()*WILD.length)];
  const level=Math.max(2,Math.min(100,progress.level-2+Math.floor(Math.random()*3)));
  wildEnemy={...wild,level};
- const player=fighter(s,playerIVs,progress.level,START_BASES[s.id],s.name,['tackle','quickAttack']);
+ const player=fighter(s,playerIVs,progress.level,form.base,form.name,getMoves(chosen,progress.level));
  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,{hp:8,attack:8,defense:8,speed:8},{}),moveIds:['tackle']});
  battle=createBattle(player,[enemy],{items:3});rewardClaimed=false;
  battle.log.push('⚔️ 야생 '+wild.name+'이(가) 나타났다!');
  shownHp={player:player.hp,enemy:enemy.hp};
- $('playerName').textContent=s.name;$('promptName').textContent=s.name;
+ $('playerName').textContent=form.name;$('promptName').textContent=form.name;
  $('enemyName').textContent=wild.name;$('enemyLevel').textContent='Lv.'+level;$('playerLevel').textContent='Lv.'+progress.level;
- sprite('playerSprite',s.baby,true,s.emoji);sprite('enemySprite',wild.dex,false,wild.emoji);
+ sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',wild.dex,false,wild.emoji);
  $('battleResult').hidden=true;
  document.querySelectorAll('.starter').forEach(b=>{const active=b.dataset.id===chosen;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});
  render();renderHome();
 }
 function showScreen(next){if(animating)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';window.scrollTo({top:0,behavior:'instant'});}
 function renderHome(){
- const s=STARTERS.find(x=>x.id===chosen);
- $('homeName').textContent=s.name;$('homeLevel').textContent='LV '+progress.level;
+ const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);
+ $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
  $('homeHpText').textContent=battle.player.stats.hp+' / '+battle.player.stats.hp;
  $('homeHpBar').style.width='100%';
  const need=levelNeed(progress.level);
@@ -113,7 +151,7 @@ function renderHome(){
  const img=$('homeSprite'),fallback=$('homeFallback');
  fallback.textContent=s.emoji;fallback.hidden=true;img.hidden=false;
  // Prefer genuine BW animated front GIF. Fall back to static pixel art and CSS idle motion.
- const sources=[animatedImage(s.baby),staticImage(s.baby),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+s.baby+'.png'];
+ const sources=[animatedImage(form.dex),staticImage(form.dex),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+form.dex+'.png'];
  let attempt=0;
  img.onerror=()=>{attempt++;if(attempt<sources.length){img.src=sources[attempt];}else{img.hidden=true;fallback.hidden=false;}};
  img.onload=()=>{img.hidden=false;fallback.hidden=true};
@@ -130,10 +168,11 @@ async function act(a){
   animating=true;takeTurn(battle,a);
   const events=[...battle.events];shownHp={...previousHp};render();await playEvents(events);
   if(battle.ended){
-    const messages=awardExperience();
+    const reward=awardExperience();
+    if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
     $('battleResult').hidden=false;
     $('resultTitle').textContent=battle.result==='victory'?'승리!':'패배!';
-    $('resultDetail').textContent=messages.length?messages.join('\n'):'경험치를 획득하지 못했어.';
+    $('resultDetail').textContent=reward?.messages?.length?reward.messages.join('\n'):'경험치를 획득하지 못했어.';
     renderHome();
   }
  }catch(err){alert(err.message);console.error(err);}
