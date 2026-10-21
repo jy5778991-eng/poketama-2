@@ -37,6 +37,8 @@ const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
 const roll=(rng)=>clamp(rng(),0,1-Number.EPSILON);
 const isAlive=(p)=>p.hp>0;
 const say=(battle,msg)=>battle.log.push(msg);
+const emit=(battle,event)=>battle.events.push(event);
+const sideOf=(battle,p)=>p===battle.player?'player':'enemy';
 const stageMultiplier=(stage)=>stage>=0 ? (2+stage)/2 : 2/(2-stage);
 const effectiveStat=(p, stat)=>Math.max(1,Math.floor(p.stats[stat]*stageMultiplier(p.stages[stat])*(stat==='speed'&&p.status?.type==='paralysis'?RULES.paralysisSpeed:1)));
 export function calculateStats(base,level,iv={},ev={}) {
@@ -61,7 +63,7 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
 }
 export function createBattle(player,enemies,{items=0,rng=Math.random}={}) {
   if(!enemies.length) throw new Error('Need enemies');
-  return {player, enemies,enemyIndex:0,items,turn:0,ended:false,result:null,log:[],rng};
+  return {player, enemies,enemyIndex:0,items,turn:0,ended:false,result:null,log:[],events:[],rng};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
 function accuracySuccess(move,b){return roll(b.rng)<(move.accuracy??1);}
@@ -99,26 +101,28 @@ function executeMove(b,user,target,moveId){
   if(!canAct(user,b))return;
   if(!struggle)user.pp[moveId]--;
   say(b,`${user.name}의 ${move.name}!`);
-  if(!accuracySuccess(move,b)){say(b,'공격이 빗나갔다!');return;}
+  emit(b,{type:'move',side:sideOf(b,user),name:move.name});
+  if(!accuracySuccess(move,b)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
       say(b,`${user.name}의 ${stat} 랭크: ${before} → ${user.stages[stat]}`);
     }
   }
-  if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);}
+  if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);emit(b,{type:'heal',side:sideOf(b,user),amount:gain,hp:user.hp});}
   if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
   if(move.power){
     const scaledPower=move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
     const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     target.hp=Math.max(0,target.hp-damage);
-    if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);}
+    emit(b,{type:'damage',side:sideOf(b,target),amount:damage,hp:target.hp,critical});
+    if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
   if(move.inflict&&isAlive(target))afflict(target,move.inflict,b);
   if(move.recoilMaxHp||struggle){
     const recoil=Math.max(1,Math.floor(user.stats.hp*(struggle?RULES.struggleRecoil:move.recoilMaxHp)));
-    user.hp=Math.max(0,user.hp-recoil);say(b,`${user.name} 반동 피해 ${recoil}`);
+    user.hp=Math.max(0,user.hp-recoil);say(b,`${user.name} 반동 피해 ${recoil}`);emit(b,{type:'damage',side:sideOf(b,user),amount:recoil,hp:user.hp,critical:false,recoil:true});
   }
 }
 function pickAction(p,requested){
@@ -137,7 +141,7 @@ export function simpleAi(enemy){
 function poisonTick(b,p){
   if(!isAlive(p)||p.status?.type!=='poison')return;
   const dmg=Math.max(1,Math.floor(p.stats.hp*RULES.poisonFraction));
-  p.hp=Math.max(0,p.hp-dmg);say(b,`${p.name}은(는) 독으로 ${dmg} 피해를 받았다.`);
+  p.hp=Math.max(0,p.hp-dmg);say(b,`${p.name}은(는) 독으로 ${dmg} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,p),amount:dmg,hp:p.hp,critical:false,poison:true});
 }
 function settle(b){
   const p=b.player,e=activeEnemy(b);
@@ -153,7 +157,7 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
   const p=b.player,e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
   if(pAction.type==='item'&&b.items<=0)throw new Error('No items left');
-  const start=b.log.length;b.turn++;say(b,`── 턴 ${b.turn} ──`);
+  const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
   order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
@@ -163,6 +167,7 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
       b.items--;
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,100);
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
+      emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
     } else executeMove(b,a.fighter,a.target,a.action.moveId);
   }
   poisonTick(b,p);poisonTick(b,e);
