@@ -7,6 +7,21 @@ export const RULES = Object.freeze({
   sleepSecondActionWakeChance: 0.5, strugglePower: 50, struggleRecoil: 0.25,
 });
 export const MOVES = Object.freeze({
+  flamethrower: {name:'화염방사', power:95, accuracy:1, pp:15, priority:0},
+  bodySlam: {name:'누르기', power:95, accuracy:1, pp:15, priority:0},
+  flail: {name:'바둥바둥', power:85, accuracy:1, pp:5, priority:0, hpScale:'low'},
+  rest: {name:'잠자기(시험용 회복)', accuracy:1, pp:2, priority:0, healMaxHp:0.4, target:'self'},
+  dragonPulse: {name:'용의파동', power:100, accuracy:1, pp:10, priority:0},
+  extremeSpeed: {name:'신속', power:90, accuracy:1, pp:5, priority:2},
+  energyBall: {name:'에너지볼', power:100, accuracy:1, pp:10, priority:0},
+  solarBeam: {name:'솔라빔', power:150, accuracy:0.75, pp:5, priority:0},
+  surf: {name:'파도타기', power:100, accuracy:1, pp:10, priority:0},
+  waterSpout: {name:'하이드로스파우팅', power:135, accuracy:1, pp:5, priority:0, hpScale:'high'},
+  psybeam: {name:'사이케광선', power:85, accuracy:1, pp:15, priority:0},
+  harden: {name:'단단해지기', accuracy:1, pp:5, priority:0, boosts:{defense:1},target:'self'},
+  shadowBall: {name:'섀도볼', power:90, accuracy:1, pp:15, priority:0},
+  dreamEater: {name:'꿈먹기', power:120, accuracy:1, pp:5, priority:0, requiresTargetSleep:true, drain:0.5},
+
   thunderbolt: {name:'10만볼트', power:95, accuracy:1, pp:15, priority:0},
   voltTackle: {name:'볼트태클', power:120, accuracy:1, pp:5, priority:0, recoilMaxHp:0.10, critMultiplier:3},
   quickAttack: {name:'전광석화', power:40, accuracy:1, pp:20, priority:1},
@@ -92,9 +107,12 @@ function executeMove(b,user,target,moveId){
     }
   }
   if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);}
+  if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
   if(move.power){
-    const {damage,critical}=damageRoll(user,target,move,{rng:b.rng});
+    const scaledPower=move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
+    const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     target.hp=Math.max(0,target.hp-damage);
+    if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
   if(move.inflict&&isAlive(target))afflict(target,move.inflict,b);
