@@ -7,6 +7,7 @@ export const RULES = Object.freeze({
   sleepSecondActionWakeChance: 0.5, strugglePower: 50, struggleRecoil: 0.25,
 });
 export const MOVES = Object.freeze({
+  tackle: {name:'몸통박치기',power:40,accuracy:1,pp:35,priority:0},
   flamethrower: {name:'화염방사', power:95, accuracy:1, pp:15, priority:0},
   bodySlam: {name:'누르기', power:95, accuracy:1, pp:15, priority:0},
   flail: {name:'바둥바둥', power:85, accuracy:1, pp:5, priority:0, hpScale:'low'},
