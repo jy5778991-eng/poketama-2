@@ -46,7 +46,7 @@ export function calculateStats(base,level,iv={},ev={}) {
   const stats={};
   for(const stat of ['hp','attack','defense','speed']) {
     const i=iv[stat]??0, e=ev[stat]??0;
-    if(!Number.isInteger(i)||i<0||i>12||!Number.isInteger(e)||e<0||e>80) throw new Error('Invalid IV/EV');
+    if(!Number.isInteger(i)||i<0||i>16||!Number.isInteger(e)||e<0||e>80) throw new Error('Invalid IV/EV');
     const baseValue=2*base[stat]+i+Math.floor(e/4);
     stats[stat]=Math.floor(baseValue*level/100)+(stat==='hp'?level+10:5);
   }
