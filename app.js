@@ -13,7 +13,7 @@ const STARTERS=[
 const base='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/';
 const staticImage=(id,back=false)=>base+(back?'back/':'')+id+'.png';
 const animatedImage=(id,back=false)=>base+'animated/'+(back?'back/':'')+id+'.gif';
-let battle,chosen='raichu',animating=false,shownHp={player:0,enemy:0};
+let battle,chosen='raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 const STAT_KEYS=['hp','attack','defense','speed'];
 const STAT_LABELS={hp:'HP',attack:'ATK',defense:'DEF',speed:'SPD'};
 const randomIVs=()=>Object.fromEntries(STAT_KEYS.map(key=>[key,Math.floor(Math.random()*17)]));
@@ -42,10 +42,22 @@ async function playEvents(events){for(const ev of events){if(ev.type==='move'){c
 
 function sprite(id,dex,back,emoji){const el=$(id),wrap=el.parentElement;wrap.classList.remove('failed');$(id.replace('Sprite','Fallback')).textContent=emoji;let attempt=0;const sources=[animatedImage(dex,back),staticImage(dex,back),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+dex+'.png'];el.onerror=()=>{attempt++;if(attempt<sources.length)el.src=sources[attempt];else wrap.classList.add('failed')};el.onload=()=>wrap.classList.remove('failed');el.src=sources[0];}
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8}){return createFighter({id:s.id,name:s.form,level:50,friendship:100,stats:calculateStats(s.base,50,ivs,{}),moveIds:s.moves});}
-function reset(){if(animating)return;const s=STARTERS.find(x=>x.id===chosen);const enemy={id:'charizard',form:'리자몽',dex:6,emoji:'🔥',base:{hp:78,attack:109,defense:82,speed:100},moves:['flareBlitz','swift']};battle=createBattle(fighter(s,playerIVs),[fighter(enemy)],{items:3});battle.log.push('⚔️ 야생 리자몽이 나타났다!');shownHp={player:battle.player.hp,enemy:battle.enemies[0].hp};$('playerName').textContent=s.form;$('promptName').textContent=s.form;$('enemyName').textContent='리자몽';sprite('playerSprite',s.dex,true,s.emoji);sprite('enemySprite',6,false,'🔥');document.querySelectorAll('.starter').forEach(b=>{const active=b.dataset.id===chosen;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});render();}
+function reset(){if(animating)return;const s=STARTERS.find(x=>x.id===chosen);const enemy={id:'charizard',form:'리자몽',dex:6,emoji:'🔥',base:{hp:78,attack:109,defense:82,speed:100},moves:['flareBlitz','swift']};battle=createBattle(fighter(s,playerIVs),[fighter(enemy)],{items:3});battle.log.push('⚔️ 야생 리자몽이 나타났다!');shownHp={player:battle.player.hp,enemy:battle.enemies[0].hp};$('playerName').textContent=s.form;$('promptName').textContent=s.form;$('enemyName').textContent='리자몽';sprite('playerSprite',s.dex,true,s.emoji);sprite('enemySprite',6,false,'🔥');document.querySelectorAll('.starter').forEach(b=>{const active=b.dataset.id===chosen;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));});render();renderHome();}
+function showScreen(next){if(animating)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';window.scrollTo({top:0,behavior:'instant'});}
+function renderHome(){
+ const s=STARTERS.find(x=>x.id===chosen);
+ $('homeName').textContent=s.form;$('homeLevel').innerHTML='Lv.50 <small>테스트</small>';
+ $('homeHpText').textContent=battle.player.stats.hp+' / '+battle.player.stats.hp;
+ $('homeHpBar').style.width='100%';
+ const img=$('homeSprite'),fallback=$('homeFallback');
+ fallback.textContent=s.emoji;fallback.hidden=true;img.hidden=false;
+ img.onerror=()=>{img.hidden=true;fallback.hidden=false};img.onload=()=>{img.hidden=false;fallback.hidden=true};
+ img.src=staticImage(s.dex);
+ renderStatPanel();
+}
 function render(){const p=battle.player,e=battle.enemies[battle.enemyIndex];for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);$(prefix+'Status').textContent=f.status?.type==='paralysis'?'⚡ 마비':f.status?.type==='sleep'?'💤 수면':f.status?.type==='poison'?'☠ 독':'';}
 $('turn').textContent=battle.ended?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
 $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.createElement('button');b.disabled=animating||battle.ended||p.pp[id]===0;b.innerHTML='<span class="move-name">'+m.name+'</span><span class="move-pp">'+(m.power?'위력 '+m.power+' · ':'')+'PP '+p.pp[id]+'/'+m.pp+'</span>';b.addEventListener('click',()=>act({moveId:id}));return b;}));$('potion').disabled=animating||battle.ended||battle.items<1;$('potion').textContent='💊 회복약 ×'+battle.items+' (+100 HP)';$('log').replaceChildren(...battle.log.slice(-15).reverse().map(line=>{const t=document.createElement('p');t.textContent=line;return t;}));renderStatPanel();}
 async function act(a){if(animating||battle.ended)return;const previousHp={player:battle.player.hp,enemy:battle.enemies[battle.enemyIndex].hp};try{animating=true;takeTurn(battle,a);const events=[...battle.events];shownHp={...previousHp};render();await playEvents(events);}catch(err){alert(err.message);console.error(err);}finally{animating=false;render();}}
-function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;chosen=s.id;playerIVs=randomIVs();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);reset();}
+function setup(){const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||chosen===s.id)return;chosen=s.id;playerIVs=randomIVs();reset()};box.append(b)});$('potion').addEventListener('click',()=>act({type:'item'}));$('restart').addEventListener('click',reset);$('startBattle').addEventListener('click',()=>{reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{renderHome();showScreen('home')});reset();showScreen('home');}
 setup();
