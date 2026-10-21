@@ -75,3 +75,10 @@
 .home-sprite-wrap .home-fallback{animation:home-idle 2.8s ease-in-out infinite;transform-origin:center 90%}
 @keyframes home-idle{0%,100%{transform:translateY(0) rotate(-1deg)}40%{transform:translateY(-6px) rotate(1deg)}70%{transform:translateY(-2px) rotate(-.5deg)}}
 @media(prefers-reduced-motion:reduce){.home-sprite-wrap img,.home-sprite-wrap .home-fallback{animation:none}}
+
+/* Home Pokémon label: center beneath the animated sprite */
+.home-pokemon-title{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;gap:11px;text-align:center;margin:6px 0 18px;color:#273957}
+.home-pokemon-title #homeName{font-size:24px;font-weight:900;letter-spacing:-.4px}
+.home-pokemon-title #homeLevel{font-size:16px;font-weight:900;color:#5675a8;white-space:nowrap}
+.home-card .home-name{justify-content:flex-start}
+@media(max-width:420px){.home-pokemon-title #homeName{font-size:21px}.home-pokemon-title #homeLevel{font-size:14px}}
