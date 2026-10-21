@@ -110,3 +110,21 @@
 .home-wallet{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
 #homeMoney{display:inline-flex;align-items:center;padding:7px 11px;min-height:32px;border:2px solid #c2a366;border-radius:14px;background:#fff6d5;color:#74501b;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 #d9caa3}
 @media(max-width:420px){.home-wallet{gap:5px}#homeMoney{font-size:12px;padding:5px 7px}.home-badges{font-size:10px;padding:5px 7px}}
+
+/* Developer mode: local playtest control (not a secure server-side authentication mechanism). */
+.dev-entry{display:flex;justify-content:flex-end;margin:4px 0 16px}
+.dev-open-button{background:#e2e7f0;color:#596985;border:1px solid #9aa9c2;padding:9px 13px;border-radius:8px;font-size:12px;font-weight:800}
+.dev-open-button:hover{background:#d3dfef}
+.developer-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#142541bd;padding:15px}
+.developer-box{width:min(410px,100%);padding:21px;border:4px solid #46618b;border-radius:12px;background:#f9fbff;color:#24344e;box-shadow:0 15px 50px #08162b7a}
+.developer-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:900;font-size:20px;margin-bottom:20px}
+.developer-close{font-size:24px;background:transparent;border:0;color:#526584;line-height:1;padding:3px 8px}
+.developer-box form{display:flex;flex-direction:column;gap:10px}
+.developer-box label{font-size:13px;font-weight:800}
+.developer-box input{width:100%;border:2px solid #94a8cb;border-radius:7px;background:#fff;color:#21314c;font-size:17px;padding:12px;min-height:46px}
+.developer-box input:focus{outline:3px solid #c4d9ff;border-color:#527fbc}
+.developer-submit{margin-top:7px;background:#5179bb;color:#fff;border:2px solid #37588d;padding:12px;border-radius:8px;font-size:14px;font-weight:900}
+.developer-submit:hover{background:#416ba9}
+.developer-error{margin:0;font-size:12px;font-weight:800;color:#b23c43}
+.developer-error:empty{display:none}
+.developer-hint{font-size:11px;line-height:1.6;color:#667994;margin:0}
