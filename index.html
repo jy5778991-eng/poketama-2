@@ -10,23 +10,24 @@
     <div class="home-sprite-wrap"><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
     <div class="home-pokemon-title"><span id="homeName">라이츄</span><span id="homeLevel">LV 50</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
-    <div class="home-xp-row"><span>EXP</span><span>레벨업 시스템 준비 중</span></div><div class="home-exp-bar"><div></div></div>
+    <div class="home-xp-row"><span>EXP</span><span id="homeExpText">0 / 0</span></div><div class="home-exp-bar"><div id="homeExpBar"></div></div>
     <div class="home-stats-divider"></div>
     <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치 및 개체값"></div>
     <div class="home-stats-footer"><span class="stat-note">★ 흰 0 · 동 1~6 · 은 7~11 · 금 12~15 · 빨강 16</span><span id="ivSummary" class="iv-summary"></span></div>
   </section>
-  <section class="pick-panel"><h2>스타팅 선택 <small>포켓몬을 바꾸면 새로운 개체값이 생성돼 · 현재 Lv.50 최종 진화형 테스트</small></h2><div id="starters" class="starters"></div></section>
-  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>리자몽과 테스트 대결</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
+  <section class="pick-panel"><h2>스타팅 선택 <small>다른 스타팅을 선택하면 기존 육성 데이터가 교체돼 · 현재 진화는 준비 중</small></h2><div id="starters" class="starters"></div></section>
+  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치 획득</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
 </section>
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><span>BW BATTLE PLAYTEST</span></div>
 <section class="arena" aria-label="포켓몬 배틀">
-<div class="battle-info enemy-info"><div class="name"><strong id="enemyName">리자몽</strong><small>Lv.50</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
+<div class="battle-info enemy-info"><div class="name"><strong id="enemyName">구구</strong><small id="enemyLevel">Lv.3</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
 <div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span><div id="playerPopup" class="damage-popup" aria-hidden="true"></div></div>
-<div class="battle-info player-info"><div class="name"><strong id="playerName">라이츄</strong><small>Lv.50</small></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div><span id="playerStatus" class="status"></span></div>
+<div class="battle-info player-info"><div class="name"><strong id="playerName">피츄</strong><small id="playerLevel">Lv.5</small></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div><span id="playerStatus" class="status"></span></div>
 </section>
 <section class="panel"><div class="panel-head"><b><span id="promptName">라이츄</span>는 무엇을 할까?</b><span id="turn">TURN 01</span></div>
 <div id="moves" class="moves"></div><div class="toolbar"><button id="potion" class="secondary">회복약 ×3</button><button id="restart" class="secondary">↻ 다시 대결</button></div></section>
+<div id="battleResult" class="battle-result" hidden aria-live="polite"><strong id="resultTitle"></strong><div id="resultDetail"></div><button id="resultHome" class="secondary">메인으로 돌아가기</button></div>
 <section class="logpanel"><h2>배틀 기록</h2><div id="log" class="log" aria-live="polite"></div></section>
 </section>
 <footer>팬 제작 전투 프로토타입 · 공식 포켓몬 게임과 무관 · 스프라이트 제공 여부에 따라 대체 이미지 표시</footer>
