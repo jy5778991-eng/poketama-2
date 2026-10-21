@@ -17,10 +17,10 @@
   </section>
   <section id="captureCollection" class="capture-collection" aria-label="포획한 포켓몬"><strong>🔴 포획 도감 <span id="captureCount">0</span>마리</strong><div id="captureList" class="capture-list">아직 포획한 포켓몬이 없어.</div></section>
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
-  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치 획득</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
+  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
-<section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><span>BW BATTLE PLAYTEST</span></div>
+<section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
 <section class="arena" aria-label="포켓몬 배틀">
 <div class="battle-info enemy-info"><div class="name"><strong id="enemyName">구구</strong><small id="enemyLevel">Lv.3</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
 <div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
