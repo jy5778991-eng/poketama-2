@@ -10,8 +10,10 @@
     <div class="home-sprite-wrap"><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
     <div class="home-xp-row"><span>EXP</span><span>레벨업 시스템 준비 중</span></div><div class="home-exp-bar"><div></div></div>
+    <div class="home-stats-divider"></div>
+    <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치 및 개체값"></div>
+    <div class="home-stats-footer"><span class="stat-note">★ 흰 0 · 동 1~6 · 은 7~11 · 금 12~15 · 빨강 16</span><span id="ivSummary" class="iv-summary"></span></div>
   </section>
-  <section class="stats-panel panel" aria-label="내 포켓몬 능력치 및 개체값"><div class="panel-head"><b>능력치 · 개체값</b><span id="ivSummary">IV 합계</span></div><div id="statGrid" class="stat-grid"></div><p class="stat-note">★ 개체값: 흰색 0 · 동색 1~6 · 은색 7~11 · 금색 12~15 · 빨간색 16</p></section>
   <section class="pick-panel"><h2>스타팅 선택 <small>포켓몬을 바꾸면 새로운 개체값이 생성돼 · 현재 Lv.50 최종 진화형 테스트</small></h2><div id="starters" class="starters"></div></section>
   <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>리자몽과 테스트 대결</small></button><button class="home-action locked-action" disabled>🏅 체육관 도전 <small>준비 중</small></button><button class="home-action locked-action" disabled>🎒 가방 / 아이템 <small>준비 중</small></button><button class="home-action locked-action" disabled>📖 도감 / 육성 <small>준비 중</small></button></div>
 </section>
