@@ -6,8 +6,8 @@
 <section class="pick-panel"><h2>스타팅 선택 <small>현재는 Lv.50 임시 전투 · 육성 기능은 다음 업데이트</small></h2><div id="starters" class="starters"></div></section>
 <section class="arena" aria-label="포켓몬 배틀">
 <div class="battle-info enemy-info"><div class="name"><strong id="enemyName">리자몽</strong><small>Lv.50</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
-<div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span></div>
-<div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span></div>
+<div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
+<div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span><div id="playerPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="battle-info player-info"><div class="name"><strong id="playerName">라이츄</strong><small>Lv.50</small></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div><span id="playerStatus" class="status"></span></div>
 </section>
 <section class="panel"><div class="panel-head"><b><span id="promptName">라이츄</span>는 무엇을 할까?</b><span id="turn">TURN 01</span></div>
