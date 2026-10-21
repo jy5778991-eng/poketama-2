@@ -159,3 +159,12 @@
 .battle-fast .hp>div{transition-duration:.175s}
 .damage-popup .critical{font-size:26px}
 @media(max-width:600px){.damage-popup .critical{font-size:22px}}
+
+/* Level-up celebration, shown on the home screen after the battle returns home. */
+.home-card{position:relative}
+.home-level-up{position:absolute;z-index:8;left:50%;top:34%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:7px;padding:17px 22px;border:4px solid #f2c863;border-radius:16px;background:linear-gradient(145deg,#fff9d6,#e6f3ff);box-shadow:0 6px 0 #c6a75d,0 14px 32px #1d355e55;pointer-events:none;white-space:nowrap;text-align:center}
+.home-level-up strong{font-weight:1000;font-size:clamp(25px,6vw,40px);letter-spacing:2px;line-height:1.1;color:#e18723;text-shadow:2px 2px 0 #fff,0 0 12px #ffda62}
+.home-level-up span{font-size:clamp(13px,3.3vw,19px);font-weight:900;color:#4165ac}
+.home-level-up.playing{animation:home-level-up-pop 2.3s ease-out both}
+@keyframes home-level-up-pop{0%{opacity:0;transform:translate(-50%,-25%) scale(.55)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{transform:translate(-50%,-50%) scale(.97)}35%,78%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.home-level-up.playing{animation:home-level-up-fade 2.3s ease-out both}@keyframes home-level-up-fade{0%,100%{opacity:0}15%,80%{opacity:1}}}
