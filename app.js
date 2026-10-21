@@ -51,8 +51,12 @@ function renderHome(){
  $('homeHpBar').style.width='100%';
  const img=$('homeSprite'),fallback=$('homeFallback');
  fallback.textContent=s.emoji;fallback.hidden=true;img.hidden=false;
- img.onerror=()=>{img.hidden=true;fallback.hidden=false};img.onload=()=>{img.hidden=false;fallback.hidden=true};
- img.src=staticImage(s.dex);
+ // Prefer genuine BW animated front GIF. Fall back to static pixel art and CSS idle motion.
+ const sources=[animatedImage(s.dex),staticImage(s.dex),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+s.dex+'.png'];
+ let attempt=0;
+ img.onerror=()=>{attempt++;if(attempt<sources.length){img.src=sources[attempt];}else{img.hidden=true;fallback.hidden=false;}};
+ img.onload=()=>{img.hidden=false;fallback.hidden=true};
+ img.src=sources[0];
  renderStatPanel();
 }
 function render(){const p=battle.player,e=battle.enemies[battle.enemyIndex];for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);$(prefix+'Status').textContent=f.status?.type==='paralysis'?'⚡ 마비':f.status?.type==='sleep'?'💤 수면':f.status?.type==='poison'?'☠ 독':'';}
