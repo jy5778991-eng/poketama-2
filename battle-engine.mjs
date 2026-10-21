@@ -62,9 +62,9 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
     moveIds:[...moveIds],pp:Object.fromEntries(moveIds.map(id=>[id,MOVES[id].pp])),
     stages:{attack:0,defense:0,speed:0},status:null};
 }
-export function createBattle(player,enemies,{items=0,rng=Math.random}={}) {
+export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math.random}={}) {
   if(!enemies.length) throw new Error('Need enemies');
-  return {player, enemies,enemyIndex:0,items,turn:0,ended:false,result:null,log:[],events:[],rng};
+  return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
 function accuracySuccess(move,b){return roll(b.rng)<(move.accuracy??1);}
@@ -128,6 +128,7 @@ function executeMove(b,user,target,moveId){
 }
 function pickAction(p,requested){
   if(requested?.type==='item') return {type:'item',priority:6};
+  if(requested?.type==='ball') return {type:'ball',priority:7};
   const id=requested?.moveId;
   if(id&&p.moveIds.includes(id)&&p.pp[id]>0)return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   if(p.moveIds.every(x=>p.pp[x]===0))return {type:'move',moveId:'struggle',priority:0};
@@ -158,12 +159,23 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
   const p=b.player,e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
   if(pAction.type==='item'&&b.items<=0)throw new Error('No items left');
+  if(pAction.type==='ball'&&(!b.wild||b.balls<=0))throw new Error('No Pokeballs available for this battle');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
   order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
-    if(!isAlive(a.fighter)||!isAlive(a.target))continue;
-    if(a.action.type==='item'){
+    if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
+    if(a.action.type==='ball'){
+      if(!a.player)continue;
+      b.balls--;
+      const hpFactor=1-e.hp/e.stats.hp;
+      const chance=Math.min(0.9,0.2+0.7*hpFactor);
+      say(b,'몬스터볼을 던졌다!');
+      if(roll(b.rng)<chance){
+        b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
+        emit(b,{type:'capture',side:'enemy',success:true});
+      }else{say(b,'앗! 포켓몬이 몬스터볼에서 빠져나왔다!');emit(b,{type:'capture',side:'enemy',success:false});}
+    } else if(a.action.type==='item'){
       if(!canAct(a.fighter,b))continue;
       b.items--;
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,100);
@@ -171,7 +183,6 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
     } else executeMove(b,a.fighter,a.target,a.action.moveId);
   }
-  poisonTick(b,p);poisonTick(b,e);
-  settle(b);
+  if(!b.ended){poisonTick(b,p);poisonTick(b,e);settle(b);}
   return b.log.slice(start);
 }
