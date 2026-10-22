@@ -4,7 +4,7 @@ import {getForm} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
 // Collection screen renderer. Game state is provided on each render, never cached.
-export function renderCollectionView({$,collectionTab,capturedPokemon,seenPokemon,blueCleared,brockCleared}){
+export function renderCollectionView({$,collectionTab,capturedPokemon,seenPokemon,blueCleared,brockCleared,mistyCleared}){
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
  const captured=new Set(capturedPokemon.map(p=>p.dex));
@@ -36,11 +36,11 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,seenPokemo
   }
  }else if(collectionTab==='achievements'){
   $('collectionSummary').textContent='현재 진행도 기반 업적';
-  const badges=[['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],['첫 포획',capturedPokemon.length>=1,'야생 포켓몬 1마리 포획'],['수집가',captured.size>=5,'포켓몬 5종 포획'],['그린 격파',blueCleared,'라이벌 그린 승리'],['암석배지',brockCleared,'체육관 관장 웅 승리']];
+  const badges=[['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],['첫 포획',capturedPokemon.length>=1,'야생 포켓몬 1마리 포획'],['수집가',captured.size>=5,'포켓몬 5종 포획'],['그린 격파',blueCleared,'라이벌 그린 승리'],['암석배지',brockCleared,'체육관 관장 웅 승리'],['블루배지',mistyCleared,'체육관 관장 이슬이 승리']];
   for(const [name,earned,detail] of badges){const row=document.createElement('div');row.className='collection-progress';row.textContent=(earned?'🏅 ':'🔒 ')+name+' · '+detail;list.append(row);}
  }else{
   $('collectionSummary').textContent='트레이너 도전 기록';
-  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.7 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.13 · 암석배지']]){
+  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.7 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.13 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.19 · 블루배지']]){
    const row=document.createElement('div');row.className='collection-progress';row.textContent=(done?'✅ ':'⚔️ ')+name+' · '+(done?'클리어':'미클리어')+' · '+desc;list.append(row);
   }
  }
