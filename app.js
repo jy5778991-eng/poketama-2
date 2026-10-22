@@ -141,7 +141,9 @@ async function playCaptureSequence(success){
   enemy.classList.add('enemy-captured');
   await pause(450);
   const notice=$('captureSuccessNotice');
-  $('captureSuccessText').textContent=wildEnemy.name+'을(를) 잡았다!';
+  const last=wildEnemy.name.charCodeAt(wildEnemy.name.length-1);
+  const hasBatchim=last>=0xac00&&last<=0xd7a3&&(last-0xac00)%28!==0;
+  $('captureSuccessText').textContent=wildEnemy.name+(hasBatchim?'을':'를')+' 잡았다!';
   notice.hidden=false;
   await new Promise(resolve=>{
    const confirm=$('captureSuccessConfirm');
