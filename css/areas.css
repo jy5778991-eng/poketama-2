@@ -40,3 +40,10 @@
 .inventory-empty{border:2px dashed #b8c7df;border-radius:12px;padding:32px 12px;text-align:center;color:#677c9c;background:#f7faff;font-size:13px;font-weight:700;min-height:120px;display:grid;place-items:center}
 @media(max-width:420px){.inventory-category-tabs{gap:3px}.inventory-category-tabs button{font-size:12px;padding:10px 1px}}
 
+
+/* Battle arena shares the current area's scenery with the home Pokémon card.
+   Keep all sprite, HP panel, platform and battle animation layers intact. */
+#battleScreen .arena{background-color:#83bf81;background-position:center;background-size:cover;background-repeat:no-repeat;image-rendering:pixelated}
+#battleScreen .arena.area-grass{background-image:url('https://play.pokemonshowdown.com/fx/bg-meadow.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%)}
+#battleScreen .arena.area-forest{background-color:#578c61;background-image:url('https://play.pokemonshowdown.com/fx/bg-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%)}
+#battleScreen .arena.area-cave{background-color:#73788b;background-image:url('https://play.pokemonshowdown.com/fx/bg-earthycave.png'),linear-gradient(180deg,#849096 0%,#54546c 100%)}
