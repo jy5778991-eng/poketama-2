@@ -6,5 +6,6 @@ export const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites
 export const TRAINERS={
  // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
  blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'./assets/trainers/green.webp'},
- brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'./assets/trainers/brock.webp'}
+ brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'./assets/trainers/brock.webp'},
+ misty:{name:'이슬이',level:19,money:700,stageAfter:null,image:'./assets/trainers/misty.webp'}
 };
