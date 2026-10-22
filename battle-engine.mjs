@@ -178,6 +178,7 @@ function settle(b){
   const p=b.player,e=activeEnemy(b);
   if(!isAlive(p)){b.ended=true;b.result='defeat';say(b,'패배했다.');return;}
   if(!isAlive(e)){
+    emit(b,{type:'knockout',side:'enemy',enemyIndex:b.enemyIndex});
     if(b.enemyIndex===b.enemies.length-1){b.ended=true;b.result='victory';say(b,'승리했다!');}
     else {b.enemyIndex++;say(b,`${activeEnemy(b).name} 등장!`);}
   }
@@ -198,7 +199,7 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
     if(a.action.type==='ball'){
       if(!a.player)continue;
       const hpFactor=1-e.hp/e.stats.hp;
-      const chance=Math.min(0.95,(0.2+0.7*hpFactor)*(a.action.multiplier||1));
+      const chance=Math.min(0.95,(0.2+0.7*hpFactor)*(a.action.multiplier||1)*(e.rare?0.5:1));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
