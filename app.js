@@ -451,42 +451,84 @@ function renderCaptures(){
  }
  if(capturedPokemon.length>12){const extra=document.createElement('span');extra.textContent='외 '+(capturedPokemon.length-12)+'마리';list.append(extra);}
 }
-function showShopTab(tab){
+const ITEM_CATEGORY_LABELS={heal:'회복',ball:'볼',use:'사용',move:'기술',key:'중요'};
+let inventoryMode='bag';
+let inventoryCategory='heal';
+function itemCategory(item){
+ if(item.category==='heal')return 'heal';
+ if(item.category==='ball')return 'ball';
+ if(item.category==='move'||item.category==='tm')return 'move';
+ if(item.category==='key'||item.category==='important')return 'key';
+ return 'use';
+}
+function showShopTab(mode){
  if(animating||pendingRewardChoice)return;
- showScreen('home');$('homeScreen').hidden=true;$('shopScreen').hidden=false;
- $('shopTabShop').setAttribute('aria-selected',String(tab==='shop'));
- $('shopTabBag').setAttribute('aria-selected',String(tab==='bag'));
- $('shopBuyList').hidden=tab!=='shop';$('shopBagList').hidden=tab!=='bag';
+ inventoryMode=mode==='shop'?'shop':'bag';
+ inventoryCategory='heal';
+ showScreen('home');
+ $('homeScreen').hidden=true;
+ $('shopScreen').hidden=false;
+ window.scrollTo({top:0,behavior:'instant'});
+ renderInventory();
+}
+function showItemCategory(category){
+ if(!Object.hasOwn(ITEM_CATEGORY_LABELS,category))return;
+ inventoryCategory=category;
  renderInventory();
 }
 function renderInventory(){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
- const shop=$('shopBuyList'),bag=$('shopBagList');shop.replaceChildren();bag.replaceChildren();
- for(const item of SHOP_ITEMS){
+ $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
+ $('inventoryFootnote').textContent=inventoryMode==='shop'
+  ?'아이템별 최대 99개 · 구매 내역 자동 저장'
+  :'보유 아이템 자동 저장 · 회복약은 HP 회복용이며 부상은 치료 버튼에서 치료';
+ document.querySelectorAll('[data-item-category]').forEach(button=>{
+  const selected=button.dataset.itemCategory===inventoryCategory;
+  button.setAttribute('aria-selected',String(selected));
+  button.tabIndex=selected?0:-1;
+ });
+ const list=$('inventoryItems');list.replaceChildren();
+ const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory);
+ if(items.length===0){
+  const placeholder=document.createElement('div');placeholder.className='inventory-empty';
+  placeholder.textContent=inventoryMode==='shop'
+   ? ITEM_CATEGORY_LABELS[inventoryCategory]+' 아이템은 아직 판매하지 않아.'
+   : ITEM_CATEGORY_LABELS[inventoryCategory]+' 아이템이 아직 없어.';
+  list.append(placeholder);return;
+ }
+ for(const item of items){
   const row=document.createElement('div');row.className='shop-item-row';
   const info=document.createElement('div');info.className='shop-item-info';
   const name=document.createElement('strong');name.textContent=item.icon+' '+item.name;
-  const desc=document.createElement('small');desc.textContent=item.description+' · 보유 '+inventory[item.id]+'개';
-  info.append(name,desc);row.append(info);
-  const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
-  buy.textContent=item.price.toLocaleString('ko-KR')+'원 · 구매';buy.disabled=inventory[item.id]>=99||progress.money<item.price;
-  buy.onclick=()=>{if(inventory[item.id]>=99||progress.money<item.price)return;progress.money-=item.price;inventory[item.id]++;saveProgress();renderHome();};
-  row.append(buy);shop.append(row);
-  const bagRow=document.createElement('div');bagRow.className='shop-item-row';
-  const bagName=document.createElement('div');bagName.className='shop-item-info';
-  const bTitle=document.createElement('strong');bTitle.textContent=item.icon+' '+item.name;
-  const bDesc=document.createElement('small');bDesc.textContent=item.description+' · ×'+inventory[item.id];bagName.append(bTitle,bDesc);bagRow.append(bagName);
-  if(item.category==='heal'){
-   const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';
-   const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
-   const hp=storedHp===null?maxHp:storedHp;
-   use.disabled=inventory[item.id]===0||hp>=maxHp;
-   use.onclick=()=>{const max=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;const current=storedHp===null?max:storedHp;
-    if(inventory[item.id]<1||current>=max)return;
-    storedHp=Math.min(max,current+item.power);inventory[item.id]--;saveProgress();renderHome();};
-   bagRow.append(use);
+  const description=document.createElement('small');
+  description.textContent=item.description+' · '+(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]);
+  info.append(name,description);row.append(info);
+  if(inventoryMode==='shop'){
+   const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
+   buy.textContent=item.price.toLocaleString('ko-KR')+'원 · 구매';
+   buy.disabled=inventory[item.id]>=99||progress.money<item.price;
+   buy.onclick=()=>{
+    if(inventory[item.id]>=99||progress.money<item.price)return;
+    progress.money-=item.price;inventory[item.id]++;
+    saveProgress();renderHome();
+   };
+   row.append(buy);
+  }else if(item.category==='heal'){
+   const use=document.createElement('button');use.type='button';use.className='shop-buy';
+   use.textContent='사용';
+   const max=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+   const hp=storedHp===null?max:storedHp;
+   use.disabled=inventory[item.id]===0||hp>=max;
+   use.onclick=()=>{
+    const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+    const current=storedHp===null?maxHp:storedHp;
+    if(inventory[item.id]===0||current>=maxHp)return;
+    storedHp=Math.min(maxHp,current+item.power);inventory[item.id]--;
+    saveProgress();renderHome();
+   };
+   row.append(use);
   }
-  bag.append(bagRow);
+  list.append(row);
  }
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';window.scrollTo({top:0,behavior:'instant'});}
@@ -679,8 +721,7 @@ function setup(){
  $('openShop').addEventListener('click',()=>showShopTab('shop'));
  $('openBag').addEventListener('click',()=>showShopTab('bag'));
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;showScreen('home')});
- $('shopTabShop').addEventListener('click',()=>showShopTab('shop'));
- $('shopTabBag').addEventListener('click',()=>showShopTab('bag'));
+ document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
  const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;blueChoice=null;injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('restart').addEventListener('click',()=>reset(battleKind));$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
 setup();
