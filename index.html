@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css"></head>
+<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261022-14"></head>
 <body><main class="game">
 <header><div class="eyebrow">POKETAMA 2.0 · BLACK & WHITE PREVIEW</div><h1>포케타마 <span>2.0</span></h1><p>내 포켓몬 한 마리를 키우는 모험 · 개발 중인 테스트 버전</p></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
   <div class="home-top"><span class="home-tag">MY POKÉMON</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><span class="home-badges" id="badgeStatus">배지 0 / 8</span></div></div>
   <section class="home-card">
-    <div class="home-name"><span class="home-label">나의 포켓몬</span><span id="currentArea" class="home-area-badge">🌿 초원</span></div>
-    <div class="home-sprite-wrap"><span id="injuryBandage" class="injury-bandage" hidden aria-label="부상">🩹</span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
+    <div class="home-name"><span id="currentArea" class="home-area-badge">🌿 초원</span></div>
+    <div id="homeSpriteWrap" class="home-sprite-wrap area-grass"><span id="injuryBandage" class="injury-bandage" hidden aria-label="부상">🩹</span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
     <div class="home-pokemon-title"><span id="homeName">라이츄</span><span id="homeLevel">LV 50</span></div>
     <div id="homeLevelUp" class="home-level-up" hidden role="status" aria-live="polite"><strong>LEVEL UP!</strong><span id="homeLevelUpDetail">LV 1 → LV 2</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
@@ -19,7 +19,7 @@
   <section class="stage-panel"><div><strong>🏁 다음 도전</strong><small id="trainerRequirement">Lv.7 달성 시 그린 도전</small></div><p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p><button type="button" id="trainerChallenge">⚔ 라이벌 그린 도전 (Lv.7)</button></section>
   <section id="captureCollection" class="capture-collection" aria-label="포획한 포켓몬"><strong>🔴 포획 도감 <span id="captureCount">0</span>마리</strong><div id="captureList" class="capture-list">아직 포획한 포켓몬이 없어.</div></section>
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
-  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="healButton" class="home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button><button type="button" id="openMoveRecall" class="home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button></div>
+  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button type="button" id="healButton" class="home-action heal-home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action move-home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button></div>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
 <section id="shopScreen" class="screen" hidden aria-label="상점 및 가방">
@@ -64,4 +64,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js"></script></body></html>
+</main><script type="module" src="./app.js?v=20261022-14"></script></body></html>
