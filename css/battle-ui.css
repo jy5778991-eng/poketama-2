@@ -1,0 +1,58 @@
+/* Developer mode: local playtest control (not a secure server-side authentication mechanism). */
+.dev-entry{display:flex;justify-content:flex-end;margin:4px 0 16px}
+.dev-open-button{background:#e2e7f0;color:#596985;border:1px solid #9aa9c2;padding:9px 13px;border-radius:8px;font-size:12px;font-weight:800}
+.dev-open-button:hover{background:#d3dfef}
+.developer-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#142541bd;padding:15px}
+.developer-box{width:min(410px,100%);padding:21px;border:4px solid #46618b;border-radius:12px;background:#f9fbff;color:#24344e;box-shadow:0 15px 50px #08162b7a}
+.developer-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:900;font-size:20px;margin-bottom:20px}
+.developer-close{font-size:24px;background:transparent;border:0;color:#526584;line-height:1;padding:3px 8px}
+.developer-box form{display:flex;flex-direction:column;gap:10px}
+.developer-box label{font-size:13px;font-weight:800}
+.developer-box input{width:100%;border:2px solid #94a8cb;border-radius:7px;background:#fff;color:#21314c;font-size:17px;padding:12px;min-height:46px}
+.developer-box input:focus{outline:3px solid #c4d9ff;border-color:#527fbc}
+.developer-submit{margin-top:7px;background:#5179bb;color:#fff;border:2px solid #37588d;padding:12px;border-radius:8px;font-size:14px;font-weight:900}
+.developer-submit:hover{background:#416ba9}
+.developer-error{margin:0;font-size:12px;font-weight:800;color:#b23c43}
+.developer-error:empty{display:none}
+.developer-hint{font-size:11px;line-height:1.6;color:#667994;margin:0}
+
+/* BW-style hierarchical battle menu */
+.battle-commands{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.battle-commands button{min-height:65px;border:3px solid #4d648a;border-radius:9px;background:linear-gradient(180deg,#fff,#eaf0fb);box-shadow:2px 3px 0 #c3cfe3;color:#263a5b;font-size:17px;font-weight:900}
+.battle-commands button:hover:not(:disabled){background:#dfeafa;border-color:#517cbb}
+.battle-commands button:disabled,.item-option:disabled{opacity:.43;cursor:not-allowed}
+.battle-submenu{border:2px solid #c5d0e2;border-radius:8px;background:#f1f5fc;padding:11px}
+.battle-submenu-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;font-size:14px}
+.battle-submenu-top .secondary{padding:7px 11px}
+.item-options{display:grid;gap:9px}
+.item-option{display:block;width:100%;min-height:65px;text-align:left;border:2px solid #60759a;border-radius:7px;background:#fff;padding:10px;color:#253650;font-weight:900;font-size:15px}
+.item-option small{display:block;font-size:11px;font-weight:500;color:#607492;margin-top:5px}
+.capture-collection{padding:12px 15px;border:2px solid #aebbd0;background:#f8faff;border-radius:9px;margin-bottom:14px}
+.capture-collection strong{font-size:13px}
+.capture-list{margin-top:8px;font-size:12px;line-height:1.7;color:#53647f;display:flex;flex-wrap:wrap;gap:7px}
+.capture-chip{display:inline-flex;gap:5px;align-items:center;background:#e7eefc;border:1px solid #c2d0e7;padding:4px 8px;border-radius:18px;color:#354c74;font-weight:700}
+.enemy-captured{animation:ball-capture .65s ease-in forwards}
+@keyframes ball-capture{0%{transform:scale(1);opacity:1}55%{filter:brightness(1.7);transform:scale(.4)}100%{transform:scale(0);opacity:0}}
+
+/* Optional double-speed playback, including animation keyframes. */
+.battle-speed-toggle{border:2px solid #657da5;background:#f8fbff;color:#344f7b;padding:8px 11px;border-radius:7px;font-size:12px;font-weight:900;white-space:nowrap}
+.battle-speed-toggle[aria-pressed="true"]{background:#416baf;border-color:#2d528e;color:white}
+.battle-fast .sprite.attacking.player,.battle-fast .sprite.attacking.enemy{animation-duration:.18s}
+.battle-fast .sprite.hit,.battle-fast .sprite.hit::after{animation-duration:.175s}
+.battle-fast .damage-popup.visible{animation-duration:.425s}
+.battle-fast .enemy-captured{animation-duration:.325s}
+.battle-fast .evolution-art img{animation-duration:.21s}
+.battle-fast .evolution-art.evolved img{animation-duration:.45s}
+.battle-fast .hp>div{transition-duration:.175s}
+.damage-popup .critical{font-size:26px}
+@media(max-width:600px){.damage-popup .critical{font-size:22px}}
+
+/* Level-up celebration, shown on the home screen after the battle returns home. */
+.home-card{position:relative}
+.home-level-up{position:absolute;z-index:8;left:50%;top:34%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:7px;padding:17px 22px;border:4px solid #f2c863;border-radius:16px;background:linear-gradient(145deg,#fff9d6,#e6f3ff);box-shadow:0 6px 0 #c6a75d,0 14px 32px #1d355e55;pointer-events:none;white-space:nowrap;text-align:center}
+.home-level-up strong{font-weight:1000;font-size:clamp(25px,6vw,40px);letter-spacing:2px;line-height:1.1;color:#e18723;text-shadow:2px 2px 0 #fff,0 0 12px #ffda62}
+.home-level-up span{font-size:clamp(13px,3.3vw,19px);font-weight:900;color:#4165ac}
+.home-level-up.playing{animation:home-level-up-pop 2.3s ease-out both}
+@keyframes home-level-up-pop{0%{opacity:0;transform:translate(-50%,-25%) scale(.55)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{transform:translate(-50%,-50%) scale(.97)}35%,78%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.home-level-up.playing{animation:home-level-up-fade 2.3s ease-out both}@keyframes home-level-up-fade{0%,100%{opacity:0}15%,80%{opacity:1}}}
+
