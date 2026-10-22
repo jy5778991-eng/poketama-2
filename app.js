@@ -112,18 +112,18 @@ async function playCaptureSequence(success){
  const hitX=target.left-field.left+target.width*.5-size/2,hitY=target.top-field.top+target.height*.5-size/2;
  const groundY=target.bottom-field.top-size*.7;
  const pos=(x,y)=>{ball.style.left=x+'px';ball.style.top=y+'px';};
- ball.className='capture-ball';flash.className='capture-flash';
+ ball.className='capture-ball';ball.hidden=true;flash.className='capture-flash';flash.hidden=true;
  enemy.classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  pos(startX,startY);
  ball.style.setProperty('--catch-dx',(hitX-startX)+'px');
  ball.style.setProperty('--catch-dy',(hitY-startY)+'px');
- ball.classList.add('visible','capture-throw');
+ ball.hidden=false;ball.classList.add('visible','capture-throw');
  await pause(720);
  pos(hitX,hitY);ball.classList.remove('capture-throw');
- flash.classList.add('capture-flashing');
+ flash.hidden=false;flash.classList.add('capture-flashing');
  enemy.classList.add('capture-absorbing');
  await pause(430);
- flash.classList.remove('capture-flashing');
+ flash.classList.remove('capture-flashing');flash.hidden=true;
  pos(hitX,groundY);
  ball.classList.add('capture-land');
  await pause(350);
@@ -158,8 +158,8 @@ async function playCaptureSequence(success){
   await pause(550);
   enemy.classList.remove('capture-escaping');
  }
- ball.className='capture-ball';ball.removeAttribute('style');
- flash.className='capture-flash';
+ ball.className='capture-ball';ball.hidden=true;ball.removeAttribute('style');
+ flash.className='capture-flash';flash.hidden=true;
 }
 
 function sprite(id,dex,back,emoji){const el=$(id),wrap=el.parentElement;wrap.classList.remove('failed');$(id.replace('Sprite','Fallback')).textContent=emoji;let attempt=0;const sources=[animatedImage(dex,back),staticImage(dex,back),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+dex+'.png'];el.onerror=()=>{attempt++;if(attempt<sources.length)el.src=sources[attempt];else wrap.classList.add('failed')};el.onload=()=>wrap.classList.remove('failed');el.src=sources[0];}
@@ -322,13 +322,13 @@ function reset(kind='wild'){
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
- $('captureBall').className='capture-ball';$('captureBall').removeAttribute('style');
- $('captureFlash').className='capture-flash';$('captureSuccessNotice').hidden=true;
+ $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
+ $('captureFlash').className='capture-flash';$('captureFlash').hidden=true;$('captureSuccessNotice').hidden=true;
  const first=enemies[0];
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':(TRAINERS[kind].name+'의 도전!'));
  shownHp={player:player.hp,enemy:first.hp};
  $('playerName').textContent=form.name;$('promptName').textContent=form.name;
- $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='Lv.'+first.level;$('playerLevel').textContent='Lv.'+progress.level;
+ $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+progress.level;
  sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',kind==='wild'?wild.dex:kind==='blue'?getForm(blueChoice,7).dex:kind==='brock'?74:120,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':TRAINERS[kind].name;
  $('trainerPortrait').hidden=kind==='wild';
@@ -579,7 +579,7 @@ async function act(a){
   const enemy=battle.enemies[battle.enemyIndex];
   if(battleKind==='brock')registerEncounter(95);
   if(battleKind==='misty')registerEncounter(121);
-  $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='Lv.'+enemy.level;
+  $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='LV '+enemy.level;
   sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):getForm(blueChoice,7).dex,false,'⚔️');
   shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);
  }
