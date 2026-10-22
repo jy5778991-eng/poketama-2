@@ -438,7 +438,7 @@ function renderHome(){
  $('trainerChallenge').disabled=challengeDisabled;
  $('trainerChallenge').classList.toggle('adventure-ready',unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',!unlocked||finalArea);
- $('trainerChallenge').textContent=finalArea?'🏅 지역 도전 완료':trainerKind==='blue'?'⚔ 그린에게 도전':'🪨 웅에게 도전';
+ $('trainerButtonTitle').textContent=finalArea?'🏅 지역 도전 완료':trainerKind==='blue'?'⚔ 그린에게 도전':'🪨 웅에게 도전';
  $('trainerButtonNote').textContent=finalArea?'다음 트레이너 준비 중':!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('adventureGoal').textContent=finalArea?'지역 도전 클리어':trainerKind==='blue'?'그린 도전 레벨':'웅 도전 레벨';
  $('adventureProgressText').textContent=finalArea?'완료':Math.min(progress.level,targetLevel)+' / '+targetLevel;
