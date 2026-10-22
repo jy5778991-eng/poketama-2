@@ -106,3 +106,8 @@
 .adventure-help{font-size:11px;color:#647a99;line-height:1.5;margin:9px 0 0}
 .adventure-progress .injury-message{margin:8px 0 0}
 @media(max-width:400px){.adventure-panel{padding:12px}.adventure-actions{gap:7px}.adventure-actions .home-action{font-size:13px;min-height:80px}}
+
+/* Minimal adventure: only the two related battle actions remain. */
+.adventure-panel{padding:11px 13px;margin-bottom:15px}
+.adventure-actions{margin:0;gap:10px}
+.adventure-panel>.injury-message{margin:12px 1px 0}
