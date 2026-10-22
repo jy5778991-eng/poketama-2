@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261023-02"></head>
+<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261023-03"></head>
 <body><main class="game">
 <header><div class="eyebrow">POKETAMA 2.0 · BLACK & WHITE PREVIEW</div><h1>포케타마 <span>2.0</span></h1><p>내 포켓몬 한 마리를 키우는 모험 · 개발 중인 테스트 버전</p></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
@@ -45,13 +45,13 @@
 <div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong></div>
 <div id="trainerSummonMessage" class="trainer-summon-message" hidden role="status" aria-live="polite"></div>
 <section class="arena" aria-label="포켓몬 배틀">
-<div id="captureBall" class="capture-ball" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
-<div id="captureFlash" class="capture-flash" aria-hidden="true"></div>
+<div id="captureBall" class="capture-ball" aria-hidden="true" hidden><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
+<div id="captureFlash" class="capture-flash" aria-hidden="true" hidden></div>
 <div id="trainerThrowBall" class="trainer-throw-ball" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
-<div class="battle-info enemy-info"><div class="name"><strong class="enemy-name-with-ball"><span id="enemyName">구구</span><img id="enemyCaughtMark" class="enemy-caught-mark" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="이미 포획한 포켓몬" title="도감에 포획 등록됨" hidden/></strong><small id="enemyLevel">Lv.3</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
+<div class="battle-info enemy-info"><div class="name"><strong class="battle-name-line"><span id="enemyName">구구</span><span id="enemyLevel">LV 3</span><img id="enemyCaughtMark" class="enemy-caught-mark" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="이미 포획한 포켓몬" title="도감에 포획 등록됨" hidden/></strong></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
 <div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span><div id="playerPopup" class="damage-popup" aria-hidden="true"></div></div>
-<div class="battle-info player-info"><div class="name"><strong id="playerName">피츄</strong><small id="playerLevel">Lv.5</small></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div><span id="playerStatus" class="status"></span></div>
+<div class="battle-info player-info"><div class="name"><strong class="battle-name-line"><span id="playerName">피츄</span><span id="playerLevel">LV 5</span></strong></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div><span id="playerStatus" class="status"></span></div>
 </section>
 <div id="captureSuccessNotice" class="capture-success-notice" role="dialog" aria-modal="true" aria-labelledby="captureSuccessText" hidden><div class="capture-success-dialog"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt=""/><strong id="captureSuccessText">포켓몬을 잡았다!</strong><button id="captureSuccessConfirm" type="button">확인</button></div></div>
 <section class="panel"><div class="panel-head"><b><span id="promptName">라이츄</span>는 무엇을 할까?</b><span id="turn">TURN 01</span></div>
@@ -80,4 +80,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261023-02"></script></body></html>
+</main><script type="module" src="./app.js?v=20261023-03"></script></body></html>
