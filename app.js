@@ -1,87 +1,11 @@
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs';
+import {STARTERS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js';
+import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js';
+import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
+import {staticImage,animatedImage} from './js/sprites.js';
 const $=id=>document.getElementById(id);
-const STARTERS=[
-{id:'snorlax',name:'먹고자',form:'잠만보',dex:143,baby:446,base:{hp:160,attack:110,defense:88,speed:30},moves:['bodySlam','flail','rest','swift'],emoji:'💤'},
-{id:'dragonite',name:'미뇽',form:'망나뇽',dex:149,baby:147,base:{hp:91,attack:134,defense:98,speed:80},moves:['dragonPulse','extremeSpeed','quickAttack','swift'],emoji:'🐉'},
-{id:'venusaur',name:'이상해씨',form:'이상해꽃',dex:3,baby:1,base:{hp:80,attack:100,defense:92,speed:80},moves:['energyBall','solarBeam','recover','swift'],emoji:'🌿'},
-{id:'charizard',name:'파이리',form:'리자몽',dex:6,baby:4,base:{hp:78,attack:109,defense:82,speed:100},moves:['flamethrower','flareBlitz','swift','quickAttack'],emoji:'🔥'},
-{id:'blastoise',name:'꼬부기',form:'거북왕',dex:9,baby:7,base:{hp:79,attack:85,defense:103,speed:78},moves:['surf','waterSpout','swift','recover'],emoji:'💧'},
-{id:'raichu',name:'피츄',form:'라이츄',dex:26,baby:172,base:{hp:60,attack:90,defense:68,speed:110},moves:['thunderbolt','voltTackle','quickAttack','thunderWave'],emoji:'⚡'},
-{id:'butterfree',name:'캐터피',form:'버터플',dex:12,baby:10,base:{hp:60,attack:90,defense:65,speed:70},moves:['psybeam','poisonPowder','harden','swift'],emoji:'🦋'},
-{id:'gengar',name:'고오스',form:'팬텀',dex:94,baby:92,base:{hp:60,attack:130,defense:68,speed:110},moves:['shadowBall','hypnosis','dreamEater','swift'],emoji:'👻'},
-{id:'gyarados',name:'잉어킹',form:'갸라도스',dex:130,baby:129,base:{hp:95,attack:125,defense:90,speed:81},moves:['surf','dragonDance','bodySlam','swift'],emoji:'🐟'}
-];
-const base='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-v/black-white/';
-const staticImage=(id,back=false)=>base+(back?'back/':'')+id+'.png';
-const animatedImage=(id,back=false)=>base+'animated/'+(back?'back/':'')+id+'.gif';
-const SHOP_ITEMS=[{"id":"pokeBall","name":"몬스터볼","price":200,"icon":"🔴","description":"기본 포획률","category":"ball","power":0,"multiplier":1},{"id":"greatBall","name":"슈퍼볼","price":500,"icon":"🔵","description":"포획률 ×1.5","category":"ball","power":0,"multiplier":1.5},{"id":"ultraBall","name":"하이퍼볼","price":1000,"icon":"🟡","description":"포획률 ×2","category":"ball","power":0,"multiplier":2},{"id":"potion","name":"상처약","price":150,"icon":"🧪","description":"HP 20 회복","category":"heal","power":20,"multiplier":1},{"id":"superPotion","name":"좋은상처약","price":400,"icon":"💊","description":"HP 60 회복","category":"heal","power":60,"multiplier":1},{"id":"hyperPotion","name":"고급상처약","price":900,"icon":"💉","description":"HP 200 회복","category":"heal","power":200,"multiplier":1}];
-const SAVE_KEY='poketama-2-progress-v2'; // Lv.1 + money: separate from the older Lv.5 preview save
-// Stage 1/2 encounters: weights total 100 in each stage. 1% species have half catch rate.
-const ENCOUNTERS={
- grass: [{"name":"구구","dex":16,"weight":26,"rare":false,"base":{"hp":40,"attack":45,"defense":38,"speed":56}},{"name":"꼬렛","dex":19,"weight":24,"rare":false,"base":{"hp":30,"attack":56,"defense":35,"speed":72}},{"name":"깨비참","dex":21,"weight":20,"rare":false,"base":{"hp":40,"attack":60,"defense":31,"speed":70}},{"name":"니드런♀","dex":29,"weight":14,"rare":false,"base":{"hp":55,"attack":47,"defense":46,"speed":41}},{"name":"니드런♂","dex":32,"weight":15,"rare":false,"base":{"hp":46,"attack":57,"defense":40,"speed":50}},{"name":"이브이","dex":133,"weight":1,"rare":true,"base":{"hp":55,"attack":55,"defense":58,"speed":55}}],
- forest: [{"name":"뿔충이","dex":13,"weight":35,"rare":false,"base":{"hp":40,"attack":35,"defense":25,"speed":50}},{"name":"딱충이","dex":14,"weight":20,"rare":false,"base":{"hp":45,"attack":25,"defense":38,"speed":35}},{"name":"뚜벅쵸","dex":43,"weight":18,"rare":false,"base":{"hp":45,"attack":75,"defense":60,"speed":30}},{"name":"모다피","dex":69,"weight":17,"rare":false,"base":{"hp":50,"attack":75,"defense":33,"speed":40}},{"name":"파라스","dex":46,"weight":9,"rare":false,"base":{"hp":35,"attack":70,"defense":55,"speed":25}},{"name":"독침붕","dex":15,"weight":1,"rare":true,"base":{"hp":65,"attack":90,"defense":60,"speed":75}}],
-};
-const DEX_EXTRA=[{name:'꼬마돌',dex:74},{name:'롱스톤',dex:95}];
-const DEX_CATALOG=[...new Map([...Object.values(ENCOUNTERS).flat(),...DEX_EXTRA].map(p=>[p.dex,p])).values()].sort((x,y)=>x.dex-y.dex);
-const EVOLVED_DEX=new Set([14,15,20,22,30,31,33,34,44,45,47,70,71,75,76,95]);
-const LEGENDARY_DEX=new Set([144,145,146,150,151]);
-function pokemonCatchMultiplier(dex,rare=false){
- if(LEGENDARY_DEX.has(dex))return 0.1;
- if(rare)return 0.25;
- return EVOLVED_DEX.has(dex)?0.5:1;
-}
-function pokemonCatchChance(hpFraction,pokemonMultiplier,ballMultiplier=1){
- return Math.max(0,Math.min(1,((300-200*Math.max(0,Math.min(1,hpFraction)))/300)*pokemonMultiplier*ballMultiplier));
-}
-const pickEncounter=area=>{const entries=ENCOUNTERS[area],roll=Math.random()*100;let total=0;return entries.find(e=>(total+=e.weight)>roll)||entries.at(-1);};
-const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family, saved permanently
-// Future character asset: female Blue. Preserve separately; not used for the Lv.7 rival.
-const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites/trainers/leaf.png';
-const TRAINERS={
- // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
- blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'./assets/trainers/green.webp'},
- brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'./assets/trainers/brock.webp'}
-};
-const START_BASES={
- snorlax:{hp:135,attack:85,defense:63,speed:5},
- dragonite:{hp:41,attack:64,defense:48,speed:50},
- venusaur:{hp:45,attack:65,defense:57,speed:45},
- charizard:{hp:39,attack:60,defense:47,speed:65},
- blastoise:{hp:44,attack:50,defense:65,speed:43},
- raichu:{hp:20,attack:40,defense:25,speed:60},
- butterfree:{hp:45,attack:30,defense:28,speed:45},
- gengar:{hp:30,attack:100,defense:33,speed:80},
- gyarados:{hp:20,attack:10,defense:38,speed:80}
-};
-/* Each threshold produces an immediate, unskippable evolution. IV/EV, EXP and level persist. */
-const EVOLUTIONS={
- snorlax:[{level:1,name:'먹고자',dex:446,base:START_BASES.snorlax},{level:40,name:'잠만보',dex:143,base:{hp:160,attack:110,defense:88,speed:30}}],
- dragonite:[{level:1,name:'미뇽',dex:147,base:START_BASES.dragonite},{level:30,name:'신뇽',dex:148,base:{hp:61,attack:84,defense:68,speed:70}},{level:55,name:'망나뇽',dex:149,base:{hp:91,attack:134,defense:98,speed:80}}],
- venusaur:[{level:1,name:'이상해씨',dex:1,base:START_BASES.venusaur},{level:16,name:'이상해풀',dex:2,base:{hp:60,attack:80,defense:72,speed:60}},{level:32,name:'이상해꽃',dex:3,base:{hp:80,attack:100,defense:92,speed:80}}],
- charizard:[{level:1,name:'파이리',dex:4,base:START_BASES.charizard},{level:16,name:'리자드',dex:5,base:{hp:58,attack:80,defense:62,speed:80}},{level:36,name:'리자몽',dex:6,base:{hp:78,attack:109,defense:82,speed:100}}],
- blastoise:[{level:1,name:'꼬부기',dex:7,base:START_BASES.blastoise},{level:16,name:'어니부기',dex:8,base:{hp:59,attack:65,defense:80,speed:58}},{level:36,name:'거북왕',dex:9,base:{hp:79,attack:85,defense:103,speed:78}}],
- raichu:[{level:1,name:'피츄',dex:172,base:START_BASES.raichu},{level:15,name:'피카츄',dex:25,base:{hp:35,attack:55,defense:45,speed:90}},{level:30,name:'라이츄',dex:26,base:{hp:60,attack:90,defense:68,speed:110}}],
- butterfree:[{level:1,name:'캐터피',dex:10,base:START_BASES.butterfree},{level:7,name:'단데기',dex:11,base:{hp:50,attack:25,defense:40,speed:30}},{level:10,name:'버터플',dex:12,base:{hp:60,attack:90,defense:65,speed:70}}],
- gengar:[{level:1,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:50,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
- gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
-};
-const getForm=(id,level)=>[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
-const MOVE_LEARNSETS={
- snorlax: [{level:1,id:'tackle'}, {level:8,id:'lick'}, {level:16,id:'bodySlam'}, {level:25,id:'rest'}, {level:32,id:'crunch'}, {level:40,id:'flail'}, {level:48,id:'gigaImpact'}],
- gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:24,id:'surf'}, {level:32,id:'dragonDance'}, {level:40,id:'hydroPump'}],
- gengar: [{level:1,id:'lick'}, {level:7,id:'spite'}, {level:12,id:'shadowBall'}, {level:20,id:'hypnosis'}, {level:25,id:'suckerPunch'}, {level:32,id:'dreamEater'}, {level:40,id:'sludgeBomb'}],
- dragonite: [{level:1,id:'wrap'}, {level:8,id:'quickAttack'}, {level:18,id:'dragonBreath'}, {level:30,id:'dragonPulse'}, {level:40,id:'dragonDance'}, {level:48,id:'outrage'}, {level:55,id:'extremeSpeed'}],
- venusaur: [{level:1,id:'tackle'}, {level:7,id:'vineWhip'}, {level:13,id:'poisonPowder'}, {level:16,id:'razorLeaf'}, {level:24,id:'energyBall'}, {level:32,id:'solarBeam'}, {level:44,id:'synthesis'}],
- charizard: [{level:1,id:'scratch'}, {level:7,id:'ember'}, {level:13,id:'quickAttack'}, {level:16,id:'fireFang'}, {level:24,id:'flamethrower'}, {level:36,id:'flareBlitz'}, {level:48,id:'airSlash'}],
- blastoise: [{level:1,id:'tackle'}, {level:7,id:'waterGun'}, {level:13,id:'harden'}, {level:16,id:'waterPulse'}, {level:25,id:'surf'}, {level:36,id:'waterSpout'}, {level:44,id:'ironDefense'}],
- raichu: [{level:1,id:'quickAttack'}, {level:6,id:'thunderShock'}, {level:12,id:'thunderWave'}, {level:15,id:'spark'}, {level:22,id:'thunderbolt'}, {level:30,id:'voltTackle'}, {level:40,id:'lightScreen'}],
- butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:20,id:'psybeam'}, {level:28,id:'quiverDance'}, {level:36,id:'gigaDrain'}],
-};
-const availableMoves=(id,level)=>MOVE_LEARNSETS[id].filter(m=>m.level<=level);
-const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
-// Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
-const migrateMoves=(id,level)=>availableMoves(id,level).slice(-4).map(m=>m.id);
-const isValidMoves=(id,level,moves)=>Array.isArray(moves)&&moves.length>=1&&moves.length<=4&&new Set(moves).size===moves.length&&moves.every(m=>availableMoves(id,level).some(x=>x.id===m)&&MOVES[m]);
 
 // Reward choices scale by stage when a stage system is added later.
 const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
@@ -104,10 +28,6 @@ function drawRewardItems(wildLevel,stage){
  }
  return result;
 }
-const levelNeed=level=>level>=100?0:Math.round(24+level*13);
-const validCaptured=entry=>entry&&Number.isInteger(entry.dex)&&entry.dex>0&&Number.isInteger(entry.level)&&entry.level>=1&&entry.level<=100&&typeof entry.name==='string'&&entry.name.length<=40;
-const validIVs=ivs=>ivs&&['hp','attack','defense','speed'].every(k=>Number.isInteger(ivs[k])&&ivs[k]>=0&&ivs[k]<=16);
-function readSave(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x&&STARTERS.some(s=>s.id===x.id)&&validIVs(x.ivs)&&Number.isInteger(x.level)&&x.level>=1&&x.level<=100&&Number.isInteger(x.exp)&&x.exp>=0&&(x.level===100?x.exp===0:x.exp<levelNeed(x.level))&&Number.isSafeInteger(x.money)&&x.money>=0?x:null;}catch{return null;}}
 function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const saved=readSave();
@@ -139,7 +59,6 @@ let capturedPokemon=Array.isArray(saved?.captures)?saved.captures.filter(validCa
 let seenPokemon=new Set([...(Array.isArray(saved?.seenPokemon)?saved.seenPokemon:[]),...capturedPokemon.map(p=>p.dex)].filter(id=>Number.isInteger(id)&&id>0&&id<=1025));
 function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))return;seenPokemon.add(dex);saveProgress();}
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
-const START_INVENTORY={pokeBall:3,greatBall:0,ultraBall:0,potion:3,superPotion:0,hyperPotion:0};
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>[i.id, Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id]]));
 let storedHp=Number.isInteger(saved?.storedHp)&&saved.storedHp>=0?saved.storedHp:null;
 let pendingRewardChoice=null;
@@ -516,16 +435,8 @@ function renderCaptures(){
  }
  if(capturedPokemon.length>12){const extra=document.createElement('span');extra.textContent='외 '+(capturedPokemon.length-12)+'마리';list.append(extra);}
 }
-const ITEM_CATEGORY_LABELS={heal:'회복',ball:'볼',use:'사용',move:'기술',key:'중요'};
 let inventoryMode='bag';
 let inventoryCategory='heal';
-function itemCategory(item){
- if(item.category==='heal')return 'heal';
- if(item.category==='ball')return 'ball';
- if(item.category==='move'||item.category==='tm')return 'move';
- if(item.category==='key'||item.category==='important')return 'key';
- return 'use';
-}
 function showShopTab(mode){
  if(animating||pendingRewardChoice)return;
  inventoryMode=mode==='shop'?'shop':'bag';
