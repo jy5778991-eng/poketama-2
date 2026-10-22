@@ -501,8 +501,9 @@ function renderHome(){
  $('trainerRequirement').textContent=brockCleared?'동굴 개방 완료':blueCleared?'Lv.13 달성 시 웅 도전':'Lv.7 달성 시 그린 도전';
  $('injuryStatus').hidden=!injured;
  $('injuryBandage').hidden=!injured;
- $('healButton').hidden=!injured;
- $('healButton').textContent=freeHealsUsed<10?'🩹 무료 치료하기 ('+(10-freeHealsUsed)+'/10회 남음)':'🩹 치료하기 ('+(progress.level*10)+'원)';
+ $('healButton').hidden=false;
+ $('healButton').setAttribute('aria-disabled',String(!injured));
+ $('healButtonNote').textContent=injured?(freeHealsUsed<10?'무료 치료 '+(10-freeHealsUsed)+'/10회 남음':'치료비 '+(progress.level*10).toLocaleString('ko-KR')+'원'):'건강 상태 · 부상 시 치료 가능';
  $('startBattle').disabled=injured||!!pendingRewardChoice||area==='cave';
  const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);
  $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
