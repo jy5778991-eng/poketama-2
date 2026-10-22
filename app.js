@@ -21,6 +21,18 @@ const ENCOUNTERS={
  grass: [{"name":"구구","dex":16,"weight":26,"rare":false,"base":{"hp":40,"attack":45,"defense":38,"speed":56}},{"name":"꼬렛","dex":19,"weight":24,"rare":false,"base":{"hp":30,"attack":56,"defense":35,"speed":72}},{"name":"깨비참","dex":21,"weight":20,"rare":false,"base":{"hp":40,"attack":60,"defense":31,"speed":70}},{"name":"니드런♀","dex":29,"weight":14,"rare":false,"base":{"hp":55,"attack":47,"defense":46,"speed":41}},{"name":"니드런♂","dex":32,"weight":15,"rare":false,"base":{"hp":46,"attack":57,"defense":40,"speed":50}},{"name":"이브이","dex":133,"weight":1,"rare":true,"base":{"hp":55,"attack":55,"defense":58,"speed":55}}],
  forest: [{"name":"뿔충이","dex":13,"weight":35,"rare":false,"base":{"hp":40,"attack":35,"defense":25,"speed":50}},{"name":"딱충이","dex":14,"weight":20,"rare":false,"base":{"hp":45,"attack":25,"defense":38,"speed":35}},{"name":"뚜벅쵸","dex":43,"weight":18,"rare":false,"base":{"hp":45,"attack":75,"defense":60,"speed":30}},{"name":"모다피","dex":69,"weight":17,"rare":false,"base":{"hp":50,"attack":75,"defense":33,"speed":40}},{"name":"파라스","dex":46,"weight":9,"rare":false,"base":{"hp":35,"attack":70,"defense":55,"speed":25}},{"name":"독침붕","dex":15,"weight":1,"rare":true,"base":{"hp":65,"attack":90,"defense":60,"speed":75}}],
 };
+const DEX_EXTRA=[{name:'꼬마돌',dex:74},{name:'롱스톤',dex:95}];
+const DEX_CATALOG=[...new Map([...Object.values(ENCOUNTERS).flat(),...DEX_EXTRA].map(p=>[p.dex,p])).values()].sort((x,y)=>x.dex-y.dex);
+const EVOLVED_DEX=new Set([14,15,20,22,30,31,33,34,44,45,47,70,71,75,76,95]);
+const LEGENDARY_DEX=new Set([144,145,146,150,151]);
+function pokemonCatchMultiplier(dex,rare=false){
+ if(LEGENDARY_DEX.has(dex))return 0.1;
+ if(rare)return 0.25;
+ return EVOLVED_DEX.has(dex)?0.5:1;
+}
+function pokemonCatchChance(hpFraction,pokemonMultiplier,ballMultiplier=1){
+ return Math.max(0,Math.min(1,((300-200*Math.max(0,Math.min(1,hpFraction)))/300)*pokemonMultiplier*ballMultiplier));
+}
 const pickEncounter=area=>{const entries=ENCOUNTERS[area],roll=Math.random()*100;let total=0;return entries.find(e=>(total+=e.weight)>roll)||entries.at(-1);};
 const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family, saved permanently
 // Future character asset: female Blue. Preserve separately; not used for the Lv.7 rival.
@@ -96,7 +108,7 @@ const levelNeed=level=>level>=100?0:Math.round(24+level*13);
 const validCaptured=entry=>entry&&Number.isInteger(entry.dex)&&entry.dex>0&&Number.isInteger(entry.level)&&entry.level>=1&&entry.level<=100&&typeof entry.name==='string'&&entry.name.length<=40;
 const validIVs=ivs=>ivs&&['hp','attack','defense','speed'].every(k=>Number.isInteger(ivs[k])&&ivs[k]>=0&&ivs[k]<=16);
 function readSave(){try{const x=JSON.parse(localStorage.getItem(SAVE_KEY));return x&&STARTERS.some(s=>s.id===x.id)&&validIVs(x.ivs)&&Number.isInteger(x.level)&&x.level>=1&&x.level<=100&&Number.isInteger(x.exp)&&x.exp>=0&&(x.level===100?x.exp===0:x.exp<levelNeed(x.level))&&Number.isSafeInteger(x.money)&&x.money>=0?x:null;}catch{return null;}}
-function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const saved=readSave();
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
@@ -124,6 +136,8 @@ let pendingLevelUp=null;
 let battleSpeed=1;
 let lastBattleReward=saved?.lastBattleReward&&Number.isSafeInteger(saved.lastBattleReward.exp)&&Number.isSafeInteger(saved.lastBattleReward.money)?saved.lastBattleReward:null;
 let capturedPokemon=Array.isArray(saved?.captures)?saved.captures.filter(validCaptured).slice(0,200):[];
+let seenPokemon=new Set([...(Array.isArray(saved?.seenPokemon)?saved.seenPokemon:[]),...capturedPokemon.map(p=>p.dex)].filter(id=>Number.isInteger(id)&&id>0&&id<=1025));
+function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))return;seenPokemon.add(dex);saveProgress();}
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
 const START_INVENTORY={pokeBall:3,greatBall:0,ultraBall:0,potion:3,superPotion:0,hyperPotion:0};
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>[i.id, Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id]]));
@@ -296,7 +310,8 @@ function reset(kind='wild'){
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area==='cave'?'forest':area):null;
- const level=Math.max(1,progress.level-Math.floor(Math.random()*6));
+ const cap=area==='grass'?7:area==='forest'?13:100;
+ const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
  const zeroIV={hp:0,attack:0,defense:0,speed:0};
@@ -310,10 +325,11 @@ function reset(kind='wild'){
   enemies=[trainerFighter('꼬마돌',74,11,{"hp":40,"attack":80,"defense":65,"speed":20}),trainerFighter('롱스톤',95,13,{"hp":35,"attack":45,"defense":103,"speed":70})];
   battleOpponent='brock';
  }else{
-  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:['tackle']});enemy.rare=wild.rare;enemies=[enemy];
+  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:['tackle']});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
  }
  player.hp=storedHp===null?player.stats.hp:Math.min(player.stats.hp,Math.max(0,storedHp));
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
+ if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);
  visualSprite('enemy').classList.remove('enemy-captured');
  const first=enemies[0];
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':(TRAINERS[kind].name+'의 도전!'));
@@ -442,7 +458,55 @@ function claimRewardChoice(id){
  $('rewardChoiceOverlay').hidden=true;
  renderHome();
 }
+let collectionTab='dex';
+function showCollection(tab='dex'){
+ if(animating||learningBusy||pendingRewardChoice)return;
+ collectionTab=['dex','achievements','trainers'].includes(tab)?tab:'dex';
+ showScreen('home');$('homeScreen').hidden=true;$('collectionScreen').hidden=false;
+ renderCollection();window.scrollTo({top:0,behavior:'instant'});
+}
+function renderCollection(){
+ document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
+ const list=$('collectionContent');list.replaceChildren();
+ const captured=new Set(capturedPokemon.map(p=>p.dex));
+ if(collectionTab==='dex'){
+  const count=DEX_CATALOG.filter(p=>seenPokemon.has(p.dex)).length;
+  $('collectionSummary').textContent='발견 '+count+'종 · 포획 '+captured.size+'종 / 현재 도감 '+DEX_CATALOG.length+'종';
+  const hint=document.createElement('p');hint.className='dex-note';hint.textContent='표시 포획률은 HP 100% · 몬스터볼 기준. 실제 포획률은 남은 HP와 사용하는 볼에 따라 달라져.';list.append(hint);
+  for(const p of DEX_CATALOG){
+   const seen=seenPokemon.has(p.dex),caught=captured.has(p.dex);
+   const row=document.createElement('div');row.className='dex-entry'+(seen?'':' dex-unknown');
+   const num=document.createElement('span');num.className='dex-number';num.textContent=String(p.dex).padStart(3,'0');
+   const img=document.createElement('img');img.alt=seen?p.name+' 도트 이미지':'미발견';img.loading='lazy';img.src=staticImage(p.dex);
+   if(!seen){img.className='dex-silhouette';}
+   const info=document.createElement('div');info.className='dex-info';
+   const title=document.createElement('strong');title.textContent=seen?p.name:'???';
+   const detail=document.createElement('small');detail.textContent=seen?(caught?'포획 완료':'발견 · 미포획'):'미발견';
+   info.append(title,detail);
+   const right=document.createElement('div');right.className='dex-right';
+   if(caught){const ball=document.createElement('img');ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';ball.alt='포획 완료';ball.className='dex-caught-ball';right.append(ball);}
+   if(seen){
+    const rate=document.createElement('small');rate.className='dex-rate';
+    const chance=pokemonCatchChance(1,pokemonCatchMultiplier(p.dex,!!p.rare));
+    rate.textContent=(chance*100).toFixed(1)+'%';
+    rate.title='HP 100% · 몬스터볼 기준 포획률';
+    right.append(rate);
+   }
+   row.append(num,img,info,right);list.append(row);
+  }
+ }else if(collectionTab==='achievements'){
+  $('collectionSummary').textContent='현재 진행도 기반 업적';
+  const badges=[['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],['첫 포획',capturedPokemon.length>=1,'야생 포켓몬 1마리 포획'],['수집가',captured.size>=5,'포켓몬 5종 포획'],['그린 격파',blueCleared,'라이벌 그린 승리'],['암석배지',brockCleared,'체육관 관장 웅 승리']];
+  for(const [name,earned,detail] of badges){const row=document.createElement('div');row.className='collection-progress';row.textContent=(earned?'🏅 ':'🔒 ')+name+' · '+detail;list.append(row);}
+ }else{
+  $('collectionSummary').textContent='트레이너 도전 기록';
+  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.7 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.13 · 암석배지']]){
+   const row=document.createElement('div');row.className='collection-progress';row.textContent=(done?'✅ ':'⚔️ ')+name+' · '+(done?'클리어':'미클리어')+' · '+desc;list.append(row);
+  }
+ }
+}
 function renderCaptures(){
+ if(!$('captureCount'))return;
  $('captureCount').textContent=String(capturedPokemon.length);
  const list=$('captureList');list.replaceChildren();
  if(!capturedPokemon.length){list.textContent='아직 포획한 포켓몬이 없어.';return;}
@@ -613,6 +677,7 @@ async function act(a){
  shownHp={...previousHp};render();await playEvents(events);
  if(battleKind!=='wild'&&events.some(ev=>ev.type==='knockout'&&ev.side==='enemy')&&!battle.ended){
   const enemy=battle.enemies[battle.enemyIndex];
+  if(battleKind==='brock')registerEncounter(95);
   $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='Lv.'+enemy.level;
   sprite('enemySprite',battleKind==='brock'?95:getForm(blueChoice,7).dex,false,'⚔️');
   shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);
@@ -718,10 +783,13 @@ function setup(){
  for(const item of SHOP_ITEMS){
   $('battleItem-'+item.id).addEventListener('click',()=>act({type:item.category==='ball'?'ball':'item',itemId:item.id,power:item.power,multiplier:item.multiplier}));
  }
+ $('openCollection').addEventListener('click',()=>showCollection('dex'));
+ $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
+ document.querySelectorAll('[data-collection-tab]').forEach(button=>button.addEventListener('click',()=>{collectionTab=button.dataset.collectionTab;renderCollection();}));
  $('openShop').addEventListener('click',()=>showShopTab('shop'));
  $('openBag').addEventListener('click',()=>showShopTab('bag'));
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;blueChoice=null;injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('restart').addEventListener('click',()=>reset(battleKind));$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;blueChoice=null;injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('restart').addEventListener('click',()=>reset(battleKind));$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
 setup();
