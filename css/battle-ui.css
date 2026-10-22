@@ -56,3 +56,6 @@
 @keyframes home-level-up-pop{0%{opacity:0;transform:translate(-50%,-25%) scale(.55)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{transform:translate(-50%,-50%) scale(.97)}35%,78%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(1.07)}}
 @media(prefers-reduced-motion:reduce){.home-level-up.playing{animation:home-level-up-fade 2.3s ease-out both}@keyframes home-level-up-fade{0%,100%{opacity:0}15%,80%{opacity:1}}}
 
+
+/* Battle prompt: Pokemon name inherits the entire question's type style. */
+.panel-head #promptName{font:inherit;color:inherit;letter-spacing:inherit}
