@@ -168,3 +168,45 @@
 .home-level-up.playing{animation:home-level-up-pop 2.3s ease-out both}
 @keyframes home-level-up-pop{0%{opacity:0;transform:translate(-50%,-25%) scale(.55)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}24%{transform:translate(-50%,-50%) scale(.97)}35%,78%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-75%) scale(1.07)}}
 @media(prefers-reduced-motion:reduce){.home-level-up.playing{animation:home-level-up-fade 2.3s ease-out both}@keyframes home-level-up-fade{0%,100%{opacity:0}15%,80%{opacity:1}}}
+
+/* Learned-move / move-replacement interface */
+.move-recall-panel{border:2px solid #adbed7;border-radius:9px;background:#f7faff;padding:11px 13px;margin-bottom:14px}
+.move-recall-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.move-recall-header strong{font-size:13px}
+.move-recall-summary{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.learn-move-chip{background:#e3ebfb;border:1px solid #b6c9e8;border-radius:20px;padding:5px 9px;color:#405678;font-size:12px;font-weight:800}
+.learn-overlay{position:fixed;inset:0;z-index:160;background:#12223eda;display:grid;place-items:center;padding:16px}
+.learn-dialog{width:min(480px,100%);max-height:90vh;overflow:auto;background:#f6f9ff;border:4px solid #5677aa;border-radius:12px;box-shadow:0 16px 55px #0008;padding:20px;text-align:center}
+.learn-heading{color:#6a8bc8;font-size:12px;font-weight:1000;letter-spacing:3px}
+.learn-dialog h2{font-size:18px;margin:10px 0}
+.learn-move-info{padding:12px;background:#e5edfc;border-radius:8px;color:#263b5f;font-size:14px;font-weight:800}
+.learn-dialog p{font-size:12px;color:#526888;line-height:1.55}
+.learn-move-choices,.recall-move-list{display:grid;gap:8px;margin:14px 0}
+.learn-replace-button{width:100%;text-align:left;background:white;border:2px solid #829bc1;border-radius:8px;padding:12px;color:#324b70;font-size:13px;font-weight:800}
+.learn-replace-button:disabled{opacity:.5;cursor:not-allowed}
+.learn-dialog .secondary{width:100%}
+
+/* Shop & persistent inventory */
+.shop-shell{padding:20px;border:3px solid #455e86;border-radius:10px;background:#f8fbff;box-shadow:4px 5px 0 #bbc7dc}
+.shop-head,.shop-tabs,.shop-item-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shop-shell h2{font-size:20px;margin:18px 0}
+.shop-tabs{justify-content:stretch;margin:12px 0 16px}
+.shop-tabs button{flex:1;border:2px solid #8ca0c0;border-radius:7px;background:#e7effc;padding:11px;font-weight:900;color:#38527d}
+.shop-tabs button[aria-selected="true"]{background:#557bbb;color:white}
+.shop-item-row{padding:11px 0;border-bottom:1px solid #d5dfea}
+.shop-item-info{display:flex;flex-direction:column;gap:4px;min-width:0}
+.shop-item-info strong{font-size:14px;color:#273b62}
+.shop-item-info small{font-size:11px;color:#687a95}
+.shop-buy{flex-shrink:0;min-width:95px;padding:10px;border:2px solid #6783b0;border-radius:8px;background:#e6efff;color:#315381;font-weight:900;font-size:12px}
+.shop-buy:disabled{opacity:.4;cursor:not-allowed}
+.shop-footnote{font-size:11px;color:#75829a;line-height:1.65}
+
+/* Win reward selection: money always has a small guaranteed base; choose a bonus. */
+.reward-choice-overlay{position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:#142541cc;padding:18px}
+.reward-choice-box{background:linear-gradient(#fffefa,#eaf1ff);border:4px solid #4d6391;border-radius:14px;padding:22px;width:min(440px,96vw);text-align:center;box-shadow:0 16px 48px #0a1d3a80}
+.reward-choice-box>strong{font-size:25px;font-weight:1000;color:#4a69aa;letter-spacing:1.5px}
+.reward-choice-box p{font-size:13px;color:#586c89}
+.reward-choice-caption{font-weight:900!important;color:#273c66!important}
+.reward-choice-options{display:grid;gap:9px;margin-top:16px}
+.reward-choice-item{min-height:60px;border:2px solid #7991b9;border-radius:9px;background:#fff;color:#2c4573;font-size:16px;font-weight:900;padding:10px;text-align:center;box-shadow:2px 3px 0 #d1d9ea}
+.reward-choice-item:hover{background:#e8f0ff;border-color:#5279ba}
