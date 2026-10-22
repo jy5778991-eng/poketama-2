@@ -96,3 +96,13 @@
 .battle-fast .capture-land{animation-duration:.175s!important}
 .battle-fast .capture-failed,.battle-fast .capture-escaping{animation-duration:.275s!important}
 @media(prefers-reduced-motion:reduce){.capture-ball.capture-throw,.capture-ball.capture-land,.capture-ball.capture-shaking,.sprite.enemy.capture-absorbing,.sprite.enemy.capture-escaping{animation-duration:.01ms}}
+
+/* Keep unused capture effects fully hidden, including their Poké Ball images. */
+#battleScreen .arena #captureBall[hidden],#battleScreen .arena #captureFlash[hidden]{display:none!important;visibility:hidden!important}
+#battleScreen .arena #captureBall{visibility:visible}
+/* Battle status: name, LV, and owned mark read left-to-right as a single line. */
+#battleScreen .battle-info .name{justify-content:flex-start;gap:0;min-width:0}
+#battleScreen .battle-name-line{display:inline-flex;align-items:center;justify-content:flex-start;gap:6px;flex-wrap:wrap;font:inherit;font-weight:900;line-height:1.2;min-width:0}
+#battleScreen .battle-name-line span{font:inherit;color:inherit;white-space:nowrap}
+#battleScreen .battle-name-line .enemy-caught-mark{height:16px;width:16px;flex:0 0 16px}
+@media(max-width:600px){#battleScreen .battle-name-line{gap:4px;font-size:13px}}
