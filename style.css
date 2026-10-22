@@ -337,3 +337,8 @@
 .dex-rate{font-size:11px;font-weight:900;color:#426eab;font-variant-numeric:tabular-nums}
 .collection-progress{padding:16px 12px;border-bottom:1px solid #d8e2f0;font-size:13px;font-weight:800;color:#40587c}
 @media(max-width:420px){.dex-entry{gap:5px}.dex-number{width:31px}.dex-entry>img{width:39px;height:39px}}
+
+/* Developer warp selector */
+.developer-box select{width:100%;min-height:46px;border:2px solid #94a8cb;border-radius:7px;background:#fff;color:#21314c;font-size:15px;padding:11px}
+.developer-box select:focus{outline:3px solid #c4d9ff;border-color:#527fbc}
+.developer-box{max-height:90vh;overflow:auto}
