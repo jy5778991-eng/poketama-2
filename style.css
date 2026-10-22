@@ -310,3 +310,11 @@
 .heal-home-action{border-color:#689d8b;background:#effaf4;color:#28584f}
 .heal-home-action[aria-disabled="true"]{opacity:1;cursor:default}
 .move-home-action{grid-column:1/-1;min-height:68px}
+
+/* Independent entry screens for bag/shop, with the same five category tabs. */
+.inventory-category-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0 16px}
+.inventory-category-tabs button{min-width:0;padding:11px 2px;border:2px solid #8ca0c0;border-radius:8px;background:#e7effc;color:#38527d;font-weight:900;font-size:13px}
+.inventory-category-tabs button[aria-selected="true"]{background:#557bbb;color:white;border-color:#344e81}
+.inventory-category-tabs button:focus-visible{outline:3px solid #deaa52;outline-offset:2px}
+.inventory-empty{border:2px dashed #b8c7df;border-radius:12px;padding:32px 12px;text-align:center;color:#677c9c;background:#f7faff;font-size:13px;font-weight:700;min-height:120px;display:grid;place-items:center}
+@media(max-width:420px){.inventory-category-tabs{gap:3px}.inventory-category-tabs button{font-size:12px;padding:10px 1px}}
