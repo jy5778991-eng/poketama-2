@@ -81,17 +81,16 @@ let playerIVs=saved?.ivs||randomIVs();
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
 let learningBusy=false;
 function renderStatPanel(){
-  const grid=$('statGrid'),form=getForm(chosen,progress.level),stats=calculateStats(form.base,progress.level,playerIVs,{});
-  grid.replaceChildren(...STAT_KEYS.map(key=>{
-    const card=document.createElement('div');card.className='stat-card';
-    const iv=document.createElement('div');iv.className='iv-wrap';
-    const star=document.createElement('span');star.className='iv-star iv-'+ivTier(playerIVs[key]);star.textContent='★';star.setAttribute('aria-label','개체값 '+playerIVs[key]);
-    const number=document.createElement('span');number.className='iv-number';number.textContent=String(playerIVs[key]);
-    const label=document.createElement('div');label.className='stat-name';label.textContent=STAT_LABELS[key];
-    const value=document.createElement('div');value.className='stat-value';value.textContent=String(stats[key]);
-    iv.append(star,number);card.append(iv,label,value);return card;
-  }));
-  $('ivSummary').textContent='IV 합계 '+STAT_KEYS.reduce((sum,key)=>sum+playerIVs[key],0)+' / 64';
+ const grid=$('statGrid'),form=getForm(chosen,progress.level),stats=calculateStats(form.base,progress.level,playerIVs,{});
+ grid.replaceChildren(...STAT_KEYS.map(key=>{
+  const card=document.createElement('div');card.className='stat-card';
+  const head=document.createElement('div');head.className='stat-compact-head';
+  const label=document.createElement('span');label.className='stat-name';label.textContent=STAT_LABELS[key];
+  const star=document.createElement('span');star.className='iv-star iv-'+ivTier(playerIVs[key]);star.textContent='★';
+  star.setAttribute('aria-label','개체값 등급');
+  const value=document.createElement('div');value.className='stat-value';value.textContent=String(stats[key]);
+  head.append(label,star);card.append(head,value);return card;
+ }));
 }
 
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/battleSpeed));
