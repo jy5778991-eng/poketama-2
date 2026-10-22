@@ -198,8 +198,9 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
     if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
     if(a.action.type==='ball'){
       if(!a.player)continue;
-      const hpFactor=1-e.hp/e.stats.hp;
-      const chance=Math.min(0.95,(0.2+0.7*hpFactor)*(a.action.multiplier||1)*(e.rare?0.5:1));
+      const hpFraction=Math.max(0,Math.min(1,e.hp/e.stats.hp));
+      const speciesMultiplier=e.catchMultiplier??(e.rare?0.25:1);
+      const chance=Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
