@@ -4,10 +4,10 @@ import {getForm} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
 // Collection screen renderer. Game state is provided on each render, never cached.
-export function renderCollectionView({$,collectionTab,capturedPokemon,seenPokemon,blueCleared,brockCleared,mistyCleared}){
+export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared}){
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
- const captured=new Set(capturedPokemon.map(p=>p.dex));
+ const captured=caughtSpecies||new Set(capturedPokemon.map(p=>p.dex));
  const dexRoster=[...new Map([...DEX_CATALOG,...RIVAL_POOL.map(p=>getForm(p.id,7)).filter(Boolean)].map(p=>[p.dex,p])).values()].sort((p,q)=>p.dex-q.dex);
  if(collectionTab==='dex'){
   const count=dexRoster.filter(p=>seenPokemon.has(p.dex)).length;
