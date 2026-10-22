@@ -31,7 +31,9 @@
 </section>
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
 <div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong></div>
+<div id="trainerSummonMessage" class="trainer-summon-message" hidden role="status" aria-live="polite"></div>
 <section class="arena" aria-label="포켓몬 배틀">
+<div id="trainerThrowBall" class="trainer-throw-ball" aria-hidden="true"><span></span></div>
 <div class="battle-info enemy-info"><div class="name"><strong id="enemyName">구구</strong><small id="enemyLevel">Lv.3</small></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div><span id="enemyStatus" class="status"></span></div>
 <div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span><div id="playerPopup" class="damage-popup" aria-hidden="true"></div></div>
@@ -45,6 +47,15 @@
 <div id="learnMoveOverlay" class="learn-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="learnMoveTitle"><div class="learn-dialog"><div class="learn-heading">NEW MOVE!</div><h2 id="learnMoveTitle">새로운 기술을 배우고 싶어!</h2><div id="learnMoveInfo" class="learn-move-info"></div><p id="learnMoveHelp">기술 4개가 가득 찼어. 어떤 기술을 잊을까?</p><div id="learnMoveChoices" class="learn-move-choices"></div><button type="button" id="learnMoveSkip" class="secondary">새 기술을 배우지 않는다</button></div></div>
 <div id="moveRecallOverlay" class="learn-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="recallTitle"><div class="learn-dialog"><div class="move-recall-header"><h2 id="recallTitle">기술 떠올리기</h2><button type="button" id="closeMoveRecall" class="secondary">닫기</button></div><p class="learn-hint">현재 레벨까지 해금된 기술을 다시 배울 수 있어. 배틀 중에는 사용할 수 없어.</p><div id="recallMoveList" class="recall-move-list"></div></div></div>
 <div id="developerOverlay" class="developer-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="developerTitle"><div class="developer-box"><div class="developer-heading"><span id="developerTitle">⚙ 개발자모드</span><button id="closeDeveloper" type="button" class="developer-close" aria-label="닫기">×</button></div><form id="developerLogin"><label for="developerPassword">비밀번호 입력</label><input id="developerPassword" type="password" inputmode="numeric" autocomplete="off" placeholder="비밀번호" required><p id="developerError" class="developer-error" aria-live="polite"></p><button type="submit" class="developer-submit">잠금 해제</button></form><form id="developerEditor" hidden><label for="developerLevel">포켓몬 레벨 (1~100)</label><input id="developerLevel" type="number" min="1" max="100" step="1" required><label for="developerMoney">보유금 (0~999,999,999원)</label><input id="developerMoney" type="number" min="0" max="999999999" step="1" required><p class="developer-hint">레벨을 변경하면 경험치는 0으로 초기화돼. 진화 단계와 능력치도 즉시 적용돼.</p><p id="developerSaveError" class="developer-error" aria-live="polite"></p><button type="submit" class="developer-submit">수정 사항 저장</button></form></div></div>
+<div id="trainerIntroOverlay" class="trainer-intro-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="trainerIntroName">
+ <div class="trainer-intro-box">
+  <div class="trainer-intro-eyebrow">TRAINER CHALLENGE!</div>
+  <div class="trainer-intro-portrait"><img id="trainerIntroImage" alt="도전 트레이너"/><span id="trainerIntroFallback" hidden>👩</span></div>
+  <strong id="trainerIntroName">라이벌 블루</strong>
+  <p id="trainerIntroText">트레이너가 승부를 걸어왔다!</p>
+  <div class="trainer-intro-buttons"><button type="button" id="trainerIntroCancel">취소</button><button type="button" id="trainerIntroConfirm">확인 · 배틀 시작!</button></div>
+ </div>
+</div>
 <div id="rewardChoiceOverlay" class="reward-choice-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="rewardChoiceHeading">
  <div class="reward-choice-box"><strong id="rewardChoiceHeading">BATTLE WIN!</strong>
  <p>경험치와 기본 상금은 이미 획득했어!</p>
