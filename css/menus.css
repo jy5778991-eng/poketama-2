@@ -1,0 +1,108 @@
+/* Learned-move / move-replacement interface */
+.move-recall-panel{border:2px solid #adbed7;border-radius:9px;background:#f7faff;padding:11px 13px;margin-bottom:14px}
+.move-recall-header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.move-recall-header strong{font-size:13px}
+.move-recall-summary{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.learn-move-chip{background:#e3ebfb;border:1px solid #b6c9e8;border-radius:20px;padding:5px 9px;color:#405678;font-size:12px;font-weight:800}
+.learn-overlay{position:fixed;inset:0;z-index:160;background:#12223eda;display:grid;place-items:center;padding:16px}
+.learn-dialog{width:min(480px,100%);max-height:90vh;overflow:auto;background:#f6f9ff;border:4px solid #5677aa;border-radius:12px;box-shadow:0 16px 55px #0008;padding:20px;text-align:center}
+.learn-heading{color:#6a8bc8;font-size:12px;font-weight:1000;letter-spacing:3px}
+.learn-dialog h2{font-size:18px;margin:10px 0}
+.learn-move-info{padding:12px;background:#e5edfc;border-radius:8px;color:#263b5f;font-size:14px;font-weight:800}
+.learn-dialog p{font-size:12px;color:#526888;line-height:1.55}
+.learn-move-choices,.recall-move-list{display:grid;gap:8px;margin:14px 0}
+.learn-replace-button{width:100%;text-align:left;background:white;border:2px solid #829bc1;border-radius:8px;padding:12px;color:#324b70;font-size:13px;font-weight:800}
+.learn-replace-button:disabled{opacity:.5;cursor:not-allowed}
+.learn-dialog .secondary{width:100%}
+
+/* Shop & persistent inventory */
+.shop-shell{padding:20px;border:3px solid #455e86;border-radius:10px;background:#f8fbff;box-shadow:4px 5px 0 #bbc7dc}
+.shop-head,.shop-tabs,.shop-item-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.shop-shell h2{font-size:20px;margin:18px 0}
+.shop-tabs{justify-content:stretch;margin:12px 0 16px}
+.shop-tabs button{flex:1;border:2px solid #8ca0c0;border-radius:7px;background:#e7effc;padding:11px;font-weight:900;color:#38527d}
+.shop-tabs button[aria-selected="true"]{background:#557bbb;color:white}
+.shop-item-row{padding:11px 0;border-bottom:1px solid #d5dfea}
+.shop-item-info{display:flex;flex-direction:column;gap:4px;min-width:0}
+.shop-item-info strong{font-size:14px;color:#273b62}
+.shop-item-info small{font-size:11px;color:#687a95}
+.shop-buy{flex-shrink:0;min-width:95px;padding:10px;border:2px solid #6783b0;border-radius:8px;background:#e6efff;color:#315381;font-weight:900;font-size:12px}
+.shop-buy:disabled{opacity:.4;cursor:not-allowed}
+.shop-footnote{font-size:11px;color:#75829a;line-height:1.65}
+
+/* Win reward selection: money always has a small guaranteed base; choose a bonus. */
+.reward-choice-overlay{position:fixed;inset:0;z-index:130;display:grid;place-items:center;background:#142541cc;padding:18px}
+.reward-choice-box{background:linear-gradient(#fffefa,#eaf1ff);border:4px solid #4d6391;border-radius:14px;padding:22px;width:min(440px,96vw);text-align:center;box-shadow:0 16px 48px #0a1d3a80}
+.reward-choice-box>strong{font-size:25px;font-weight:1000;color:#4a69aa;letter-spacing:1.5px}
+.reward-choice-box p{font-size:13px;color:#586c89}
+.reward-choice-caption{font-weight:900!important;color:#273c66!important}
+.reward-choice-options{display:grid;gap:9px;margin-top:16px}
+.reward-choice-item{min-height:60px;border:2px solid #7991b9;border-radius:9px;background:#fff;color:#2c4573;font-size:16px;font-weight:900;padding:10px;text-align:center;box-shadow:2px 3px 0 #d1d9ea}
+.reward-choice-item:hover{background:#e8f0ff;border-color:#5279ba}
+
+/* Starter route progression & injury */
+.stage-panel{display:grid;gap:9px;border:3px solid #5b779a;background:#f3f7ff;border-radius:12px;padding:14px;margin:12px 0}.stage-panel strong{font-size:21px;display:block;color:#34578a}.stage-panel small{font-size:12px;color:#657b96}.stage-panel button{border:2px solid #42629a;border-radius:8px;background:#e2edff;color:#28436a;font-weight:900;min-height:48px}.stage-panel button:disabled{opacity:.45}.injury-message{color:#b94343;font-weight:900}.injury-bandage{position:absolute;z-index:15;top:4%;left:56%;font-size:48px;transform:rotate(-20deg);filter:drop-shadow(2px 2px 2px #3336)}.trainer-label{display:flex;align-items:center;gap:12px;justify-content:center;padding:8px;font-size:14px;color:#42649a}.trainer-label img{height:72px;max-width:72px;object-fit:contain;image-rendering:pixelated}
+
+/* Trainer encounter: confirm portrait, ball toss, then the first Pokemon materializes. */
+.trainer-intro-overlay[hidden],.trainer-summon-message[hidden]{display:none!important}
+.trainer-intro-overlay{position:fixed;inset:0;z-index:145;background:#13223bdc;display:grid;place-items:center;padding:20px}
+.trainer-intro-box{width:min(390px,95vw);padding:22px 18px 18px;background:linear-gradient(160deg,#fcfdff,#e4edff);border:4px solid #445f96;border-radius:18px;text-align:center;box-shadow:0 20px 55px #0b173caa}
+.trainer-intro-eyebrow{font-size:14px;font-weight:950;letter-spacing:2px;color:#5279b7}
+.trainer-intro-portrait{height:205px;margin:14px auto 6px;display:flex;align-items:center;justify-content:center;border:2px dashed #b4c7e2;border-radius:12px;background:radial-gradient(ellipse at center,#fff 25%,#deecff 100%)}
+.trainer-intro-portrait img{height:190px;max-width:92%;object-fit:contain;image-rendering:pixelated}
+.trainer-intro-portrait span{font-size:90px}
+.trainer-intro-box>strong{font-weight:1000;font-size:26px;color:#283d67}
+.trainer-intro-box p{font-size:14px;color:#586a88;line-height:1.6}
+.trainer-intro-buttons{display:grid;grid-template-columns:1fr 1.65fr;gap:8px}
+.trainer-intro-buttons button{min-height:47px;border-radius:9px;border:2px solid #5776ae;background:#fff;color:#304c78;font-size:13px;font-weight:900}
+.trainer-intro-buttons #trainerIntroConfirm{background:#4574c5;color:#fff}
+.trainer-summon-message{margin:5px 0 9px;text-align:center;font-size:14px;font-weight:900;letter-spacing:.15px;color:#355488}
+#battleScreen .arena{position:relative}
+.trainer-throw-ball{display:none;position:absolute;z-index:45;left:8%;top:42%;height:27px;width:27px;border:3px solid #242e47;border-radius:50%;background:linear-gradient(to bottom,#ed4e4d 0 46%,#242e47 46% 54%,#fff 54% 100%);box-shadow:0 3px 6px #1c355a5c}
+.trainer-throw-ball span{position:absolute;left:8px;top:8px;width:6px;height:6px;border:1px solid #272d3b;background:white;border-radius:50%}
+.trainer-summoning .trainer-throw-ball{display:block;opacity:0}
+.trainer-summoning .trainer-ball-flying{animation:trainer-ball-arc 1.05s ease-in-out both}
+.trainer-summoning .sprite.enemy,.trainer-summoning .enemy-info{visibility:hidden}
+.trainer-summoning.trainer-pokemon-appearing .sprite.enemy,.trainer-summoning.trainer-pokemon-appearing .enemy-info{visibility:visible}
+.trainer-summoning.trainer-pokemon-appearing .sprite.enemy{animation:trainer-summon-pop .72s ease-out both}
+@keyframes trainer-ball-arc{0%{opacity:1;transform:translate(0,5px) scale(.78) rotate(0deg)}48%{opacity:1;transform:translate(95px,-100px) scale(1.2) rotate(320deg)}84%{opacity:1;transform:translate(174px,-38px) scale(1) rotate(610deg)}100%{opacity:0;transform:translate(183px,-28px) scale(1.6) rotate(720deg)}}
+@keyframes trainer-summon-pop{0%{opacity:0;transform:scale(.08);filter:brightness(8)}45%{opacity:.9;transform:scale(1.18);filter:brightness(2)}100%{opacity:1;transform:scale(1);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){.trainer-summoning .trainer-ball-flying,.trainer-summoning.trainer-pokemon-appearing .sprite.enemy{animation-duration:.01ms}}
+
+/* 2026-10-22: Actual PokeAPI Poké Ball; opponent throws from the upper-right toward the enemy platform. */
+.trainer-throw-ball{
+ left:auto;
+ right:3%;
+ top:51%;
+ height:38px;
+ width:38px;
+ border:0;
+ border-radius:0;
+ background:none;
+ box-shadow:none;
+ transform-origin:center;
+ pointer-events:none;
+}
+.trainer-throw-ball img{
+ display:block;
+ width:100%;
+ height:100%;
+ object-fit:contain;
+ image-rendering:pixelated;
+ filter:drop-shadow(1px 3px 2px #26395788);
+}
+@keyframes trainer-ball-arc{
+ 0%{opacity:1;transform:translate(0,22px) scale(.7) rotate(0deg)}
+ 42%{opacity:1;transform:translate(calc(-1 * clamp(28px,8vw,55px)),-73px) scale(1.05) rotate(-240deg)}
+ 78%{opacity:1;transform:translate(calc(-1 * clamp(57px,16vw,108px)),-94px) scale(1.12) rotate(-510deg)}
+ 100%{opacity:0;transform:translate(calc(-1 * clamp(65px,18vw,120px)),-91px) scale(1.45) rotate(-640deg)}
+}
+@media(max-width:480px){.trainer-throw-ball{width:32px;height:32px;top:50%}}
+
+/* Pixel-perfect 80x80 animated Blue trainer sprite (APNG) */
+.trainer-intro-portrait img{image-rendering:pixelated;image-rendering:crisp-edges;width:200px;height:200px;max-width:100%;object-fit:contain}
+.trainer-label img{image-rendering:pixelated;image-rendering:crisp-edges}
+
+/* The Green trainer's uploaded WebP provides its own frame animation. */
+.trainer-intro-portrait img{animation:none}
+
