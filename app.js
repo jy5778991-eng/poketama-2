@@ -744,23 +744,36 @@ function unlockDeveloper(e){
  $('developerLogin').hidden=true;$('developerEditor').hidden=false;
  $('developerLevel').value=String(progress.level);
  $('developerMoney').value=String(progress.money);
+ $('developerArea').value=area;
  $('developerLevel').focus();
 }
 function applyDeveloperChanges(e){
  e.preventDefault();
- if(animating)return;
- const level=Number($('developerLevel').value),money=Number($('developerMoney').value);
- if(!Number.isInteger(level)||level<1||level>100||!Number.isSafeInteger(money)||money<0||money>999999999){
-  $('developerSaveError').textContent='레벨은 1~100, 보유금은 0~999,999,999의 정수로 입력해줘.';
+ if(animating||learningBusy)return;
+ const requestedLevel=Number($('developerLevel').value),money=Number($('developerMoney').value),targetArea=$('developerArea').value;
+ if(!Number.isInteger(requestedLevel)||requestedLevel<1||requestedLevel>100||!Number.isSafeInteger(money)||money<0||money>999999999||!['grass','forest','cave'].includes(targetArea)){
+  $('developerSaveError').textContent='레벨 1~100, 보유금 0~999,999,999원, 지역 선택을 확인해줘.';
   return;
  }
- // Direct level edits use the existing evolutionary form lookup; no battle reward is issued.
- const levelChanged=progress.level!==level;
- progress.level=level;progress.money=money;if(levelChanged)storedHp=null;
- if(levelChanged){progress.exp=0;playerMoves=migrateMoves(chosen,level);}
+ const minLevel=targetArea==='cave'?13:targetArea==='forest'?7:1;
+ const targetLevel=Math.max(requestedLevel,minLevel);
+ const levelChanged=progress.level!==targetLevel;
+ // Developer area warp uses the prerequisite clear states, including backtracking.
+ area=targetArea;
+ blueCleared=targetArea==='forest'||targetArea==='cave';
+ brockCleared=targetArea==='cave';
+ progress.level=targetLevel;
+ progress.money=money;
+ if(levelChanged){
+  storedHp=null;
+  progress.exp=0;
+  playerMoves=migrateMoves(chosen,targetLevel);
+ }
+ pendingTrainerIntro=null;
  saveProgress();
  closeDeveloper();
  reset();
+ renderHome();
 }
 function setup(){
  $('trainerChallenge').addEventListener('click',challengeTrainer);
