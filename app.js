@@ -493,6 +493,8 @@ function showScreen(next){if(animating||learningBusy)return;screen=next;$('homeS
 function renderHome(){
  refreshHealingDay();
  $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':'🪨 동굴 (다음 업데이트)';
+ $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave');
+ $('homeSpriteWrap').classList.add('area-'+area);
  $('badgeStatus').textContent=brockCleared?'배지 1 / 8':'배지 0 / 8';
  $('trainerChallenge').hidden=blueCleared&&brockCleared;
  $('trainerChallenge').disabled=injured||!!pendingRewardChoice||(blueCleared?progress.level<13:progress.level<7);
