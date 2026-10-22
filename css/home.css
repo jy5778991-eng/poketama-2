@@ -84,3 +84,25 @@
 .home-card .iv-star{font-size:15px;line-height:1}
 .home-card .stat-value{font-size:18px;line-height:1.25;margin-top:3px}
 @media(max-width:400px){.home-card .stat-grid{gap:4px}.home-card .stat-card{padding:7px 2px 8px}.home-card .stat-compact-head{gap:3px}.home-card .iv-star{font-size:14px}.home-card .stat-value{font-size:17px}}
+
+/* Adventure hub: wild training and trainer challenges share one progression card. */
+.adventure-panel{border:3px solid #496187;border-radius:13px;background:#f7faff;padding:15px;margin:0 0 16px;box-shadow:4px 5px 0 #becbe0}
+.adventure-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.adventure-heading>div{display:flex;flex-direction:column;gap:5px}
+.adventure-heading strong{font-size:17px;color:#2e4c76}
+.adventure-heading small{font-size:11px;color:#778ba8;font-weight:700}
+.adventure-level{border-radius:18px;background:#e6effc;color:#43638d;padding:5px 10px;font-size:12px;font-weight:900;white-space:nowrap}
+.adventure-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.adventure-actions .home-action{font-size:14px;text-align:center;padding:13px 7px;min-height:85px;box-shadow:2px 3px 0 #c1cada}
+.adventure-actions .home-action small{margin-top:7px;font-size:10px;line-height:1.4}
+.adventure-trainer{background:#edf3fc;color:#314d78;border-color:#6683ae}
+.adventure-trainer.adventure-ready{border-color:#466ba6;background:#dceafa}
+.adventure-trainer.adventure-locked{background:#f0f2f6;border-color:#9ba9bd;color:#8290a6}
+.adventure-trainer:disabled{cursor:not-allowed;opacity:.76}
+.adventure-progress{border:1px solid #d3e0f1;background:#edf3fb;border-radius:9px;padding:11px}
+.adventure-progress-header{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:900;color:#4b6285}
+.adventure-progress-track{height:9px;overflow:hidden;border-radius:20px;background:#ccd9ea;margin-top:8px}
+.adventure-progress-track>div{height:100%;width:0;border-radius:20px;background:#5c8ccf;transition:width .2s}
+.adventure-help{font-size:11px;color:#647a99;line-height:1.5;margin:9px 0 0}
+.adventure-progress .injury-message{margin:8px 0 0}
+@media(max-width:400px){.adventure-panel{padding:12px}.adventure-actions{gap:7px}.adventure-actions .home-action{font-size:13px;min-height:80px}}
