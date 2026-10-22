@@ -31,7 +31,7 @@ function drawRewardItems(wildLevel,stage){
  }
  return result;
 }
-function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,mistyCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,mistyCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const saved=readSave();
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
@@ -60,6 +60,7 @@ let pendingLevelUp=null;
 let battleSpeed=1;
 let lastBattleReward=saved?.lastBattleReward&&Number.isSafeInteger(saved.lastBattleReward.exp)&&Number.isSafeInteger(saved.lastBattleReward.money)?saved.lastBattleReward:null;
 let capturedPokemon=Array.isArray(saved?.captures)?saved.captures.filter(validCaptured).slice(0,200):[];
+let caughtSpecies=new Set([...(Array.isArray(saved?.caughtSpecies)?saved.caughtSpecies:[]),...capturedPokemon.map(p=>p.dex)].filter(dex=>Number.isInteger(dex)&&dex>0&&dex<=1025));
 let seenPokemon=new Set([...(Array.isArray(saved?.seenPokemon)?saved.seenPokemon:[]),...capturedPokemon.map(p=>p.dex)].filter(id=>Number.isInteger(id)&&id>0&&id<=1025));
 function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))return;seenPokemon.add(dex);saveProgress();}
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
@@ -99,7 +100,65 @@ const visualSprite=side=>document.querySelector('.sprite.'+side);
 function displayHp(side,hp){const f=side==='player'?battle.player:battle.enemies[battle.enemyIndex];const pct=Math.max(0,100*hp/f.stats.hp);$(side+'Bar').style.width=pct+'%';$(side+'Bar').style.background=pct>50?'#59c679':pct>20?'#e8b956':'#d86862';$(side+'Hp').textContent='HP '+hp+' / '+f.stats.hp;shownHp[side]=hp;}
 function animateClass(element,klass){element.classList.remove(klass);void element.offsetWidth;element.classList.add(klass);}
 function popup(side,amount,critical=false,healing=false){const el=$(side+'Popup');el.classList.remove('visible');el.replaceChildren();const n=document.createElement('span');n.className='number-hit'+(healing?' heal':'');n.textContent=(healing?'+':'−')+amount;el.append(n);if(critical){const crit=document.createElement('span');crit.className='critical';crit.textContent='Critical Hit!';el.append(crit);}void el.offsetWidth;el.classList.add('visible');}
-async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);animateClass(el,'hit');popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await pause(400);if(ev.success){visualSprite('enemy').classList.add('enemy-captured');await pause(700);}else await pause(430);}else if(ev.type==='miss'){await pause(270);}}}
+async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);animateClass(el,'hit');popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+
+
+// Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
+async function playCaptureSequence(success){
+ const arena=document.querySelector('#battleScreen .arena'),ball=$('captureBall'),flash=$('captureFlash'),enemy=visualSprite('enemy'),player=visualSprite('player');
+ const field=arena.getBoundingClientRect(),target=enemy.getBoundingClientRect(),origin=player.getBoundingClientRect();
+ const size=32;
+ const startX=origin.left-field.left+origin.width*.48-size/2,startY=origin.top-field.top+origin.height*.48-size/2;
+ const hitX=target.left-field.left+target.width*.5-size/2,hitY=target.top-field.top+target.height*.5-size/2;
+ const groundY=target.bottom-field.top-size*.7;
+ const pos=(x,y)=>{ball.style.left=x+'px';ball.style.top=y+'px';};
+ ball.className='capture-ball';flash.className='capture-flash';
+ enemy.classList.remove('enemy-captured','capture-absorbing','capture-escaping');
+ pos(startX,startY);
+ ball.style.setProperty('--catch-dx',(hitX-startX)+'px');
+ ball.style.setProperty('--catch-dy',(hitY-startY)+'px');
+ ball.classList.add('visible','capture-throw');
+ await pause(720);
+ pos(hitX,hitY);ball.classList.remove('capture-throw');
+ flash.classList.add('capture-flashing');
+ enemy.classList.add('capture-absorbing');
+ await pause(430);
+ flash.classList.remove('capture-flashing');
+ pos(hitX,groundY);
+ ball.classList.add('capture-land');
+ await pause(350);
+ ball.classList.remove('capture-land');
+ // Three separate shakes, including on failed catches, before revealing the result.
+ for(let shake=0;shake<3;shake++){
+  ball.classList.remove('capture-shaking');
+  void ball.offsetWidth;
+  ball.classList.add('capture-shaking');
+  await pause(450);
+ }
+ ball.classList.remove('capture-shaking');
+ if(success){
+  ball.classList.add('capture-succeeded');
+  enemy.classList.add('enemy-captured');
+  await pause(450);
+  const notice=$('captureSuccessNotice');
+  $('captureSuccessText').textContent=wildEnemy.name+'을(를) 잡았다!';
+  notice.hidden=false;
+  await new Promise(resolve=>{
+   const confirm=$('captureSuccessConfirm');
+   confirm.addEventListener('click',resolve,{once:true});
+   confirm.focus();
+  });
+  notice.hidden=true;
+ }else{
+  ball.classList.add('capture-failed');
+  enemy.classList.remove('capture-absorbing');
+  enemy.classList.add('capture-escaping');
+  await pause(550);
+  enemy.classList.remove('capture-escaping');
+ }
+ ball.className='capture-ball';ball.removeAttribute('style');
+ flash.className='capture-flash';
+}
 
 function sprite(id,dex,back,emoji){const el=$(id),wrap=el.parentElement;wrap.classList.remove('failed');$(id.replace('Sprite','Fallback')).textContent=emoji;let attempt=0;const sources=[animatedImage(dex,back),staticImage(dex,back),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+dex+'.png'];el.onerror=()=>{attempt++;if(attempt<sources.length)el.src=sources[attempt];else wrap.classList.add('failed')};el.onload=()=>wrap.classList.remove('failed');el.src=sources[0];}
 function trainerFighter(name,dex,level,base,moveIds=['tackle']){
@@ -260,12 +319,14 @@ function reset(kind='wild'){
  player.hp=storedHp===null?player.stats.hp:Math.min(player.stats.hp,Math.max(0,storedHp));
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);
- visualSprite('enemy').classList.remove('enemy-captured');
+ visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
+ $('captureBall').className='capture-ball';$('captureBall').removeAttribute('style');
+ $('captureFlash').className='capture-flash';$('captureSuccessNotice').hidden=true;
  const first=enemies[0];
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':(TRAINERS[kind].name+'의 도전!'));
  shownHp={player:player.hp,enemy:first.hp};
  $('playerName').textContent=form.name;$('promptName').textContent=form.name;
- $('enemyName').textContent=first.name;$('enemyLevel').textContent='Lv.'+first.level;$('playerLevel').textContent='Lv.'+progress.level;
+ $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='Lv.'+first.level;$('playerLevel').textContent='Lv.'+progress.level;
  sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',kind==='wild'?wild.dex:kind==='blue'?getForm(blueChoice,7).dex:kind==='brock'?74:120,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':TRAINERS[kind].name;
  $('trainerPortrait').hidden=kind==='wild';
@@ -396,7 +457,7 @@ function showCollection(tab='dex'){
  renderCollection();window.scrollTo({top:0,behavior:'instant'});
 }
 function renderCollection(){
- return renderCollectionView({$,collectionTab,capturedPokemon,seenPokemon,blueCleared,brockCleared,mistyCleared});
+ return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared});
 }
 function renderCaptures(){
  if(!$('captureCount'))return;
@@ -523,6 +584,7 @@ async function act(a){
   if(battle.ended){
     if(battle.result==='capture'){
       capturedPokemon.push({name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level});
+      caughtSpecies.add(wildEnemy.dex);
       if(capturedPokemon.length>200)capturedPokemon.shift();
       saveProgress();
     }
@@ -642,5 +704,5 @@ function setup(){
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;blueChoice=null;injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;blueChoice=null;injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
 setup();
