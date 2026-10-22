@@ -16,11 +16,11 @@
     <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치 및 개체값"></div>
     <div class="home-stats-footer"><span class="stat-note">★ 흰 0 · 동 1~6 · 은 7~11 · 금 12~15 · 빨강 16</span><span id="ivSummary" class="iv-summary"></span></div>
   </section>
-  <section class="stage-panel"><div><strong id="currentArea">🌿 초원</strong><small id="trainerRequirement">Lv.7 달성 시 그린 도전</small></div><p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p><button type="button" id="healButton" hidden>🩹 치료하기</button><button type="button" id="trainerChallenge">⚔ 라이벌 그린 도전 (Lv.7)</button></section>
+  <section class="stage-panel"><div><strong id="currentArea">🌿 초원</strong><small id="trainerRequirement">Lv.7 달성 시 그린 도전</small></div><p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p><button type="button" id="trainerChallenge">⚔ 라이벌 그린 도전 (Lv.7)</button></section>
   <section id="captureCollection" class="capture-collection" aria-label="포획한 포켓몬"><strong>🔴 포획 도감 <span id="captureCount">0</span>마리</strong><div id="captureList" class="capture-list">아직 포획한 포켓몬이 없어.</div></section>
   <section class="move-recall-panel"><div class="move-recall-header"><strong>📖 기술 관리</strong><button type="button" id="openMoveRecall" class="secondary">기술 떠올리기</button></div><div class="move-recall-summary" id="moveRecallSummary">현재 기술 확인</div></section>
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
-  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button></div>
+  <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="healButton" class="home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button></div>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
 <section id="shopScreen" class="screen" hidden aria-label="상점 및 가방">
