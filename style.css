@@ -283,3 +283,30 @@
 .recall-current-label{display:block;text-align:left;margin:14px 0 5px;font-size:12px;color:#435b83}
 .learn-dialog .move-recall-summary{margin:0 0 12px;justify-content:flex-start}
 @media(max-width:420px){.home-area-badge{padding:5px 8px;font-size:11px}}
+
+/* Region-aware pixel battle scenery for the home Pokemon card. */
+.home-name{justify-content:flex-end;min-height:31px}
+.home-area-badge{margin-left:auto}
+.home-sprite-wrap{
+ background-color:#83bf81;
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
+ background-size:cover;
+ background-position:center;
+ background-repeat:no-repeat;
+ image-rendering:pixelated;
+ overflow:hidden;
+}
+.home-sprite-wrap.area-grass{
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
+}
+.home-sprite-wrap.area-forest{
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%);
+}
+.home-sprite-wrap.area-cave{
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3-cave.png'),linear-gradient(180deg,#849096 0%,#54546c 100%);
+}
+.home-sprite-wrap>img{position:relative;z-index:2}
+.home-sprite-wrap .home-fallback{position:relative;z-index:2}
+.heal-home-action{border-color:#689d8b;background:#effaf4;color:#28584f}
+.heal-home-action[aria-disabled="true"]{opacity:1;cursor:default}
+.move-home-action{grid-column:1/-1;min-height:68px}
