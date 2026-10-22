@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261022-14"></head>
+<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261022-15"></head>
 <body><main class="game">
 <header><div class="eyebrow">POKETAMA 2.0 · BLACK & WHITE PREVIEW</div><h1>포케타마 <span>2.0</span></h1><p>내 포켓몬 한 마리를 키우는 모험 · 개발 중인 테스트 버전</p></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
@@ -22,11 +22,18 @@
   <div class="home-actions"><button id="startBattle" class="home-action primary-action">⚔ 야생 배틀 <small>승리하면 경험치와 상금 획득</small></button><button type="button" id="healButton" class="home-action heal-home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action move-home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button></div>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
-<section id="shopScreen" class="screen" hidden aria-label="상점 및 가방">
+<section id="shopScreen" class="screen" hidden aria-label="가방 또는 프렌들리숍">
  <div class="shop-shell"><div class="shop-head"><button type="button" id="closeShop" class="secondary">← 메인으로</button><strong id="shopMoney">💰 0원</strong></div>
- <h2>🏪 프렌들리숍 · 🎒 가방</h2><div class="shop-tabs"><button type="button" id="shopTabShop" aria-selected="true">상점</button><button type="button" id="shopTabBag" aria-selected="false">가방</button></div>
- <div id="shopBuyList"></div><div id="shopBagList" hidden></div>
- <p class="shop-footnote">아이템별 최대 99개 · 구매/사용 내역 자동 저장 · 몬스터볼은 야생 배틀에서만 사용</p></div>
+ <h2 id="inventoryScreenTitle">🎒 가방</h2>
+ <div class="inventory-category-tabs" role="tablist" aria-label="아이템 종류">
+  <button type="button" data-item-category="heal" role="tab" aria-selected="true">회복</button>
+  <button type="button" data-item-category="ball" role="tab" aria-selected="false">볼</button>
+  <button type="button" data-item-category="use" role="tab" aria-selected="false">사용</button>
+  <button type="button" data-item-category="move" role="tab" aria-selected="false">기술</button>
+  <button type="button" data-item-category="key" role="tab" aria-selected="false">중요</button>
+ </div>
+ <div id="inventoryItems" role="tabpanel" aria-live="polite"></div>
+ <p id="inventoryFootnote" class="shop-footnote">아이템별 최대 99개 · 보유 아이템은 자동 저장</p></div>
 </section>
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
 <div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong></div>
@@ -64,4 +71,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261022-14"></script></body></html>
+</main><script type="module" src="./app.js?v=20261022-15"></script></body></html>
