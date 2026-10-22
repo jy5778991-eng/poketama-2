@@ -227,6 +227,10 @@ async function confirmTrainerIntro(){
 }
 function reset(kind='wild'){
  if(animating||learningBusy)return;
+ // Use the current location's scenery for wild and trainer battles alike.
+ const arena=document.querySelector('#battleScreen .arena');
+ arena.classList.remove('area-grass','area-forest','area-cave');
+ arena.classList.add('area-'+area);
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
