@@ -24,7 +24,7 @@ const ENCOUNTERS={
 const pickEncounter=area=>{const entries=ENCOUNTERS[area],roll=Math.random()*100;let total=0;return entries.find(e=>(total+=e.weight)>roll)||entries.at(-1);};
 const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family, saved permanently
 const TRAINERS={
- blue:{name:'라이벌 블루',level:7,money:300,stageAfter:'forest',image:'https://play.pokemonshowdown.com/sprites/trainers/leaf.png'},
+ blue:{name:'라이벌 블루',level:7,money:300,stageAfter:'forest',image:'https://play.pokemonshowdown.com/sprites/trainers/green.png'},
  brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
 };
 const START_BASES={
