@@ -237,11 +237,53 @@ function finishTrainerBattle(){
  return {messages:battle.result==='victory'?['트레이너 승리!','새로운 지역이 열렸어!']:['부상을 입었어. 치료가 필요해.'],evolutions,learnQueue,previousLevel:old,newLevel:progress.level};
 }
 let battlePlayerLevelStart=1;
+let pendingTrainerIntro=null;
 function challengeTrainer(){
  const kind=blueCleared?'brock':'blue';
- if(injured||pendingRewardChoice||learningBusy||animating)return;
- if(kind==='blue'&&progress.level<7||kind==='brock'&&progress.level<13)return;
- battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle');
+ if(injured||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
+ if((kind==='blue'&&progress.level<7)||(kind==='brock'&&progress.level<13))return;
+ pendingTrainerIntro=kind;
+ const trainer=TRAINERS[kind];
+ $('trainerIntroName').textContent=trainer.name;
+ $('trainerIntroText').textContent=kind==='blue'?'여성 라이벌 블루가 배틀을 신청했다!':'바위 체육관 관장 웅이 승부를 걸어왔다!';
+ $('trainerIntroImage').hidden=false;
+ $('trainerIntroImage').src=trainer.image;
+ $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};
+ $('trainerIntroFallback').hidden=true;
+ $('trainerIntroOverlay').hidden=false;
+ $('trainerIntroConfirm').focus();
+}
+async function confirmTrainerIntro(){
+ const kind=pendingTrainerIntro;
+ if(!kind||animating||learningBusy)return;
+ pendingTrainerIntro=null;
+ $('trainerIntroOverlay').hidden=true;
+ battlePlayerLevelStart=progress.level;
+ reset(kind);
+ showScreen('battle');
+ const arena=$('battleScreen');
+ arena.classList.add('trainer-summoning');
+ const ball=$('trainerThrowBall');
+ ball.classList.remove('trainer-ball-flying');
+ void ball.offsetWidth;
+ ball.classList.add('trainer-ball-flying');
+ $('trainerSummonMessage').textContent=TRAINERS[kind].name+'이(가) 몬스터볼을 던졌다!';
+ $('trainerSummonMessage').hidden=false;
+ $('battleCommands').hidden=true;
+ animating=true;
+ try{
+  await pause(1050);
+  arena.classList.add('trainer-pokemon-appearing');
+  $('trainerSummonMessage').textContent=battle.enemies[0].name+' 등장!';
+  await pause(780);
+ }finally{
+  arena.classList.remove('trainer-summoning','trainer-pokemon-appearing');
+  ball.classList.remove('trainer-ball-flying');
+  $('trainerSummonMessage').hidden=true;
+  animating=false;
+  render();
+  showMenu('main');
+ }
 }
 function reset(kind='wild'){
  if(animating||learningBusy)return;
@@ -606,6 +648,8 @@ function applyDeveloperChanges(e){
 }
 function setup(){
  $('trainerChallenge').addEventListener('click',challengeTrainer);
+ $('trainerIntroConfirm').addEventListener('click',confirmTrainerIntro);
+ $('trainerIntroCancel').addEventListener('click',()=>{if(animating)return;pendingTrainerIntro=null;$('trainerIntroOverlay').hidden=true;});
  $('healButton').addEventListener('click',healInjury);
  $('openMoveRecall').addEventListener('click',openRecall);
  $('closeMoveRecall').addEventListener('click',()=>{$('moveRecallOverlay').hidden=true});
