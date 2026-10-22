@@ -1,0 +1,76 @@
+/* Main screen and explicit battle navigation */
+[hidden]{display:none!important}
+.screen{margin-top:6px}
+.home-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.home-tag{font-size:11px;letter-spacing:2px;color:#697a99;font-weight:900}
+.home-badges{border:2px solid #8d9fba;border-radius:16px;background:#fff;padding:6px 12px;font-weight:900;font-size:12px}
+.home-badges small{color:#929bab;font-size:9px}
+.home-card{border:3px solid #405578;background:#fcfcff;border-radius:13px;padding:17px;margin-bottom:17px;box-shadow:5px 6px 0 #b9c4d6}
+.home-name{display:flex;justify-content:space-between;align-items:center}
+.home-label{font-size:11px;color:#7383a4;font-weight:900;letter-spacing:1px}
+.home-name h2{font-size:25px;margin:4px 0 0}.home-name strong{font-size:17px;color:#49659a}.home-name strong small{font-size:10px;color:#8794a9}
+.home-sprite-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:190px;border-radius:12px;margin:13px 0;background:radial-gradient(ellipse at 50% 81%,#afd0b2 0 29%,transparent 30%),linear-gradient(180deg,#d9e8f3 0%,#eef3f9 64%,#dce9dc 65%)}
+.home-sprite-wrap img{width:170px;height:170px;max-width:70%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(4px 7px 1px #66827150)}
+.home-fallback{font-size:80px}
+.home-hp-row,.home-xp-row{display:flex;justify-content:space-between;font-size:12px;color:#576d90;font-weight:800;margin:7px 0}
+.home-hp-bar,.home-exp-bar{height:12px;border:2px solid #8190a7;border-radius:9px;background:#d9dfe8;overflow:hidden}
+.home-hp-bar>div{background:#58c57c;width:100%;height:100%}
+.home-exp-bar{height:7px;background:#d9dfe8}.home-exp-bar>div{width:0;height:100%;background:#6c98e0}
+.home-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:17px 0}
+.home-action{border:3px solid #5a719b;border-radius:9px;padding:15px 12px;text-align:left;background:#f9fbff;color:#2b3e62;font-size:16px;font-weight:900;min-height:83px;box-shadow:3px 4px 0 #c1cada}
+.home-action small{display:block;font-size:11px;font-weight:500;margin-top:7px;color:#7d8aa0}
+.primary-action{background:#577fc4;color:#fff;border-color:#304a83}.primary-action small{color:#e3eeff}.primary-action:hover{background:#436bac}
+.locked-action{opacity:.56;cursor:not-allowed}
+.battle-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:10px}
+.battle-top span{font-size:11px;letter-spacing:1px;color:#647ba4;font-weight:900}
+@media(max-width:420px){.home-actions{gap:8px}.home-action{font-size:14px;padding:12px 9px}.home-card{padding:12px}.home-sprite-wrap{min-height:150px}.home-sprite-wrap img{height:145px;width:145px}}
+
+/* Unified home Pokémon card: artwork and IV stats in the same frame. */
+.home-card{overflow:hidden}
+.home-stats-divider{height:2px;background:linear-gradient(90deg,transparent,#c5d0e2 15%,#c5d0e2 85%,transparent);margin:20px 0 15px}
+.home-card .stat-grid{margin:0}
+.home-card .stat-card{background:linear-gradient(#fff,#edf3fc);border-color:#a3b1c9}
+.home-stats-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:11px}
+.home-stats-footer .stat-note{margin:0;text-align:left;font-size:10px}
+.iv-summary{font-size:10px;color:#8190a9;font-weight:800;white-space:nowrap}
+.home-sprite-wrap{overflow:hidden}
+.home-sprite-wrap img{animation:home-idle 2.8s ease-in-out infinite;transform-origin:center 90%;will-change:transform}
+.home-sprite-wrap .home-fallback{animation:home-idle 2.8s ease-in-out infinite;transform-origin:center 90%}
+@keyframes home-idle{0%,100%{transform:translateY(0) rotate(-1deg)}40%{transform:translateY(-6px) rotate(1deg)}70%{transform:translateY(-2px) rotate(-.5deg)}}
+@media(prefers-reduced-motion:reduce){.home-sprite-wrap img,.home-sprite-wrap .home-fallback{animation:none}}
+
+/* Home Pokémon label: center beneath the animated sprite */
+.home-pokemon-title{display:flex;justify-content:center;align-items:baseline;flex-wrap:wrap;gap:11px;text-align:center;margin:6px 0 18px;color:#273957}
+.home-pokemon-title #homeName{font-size:24px;font-weight:900;letter-spacing:-.4px}
+.home-pokemon-title #homeLevel{font-size:16px;font-weight:900;color:#5675a8;white-space:nowrap}
+.home-card .home-name{justify-content:flex-start}
+@media(max-width:420px){.home-pokemon-title #homeName{font-size:21px}.home-pokemon-title #homeLevel{font-size:14px}}
+
+/* Experience progress and post-battle reward */
+.home-exp-bar>div{transition:width .5s ease-out}
+.battle-result{border:3px solid #5677ad;background:linear-gradient(140deg,#f7fbff,#e8f1ff);box-shadow:4px 5px 0 #bdcbe1;padding:17px;border-radius:10px;text-align:center;margin:14px 0}
+.battle-result strong{display:block;font-size:21px;color:#294e88;margin-bottom:8px}
+.battle-result #resultDetail{font-size:13px;color:#405b83;line-height:1.8;white-space:pre-line;margin:6px 0 15px}
+.battle-result button{min-width:180px}
+
+/* Starter selection includes the ninth Pokémon: Magikarp. */
+@media(min-width:601px){.starters{grid-template-columns:repeat(9,minmax(0,1fr))}}
+@media(max-width:600px){.starters{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.evolution-overlay{position:fixed;inset:0;z-index:100;background:#112340e8;display:grid;place-items:center;padding:20px}
+.evolution-box{width:min(440px,94vw);padding:28px 20px;text-align:center;background:linear-gradient(#f8fbff,#e4ecfa);border:5px solid #5873a5;box-shadow:0 14px 45px #0008;border-radius:16px}
+.evolution-heading{font-size:15px;letter-spacing:4px;font-weight:1000;color:#5579b5}
+.evolution-art{height:210px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle,#ffffff 8%,#cbd8ee 56%,transparent 76%);margin:10px auto 8px}
+.evolution-art img{width:170px;height:170px;object-fit:contain;image-rendering:pixelated;animation:evolution-pulse .42s ease-in-out infinite alternate}
+.evolution-art span{font-size:84px}
+.evolution-art.evolved img{animation:evolution-reveal .9s ease-out both}
+.evolution-box strong{display:block;font-size:25px;color:#283d66}
+.evolution-box #evolutionMessage{font-size:13px;color:#506a96;margin-top:8px;font-weight:700}
+@keyframes evolution-pulse{0%{filter:brightness(.3) saturate(0);transform:scale(.90)}100%{filter:brightness(3) saturate(0);transform:scale(1.14)}}
+@keyframes evolution-reveal{0%{filter:brightness(5);transform:scale(.7)}65%{filter:brightness(1.8);transform:scale(1.14)}100%{filter:brightness(1);transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.evolution-art img,.evolution-art.evolved img{animation:none}}
+
+/* Money balance on main screen */
+.home-wallet{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+#homeMoney{display:inline-flex;align-items:center;padding:7px 11px;min-height:32px;border:2px solid #c2a366;border-radius:14px;background:#fff6d5;color:#74501b;font-size:13px;font-weight:900;white-space:nowrap;box-shadow:0 2px 0 #d9caa3}
+@media(max-width:420px){.home-wallet{gap:5px}#homeMoney{font-size:12px;padding:5px 7px}.home-badges{font-size:10px;padding:5px 7px}}
+
