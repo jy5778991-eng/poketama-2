@@ -27,7 +27,7 @@ const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family
 const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites/trainers/leaf.png';
 const TRAINERS={
  // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
- blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'https://archives.bulbagarden.net/media/upload/f/f4/Spr_B2W2_Blue.png?v=20261022-8'},
+ blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'./assets/trainers/green.webp'},
  brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
 };
 const START_BASES={
@@ -250,7 +250,7 @@ function challengeTrainer(){
  $('trainerIntroName').textContent=trainer.name;
  $('trainerIntroText').textContent=kind==='blue'?'라이벌 그린이 배틀을 신청했다!':'바위 체육관 관장 웅이 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
- // The source is the original 80×80 animated PNG (APNG): retain its frames.
+ // Use the uploaded animated WebP directly to preserve its original frames.
  $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
  $('trainerIntroImage').removeAttribute('src');
  $('trainerIntroImage').src=trainer.image;
