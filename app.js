@@ -236,8 +236,8 @@ function reset(kind='wild'){
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
- const wild=kind==='wild'?pickEncounter(area==='cave'?'forest':area):null;
- const cap=area==='grass'?7:area==='forest'?13:100;
+ const wild=kind==='wild'?pickEncounter(area):null;
+ const cap=area==='grass'?7:area==='forest'?13:19;
  const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
@@ -450,7 +450,7 @@ function renderHome(){
  $('healButton').hidden=false;
  $('healButton').setAttribute('aria-disabled',String(!injured));
  $('healButtonNote').textContent=injured?(freeHealsUsed<10?'무료 치료 '+(10-freeHealsUsed)+'/10회 남음':'치료비 '+(progress.level*10).toLocaleString('ko-KR')+'원'):'건강 상태 · 부상 시 치료 가능';
- $('startBattle').disabled=injured||!!pendingRewardChoice||area==='cave';
+ $('startBattle').disabled=injured||!!pendingRewardChoice;
  const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);
  $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
  $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원'+(lastBattleReward?' (+'+lastBattleReward.money.toLocaleString('ko-KR')+')':'');
