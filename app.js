@@ -469,11 +469,12 @@ function renderCollection(){
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
  const captured=new Set(capturedPokemon.map(p=>p.dex));
+ const dexRoster=[...new Map([...DEX_CATALOG,...RIVAL_POOL.map(p=>getForm(p.id,7)).filter(Boolean)].map(p=>[p.dex,p])).values()].sort((p,q)=>p.dex-q.dex);
  if(collectionTab==='dex'){
-  const count=DEX_CATALOG.filter(p=>seenPokemon.has(p.dex)).length;
-  $('collectionSummary').textContent='발견 '+count+'종 · 포획 '+captured.size+'종 / 현재 도감 '+DEX_CATALOG.length+'종';
+  const count=dexRoster.filter(p=>seenPokemon.has(p.dex)).length;
+  $('collectionSummary').textContent='발견 '+count+'종 · 포획 '+captured.size+'종 / 현재 도감 '+dexRoster.length+'종';
   const hint=document.createElement('p');hint.className='dex-note';hint.textContent='표시 포획률은 HP 100% · 몬스터볼 기준. 실제 포획률은 남은 HP와 사용하는 볼에 따라 달라져.';list.append(hint);
-  for(const p of DEX_CATALOG){
+  for(const p of dexRoster){
    const seen=seenPokemon.has(p.dex),caught=captured.has(p.dex);
    const row=document.createElement('div');row.className='dex-entry'+(seen?'':' dex-unknown');
    const num=document.createElement('span');num.className='dex-number';num.textContent=String(p.dex).padStart(3,'0');
@@ -482,9 +483,9 @@ function renderCollection(){
    const info=document.createElement('div');info.className='dex-info';
    const title=document.createElement('strong');title.textContent=seen?p.name:'???';
    const detail=document.createElement('small');detail.textContent=seen?(caught?'포획 완료':'발견 · 미포획'):'미발견';
+   if(caught){const ball=document.createElement('img');ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';ball.alt='포획 완료';ball.className='dex-caught-ball';title.append(' ',ball);}
    info.append(title,detail);
    const right=document.createElement('div');right.className='dex-right';
-   if(caught){const ball=document.createElement('img');ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';ball.alt='포획 완료';ball.className='dex-caught-ball';right.append(ball);}
    if(seen){
     const rate=document.createElement('small');rate.className='dex-rate';
     const chance=pokemonCatchChance(1,pokemonCatchMultiplier(p.dex,!!p.rare));
