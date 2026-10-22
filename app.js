@@ -27,7 +27,7 @@ const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family
 const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites/trainers/leaf.png';
 const TRAINERS={
  // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
- blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'https://cdn.bulbagarden.net/upload/f/f4/Spr_B2W2_Blue.png'},
+ blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'https://archives.bulbagarden.net/media/upload/f/f4/Spr_B2W2_Blue.png?v=20261022-8'},
  brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
 };
 const START_BASES={
