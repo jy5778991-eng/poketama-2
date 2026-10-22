@@ -23,8 +23,11 @@ const ENCOUNTERS={
 };
 const pickEncounter=area=>{const entries=ENCOUNTERS[area],roll=Math.random()*100;let total=0;return entries.find(e=>(total+=e.weight)>roll)||entries.at(-1);};
 const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family, saved permanently
+// Future character asset: female Blue. Preserve separately; not used for the Lv.7 rival.
+const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites/trainers/leaf.png';
 const TRAINERS={
- blue:{name:'라이벌 블루',level:7,money:300,stageAfter:'forest',image:'https://cdn.bulbagarden.net/upload/f/f4/Spr_B2W2_Blue.png'},
+ // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
+ blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'https://cdn.bulbagarden.net/upload/f/f4/Spr_B2W2_Blue.png'},
  brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
 };
 const START_BASES={
@@ -245,7 +248,7 @@ function challengeTrainer(){
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
- $('trainerIntroText').textContent=kind==='blue'?'여성 라이벌 블루가 배틀을 신청했다!':'바위 체육관 관장 웅이 승부를 걸어왔다!';
+ $('trainerIntroText').textContent=kind==='blue'?'라이벌 그린이 배틀을 신청했다!':'바위 체육관 관장 웅이 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
  // The source is the original 80×80 animated PNG (APNG): retain its frames.
  $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
@@ -493,9 +496,9 @@ function renderHome(){
  $('badgeStatus').textContent=brockCleared?'배지 1 / 8':'배지 0 / 8';
  $('trainerChallenge').hidden=blueCleared&&brockCleared;
  $('trainerChallenge').disabled=injured||!!pendingRewardChoice||(blueCleared?progress.level<13:progress.level<7);
- $('trainerChallenge').textContent=blueCleared?('🪨 웅에게 도전 '+(brockCleared?'✓ 클리어':'(Lv.13)')):'👩 라이벌 블루 도전 (Lv.7)';
+ $('trainerChallenge').textContent=blueCleared?('🪨 웅에게 도전 '+(brockCleared?'✓ 클리어':'(Lv.13)')):'⚔ 라이벌 그린 도전 (Lv.7)';
  $('trainerChallenge').hidden=brockCleared;
- $('trainerRequirement').textContent=brockCleared?'동굴 개방 완료':blueCleared?'Lv.13 달성 시 웅 도전':'Lv.7 달성 시 블루 도전';
+ $('trainerRequirement').textContent=brockCleared?'동굴 개방 완료':blueCleared?'Lv.13 달성 시 웅 도전':'Lv.7 달성 시 그린 도전';
  $('injuryStatus').hidden=!injured;
  $('injuryBandage').hidden=!injured;
  $('healButton').hidden=!injured;
