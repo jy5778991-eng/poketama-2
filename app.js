@@ -28,7 +28,7 @@ const FUTURE_BLUE_TRAINER_IMAGE='https://play.pokemonshowdown.com/sprites/traine
 const TRAINERS={
  // Keep 'blue' as the internal save-data key for backward compatibility; displayed rival is Green.
  blue:{name:'라이벌 그린',level:7,money:300,stageAfter:'forest',image:'./assets/trainers/green.webp'},
- brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
+ brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'./assets/trainers/brock.webp'}
 };
 const START_BASES={
  snorlax:{hp:135,attack:85,defense:63,speed:5},
