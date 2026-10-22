@@ -7,6 +7,7 @@ import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.j
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js';
 import {renderInventoryView} from './js/inventory.js';
+import {resolveDeveloperWarp} from './js/developer.js';
 const $=id=>document.getElementById(id);
 
 // Reward choices scale by stage when a stage system is added later.
@@ -574,19 +575,18 @@ function applyDeveloperChanges(e){
  e.preventDefault();
  if(animating||learningBusy)return;
  const requestedLevel=Number($('developerLevel').value),money=Number($('developerMoney').value),targetArea=$('developerArea').value;
- if(!Number.isInteger(requestedLevel)||requestedLevel<1||requestedLevel>100||!Number.isSafeInteger(money)||money<0||money>999999999||!['grass','forest','cave'].includes(targetArea)){
+ const warp=resolveDeveloperWarp({requestedLevel,money,targetArea});
+ if(!warp){
   $('developerSaveError').textContent='레벨 1~100, 보유금 0~999,999,999원, 지역 선택을 확인해줘.';
   return;
  }
- const minLevel=targetArea==='cave'?13:targetArea==='forest'?7:1;
- const targetLevel=Math.max(requestedLevel,minLevel);
+ const {targetLevel}=warp;
  const levelChanged=progress.level!==targetLevel;
- // Developer area warp uses the prerequisite clear states, including backtracking.
- area=targetArea;
- blueCleared=targetArea==='forest'||targetArea==='cave';
- brockCleared=targetArea==='cave';
+ area=warp.area;
+ blueCleared=warp.blueCleared;
+ brockCleared=warp.brockCleared;
  progress.level=targetLevel;
- progress.money=money;
+ progress.money=warp.money;
  if(levelChanged){
   storedHp=null;
   progress.exp=0;
