@@ -7,6 +7,33 @@ export const RULES = Object.freeze({
   sleepSecondActionWakeChance: 0.5, strugglePower: 50, struggleRecoil: 0.25,
 });
 export const MOVES = Object.freeze({
+  lick: {name:"핥기", accuracy:1.0, priority:0, power:30, pp:30},
+  crunch: {name:"깨물어부수기", accuracy:1.0, priority:0, power:80, pp:15},
+  gigaImpact: {name:"기가임팩트", accuracy:0.9, priority:0, power:150, pp:5, recharge:true},
+  bite: {name:"물기", accuracy:1.0, priority:0, power:60, pp:25},
+  hydroPump: {name:"하이드로펌프", accuracy:0.8, priority:0, power:110, pp:5},
+  spite: {name:"원한", accuracy:1.0, priority:0, pp:10, reduceTargetPp:3},
+  suckerPunch: {name:"기습", accuracy:1.0, priority:1, power:70, pp:5},
+  sludgeBomb: {name:"오물폭탄", accuracy:1.0, priority:0, power:90, pp:10},
+  wrap: {name:"김밥말이", accuracy:0.9, priority:0, power:15, pp:20},
+  dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, pp:20, inflict:"paralysis", inflictChance:0.3},
+  outrage: {name:"역린", accuracy:1.0, priority:0, power:120, pp:10},
+  vineWhip: {name:"덩굴채찍", accuracy:1.0, priority:0, power:45, pp:25},
+  razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, pp:25},
+  synthesis: {name:"광합성", accuracy:1.0, priority:0, pp:5, healMaxHp:0.5, target:"self"},
+  scratch: {name:"할퀴기", accuracy:1.0, priority:0, power:40, pp:35},
+  ember: {name:"불꽃세례", accuracy:1.0, priority:0, power:40, pp:25},
+  fireFang: {name:"화염엄니", accuracy:0.95, priority:0, power:65, pp:15},
+  airSlash: {name:"에어슬래시", accuracy:0.95, priority:0, power:75, pp:15},
+  waterGun: {name:"물대포", accuracy:1.0, priority:0, power:40, pp:25},
+  waterPulse: {name:"물의파동", accuracy:1.0, priority:0, power:60, pp:20},
+  ironDefense: {name:"철벽", accuracy:1.0, priority:0, pp:5, boosts:{defense:2}, target:"self"},
+  thunderShock: {name:"전기쇼크", accuracy:1.0, priority:0, power:40, pp:30},
+  spark: {name:"스파크", accuracy:1.0, priority:0, power:65, pp:20},
+  lightScreen: {name:"빛의장막", accuracy:1.0, priority:0, pp:10, boosts:{defense:1}, target:"self"},
+  confusion: {name:"염동력", accuracy:1.0, priority:0, power:50, pp:25},
+  quiverDance: {name:"나비춤", accuracy:1.0, priority:0, pp:5, boosts:{attack:1,defense:1,speed:1}, target:"self"},
+  gigaDrain: {name:"기가드레인", accuracy:1.0, priority:0, power:75, pp:10, drain:0.5},
   tackle: {name:'몸통박치기',power:40,accuracy:1,pp:35,priority:0},
   flamethrower: {name:'화염방사', power:95, accuracy:1, pp:15, priority:0},
   bodySlam: {name:'누르기', power:95, accuracy:1, pp:15, priority:0},
@@ -120,15 +147,17 @@ function executeMove(b,user,target,moveId){
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
-  if(move.inflict&&isAlive(target))afflict(target,move.inflict,b);
+  if(move.reduceTargetPp){const id=target.moveIds.find(id=>target.pp[id]>0);if(id){const lost=Math.min(target.pp[id],move.reduceTargetPp);target.pp[id]-=lost;say(b,`${target.name}의 ${MOVES[id].name} PP -${lost}`);}}
+  if(move.inflict&&isAlive(target)&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
+  if(move.recharge&&user.hp>0)user.recharge=true;
   if(move.recoilMaxHp||struggle){
     const recoil=Math.max(1,Math.floor(user.stats.hp*(struggle?RULES.struggleRecoil:move.recoilMaxHp)));
     user.hp=Math.max(0,user.hp-recoil);say(b,`${user.name} 반동 피해 ${recoil}`);emit(b,{type:'damage',side:sideOf(b,user),amount:recoil,hp:user.hp,critical:false,recoil:true});
   }
 }
 function pickAction(p,requested){
-  if(requested?.type==='item') return {type:'item',priority:6};
-  if(requested?.type==='ball') return {type:'ball',priority:7};
+  if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
+  if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier};
   const id=requested?.moveId;
   if(id&&p.moveIds.includes(id)&&p.pp[id]>0)return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   if(p.moveIds.every(x=>p.pp[x]===0))return {type:'move',moveId:'struggle',priority:0};
@@ -158,18 +187,18 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
   if(b.ended)throw new Error('Battle is over');
   const p=b.player,e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
-  if(pAction.type==='item'&&b.items<=0)throw new Error('No items left');
-  if(pAction.type==='ball'&&(!b.wild||b.balls<=0))throw new Error('No Pokeballs available for this battle');
+  if(pAction.type==='item'&&(!(pAction.power>0)||p.hp>=p.stats.hp))throw new Error('Cannot use healing item now');
+  if(pAction.type==='ball'&&!b.wild)throw new Error('Pokeballs can only be used in wild battles');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
   order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
     if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
+    if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
     if(a.action.type==='ball'){
       if(!a.player)continue;
-      b.balls--;
       const hpFactor=1-e.hp/e.stats.hp;
-      const chance=Math.min(0.9,0.2+0.7*hpFactor);
+      const chance=Math.min(0.95,(0.2+0.7*hpFactor)*(a.action.multiplier||1));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
@@ -177,8 +206,7 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
       }else{say(b,'앗! 포켓몬이 몬스터볼에서 빠져나왔다!');emit(b,{type:'capture',side:'enemy',success:false});}
     } else if(a.action.type==='item'){
       if(!canAct(a.fighter,b))continue;
-      b.items--;
-      const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,100);
+      const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,a.action.power);
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
     } else executeMove(b,a.fighter,a.target,a.action.moveId);
