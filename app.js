@@ -24,7 +24,7 @@ const ENCOUNTERS={
 const pickEncounter=area=>{const entries=ENCOUNTERS[area],roll=Math.random()*100;let total=0;return entries.find(e=>(total+=e.weight)>roll)||entries.at(-1);};
 const RIVAL_POOL=STARTERS.filter(s=>s.id!=='butterfree'); // One opponent family, saved permanently
 const TRAINERS={
- blue:{name:'라이벌 블루',level:7,money:300,stageAfter:'forest',image:'https://play.pokemonshowdown.com/sprites/trainers/green.png'},
+ blue:{name:'라이벌 블루',level:7,money:300,stageAfter:'forest',image:'https://cdn.bulbagarden.net/upload/f/f4/Spr_B2W2_Blue.png'},
  brock:{name:'웅',level:13,money:500,stageAfter:'cave',image:'https://play.pokemonshowdown.com/sprites/trainers/brock.png'}
 };
 const START_BASES={
@@ -247,8 +247,10 @@ function challengeTrainer(){
  $('trainerIntroName').textContent=trainer.name;
  $('trainerIntroText').textContent=kind==='blue'?'여성 라이벌 블루가 배틀을 신청했다!':'바위 체육관 관장 웅이 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
+ // The source is the original 80×80 animated PNG (APNG): retain its frames.
+ $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
+ $('trainerIntroImage').removeAttribute('src');
  $('trainerIntroImage').src=trainer.image;
- $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};
  $('trainerIntroFallback').hidden=true;
  $('trainerIntroOverlay').hidden=false;
  $('trainerIntroConfirm').focus();
