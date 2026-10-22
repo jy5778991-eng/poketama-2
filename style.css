@@ -318,3 +318,22 @@
 .inventory-category-tabs button:focus-visible{outline:3px solid #deaa52;outline-offset:2px}
 .inventory-empty{border:2px dashed #b8c7df;border-radius:12px;padding:32px 12px;text-align:center;color:#677c9c;background:#f7faff;font-size:13px;font-weight:700;min-height:120px;display:grid;place-items:center}
 @media(max-width:420px){.inventory-category-tabs{gap:3px}.inventory-category-tabs button{font-size:12px;padding:10px 1px}}
+
+/* Collection: pokedex, achievements, trainer history */
+.collection-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin:16px 0}
+.collection-tabs button{padding:12px 5px;border:2px solid #839bc0;border-radius:8px;background:#e8effd;color:#37537d;font-weight:900}
+.collection-tabs button[aria-selected="true"]{background:#4f73b2;color:#fff}
+.collection-summary{font-size:12px;color:#4e6387;font-weight:800}
+.dex-note{font-size:11px;line-height:1.6;color:#657a98;background:#eef3fd;border-radius:7px;padding:10px}
+.dex-entry{display:flex;align-items:center;gap:10px;padding:9px 5px;border-bottom:1px solid #d9e2f0;min-height:65px}
+.dex-number{width:37px;flex-shrink:0;font-size:12px;font-weight:900;color:#7d90ab;font-variant-numeric:tabular-nums}
+.dex-entry>img{width:45px;height:45px;object-fit:contain;image-rendering:pixelated}
+.dex-entry>img.dex-silhouette{filter:grayscale(1) brightness(0);opacity:.17}
+.dex-info{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+.dex-info strong{font-size:13px;color:#2b4368}
+.dex-info small{font-size:10px;color:#788ba7}
+.dex-right{display:flex;align-items:center;gap:7px;flex-shrink:0;min-width:54px;justify-content:flex-end}
+.dex-caught-ball{width:21px;height:21px;image-rendering:pixelated}
+.dex-rate{font-size:11px;font-weight:900;color:#426eab;font-variant-numeric:tabular-nums}
+.collection-progress{padding:16px 12px;border-bottom:1px solid #d8e2f0;font-size:13px;font-weight:800;color:#40587c}
+@media(max-width:420px){.dex-entry{gap:5px}.dex-number{width:31px}.dex-entry>img{width:39px;height:39px}}
