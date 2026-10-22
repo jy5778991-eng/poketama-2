@@ -269,3 +269,7 @@
  100%{opacity:0;transform:translate(calc(-1 * clamp(65px,18vw,120px)),-91px) scale(1.45) rotate(-640deg)}
 }
 @media(max-width:480px){.trainer-throw-ball{width:32px;height:32px;top:50%}}
+
+/* Pixel-perfect 80x80 animated Blue trainer sprite (APNG) */
+.trainer-intro-portrait img{image-rendering:pixelated;image-rendering:crisp-edges;width:200px;height:200px;max-width:100%;object-fit:contain}
+.trainer-label img{image-rendering:pixelated;image-rendering:crisp-edges}
