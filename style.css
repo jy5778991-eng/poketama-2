@@ -289,7 +289,7 @@
 .home-area-badge{margin-left:auto}
 .home-sprite-wrap{
  background-color:#83bf81;
- background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-meadow.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
  background-size:cover;
  background-position:center;
  background-repeat:no-repeat;
@@ -297,13 +297,13 @@
  overflow:hidden;
 }
 .home-sprite-wrap.area-grass{
- background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-meadow.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
 }
 .home-sprite-wrap.area-forest{
- background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%);
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%);
 }
 .home-sprite-wrap.area-cave{
- background-image:url('https://play.pokemonshowdown.com/fx/bg-gen3-cave.png'),linear-gradient(180deg,#849096 0%,#54546c 100%);
+ background-image:url('https://play.pokemonshowdown.com/fx/bg-earthycave.png'),linear-gradient(180deg,#849096 0%,#54546c 100%);
 }
 .home-sprite-wrap>img{position:relative;z-index:2}
 .home-sprite-wrap .home-fallback{position:relative;z-index:2}
