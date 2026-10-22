@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261022-22"></head>
+<title>포케타마 2.0 | BW 전투 프리뷰</title><link rel="stylesheet" href="./style.css?v=20261022-23"></head>
 <body><main class="game">
 <header><div class="eyebrow">POKETAMA 2.0 · BLACK & WHITE PREVIEW</div><h1>포케타마 <span>2.0</span></h1><p>내 포켓몬 한 마리를 키우는 모험 · 개발 중인 테스트 버전</p></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
@@ -16,20 +16,11 @@
     <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치와 개체값 별 등급"></div>
   </section>
   <section class="adventure-panel" aria-label="지역 모험">
-    <div class="adventure-heading">
-      <div><strong id="adventureRegion">🌿 초원 모험</strong><small id="adventureNext">다음 목적지: 숲</small></div>
-      <span id="adventureLevel" class="adventure-level">Lv.1</span>
-    </div>
     <div class="adventure-actions">
       <button id="startBattle" type="button" class="home-action primary-action adventure-wild">⚔ 야생 배틀 <small>레벨업 · 상금 · 포획</small></button>
       <button type="button" id="trainerChallenge" class="home-action adventure-trainer"><span id="trainerButtonTitle">🔒 그린에게 도전</span><small id="trainerButtonNote">Lv.7에 해금</small></button>
     </div>
-    <div class="adventure-progress">
-      <div class="adventure-progress-header"><span id="adventureGoal">그린 도전 레벨</span><span id="adventureProgressText">1 / 7</span></div>
-      <div class="adventure-progress-track" role="progressbar" id="adventureProgressBar" aria-label="트레이너 도전까지 레벨 진행도" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="adventureProgressFill"></div></div>
-      <p id="trainerRequirement" class="adventure-help">Lv.7을 달성하면 그린에게 도전할 수 있어!</p>
-      <p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p>
-    </div>
+    <p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p>
   </section>
 
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
@@ -86,4 +77,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261022-22"></script></body></html>
+</main><script type="module" src="./app.js?v=20261022-23"></script></body></html>
