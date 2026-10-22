@@ -9,7 +9,7 @@
 .home-name{display:flex;justify-content:space-between;align-items:center}
 .home-label{font-size:11px;color:#7383a4;font-weight:900;letter-spacing:1px}
 .home-name h2{font-size:25px;margin:4px 0 0}.home-name strong{font-size:17px;color:#49659a}.home-name strong small{font-size:10px;color:#8794a9}
-.home-sprite-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:290px;border-radius:12px;margin:13px 0;background:radial-gradient(ellipse at 50% 81%,#afd0b2 0 29%,transparent 30%),linear-gradient(180deg,#d9e8f3 0%,#eef3f9 64%,#dce9dc 65%)}
+.home-sprite-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:350px;border-radius:12px;margin:13px 0;background:radial-gradient(ellipse at 50% 81%,#afd0b2 0 29%,transparent 30%),linear-gradient(180deg,#d9e8f3 0%,#eef3f9 64%,#dce9dc 65%)}
 .home-sprite-wrap img{width:170px;height:170px;max-width:70%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(4px 7px 1px #66827150)}
 .home-fallback{font-size:80px}
 .home-hp-row,.home-xp-row{display:flex;justify-content:space-between;font-size:12px;color:#576d90;font-weight:800;margin:7px 0}
@@ -23,7 +23,7 @@
 .locked-action{opacity:.56;cursor:not-allowed}
 .battle-top{display:flex;align-items:center;justify-content:space-between;margin:0 0 12px;gap:10px}
 .battle-top span{font-size:11px;letter-spacing:1px;color:#647ba4;font-weight:900}
-@media(max-width:420px){.home-actions{gap:8px}.home-action{font-size:14px;padding:12px 9px}.home-card{padding:12px}.home-sprite-wrap{min-height:150px}.home-sprite-wrap img{height:145px;width:145px}}
+@media(max-width:420px){.home-actions{gap:8px}.home-action{font-size:14px;padding:12px 9px}.home-card{padding:12px}.home-sprite-wrap{min-height:320px}.home-sprite-wrap img{height:170px;width:170px}}
 
 /* Unified home Pokémon card: artwork and IV stats in the same frame. */
 .home-card{overflow:hidden}
