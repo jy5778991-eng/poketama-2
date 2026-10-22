@@ -59,3 +59,40 @@
 
 /* Battle prompt: Pokemon name inherits the entire question's type style. */
 .panel-head #promptName{font:inherit;color:inherit;letter-spacing:inherit}
+
+/* Original pixel Pokeball capture: throw, absorb, land, three shakes, release. */
+.enemy-name-with-ball{display:inline-flex;align-items:center;gap:5px;min-width:0}
+.enemy-caught-mark{width:16px;height:16px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
+.enemy-caught-mark[hidden]{display:none!important}
+#battleScreen .arena .capture-ball{position:absolute;left:0;top:0;width:32px;height:32px;z-index:22;pointer-events:none;display:none;transform-origin:center bottom}
+#battleScreen .arena .capture-ball.visible{display:block}
+.capture-ball>img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 2px 2px #13223d8c)}
+.capture-ball.capture-throw{animation:catch-arc .72s ease-in-out both}
+@keyframes catch-arc{0%{transform:translate(0,0) rotate(-30deg) scale(.72)}48%{transform:translate(calc(var(--catch-dx)*.5),calc(var(--catch-dy)*.5 - 62px)) rotate(250deg) scale(1.1)}100%{transform:translate(var(--catch-dx),var(--catch-dy)) rotate(540deg) scale(1)}}
+.sprite.enemy.capture-absorbing{animation:catch-absorb .43s ease-in forwards}
+@keyframes catch-absorb{0%{transform:scale(1);opacity:1;filter:brightness(1)}55%{transform:scale(.65);opacity:.9;filter:brightness(2.5)}100%{transform:scale(0);opacity:0}}
+.capture-flash{position:absolute;inset:0;z-index:19;pointer-events:none;opacity:0}
+.capture-flash.capture-flashing{animation:catch-flash .43s ease-out}
+@keyframes catch-flash{0%{opacity:0}36%{opacity:1;background:radial-gradient(circle at 72% 45%,#fff9b9aa 0,#fff4ac22 27%,transparent 55%)}100%{opacity:0}}
+.capture-ball.capture-land{animation:catch-land .35s ease-out both}
+@keyframes catch-land{0%{transform:translateY(-20px) scale(1.1)}60%{transform:translateY(4px) scale(.95)}100%{transform:translateY(0)}}
+.capture-ball.capture-shaking{animation:catch-shake .45s ease-in-out both}
+@keyframes catch-shake{0%,100%{transform:rotate(0)}24%{transform:rotate(-18deg)}55%{transform:rotate(16deg)}80%{transform:rotate(-7deg)}}
+.capture-ball.capture-succeeded{animation:catch-success .45s ease-out}
+@keyframes catch-success{25%{filter:brightness(1.7)}65%{filter:brightness(1)}}
+.capture-ball.capture-failed{animation:catch-break .55s ease-out both}
+@keyframes catch-break{0%{transform:scale(1);opacity:1}45%{transform:scale(1.5);opacity:.85}100%{transform:scale(1.8);opacity:0}}
+.sprite.enemy.capture-escaping{animation:catch-escape .55s ease-out both}
+@keyframes catch-escape{0%{opacity:0;transform:scale(.1);filter:brightness(2)}60%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1);filter:brightness(1)}}
+.capture-success-notice{position:fixed;inset:0;background:#0e1d3ab3;display:grid;place-items:center;z-index:180;padding:16px}
+.capture-success-notice[hidden]{display:none!important}
+.capture-success-dialog{width:min(355px,100%);background:#f6f9ff;border:4px solid #4c6898;border-radius:13px;box-shadow:0 15px 50px #0007;padding:24px 18px;text-align:center;display:grid;justify-items:center;gap:15px;color:#243f72}
+.capture-success-dialog>img{width:50px;height:50px;image-rendering:pixelated}
+.capture-success-dialog strong{font-size:20px;font-weight:900}
+.capture-success-dialog button{padding:10px 28px;background:#507bbd;color:white;border:2px solid #345689;border-radius:8px;font-weight:900}
+.battle-fast .capture-throw{animation-duration:.36s!important}
+.battle-fast .capture-absorbing{animation-duration:.215s!important}
+.battle-fast .capture-shaking{animation-duration:.225s!important}
+.battle-fast .capture-land{animation-duration:.175s!important}
+.battle-fast .capture-failed,.battle-fast .capture-escaping{animation-duration:.275s!important}
+@media(prefers-reduced-motion:reduce){.capture-ball.capture-throw,.capture-ball.capture-land,.capture-ball.capture-shaking,.sprite.enemy.capture-absorbing,.sprite.enemy.capture-escaping{animation-duration:.01ms}}
