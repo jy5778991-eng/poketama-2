@@ -16,7 +16,7 @@
     <div id="statGrid" class="stat-grid" aria-label="HP, ATK, DEF, SPD 능력치 및 개체값"></div>
     <div class="home-stats-footer"><span class="stat-note">★ 흰 0 · 동 1~6 · 은 7~11 · 금 12~15 · 빨강 16</span><span id="ivSummary" class="iv-summary"></span></div>
   </section>
-  <section class="stage-panel"><div><strong id="currentArea">🌿 초원</strong><small id="trainerRequirement">Lv.7 달성 시 블루 도전</small></div><p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p><button type="button" id="healButton" hidden>🩹 치료하기</button><button type="button" id="trainerChallenge">👩 라이벌 블루 도전 (Lv.7)</button></section>
+  <section class="stage-panel"><div><strong id="currentArea">🌿 초원</strong><small id="trainerRequirement">Lv.7 달성 시 그린 도전</small></div><p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p><button type="button" id="healButton" hidden>🩹 치료하기</button><button type="button" id="trainerChallenge">⚔ 라이벌 그린 도전 (Lv.7)</button></section>
   <section id="captureCollection" class="capture-collection" aria-label="포획한 포켓몬"><strong>🔴 포획 도감 <span id="captureCount">0</span>마리</strong><div id="captureList" class="capture-list">아직 포획한 포켓몬이 없어.</div></section>
   <section class="move-recall-panel"><div class="move-recall-header"><strong>📖 기술 관리</strong><button type="button" id="openMoveRecall" class="secondary">기술 떠올리기</button></div><div class="move-recall-summary" id="moveRecallSummary">현재 기술 확인</div></section>
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
@@ -51,7 +51,7 @@
  <div class="trainer-intro-box">
   <div class="trainer-intro-eyebrow">TRAINER CHALLENGE!</div>
   <div class="trainer-intro-portrait"><img id="trainerIntroImage" alt="도전 트레이너"/><span id="trainerIntroFallback" hidden>👩</span></div>
-  <strong id="trainerIntroName">라이벌 블루</strong>
+  <strong id="trainerIntroName">라이벌 그린</strong>
   <p id="trainerIntroText">트레이너가 승부를 걸어왔다!</p>
   <div class="trainer-intro-buttons"><button type="button" id="trainerIntroCancel">취소</button><button type="button" id="trainerIntroConfirm">확인 · 배틀 시작!</button></div>
  </div>
@@ -64,5 +64,5 @@
  </div>
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
-<footer>팬 제작 전투 프로토타입 · 공식 포켓몬 게임과 무관 · 스프라이트 제공 여부에 따라 대체 이미지 표시</footer>
+<footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
 </main><script type="module" src="./app.js"></script></body></html>
