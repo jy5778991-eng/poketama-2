@@ -80,3 +80,6 @@
 .home-sprite-wrap>.home-status-row #homeMoney,.home-sprite-wrap>.home-status-row .home-badges{background:#f9fbffed;border:1.5px solid #8197b8;border-radius:14px;padding:5px 8px;font-size:11px;line-height:1.3;font-weight:900;white-space:nowrap;box-shadow:0 2px 7px #26345233}
 .home-sprite-wrap>.home-status-row #homeMoney{min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
 @media(max-width:430px){.home-card .home-sprite-wrap>.home-status-row{top:7px;left:7px;right:7px;gap:3px}.home-sprite-wrap>.home-status-row .home-area-badge{font-size:10px;padding:4px 6px}.home-sprite-wrap>.home-status-row #homeMoney,.home-sprite-wrap>.home-status-row .home-badges{font-size:10px;padding:4px 5px;max-width:32vw}.home-sprite-wrap>.home-status-row .home-wallet{gap:3px}}
+
+/* Strange Forest: the exact original forest art, darkened without affecting Pokemon sprites or overlay HUD. */
+.home-sprite-wrap.area-strangeForest,#battleScreen .arena.area-strangeForest{background-color:#263f35;background-image:linear-gradient(rgba(6,16,25,.58),rgba(10,18,27,.68)),url('https://play.pokemonshowdown.com/fx/bg-forest.png');background-size:cover;background-position:center;background-repeat:no-repeat}
