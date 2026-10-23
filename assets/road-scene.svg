@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#8bc8e4"/><stop offset="1" stop-color="#d9edf0"/></linearGradient><linearGradient id="path" x2="0" y2="1"><stop stop-color="#d8c6a0"/><stop offset="1" stop-color="#a99372"/></linearGradient></defs>
+<g shape-rendering="crispEdges">
+<path fill="url(#sky)" d="M0 0h960v540H0z"/>
+<path fill="#eaf4ed" d="M92 81h107v19H92zm34-17h84v17h-84zm530 43h132v18H656zm25-19h96v19h-96z" opacity=".83"/>
+<path fill="#a8cbb2" d="M0 245l116-57 121 48 124-45 106 53 133-65 113 58 129-41 118 48v296H0z"/>
+<path fill="#78ad83" d="M0 275l95-35 102 29 101-48 114 36 110-34 137 50 137-53 164 60v260H0z"/>
+<path fill="#5d9d6d" d="M0 312l128-47 124 44 119-49 91 42 131-43 115 50 114-45 138 46v230H0z"/>
+<path fill="#79b37a" d="M0 340h960v200H0z"/>
+<path fill="#9bc785" d="M0 388h960v152H0z"/>
+<path fill="#b5cf87" d="M0 476h960v64H0z"/>
+<!-- An open winding rural road, receding behind the centered Pokemon -->
+<path fill="#7d9672" d="M444 299h79l82 241H209z" opacity=".65"/>
+<path fill="url(#path)" d="M457 296h48l215 244H165z"/>
+<path fill="#eadab7" d="M457 296h6L205 540h-40z"/>
+<path fill="#978466" d="M499 296h6l215 244h-36z"/>
+<path fill="#c1af8d" d="M452 324h62l14 19h-88zM410 378h144l17 24H391zM337 470h297l28 32H309z" opacity=".54"/>
+<!-- Wooden roadside fence posts and rails -->
+<path stroke="#795e45" stroke-width="9" d="M76 405L390 315M886 404L556 315" fill="none"/>
+<path stroke="#c5a075" stroke-width="8" d="M67 397L388 311M891 396L558 310" fill="none"/>
+<path fill="#96714f" d="M77 393h14v75H77zm86-25h12v64h-12zm73-20h10v49h-10zm69-19h8v39h-8zm74-20h7v29h-7zM875 395h14v75h-14zm-83-27h-12v64h12zm-73-20h-10v49h10zm-69-19h-8v39h8zm-74-20h-7v29h7z"/>
+<!-- Sparse tree silhouettes are kept to the sides so battle Pokemon remain visible -->
+<path fill="#826f52" d="M18 238h24v132H18zm866-9h23v134h-23zM120 268h16v78h-16zm695-12h16v84h-16z"/>
+<path fill="#417d5d" d="M0 217h62v-25h18v-58H57v-29H6v24H0zm849-13h27v-38h20v-59h45v30h19v115h-67v-14h-44z"/>
+<path fill="#57936a" d="M0 251h85v-47H51v-22H0zm826-9h48v-34h45v-44h41v101H826zM90 261h75v-32h-17v-28h-41v30H90zm686-9h69v-30h-15v-27h-32v33h-22z"/>
+<path fill="#95c88e" d="M0 475h92v8H0zm776-24h83v8h-83zm-623 38h61v7h-61zm509 19h100v7H662z"/>
+<path fill="#4d986b" d="M51 515h7v-22h8v22h7v-13h8v17H51zm763-8h7v-22h8v22h7v-13h8v17h-30z"/>
+</g></svg>
