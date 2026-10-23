@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0</title><link rel="stylesheet" href="./style.css?v=20261023-21"></head>
+<title>포케타마 2.0</title><link rel="stylesheet" href="./style.css?v=20261023-22"></head>
 <body><main class="game">
 <header><h1>포케타마 <span>2.0</span></h1></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
   <section class="home-card">
-    <div class="home-name home-status-row"><span id="currentArea" class="home-area-badge">🌿 초원</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><span class="home-badges" id="badgeStatus">배지 0 / 8</span></div></div>
-    <div id="homeSpriteWrap" class="home-sprite-wrap area-grass"><span id="injuryBandage" class="injury-bandage" hidden aria-label="부상 상태: 겹친 반창고"></span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
+    <div id="homeSpriteWrap" class="home-sprite-wrap area-grass">
+      <div class="home-name home-status-row"><span id="currentArea" class="home-area-badge">🌿 초원</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><span class="home-badges" id="badgeStatus">배지 0 / 8</span></div></div>
+      <span id="injuryBandage" class="injury-bandage" hidden aria-label="부상 상태: 겹친 반창고"></span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
     <div class="home-pokemon-title"><span id="homeName">라이츄</span><span id="homeLevel">LV 50</span></div>
     <div id="homeLevelUp" class="home-level-up" hidden role="status" aria-live="polite"><strong>LEVEL UP!</strong><span id="homeLevelUpDetail">LV 1 → LV 2</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
@@ -22,8 +23,8 @@
     <p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p>
   </section>
 
-  <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
   <div class="home-actions"><button type="button" id="healButton" class="home-action heal-home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button><button type="button" id="openCollection" class="home-action">📚 수집 <small>도감 · 업적 · 트레이너</small></button></div>
+  <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
 <section id="collectionScreen" class="screen" hidden aria-label="수집 메뉴"><div class="shop-shell"><div class="shop-head"><button type="button" id="closeCollection" class="secondary">← 메인으로</button><strong>📚 수집</strong></div><div class="collection-tabs" role="tablist" aria-label="수집 항목"><button type="button" data-collection-tab="dex" role="tab" aria-selected="true">도감</button><button type="button" data-collection-tab="achievements" role="tab" aria-selected="false">업적</button><button type="button" data-collection-tab="trainers" role="tab" aria-selected="false">트레이너</button></div><p id="collectionSummary" class="collection-summary"></p><div id="collectionContent" role="tabpanel"></div></div></section>
