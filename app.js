@@ -7,7 +7,7 @@ import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.j
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js';
-import {resolveDeveloperWarp} from './js/developer.js?v=20261023-14';
+import {resolveDeveloperWarp} from './js/developer.js?v=20261023-20';
 const $=id=>document.getElementById(id);
 
 // Reward choices scale by stage when a stage system is added later.
