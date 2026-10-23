@@ -45,7 +45,7 @@ let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCle
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,erikaCleared=!!saved?.erikaCleared;
 let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared;
-if(sabrinaCleared){kogaCleared=true;area=progress.level>=46?'volcano':'sea';}
+if(sabrinaCleared){kogaCleared=true;if(area!=='strangeForest')area=progress.level>=46?'volcano':'sea';}
 else if(kogaCleared){erikaCleared=true;area='city';}
 if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
 if(greenThirdCleared)surgeCleared=true;
