@@ -123,3 +123,13 @@
 @keyframes badgeEnter{0%{opacity:0;transform:scale(.22) rotate(-35deg)}65%{opacity:1;transform:scale(1.15) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
 @keyframes badgeSparkle{from{opacity:.35;transform:scale(.6)}to{opacity:1;transform:scale(1.2)}}
 @media(prefers-reduced-motion:reduce){.badge-award-overlay,.badge-award-shine,.badge-award-shine:after{animation:none}}
+
+/* Three independent tiered reward cards and paid reroll controls. */
+.reward-choice-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.reward-choice-item{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;min-width:0;min-height:114px;padding:10px 5px;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
+.reward-tier-label{display:block;width:100%;border-radius:5px;padding:3px;font-size:12px;color:#fff;background:#8b9aaf}
+.reward-tier-rare{border-color:#4e8fd0;background:#edf6ff}.reward-tier-rare .reward-tier-label{background:#3978c1}
+.reward-tier-legendary{border-color:#d5a02b;background:#fff7dc;box-shadow:0 0 14px #d6a63b60}.reward-tier-legendary .reward-tier-label{background:#be8a20}
+.reward-reroll{display:block;width:100%;margin-top:16px;padding:12px;border:2px solid #557cb8;border-radius:9px;background:#567bc0;color:white;font-size:15px;font-weight:900}
+.reward-reroll:disabled{opacity:.45;cursor:not-allowed}
+.reward-reroll-info{font-size:11px!important;margin:8px 0 0;color:#6a7690!important}
