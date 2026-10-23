@@ -525,7 +525,7 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
- if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 IV를 16으로';
+ if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +2 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
  if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +10%',accuracy:'명중률 +10%p',critical:'급소 확률 +10%p',defense:'방어력 +10%'}[choice.effect||'attack']);
@@ -570,7 +570,7 @@ function showSilverCapStatChoice(){
  for(const stat of EV_STATS){
   const b=document.createElement('button');
   b.type='button';b.className='silver-cap-option';
-  b.textContent=STAT_LABELS[stat]+' · IV '+playerIVs[stat]+' → 16';
+  b.textContent=STAT_LABELS[stat]+' · 개체값 최대 강화';
   b.disabled=playerIVs[stat]===16;
   b.onclick=()=>{
    playerIVs[stat]=16;
