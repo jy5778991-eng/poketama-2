@@ -552,18 +552,34 @@ function rewardChoiceText(choice){
  const item=SHOP_ITEMS.find(x=>x.id===choice.id);
  return (item?.icon||'🎁')+' '+(item?.name||'아이템')+' ×'+choice.quantity;
 }
+// Pokemon item sprites for the selectable reward cards.
+function rewardImageName(choice){
+ if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defense'}[choice.effect||'attack'];
+ if(choice.kind==='item')return {pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
+ return null;
+}
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
  options.replaceChildren();
- $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR! · 관장 승리 보상':'BATTLE WIN!';
- $('rewardChoiceCaption').textContent='3가지 보상 중 1개를 선택하거나 유료 리롤로 다시 뽑아줘.';
+ $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
   const b=document.createElement('button');b.type='button';
   b.className='reward-choice-item reward-tier-'+choice.tier;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
-  const content=document.createElement('span');content.textContent=rewardChoiceText(choice);
-  b.append(tag,content);b.onclick=()=>claimRewardChoice(index);options.append(b);
+  const imageName=rewardImageName(choice);
+  if(imageName){
+   const img=document.createElement('img');
+   img.className='reward-item-sprite';
+   img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+imageName+'.png';
+   img.alt='';
+   img.loading='lazy';
+   b.append(tag,img);
+  }else b.append(tag);
+  const content=document.createElement('span');
+  content.textContent=imageName?rewardChoiceText(choice).replace(/^[^\\p{L}\\p{N}]+/u,''):rewardChoiceText(choice);
+  b.append(content);b.onclick=()=>claimRewardChoice(index);options.append(b);
  });
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  const reroll=$('rewardReroll');
@@ -913,7 +929,6 @@ function setup(){
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
  $('trainerIntroConfirm').addEventListener('click',confirmTrainerIntro);
- $('trainerIntroCancel').addEventListener('click',()=>{if(animating)return;pendingTrainerIntro=null;$('trainerIntroOverlay').hidden=true;});
  $('healButton').addEventListener('click',healInjury);
  $('openMoveRecall').addEventListener('click',openRecall);
  $('closeMoveRecall').addEventListener('click',()=>{$('moveRecallOverlay').hidden=true});
