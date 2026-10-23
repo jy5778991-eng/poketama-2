@@ -157,7 +157,7 @@ function executeMove(b,user,target,moveId){
 }
 function pickAction(p,requested){
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
-  if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier};
+  if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
   const id=requested?.moveId;
   if(id&&p.moveIds.includes(id)&&p.pp[id]>0)return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   if(p.moveIds.every(x=>p.pp[x]===0))return {type:'move',moveId:'struggle',priority:0};
@@ -200,7 +200,7 @@ export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b
       if(!a.player)continue;
       const hpFraction=Math.max(0,Math.min(1,e.hp/e.stats.hp));
       const speciesMultiplier=e.catchMultiplier??(e.rare?0.25:1);
-      const chance=Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)));
+      const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
