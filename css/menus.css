@@ -133,3 +133,8 @@
 .reward-reroll{display:block;width:100%;margin-top:16px;padding:12px;border:2px solid #557cb8;border-radius:9px;background:#567bc0;color:white;font-size:15px;font-weight:900}
 .reward-reroll:disabled{opacity:.45;cursor:not-allowed}
 .reward-reroll-info{font-size:11px!important;margin:8px 0 0;color:#6a7690!important}
+
+.silver-cap-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}
+.silver-cap-option{border:2px solid #889bb8;border-radius:8px;background:#f7f9ff;padding:15px 6px;font-weight:900;color:#29466f;cursor:pointer}
+.silver-cap-option:disabled{opacity:.45;cursor:not-allowed}
+#silverCapOverlay{z-index:160}
