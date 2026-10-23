@@ -1,13 +1,13 @@
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261023-14';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261023-23';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261023-14';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js';
-import {resolveDeveloperWarp} from './js/developer.js?v=20261023-20';
+import {resolveDeveloperWarp} from './js/developer.js?v=20261023-23';
 const $=id=>document.getElementById(id);
 
 // Reward choices scale by stage when a stage system is added later.
@@ -40,7 +40,7 @@ const saveReadFailed=existingSaveRaw!==null&&!saved;
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
-let area=['grass','forest','cave','lake','cemetery','road','city','sea','volcano'].includes(saved?.area)?saved.area:'grass';
+let area=['grass','forest','cave','lake','cemetery','road','city','sea','volcano','strangeForest'].includes(saved?.area)?saved.area:'grass';
 let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCleared=!!saved?.mistyCleared;
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,erikaCleared=!!saved?.erikaCleared;
@@ -335,13 +335,13 @@ function reset(kind='wild'){
  if(animating||learningBusy)return;
  // Use the current location's scenery for wild and trainer battles alike.
  const arena=document.querySelector('#battleScreen .arena');
- arena.classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano');
+ arena.classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest');
  arena.classList.add('area-'+area);
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
- const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='road'?36:area==='city'?42:area==='sea'?46:46;
+ const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='road'?36:area==='city'?42:area==='sea'?46:area==='strangeForest'?50:46;
  const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
@@ -558,8 +558,8 @@ function renderInventory(){
 function showScreen(next){if(animating||learningBusy)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';window.scrollTo({top:0,behavior:'instant'});}
 function renderHome(){
  refreshHealingDay();
- $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':'🌋 화산';
- $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road');
+ $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':'🌲 이상한 숲';
+ $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest');
  $('homeSpriteWrap').classList.add('area-'+area);
  $('badgeStatus').textContent='배지 '+(sabrinaCleared?6:kogaCleared?5:erikaCleared?4:surgeCleared?3:mistyCleared?2:brockCleared?1:0)+' / 8';
  const trainerKind=nextTrainerKind();
