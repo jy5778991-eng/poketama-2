@@ -74,11 +74,11 @@ export function calculateStats(base,level,iv={},ev={}) {
   const stats={};
   for(const stat of ['hp','attack','defense','speed']) {
     const i=iv[stat]??0, e=ev[stat]??0;
-    if(!Number.isInteger(i)||i<0||i>16||!Number.isInteger(e)||e<0||e>80) throw new Error('Invalid IV/EV');
+    if(!Number.isInteger(i)||i<0||i>16||!Number.isInteger(e)||e<0||e>100) throw new Error('Invalid IV/EV');
     const baseValue=2*base[stat]+i+Math.floor(e/4);
     stats[stat]=Math.floor(baseValue*level/100)+(stat==='hp'?level+10:5);
   }
-  if(Object.values(ev).reduce((a,b)=>a+b,0)>172) throw new Error('EV total exceeds 172');
+  if(Object.values(ev).reduce((a,b)=>a+b,0)>216) throw new Error('EV total exceeds 216');
   return stats;
 }
 export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
