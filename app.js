@@ -240,7 +240,7 @@ function finishTrainerBattle(){
  }
  for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
  saveProgress();
- return {messages:battle.result==='victory'?(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티스에게 승리! 오렌지배지를 획득했어!']:['트레이너 승리!','새로운 지역이 열렸어!']):['부상을 입었어. 치료가 필요해.'],evolutions,learnQueue,previousLevel:old,newLevel:progress.level};
+ return {messages:battle.result==='victory'?(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!']:['트레이너 승리!','새로운 지역이 열렸어!']):['부상을 입었어. 치료가 필요해.'],evolutions,learnQueue,previousLevel:old,newLevel:progress.level};
 }
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':null;}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
@@ -253,7 +253,7 @@ function challengeTrainer(){
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
- $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':'전기 체육관 관장 마티스가 승부를 걸어왔다!';
+ $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':'전기 체육관 관장 마티즈가 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
  // Use the uploaded animated WebP directly to preserve its original frames.
  $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
@@ -521,7 +521,7 @@ function renderHome(){
  $('trainerChallenge').disabled=challengeDisabled;
  $('trainerChallenge').classList.toggle('adventure-ready',unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',!unlocked||finalArea);
- $('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':'⚡ 마티스에게 도전';
+ $('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':'⚡ 마티즈에게 도전';
  $('trainerButtonNote').textContent=finalArea?'오렌지배지 획득 완료':!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='misty'?'승리하면 호수 개방':trainerKind==='greenReturn'?'승리해도 지역은 그대로':trainerKind==='surge'?'승리하면 오렌지배지 획득':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!injured;
  $('injuryBandage').hidden=!injured;
