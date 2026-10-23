@@ -111,6 +111,7 @@ const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Arr
 const boostCount=key=>activeBoosts[key].length;
 function tickBoosts(){for(const key of Object.keys(activeBoosts))activeBoosts[key]=activeBoosts[key].map(n=>n-1).filter(n=>n>0);}
 let storedHp=Number.isInteger(saved?.storedHp)&&saved.storedHp>=0?saved.storedHp:null;
+const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
@@ -129,7 +130,7 @@ const STAT_LABELS={hp:'HP',attack:'ATK',defense:'DEF',speed:'SPD'};
 const randomIVs=()=>Object.fromEntries(STAT_KEYS.map(key=>[key,Math.floor(Math.random()*17)]));
 const ivTier=value=>value===16?'red':value>=12?'gold':value>=7?'silver':value>=1?'bronze':'white';
 let playerIVs=saved?.ivs||randomIVs();
-const EV_STATS=['hp','attack','defense','speed'];
+
 let playerEVs=Object.fromEntries(EV_STATS.map(k=>[k,Number.isInteger(saved?.evs?.[k])&&saved.evs[k]>=0&&saved.evs[k]<=100?saved.evs[k]:0]));
 if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>216)playerEVs={hp:0,attack:0,defense:0,speed:0};
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
