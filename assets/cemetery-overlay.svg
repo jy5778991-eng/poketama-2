@@ -1,13 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice">
-<!-- Transparent pixel-style grave markers over the existing Pokémon forest battle backdrop -->
-<g shape-rendering="crispEdges" opacity=".8">
-<path fill="#2d374a" d="M0 414h960v126H0z" opacity=".28"/>
-<path fill="#394458" d="M140 335h18v-17h62v17h19v99h-99zM488 372h12v-13h46v13h12v63h-70zM753 328h20v-24h55v24h20v107h-95z"/>
-<path fill="#637184" d="M145 333h13v-15h61v15h13v89h-87zM493 372h12v-12h41v12h7v50h-60zM758 328h16v-24h54v24h15v93h-85z"/>
-<path fill="#7f8c98" d="M158 320h61v8h-61zM505 363h41v7h-41zM774 307h54v9h-54z"/>
-<path fill="#455366" d="M172 352h33v6h-33zM183 340h9v33h-9zM511 387h26v5h-26zM780 344h41v7h-41zM796 329h9v39h-9z"/>
-<path fill="#27394c" d="M120 424h148v12H120zM475 425h94v10h-94zM733 423h135v14H733z"/>
-<path fill="#667383" d="M310 402h12v-11h35v11h11v30h-58zM630 408h10v-12h29v12h10v23h-49z" opacity=".75"/>
-<path fill="#34455c" d="M0 479h960v61H0z" opacity=".23"/>
+<defs>
+<linearGradient id="wall" x2="0" y2="1"><stop stop-color="#292d49"/><stop offset=".65" stop-color="#46435f"/><stop offset="1" stop-color="#6a6279"/></linearGradient>
+<linearGradient id="floor" x2="0" y2="1"><stop stop-color="#6b6877"/><stop offset="1" stop-color="#35384e"/></linearGradient>
+<radialGradient id="glow"><stop stop-color="#9484ba" stop-opacity=".7"/><stop offset="1" stop-color="#686285" stop-opacity="0"/></radialGradient>
+</defs>
+<g shape-rendering="crispEdges">
+<path d="M0 0H960V540H0Z" fill="#252a42"/>
+<path d="M0 0H960V333H0Z" fill="url(#wall)"/>
+<path d="M0 0H960V70H0Z" fill="#24263b"/>
+<path d="M0 70H960V85H0Z" fill="#606079"/>
+<path d="M0 85H960V92H0Z" fill="#393a52"/>
+<path d="M0 284H960V317H0Z" fill="#514d67"/>
+<path d="M0 317H960V332H0Z" fill="#2d314a"/>
+<path d="M0 332H960V540H0Z" fill="url(#floor)"/>
+<path d="M480 332L0 540M480 332L960 540M480 332L220 540M480 332L740 540" stroke="#34384c" stroke-width="6" fill="none"/>
+<path d="M0 404H960M0 471H960" stroke="#48475b" stroke-width="7"/>
+<path d="M110 0H172V338H110ZM787 0H849V338H787Z" fill="#55516b"/>
+<path d="M119 0H132V328H119ZM795 0H808V328H795Z" fill="#77718c"/>
+<path d="M98 281H183V309H98ZM776 281H861V309H776Z" fill="#363952"/>
+<path d="M85 309H196V337H85ZM762 309H875V337H762Z" fill="#656076"/>
+<path d="M352 145H608V319H352Z" fill="#2b2d46"/>
+<path d="M367 159H593V319H367Z" fill="#51506c"/>
+<path d="M391 183H569V319H391Z" fill="#272c45"/>
+<path d="M401 193H559V319H401Z" fill="#3d405a"/>
+<path d="M427 222H533V319H427Z" fill="#626078"/>
+<path d="M450 244H510V319H450Z" fill="#33384f"/>
+<path d="M403 250H423V278H403ZM537 250H557V278H537Z" fill="#8980a4"/>
+<path d="M211 265H277V333H211ZM682 265H748V333H682Z" fill="#3d4056"/>
+<path d="M219 255H269V318H219ZM690 255H740V318H690Z" fill="#858197"/>
+<path d="M231 276H257V282H231ZM702 276H728V282H702Z" fill="#4d4a63"/>
+<path d="M239 266H248V292H239ZM710 266H719V292H710Z" fill="#4d4a63"/>
+<path d="M196 322H290V342H196ZM667 322H761V342H667Z" fill="#353a50"/>
+<path d="M0 0H960V540H0Z" fill="url(#glow)" opacity=".4"/>
 </g>
 </svg>
