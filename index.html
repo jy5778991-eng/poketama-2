@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>포케타마 2.0</title><link rel="stylesheet" href="./style.css?v=20261023-26"></head>
+<title>포케타마 2.0</title><link rel="stylesheet" href="./style.css?v=20261023-28"></head>
 <body><main class="game">
 <header><h1>포케타마 <span>2.0</span></h1></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
   <section class="home-card">
     <div id="homeSpriteWrap" class="home-sprite-wrap area-grass">
       <div class="home-name home-status-row"><span id="currentArea" class="home-area-badge">🌿 초원</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><span class="home-badges" id="badgeStatus">배지 0 / 8</span></div></div>
-      <span id="injuryBandage" class="injury-bandage" hidden aria-label="부상 상태: 겹친 반창고"></span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
+      <div id="homePlusPower" class="plus-power-indicator" hidden><img src="https://play.pokemonshowdown.com/sprites/itemicons/x-attack.png" alt="플러스파워"><span class="power-turn-count">5턴</span></div><span id="injuryBandage" class="injury-bandage" hidden aria-label="부상 상태: 겹친 반창고"></span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
     <div class="home-pokemon-title"><span id="homeName">라이츄</span><span id="homeLevel">LV 50</span></div>
     <div id="homeLevelUp" class="home-level-up" hidden role="status" aria-live="polite"><strong>LEVEL UP!</strong><span id="homeLevelUpDetail">LV 1 → LV 2</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
@@ -44,7 +44,7 @@
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
 <div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong></div>
 <div id="trainerSummonMessage" class="trainer-summon-message" hidden role="status" aria-live="polite"></div>
-<section class="arena" aria-label="포켓몬 배틀">
+<section class="arena" aria-label="포켓몬 배틀"><div id="battlePlusPower" class="plus-power-indicator" hidden><img src="https://play.pokemonshowdown.com/sprites/itemicons/x-attack.png" alt="플러스파워"><span class="power-turn-count">5턴</span></div>
 <div id="captureBall" class="capture-ball" aria-hidden="true" hidden><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
 <div id="captureFlash" class="capture-flash" aria-hidden="true" hidden></div>
 <div id="trainerThrowBall" class="trainer-throw-ball" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
@@ -82,4 +82,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261023-27"></script></body></html>
+</main><script type="module" src="./app.js?v=20261023-28"></script></body></html>
