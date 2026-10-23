@@ -50,6 +50,8 @@
 
 /* Lake opened after Misty: same river scenery on home and battle screens. */
 .home-sprite-wrap.area-lake,#battleScreen .arena.area-lake{background-color:#80bfd6;background-image:url('https://play.pokemonshowdown.com/fx/bg-river.png'),linear-gradient(180deg,#b9e9ee 0%,#77b7cc 58%,#3785a4 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
+/* Cemetery background shown after Lt. Surge; encounter roster pending confirmation. */
+.home-sprite-wrap.area-cemetery,#battleScreen .arena.area-cemetery{background-color:#525b71;background-image:url('https://play.pokemonshowdown.com/fx/bg-graveyard.png'),linear-gradient(180deg,#424b68 0%,#6a7086 52%,#424e54 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Road background placeholder; replace after road art is selected. */
 .home-sprite-wrap.area-road,#battleScreen .arena.area-road{background-color:#91b487;background-image:url('https://play.pokemonshowdown.com/fx/bg-field.png'),linear-gradient(180deg,#b2d3ed 0%,#95ba85 64%,#a5a18e 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Crossed adhesive strips sit directly over the player's Pokemon. */
