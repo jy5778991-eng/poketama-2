@@ -226,25 +226,28 @@ function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.bas
 function awardExperience(){
  if(rewardClaimed||battle.result!=='victory')return [];
  rewardClaimed=true;
- const gained=12+wildEnemy.level*6;
+ const capped=wildRewardCapped();
+ const cap=wildRewardLevelCap();
+ const gained=capped?0:12+wildEnemy.level*6;
  const baseMoney=baseCashForWin(wildEnemy.level);
  const bonusMoney=bonusCashForWin(wildEnemy.level);
  lastBattleReward={exp:gained,money:baseMoney};
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
  progress.money+=baseMoney;
- pendingRewardChoice={choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
+ pendingRewardChoice=capped?null:{choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
+ if(capped)messages.push('도전 단계 성장 상한 도달! 야생 경험치와 랜덤 보상은 지급되지 않아.');
  const evolutions=[];
  const learnQueue=[];
  const previousLevel=progress.level;
  progress.exp+=gained;
- while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
+ while(progress.level<100&&(cap===null||progress.level<cap)&&progress.exp>=levelNeed(progress.level)){
   progress.exp-=levelNeed(progress.level);progress.level++;
   messages.push('LEVEL UP! LV '+progress.level);
   for(const m of MOVE_LEARNSETS[chosen])if(m.level===progress.level)learnQueue.push(m.id);
   const form=EVOLUTIONS[chosen].find(f=>f.level===progress.level);
   if(form){const before=getForm(chosen,progress.level-1);evolutions.push({before,after:form,level:progress.level});messages.push(before.name+' → '+form.name+' 진화!');}
  }
- if(progress.level===100)progress.exp=0;
+ if(progress.level===100||cap!==null&&progress.level>=cap)progress.exp=0;
  saveProgress();
  return {messages,evolutions,learnQueue,previousLevel,newLevel:progress.level};
 }
@@ -319,6 +322,21 @@ function finishTrainerBattle(){
  for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
  saveProgress();
  return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
+}
+const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','sabrina'];
+function wildRewardLevelCap(){
+ const current=nextTrainerKind();
+ const index=CHALLENGE_ORDER.indexOf(current);
+ return index>=0&&index<CHALLENGE_ORDER.length-1?TRAINERS[CHALLENGE_ORDER[index+1]].level-1:null;
+}
+function wildRewardCapped(){const cap=wildRewardLevelCap();return cap!==null&&progress.level>=cap;}
+function refreshLevelCapIndicator(){
+ const capped=wildRewardCapped();
+ for(const id of ['homeLevel','playerLevel']){
+  const el=$(id);if(!el)continue;
+  el.classList.toggle('level-capped',capped);
+  el.title=capped?'성장 제한: 다음 도전을 완료하면 야생 경험치와 보상이 다시 열려.':'';
+ }
 }
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!sabrinaCleared?'sabrina':null;}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
@@ -434,7 +452,7 @@ function reset(kind='wild'){
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':(TRAINERS[kind].name+'의 도전!'));
  shownHp={player:player.hp,enemy:first.hp};
  $('playerName').textContent=form.name;$('promptName').textContent=form.name;
- $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+progress.level;
+ $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+progress.level;refreshLevelCapIndicator();
  sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',kind==='wild'?wild.dex:kind==='blue'?getForm(blueChoice,7).dex:kind==='brock'?74:kind==='misty'?120:kind==='greenReturn'||kind==='greenThird'?17:kind==='erika'?71:kind==='koga'?89:kind==='sabrina'?63:100,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':TRAINERS[kind].name;
  $('trainerPortrait').hidden=kind==='wild';
@@ -688,7 +706,7 @@ function renderPowerStatus(){
  }
 }
 function renderHome(){
- refreshHealingDay();renderPowerStatus();
+ refreshHealingDay();renderPowerStatus();refreshLevelCapIndicator();
  $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':'🌲 이상한 숲';
  $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest');
  $('homeSpriteWrap').classList.add('area-'+area);
