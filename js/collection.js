@@ -36,11 +36,11 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
   }
  }else if(collectionTab==='achievements'){
   $('collectionSummary').textContent='현재 진행도 기반 업적';
-  const badges=[['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],['첫 포획',capturedPokemon.length>=1,'야생 포켓몬 1마리 포획'],['수집가',captured.size>=5,'포켓몬 5종 포획'],['그린 격파',blueCleared,'라이벌 그린 승리'],['암석배지',brockCleared,'체육관 관장 웅 승리'],['블루배지',mistyCleared,'체육관 관장 이슬이 승리'],['그린 재도전 승리',greenReturnCleared,'그린에게 승리'],['오렌지배지',surgeCleared,'체육관 관장 마티스 승리']];
+  const badges=[['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],['첫 포획',capturedPokemon.length>=1,'야생 포켓몬 1마리 포획'],['수집가',captured.size>=5,'포켓몬 5종 포획'],['그린 격파',blueCleared,'라이벌 그린 승리'],['암석배지',brockCleared,'체육관 관장 웅 승리'],['블루배지',mistyCleared,'체육관 관장 이슬이 승리'],['그린 재도전 승리',greenReturnCleared,'그린에게 승리'],['오렌지배지',surgeCleared,'체육관 관장 마티즈 승리']];
   for(const [name,earned,detail] of badges){const row=document.createElement('div');row.className='collection-progress';row.textContent=(earned?'🏅 ':'🔒 ')+name+' · '+detail;list.append(row);}
  }else{
   $('collectionSummary').textContent='트레이너 도전 기록';
-  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.5 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.12 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.17 · 블루배지'],['라이벌 그린',greenReturnCleared,'Lv.19 · 호수'],['체육관 관장 마티스',surgeCleared,'Lv.24 · 오렌지배지']]){
+  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.5 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.12 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.17 · 블루배지'],['라이벌 그린',greenReturnCleared,'Lv.19 · 호수'],['체육관 관장 마티즈',surgeCleared,'Lv.24 · 오렌지배지']]){
    const row=document.createElement('div');row.className='collection-progress';row.textContent=(done?'✅ ':'⚔️ ')+name+' · '+(done?'클리어':'미클리어')+' · '+desc;list.append(row);
   }
  }
