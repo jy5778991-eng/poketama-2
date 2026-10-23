@@ -71,3 +71,12 @@
 .home-status-row #homeMoney{font-size:11px;padding:3px 5px;white-space:nowrap;letter-spacing:-.3px}
 .home-status-row .home-badges{font-size:11px;padding:5px 7px;white-space:nowrap;flex:0 0 auto}
 @media(max-width:430px){.home-card .home-status-row{gap:4px}.home-status-row .home-area-badge{padding:4px 6px;font-size:10px}.home-status-row .home-wallet{gap:3px}.home-status-row #homeMoney{font-size:10px;padding:3px 1px;overflow:hidden;text-overflow:ellipsis}.home-status-row .home-badges{font-size:10px;padding:4px 5px}}
+
+/* Overlay location, money and earned badges directly on the map artwork. */
+.home-card .home-sprite-wrap{position:relative;margin-top:0}
+.home-card .home-sprite-wrap>.home-status-row{position:absolute;top:10px;left:10px;right:10px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:5px;width:auto;pointer-events:none}
+.home-sprite-wrap>.home-status-row .home-area-badge{margin:0;flex:0 0 auto;max-width:35%;background:#f2f6ffed;border-color:#7d96b8;box-shadow:0 2px 7px #26345233}
+.home-sprite-wrap>.home-status-row .home-wallet{display:flex;flex:0 1 auto;align-items:center;justify-content:flex-end;min-width:0;gap:4px;flex-wrap:nowrap}
+.home-sprite-wrap>.home-status-row #homeMoney,.home-sprite-wrap>.home-status-row .home-badges{background:#f9fbffed;border:1.5px solid #8197b8;border-radius:14px;padding:5px 8px;font-size:11px;line-height:1.3;font-weight:900;white-space:nowrap;box-shadow:0 2px 7px #26345233}
+.home-sprite-wrap>.home-status-row #homeMoney{min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:32vw}
+@media(max-width:430px){.home-card .home-sprite-wrap>.home-status-row{top:7px;left:7px;right:7px;gap:3px}.home-sprite-wrap>.home-status-row .home-area-badge{font-size:10px;padding:4px 6px}.home-sprite-wrap>.home-status-row #homeMoney,.home-sprite-wrap>.home-status-row .home-badges{font-size:10px;padding:4px 5px;max-width:32vw}.home-sprite-wrap>.home-status-row .home-wallet{gap:3px}}
