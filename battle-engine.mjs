@@ -94,13 +94,13 @@ export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math
   return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
-function accuracySuccess(move,b){return roll(b.rng)<(move.accuracy??1);}
+function accuracySuccess(move,b,user){return roll(b.rng)<Math.min(1,(move.accuracy??1)+(user.accuracyBuff||0));}
 function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at friendship 100
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
-  const atk=effectiveStat(attacker,'attack'), def=effectiveStat(defender,'defense');
+  const atk=effectiveStat(attacker,'attack'), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
   const levelFactor=Math.floor(2*attacker.level/5)+2;
   const raw=Math.floor(levelFactor*move.power*atk*(attacker.attackBuffMultiplier||1)/Math.max(1,def)/50)+2;
-  const critical=roll(rng)<Math.min(1,critRate(attacker)*(move.critMultiplier??1));
+  const critical=roll(rng)<Math.min(1,critRate(attacker)*(move.critMultiplier??1)+(attacker.critBuff||0));
   const variance=RULES.randomMin+(1-RULES.randomMin)*roll(rng);
   return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance)),critical};
 }
@@ -130,7 +130,7 @@ function executeMove(b,user,target,moveId){
   if(!struggle)user.pp[moveId]--;
   say(b,`${user.name}의 ${move.name}!`);
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
-  if(!accuracySuccess(move,b)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  if(!accuracySuccess(move,b,user)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
