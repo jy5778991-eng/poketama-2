@@ -88,3 +88,8 @@
 .home-sprite-wrap .plus-power-indicator,.arena .plus-power-indicator{position:absolute;bottom:9px;left:9px;z-index:18;display:flex;align-items:center;gap:4px;background:#142039d9;color:#fff;padding:3px 6px;border:1px solid #e9cb83;border-radius:8px;pointer-events:none;font-size:11px;font-weight:900}
 .plus-power-indicator img{height:27px;width:27px;object-fit:contain;image-rendering:pixelated}
 .plus-power-indicator[hidden]{display:none!important}
+
+/* Independent timed boost stacks, compact horizontal HUD with real item sprites. */
+.home-sprite-wrap .plus-power-indicator,.arena .plus-power-indicator{display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 18px);background:transparent;border:0;padding:0;box-shadow:none}
+.plus-power-indicator .boost-chip{display:flex;align-items:center;gap:3px;padding:2px 5px;border:1px solid #e9cb83;border-radius:6px;background:#142039e8;color:white;font-size:10px;line-height:1.1;white-space:nowrap}
+.plus-power-indicator .boost-chip img{width:22px;height:22px;image-rendering:pixelated}
