@@ -578,7 +578,7 @@ function showRewardChoices(){
    b.append(tag,img);
   }else b.append(tag);
   const content=document.createElement('span');
-  content.textContent=imageName?rewardChoiceText(choice).replace(/^[^\\p{L}\\p{N}]+/u,''):rewardChoiceText(choice);
+  content.textContent=imageName?rewardChoiceText(choice).replace(/^[^가-힣A-Za-z0-9]+/,''):rewardChoiceText(choice);
   b.append(content);b.onclick=()=>claimRewardChoice(index);options.append(b);
  });
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
