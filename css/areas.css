@@ -55,6 +55,8 @@
 .home-sprite-wrap.area-cemetery,#battleScreen .arena.area-cemetery{background-color:#596879;background-image:url('../assets/cemetery-overlay.svg?v=20261023-13');background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Road background placeholder; replace after road art is selected. */
 .home-sprite-wrap.area-road,#battleScreen .arena.area-road{background-color:#91b487;background-image:url('../assets/road-scene.svg?v=20261023-15');background-size:cover;background-position:center;background-repeat:no-repeat}
+/* Metropolitan route: city street and buildings in the same pixel-art scale as other regions. */
+.home-sprite-wrap.area-city,#battleScreen .arena.area-city{background-color:#9bb6cd;background-image:url('../assets/city-scene.svg?v=20261023-16');background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Crossed adhesive strips sit directly over the player's Pokemon. */
 .home-sprite-wrap .injury-bandage{position:absolute;z-index:12;top:50%;left:50%;width:54px;height:54px;transform:translate(-15%,-55%);pointer-events:none;filter:drop-shadow(1px 3px 2px #30251966)}
 .home-sprite-wrap .injury-bandage::before,.home-sprite-wrap .injury-bandage::after{content:'';position:absolute;top:21px;left:3px;width:48px;height:15px;border:2px solid #b8825f;border-radius:9px;box-sizing:border-box;background:linear-gradient(90deg,#dfad81 0 36%,#ffe0b8 36% 64%,#dfad81 64%);box-shadow:inset 0 1px 0 #fff3}
