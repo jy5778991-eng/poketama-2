@@ -1,5 +1,5 @@
-import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js';
-import {RIVAL_POOL} from './data/trainers.js';
+import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261023-06';
+import {RIVAL_POOL} from './data/trainers.js?v=20261023-06';
 import {getForm} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
