@@ -1,4 +1,4 @@
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261023-31';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261023-23';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261023-14';
@@ -584,14 +584,14 @@ function claimRewardChoice(index){
   }
   if(progress.level===100)progress.exp=0;
   playerMoves=migrateMoves(chosen,progress.level);
-  storedHp=null===storedHp?null:Math.min(calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp,storedHp);
+  storedHp=null===storedHp?null:Math.min(calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp,storedHp);
  }else if(choice.kind==='power'){
   activeBoosts[BOOST_INFO[choice.effect]?choice.effect:'attack'].push(5);
  }else if(choice.kind==='cash'){
   progress.money+=choice.amount;
   if(lastBattleReward)lastBattleReward.money+=choice.amount;
  }else if(choice.kind==='heal'){
-  const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+  const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
   const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
   storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
@@ -686,7 +686,7 @@ function renderHome(){
  $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
  $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원'+(lastBattleReward?' (+'+lastBattleReward.money.toLocaleString('ko-KR')+')':'');
  renderCaptures();
- const maxHp=calculateStats(form.base,progress.level,playerIVs,{}).hp;
+ const maxHp=calculateStats(form.base,progress.level,playerIVs,playerEVs).hp;
  const hp=storedHp===null?maxHp:Math.min(maxHp,Math.max(0,storedHp));
  $('homeHpText').textContent=hp+' / '+maxHp;
  $('homeHpBar').style.width=(100*hp/maxHp)+'%';
@@ -772,7 +772,7 @@ async function act(a){
     const reward=battleKind==='wild'?awardExperience():finishTrainerBattle();
     learnQueue=reward?.learnQueue||[];
     if(reward?.newLevel>reward?.previousLevel){
-     const currentMax=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+     const currentMax=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
      storedHp=Math.max(0,Math.min(currentMax,hpBefore+(currentMax-maxBefore)));
     } else storedHp=hpBefore;
     saveProgress();
