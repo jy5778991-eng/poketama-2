@@ -138,3 +138,9 @@
 .silver-cap-option{border:2px solid #889bb8;border-radius:8px;background:#f7f9ff;padding:15px 6px;font-weight:900;color:#29466f;cursor:pointer}
 .silver-cap-option:disabled{opacity:.45;cursor:not-allowed}
 #silverCapOverlay{z-index:160}
+
+/* Minimal gym confirmation and item-art rewards. */
+.trainer-intro-buttons{grid-template-columns:1fr}
+.reward-choice-options{margin-top:16px}
+.reward-item-sprite{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
+.reward-choice-item{gap:6px}
