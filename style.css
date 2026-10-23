@@ -4,3 +4,6 @@
 @import url('./css/menus.css?v=20261023-33');
 @import url('./css/areas.css?v=20261023-29');
 @import url('./css/collection.css');
+
+/* Wild-reward level gate: entire level label turns red on both screens. */
+#homeLevel.level-capped,#playerLevel.level-capped{color:#dc182b!important;-webkit-text-fill-color:#dc182b!important;text-shadow:0 1px 2px #ffffffb0}
