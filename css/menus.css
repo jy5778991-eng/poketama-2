@@ -106,3 +106,20 @@
 /* The Green trainer's uploaded WebP provides its own frame animation. */
 .trainer-intro-portrait img{animation:none}
 
+
+/* One-time gym badge reveal with a true game sprite. */
+.badge-award-overlay[hidden]{display:none!important}
+.badge-award-overlay{position:fixed;inset:0;z-index:2100;display:grid;place-items:center;padding:20px;background:rgba(16,23,47,.83);animation:badgeCurtain .32s ease-out}
+.badge-award-dialog{width:min(350px,96vw);display:flex;flex-direction:column;align-items:center;gap:12px;padding:30px 18px 22px;border:3px solid #b3c1e0;border-radius:14px;color:#eaf0ff;background:linear-gradient(150deg,#243656,#161d38);text-align:center;box-shadow:0 18px 50px #060b2099}
+.badge-award-eyebrow{color:#f3d78c;font-size:12px;font-weight:900;letter-spacing:.17em}
+.badge-award-shine{position:relative;display:grid;place-items:center;width:155px;height:155px;border-radius:50%;background:radial-gradient(circle,#f4df9b6b 0%,#b8d4f130 43%,transparent 70%);animation:badgeEnter .8s cubic-bezier(.12,.9,.2,1) both}
+.badge-award-shine:after{content:'✦';position:absolute;top:4px;right:9px;font-size:32px;color:#f8e8af;animation:badgeSparkle 1.2s ease-in-out infinite alternate}
+.badge-award-shine img{width:108px;height:108px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 5px 1px #0005)}
+.badge-award-shine span{font-size:70px}
+.badge-award-dialog strong{font-size:23px;color:#ffdfa1}
+.badge-award-dialog p{margin:0 0 6px;font-size:13px;color:#d4ddf3}
+.badge-award-dialog button{width:100%;max-width:210px;padding:12px;border:2px solid #dbedff;border-radius:8px;background:#6283c8;color:white;font-weight:900;cursor:pointer}
+@keyframes badgeCurtain{from{opacity:0}to{opacity:1}}
+@keyframes badgeEnter{0%{opacity:0;transform:scale(.22) rotate(-35deg)}65%{opacity:1;transform:scale(1.15) rotate(10deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes badgeSparkle{from{opacity:.35;transform:scale(.6)}to{opacity:1;transform:scale(1.2)}}
+@media(prefers-reduced-motion:reduce){.badge-award-overlay,.badge-award-shine,.badge-award-shine:after{animation:none}}
