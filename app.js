@@ -172,18 +172,6 @@ function sprite(id,dex,back,emoji){const el=$(id),wrap=el.parentElement;wrap.cla
 function trainerFighter(name,dex,level,base,moveIds=['tackle']){
  return createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:calculateStats(base,level,{hp:0,attack:0,defense:0,speed:0},{}),moveIds});
 }
-function awardTrainerKnockout(enemy){
- const gained=12+enemy.level*6;
- trainerExpEarned+=gained;
- const former=progress.level;
- progress.exp+=gained;
- while(progress.level<100&&progress.exp>=levelNeed(progress.level)){progress.exp-=levelNeed(progress.level);progress.level++;}
- if(progress.level===100)progress.exp=0;
- if(progress.level>former)pendingLevelUp={previous:pendingLevelUp?.previous??former,current:progress.level};
- lastBattleReward={exp:trainerExpEarned,money:0};
- saveProgress();
- return gained;
-}
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
  return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,{}),moveIds});
 }
@@ -229,6 +217,7 @@ function finishTrainerBattle(){
  const old=progress.level;
  const evolutions=[];
  const learnQueue=[];
+ let gained=0;
  if(battle.result==='victory'){
   if(battleKind==='blue'&&!blueCleared){blueCleared=true;area='forest';}
   if(battleKind==='brock'&&!brockCleared){brockCleared=true;area='cave';}
@@ -239,13 +228,27 @@ function finishTrainerBattle(){
    if(battleKind==='erika'&&!erikaCleared){erikaCleared=true;area='road';}
   const money=TRAINERS[battleKind].money;
   const level=battle.enemies.at(-1).level;
+  // One EXP reward on full trainer victory, based on final Pokemon only.
+  gained=12+level*6;
+  trainerExpEarned=gained;
+  progress.exp+=gained;
+  while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
+   progress.exp-=levelNeed(progress.level);
+   progress.level++;
+   const evolved=EVOLUTIONS[chosen].find(form=>form.level===progress.level);
+   if(evolved)evolutions.push({before:getForm(chosen,progress.level-1),after:evolved,level:progress.level});
+  }
+  if(progress.level===100)progress.exp=0;
   progress.money+=baseCashForWin(level);
-  lastBattleReward={exp:trainerExpEarned,money:baseCashForWin(level)};
+  lastBattleReward={exp:gained,money:baseCashForWin(level)};
   pendingRewardChoice={bonusCash:money,items:drawRewardItems(level,currentRewardStage())};
+ }else{
+  trainerExpEarned=0;
+  lastBattleReward={exp:0,money:0};
  }
  for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
  saveProgress();
- return {messages:battle.result==='victory'?(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!']):['부상을 입었어. 치료가 필요해.'],evolutions,learnQueue,previousLevel:old,newLevel:progress.level};
+ return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,previousLevel:old,newLevel:progress.level};
 }
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':null;}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
@@ -597,8 +600,7 @@ async function act(a){
   const events=[...battle.events];
  if(battleKind!=='wild'){
   for(const event of events){if(event.type==='knockout'&&event.side==='enemy'){
-   const defeated=battle.enemies[event.enemyIndex];
-   awardTrainerKnockout(defeated);defeatedEnemies++;
+   defeatedEnemies++;
   }}
  }
  shownHp={...previousHp};render();await playEvents(events);
