@@ -15,7 +15,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   button.tabIndex=selected?0:-1;
  });
  const list=$('inventoryItems');list.replaceChildren();
- const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory);
+ const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory&&(inventoryMode!=='shop'||!item.notForSale));
  if(items.length===0){
   const placeholder=document.createElement('div');placeholder.className='inventory-empty';
   placeholder.textContent=inventoryMode==='shop'
