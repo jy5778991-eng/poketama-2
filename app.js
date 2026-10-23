@@ -16,20 +16,39 @@ const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
 const bonusCashForWin=level=>10+level*10;
-function drawRewardItems(wildLevel,stage){
- const available=SHOP_ITEMS.filter(item=>(item.category==='heal'||inventory[item.id]<99)&&(
-  item.id==='pokeBall'||item.id==='potion'||
-  (wildLevel>=10&&(item.id==='greatBall'||item.id==='superPotion'))||
-  (wildLevel>=25&&(item.id==='ultraBall'||item.id==='hyperPotion'))));
- const result=[];
- const pool=[...available];
- const slots=rewardItemSlots(stage);
- for(let k=0;k<slots&&pool.length;k++){
-  const index=Math.floor(Math.random()*pool.length);
-  const item=pool.splice(index,1)[0];
-  result.push({id:item.id,quantity:item.id==='potion'&&Math.random()<0.3?2:1});
- }
- return result;
+// Independently roll all 3 reward slots: 85% normal, 14% rare, 1% legendary.
+// Duplicate tiers, reward types and exact rewards are intentional.
+const REWARD_TIERS={normal:{label:'일반',weight:85},rare:{label:'레어',weight:14},legendary:{label:'전설',weight:1}};
+function drawThreeRewards(level){
+ const baseCash=bonusCashForWin(level);
+ const pool={
+  normal:[
+   {kind:'cash',amount:baseCash,icon:'💰'},
+   {kind:'heal',amount:20,icon:'🧪'},
+   {kind:'heal',amount:60,icon:'💊'},
+   {kind:'item',id:'pokeBall',quantity:2,icon:'🔴'}
+  ],
+  rare:[
+   {kind:'cash',amount:baseCash*3,icon:'💰'},
+   {kind:'heal',amount:200,icon:'💉'},
+   {kind:'item',id:'greatBall',quantity:3,icon:'🔵'},
+   {kind:'item',id:'ultraBall',quantity:2,icon:'🟡'}
+  ],
+  legendary:[
+   {kind:'cash',amount:baseCash*10,icon:'💰'},
+   {kind:'heal',full:true,icon:'❤️'},
+   {kind:'item',id:'ultraBall',quantity:10,icon:'🟡'}
+  ]
+ };
+ return Array.from({length:3},()=>{
+  const roll=Math.random()*100;
+  const tier=roll<85?'normal':roll<99?'rare':'legendary';
+  return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};
+ });
+}
+function rewardRerollCost(count){
+ const cost=(progress.level*20+100)*2**count;
+ return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
 function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,moves:playerMoves,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,kogaCleared,sabrinaCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
@@ -81,8 +100,12 @@ let storedHp=Number.isInteger(saved?.storedHp)&&saved.storedHp>=0?saved.storedHp
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)&&p.items.every(x=>SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=3)){
-  pendingRewardChoice={bonusCash:p.bonusCash,items:p.items.slice(0,4),gym:!!p.gym,unlockedArea:typeof p.unlockedArea==='string'?p.unlockedArea:null};
+ if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+  pendingRewardChoice={choices:p.choices,rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
+ }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
+  // Convert older unfinished reward screens without losing the player's selection.
+  pendingRewardChoice={choices:[{tier:'normal',kind:'cash',amount:p.bonusCash,icon:'💰'},...p.items.slice(0,2).map(x=>({tier:'normal',kind:SHOP_ITEMS.find(item=>item.id===x.id)?.category==='heal'?'heal':'item',id:x.id,quantity:x.quantity,amount:(SHOP_ITEMS.find(item=>item.id===x.id)?.power||0)*x.quantity}))].slice(0,3),rerolls:0,gym:!!p.gym};
+  while(pendingRewardChoice.choices.length<3)pendingRewardChoice.choices.push({tier:'normal',kind:'cash',amount:p.bonusCash,icon:'💰'});
  }
 }
 
@@ -190,7 +213,7 @@ function awardExperience(){
  lastBattleReward={exp:gained,money:baseMoney};
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
  progress.money+=baseMoney;
- pendingRewardChoice={bonusCash:bonusMoney,items:drawRewardItems(wildEnemy.level,currentRewardStage())};
+ pendingRewardChoice={choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
  const evolutions=[];
  const learnQueue=[];
  const previousLevel=progress.level;
@@ -269,7 +292,7 @@ function finishTrainerBattle(){
   if(sabrinaCleared&&progress.level>=46)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
-  pendingRewardChoice={bonusCash:money,items:drawRewardItems(level,currentRewardStage()),gym:!!GYM_BADGES[battleKind],unlockedArea:badgeEarned?area:null};
+  pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
  }else{
   trainerExpEarned=0;
   lastBattleReward={exp:0,money:0};
@@ -482,42 +505,56 @@ function openRecallList(){
  $('moveRecallOverlay').hidden=true;openRecall();
 }
 
+function rewardChoiceText(choice){
+ if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
+ if(choice.kind==='heal')return choice.full?'❤️ 즉시 HP 100% 회복':(choice.icon||'🧪')+' 즉시 HP '+choice.amount+' 회복';
+ const item=SHOP_ITEMS.find(x=>x.id===choice.id);
+ return (item?.icon||'🎁')+' '+(item?.name||'아이템')+' ×'+choice.quantity;
+}
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR! · 관장 승리 보상':'BATTLE WIN!';
- $('rewardChoiceCaption').textContent=pendingRewardChoice.gym?'배지 획득 완료! 보상 하나를 선택하면 새 지역으로 이동해.':'추가 보상 하나를 선택해줘.';
- const cashButton=document.createElement('button');
- cashButton.type='button';cashButton.className='reward-choice-item';
- cashButton.textContent='💰 추가 상금 +'+pendingRewardChoice.bonusCash.toLocaleString('ko-KR')+'원';
- cashButton.onclick=()=>claimRewardChoice('cash');options.append(cashButton);
- for(const itemReward of pendingRewardChoice.items){
-  const item=SHOP_ITEMS.find(x=>x.id===itemReward.id);
-  if(!item)continue;
-  const b=document.createElement('button');b.type='button';b.className='reward-choice-item';
-  b.textContent=item.category==='heal'?item.icon+' 즉시 HP '+(item.power*itemReward.quantity)+' 회복':item.icon+' '+item.name+' ×'+itemReward.quantity;
-  b.onclick=()=>claimRewardChoice(item.id);options.append(b);
- }
+ $('rewardChoiceCaption').textContent='3가지 보상 중 1개를 선택하거나 유료 리롤로 다시 뽑아줘.';
+ pendingRewardChoice.choices.forEach((choice,index)=>{
+  const b=document.createElement('button');b.type='button';
+  b.className='reward-choice-item reward-tier-'+choice.tier;
+  const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
+  const content=document.createElement('span');content.textContent=rewardChoiceText(choice);
+  b.append(tag,content);b.onclick=()=>claimRewardChoice(index);options.append(b);
+ });
+ const cost=rewardRerollCost(pendingRewardChoice.rerolls);
+ const reroll=$('rewardReroll');
+ reroll.disabled=!Number.isFinite(cost)||progress.money<cost;
+ reroll.textContent='🔄 리롤 · '+(Number.isFinite(cost)?cost.toLocaleString('ko-KR')+'원':'비용 한도 초과');
+ $('rewardRerollInfo').textContent='보유금 '+progress.money.toLocaleString('ko-KR')+'원 · 이번 보상 리롤 '+pendingRewardChoice.rerolls+'회 · 리롤마다 비용 2배';
  layer.hidden=false;
 }
-function claimRewardChoice(id){
+function rerollRewards(){
  if(!pendingRewardChoice)return;
- if(id==='cash'){
-  progress.money+=pendingRewardChoice.bonusCash;
-  lastBattleReward.money+=pendingRewardChoice.bonusCash;
- }else{
-  const entry=pendingRewardChoice.items.find(x=>x.id===id);
-  if(!entry||!Object.hasOwn(inventory,id))return;
-  const item=SHOP_ITEMS.find(x=>x.id===id);
-  if(item?.category==='heal'){
-   // Win rewards heal the active Pokemon immediately; never add healing items to the bag.
-   const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
-   const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
-   storedHp=Math.min(maxHp,currentHp+item.power*entry.quantity);
-  }else inventory[id]=Math.min(99,inventory[id]+entry.quantity);
- }
- // Clear the pending choice in the same saved state as the selected reward.
+ const cost=rewardRerollCost(pendingRewardChoice.rerolls);
+ if(!Number.isFinite(cost)||progress.money<cost)return;
+ progress.money-=cost;
+ pendingRewardChoice.choices=drawThreeRewards(progress.level);
+ pendingRewardChoice.rerolls++;
+ saveProgress();
+ showRewardChoices();
+}
+function claimRewardChoice(index){
+ if(!pendingRewardChoice||!Number.isInteger(index))return;
+ const choice=pendingRewardChoice.choices[index];
+ if(!choice)return;
+ if(choice.kind==='cash'){
+  progress.money+=choice.amount;
+  if(lastBattleReward)lastBattleReward.money+=choice.amount;
+ }else if(choice.kind==='heal'){
+  const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+  const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
+  storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
+ }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
+  inventory[choice.id]=Math.min(99,inventory[choice.id]+choice.quantity);
+ }else return;
  pendingRewardChoice=null;
  saveProgress();
  $('rewardChoiceOverlay').hidden=true;
@@ -793,5 +830,5 @@ function setup(){
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;storedHp=null;inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('rewardReroll').addEventListener('click',rerollRewards);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
 setup();
