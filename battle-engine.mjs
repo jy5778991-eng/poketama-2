@@ -99,7 +99,7 @@ function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at fr
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
   const atk=effectiveStat(attacker,'attack'), def=effectiveStat(defender,'defense');
   const levelFactor=Math.floor(2*attacker.level/5)+2;
-  const raw=Math.floor(levelFactor*move.power*atk/Math.max(1,def)/50)+2;
+  const raw=Math.floor(levelFactor*move.power*atk*(attacker.attackBuffMultiplier||1)/Math.max(1,def)/50)+2;
   const critical=roll(rng)<Math.min(1,critRate(attacker)*(move.critMultiplier??1));
   const variance=RULES.randomMin+(1-RULES.randomMin)*roll(rng);
   return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance)),critical};
