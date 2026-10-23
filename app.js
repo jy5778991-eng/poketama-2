@@ -82,7 +82,7 @@ let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
  if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)&&p.items.every(x=>SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=3)){
-  pendingRewardChoice={bonusCash:p.bonusCash,items:p.items.slice(0,4)};
+  pendingRewardChoice={bonusCash:p.bonusCash,items:p.items.slice(0,4),gym:!!p.gym,unlockedArea:typeof p.unlockedArea==='string'?p.unlockedArea:null};
  }
 }
 
@@ -269,7 +269,7 @@ function finishTrainerBattle(){
   if(sabrinaCleared&&progress.level>=46)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
-  pendingRewardChoice={bonusCash:money,items:drawRewardItems(level,currentRewardStage())};
+  pendingRewardChoice={bonusCash:money,items:drawRewardItems(level,currentRewardStage()),gym:!!GYM_BADGES[battleKind],unlockedArea:badgeEarned?area:null};
  }else{
   trainerExpEarned=0;
   lastBattleReward={exp:0,money:0};
@@ -486,6 +486,8 @@ function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
  options.replaceChildren();
+ $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR! · 관장 승리 보상':'BATTLE WIN!';
+ $('rewardChoiceCaption').textContent=pendingRewardChoice.gym?'배지 획득 완료! 보상 하나를 선택하면 새 지역으로 이동해.':'추가 보상 하나를 선택해줘.';
  const cashButton=document.createElement('button');
  cashButton.type='button';cashButton.className='reward-choice-item';
  cashButton.textContent='💰 추가 상금 +'+pendingRewardChoice.bonusCash.toLocaleString('ko-KR')+'원';
@@ -674,6 +676,7 @@ async function act(a){
     saveProgress();
     if(reward?.newLevel>reward?.previousLevel)pendingLevelUp={previous:reward.previousLevel,current:reward.newLevel};
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
+    // Gym clear sequence: badge reveal first, then reward selection on the home screen.
     if(reward?.badgeEarned)await showBadgeAward(reward.badgeEarned);
     $('battleResult').hidden=false;
     $('resultTitle').textContent=battle.result==='victory'?'승리!':battle.result==='capture'?'포획 성공!':'패배!';
