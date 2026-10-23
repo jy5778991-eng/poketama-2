@@ -17,7 +17,7 @@ const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
 const bonusCashForWin=level=>10+level*10;
 function drawRewardItems(wildLevel,stage){
- const available=SHOP_ITEMS.filter(item=>inventory[item.id]<99&&(
+ const available=SHOP_ITEMS.filter(item=>(item.category==='heal'||inventory[item.id]<99)&&(
   item.id==='pokeBall'||item.id==='potion'||
   (wildLevel>=10&&(item.id==='greatBall'||item.id==='superPotion'))||
   (wildLevel>=25&&(item.id==='ultraBall'||item.id==='hyperPotion'))));
@@ -494,7 +494,7 @@ function showRewardChoices(){
   const item=SHOP_ITEMS.find(x=>x.id===itemReward.id);
   if(!item)continue;
   const b=document.createElement('button');b.type='button';b.className='reward-choice-item';
-  b.textContent=item.icon+' '+item.name+' ×'+itemReward.quantity;
+  b.textContent=item.category==='heal'?item.icon+' 즉시 HP '+(item.power*itemReward.quantity)+' 회복':item.icon+' '+item.name+' ×'+itemReward.quantity;
   b.onclick=()=>claimRewardChoice(item.id);options.append(b);
  }
  layer.hidden=false;
@@ -507,7 +507,13 @@ function claimRewardChoice(id){
  }else{
   const entry=pendingRewardChoice.items.find(x=>x.id===id);
   if(!entry||!Object.hasOwn(inventory,id))return;
-  inventory[id]=Math.min(99,inventory[id]+entry.quantity);
+  const item=SHOP_ITEMS.find(x=>x.id===id);
+  if(item?.category==='heal'){
+   // Win rewards heal the active Pokemon immediately; never add healing items to the bag.
+   const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
+   const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
+   storedHp=Math.min(maxHp,currentHp+item.power*entry.quantity);
+  }else inventory[id]=Math.min(99,inventory[id]+entry.quantity);
  }
  // Clear the pending choice in the same saved state as the selected reward.
  pendingRewardChoice=null;
@@ -649,6 +655,8 @@ async function act(a){
  }
   if(battle.ended){
     if(battle.result==='capture'){
+      // Catching is not a battle victory: never open a choice reward.
+      pendingRewardChoice=null;
       capturedPokemon.push({name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level});
       caughtSpecies.add(wildEnemy.dex);
       if(capturedPokemon.length>200)capturedPokemon.shift();
