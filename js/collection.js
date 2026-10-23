@@ -40,7 +40,7 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
   for(const [name,earned,detail] of badges){const row=document.createElement('div');row.className='collection-progress';row.textContent=(earned?'🏅 ':'🔒 ')+name+' · '+detail;list.append(row);}
  }else{
   $('collectionSummary').textContent='트레이너 도전 기록';
-  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.7 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.13 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.19 · 블루배지']]){
+  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.5 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.12 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.17 · 블루배지']]){
    const row=document.createElement('div');row.className='collection-progress';row.textContent=(done?'✅ ':'⚔️ ')+name+' · '+(done?'클리어':'미클리어')+' · '+desc;list.append(row);
   }
  }
