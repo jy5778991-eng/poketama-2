@@ -694,13 +694,14 @@ function applyDeveloperChanges(e){
  const {targetLevel}=warp;
  const levelChanged=progress.level!==targetLevel;
  area=warp.area;
- blueCleared=warp.blueCleared;
- brockCleared=warp.brockCleared;
- mistyCleared=warp.mistyCleared;
- greenReturnCleared=warp.greenReturnCleared;
- surgeCleared=warp.surgeCleared;
- greenThirdCleared=warp.greenThirdCleared;
- erikaCleared=warp.erikaCleared;
+ // Developer warps may unlock prerequisites, but never erase past victories.
+ blueCleared=blueCleared||warp.blueCleared;
+ brockCleared=brockCleared||warp.brockCleared;
+ mistyCleared=mistyCleared||warp.mistyCleared;
+ greenReturnCleared=greenReturnCleared||warp.greenReturnCleared;
+ surgeCleared=surgeCleared||warp.surgeCleared;
+ greenThirdCleared=greenThirdCleared||warp.greenThirdCleared;
+ erikaCleared=erikaCleared||warp.erikaCleared;
  progress.level=targetLevel;
  progress.money=warp.money;
  if(levelChanged){
