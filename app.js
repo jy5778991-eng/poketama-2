@@ -242,7 +242,7 @@ let pendingTrainerIntro=null;
 function challengeTrainer(){
  const kind=!blueCleared?'blue':!brockCleared?'brock':'misty';
  if(injured||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
- if(mistyCleared||(kind==='blue'&&progress.level<7)||(kind==='brock'&&progress.level<13)||(kind==='misty'&&progress.level<19))return;
+ if(mistyCleared||(kind==='blue'&&progress.level<5)||(kind==='brock'&&progress.level<12)||(kind==='misty'&&progress.level<17))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
@@ -310,10 +310,10 @@ function reset(kind='wild'){
   enemies=[trainerFighter(other.name,other.dex,7,other.base,initialMoves(blueChoice))];
   battleOpponent='blue';
  }else if(kind==='brock'){
-  enemies=[trainerFighter('꼬마돌',74,11,{"hp":40,"attack":80,"defense":65,"speed":20}),trainerFighter('롱스톤',95,13,{"hp":35,"attack":45,"defense":103,"speed":70})];
+  enemies=[trainerFighter('꼬마돌',74,11,{"hp":40,"attack":80,"defense":65,"speed":20}),trainerFighter('롱스톤',95,12,{"hp":35,"attack":45,"defense":103,"speed":70})];
   battleOpponent='brock';
  }else if(kind==='misty'){
-  enemies=[trainerFighter('별가사리',120,17,{hp:30,attack:70,defense:63,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,19,{hp:60,attack:100,defense:83,speed:115},['waterPulse','swift'])];
+  enemies=[trainerFighter('별가사리',120,15,{hp:30,attack:70,defense:63,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,17,{hp:60,attack:100,defense:83,speed:115},['waterPulse','swift'])];
   battleOpponent='misty';
  }else{
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:['tackle']});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
@@ -500,7 +500,7 @@ function renderHome(){
  $('badgeStatus').textContent='배지 '+(mistyCleared?2:brockCleared?1:0)+' / 8';
  const finalArea=mistyCleared;
  const trainerKind=!blueCleared?'blue':!brockCleared?'brock':'misty';
- const targetLevel=trainerKind==='blue'?7:trainerKind==='brock'?13:19;
+ const targetLevel=trainerKind==='blue'?5:trainerKind==='brock'?12:17;
  const unlocked=progress.level>=targetLevel;
  const challengeDisabled=injured||!!pendingRewardChoice||!unlocked||finalArea;
  $('trainerChallenge').disabled=challengeDisabled;
