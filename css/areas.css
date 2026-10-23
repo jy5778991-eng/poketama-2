@@ -83,3 +83,8 @@
 
 /* Strange Forest: the exact original forest art, darkened without affecting Pokemon sprites or overlay HUD. */
 .home-sprite-wrap.area-strangeForest,#battleScreen .arena.area-strangeForest{background-color:#263f35;background-image:linear-gradient(rgba(6,16,25,.58),rgba(10,18,27,.68)),url('https://play.pokemonshowdown.com/fx/bg-forest.png');background-size:cover;background-position:center;background-repeat:no-repeat}
+
+/* Persisting X Attack / Plus Power 5-turn HUD on map and battle scenery. */
+.home-sprite-wrap .plus-power-indicator,.arena .plus-power-indicator{position:absolute;bottom:9px;left:9px;z-index:18;display:flex;align-items:center;gap:4px;background:#142039d9;color:#fff;padding:3px 6px;border:1px solid #e9cb83;border-radius:8px;pointer-events:none;font-size:11px;font-weight:900}
+.plus-power-indicator img{height:27px;width:27px;object-fit:contain;image-rendering:pixelated}
+.plus-power-indicator[hidden]{display:none!important}
