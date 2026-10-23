@@ -47,7 +47,8 @@ function drawThreeRewards(level){
    {kind:'cash',amount:baseCash*10,icon:'💰'},
    {kind:'heal',full:true,icon:'❤️'},
    {kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},
-   {kind:'item',id:'masterBall',quantity:1,icon:'🟣'}
+   {kind:'item',id:'masterBall',quantity:1,icon:'🟣'},
+   {kind:'silverCap',icon:'🥈'}
   ]
  };
  return Array.from({length:3},()=>{
@@ -115,7 +116,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&x.amount===2||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&x.amount===2||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices,rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -524,6 +525,7 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
+ if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 IV를 16으로';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +2 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
  if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +10%',accuracy:'명중률 +10%p',critical:'급소 확률 +10%p',defense:'방어력 +10%'}[choice.effect||'attack']);
@@ -562,11 +564,36 @@ function rerollRewards(){
  saveProgress();
  showRewardChoices();
 }
+function showSilverCapStatChoice(){
+ const layer=$('silverCapOverlay'),options=$('silverCapOptions');
+ options.replaceChildren();
+ for(const stat of EV_STATS){
+  const b=document.createElement('button');
+  b.type='button';b.className='silver-cap-option';
+  b.textContent=STAT_LABELS[stat]+' · IV '+playerIVs[stat]+' → 16';
+  b.disabled=playerIVs[stat]===16;
+  b.onclick=()=>{
+   playerIVs[stat]=16;
+   layer.hidden=true;
+   pendingRewardChoice=null;
+   saveProgress();
+   $('rewardChoiceOverlay').hidden=true;
+   renderHome();
+  };
+  options.append(b);
+ }
+ $('silverCapCancel').onclick=()=>{layer.hidden=true;$('rewardChoiceOverlay').hidden=false;};
+ layer.hidden=false;
+ $('rewardChoiceOverlay').hidden=true;
+}
 function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
- if(choice.kind==='ev'){
+ if(choice.kind==='silverCap'){
+  showSilverCapStatChoice();
+  return;
+ }else if(choice.kind==='ev'){
   const stat=choice.stat;
   if(!EV_STATS.includes(stat))return;
   const total=Object.values(playerEVs).reduce((sum,n)=>sum+n,0);
