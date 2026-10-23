@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" preserveAspectRatio="xMidYMid slice">
+<!-- Transparent pixel-style grave markers over the existing Pokémon forest battle backdrop -->
+<g shape-rendering="crispEdges" opacity=".8">
+<path fill="#2d374a" d="M0 414h960v126H0z" opacity=".28"/>
+<path fill="#394458" d="M140 335h18v-17h62v17h19v99h-99zM488 372h12v-13h46v13h12v63h-70zM753 328h20v-24h55v24h20v107h-95z"/>
+<path fill="#637184" d="M145 333h13v-15h61v15h13v89h-87zM493 372h12v-12h41v12h7v50h-60zM758 328h16v-24h54v24h15v93h-85z"/>
+<path fill="#7f8c98" d="M158 320h61v8h-61zM505 363h41v7h-41zM774 307h54v9h-54z"/>
+<path fill="#455366" d="M172 352h33v6h-33zM183 340h9v33h-9zM511 387h26v5h-26zM780 344h41v7h-41zM796 329h9v39h-9z"/>
+<path fill="#27394c" d="M120 424h148v12H120zM475 425h94v10h-94zM733 423h135v14H733z"/>
+<path fill="#667383" d="M310 402h12v-11h35v11h11v30h-58zM630 408h10v-12h29v12h10v23h-49z" opacity=".75"/>
+<path fill="#34455c" d="M0 479h960v61H0z" opacity=".23"/>
+</g>
+</svg>
