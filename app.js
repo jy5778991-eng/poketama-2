@@ -718,6 +718,8 @@ function applyDeveloperChanges(e){
  if(animating||learningBusy)return;
  const requestedLevel=Number($('developerLevel').value),money=Number($('developerMoney').value),targetArea=$('developerArea').value;
  const warp=resolveDeveloperWarp({requestedLevel,money,targetArea});
+ // Editing only the level in the current area must not force a minimum-level warp.
+ if(warp&&targetArea===area)warp.targetLevel=requestedLevel;
  if(!warp){
   $('developerSaveError').textContent='레벨 1~100, 보유금 0~999,999,999원, 지역 선택을 확인해줘.';
   return;
