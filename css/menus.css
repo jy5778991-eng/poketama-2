@@ -144,3 +144,9 @@
 .reward-choice-options{margin-top:16px}
 .reward-item-sprite{width:40px;height:40px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
 .reward-choice-item{gap:6px}
+
+.challenge-unlock-overlay[hidden]{display:none!important}
+.challenge-unlock-overlay{position:fixed;inset:0;z-index:175;display:grid;place-items:center;background:#15264abf;padding:20px}
+.challenge-unlock-box{width:min(360px,94vw);border:4px solid #5278b7;border-radius:16px;background:linear-gradient(#fffefc,#e6efff);padding:27px 20px 20px;box-shadow:0 18px 45px #0b1a3c8c;text-align:center;display:grid;gap:24px}
+.challenge-unlock-box strong{font-size:22px;font-weight:1000;color:#2d538c;line-height:1.5}
+.challenge-unlock-box button{min-height:45px;border:2px solid #345fa9;border-radius:9px;background:#4a7ccc;color:#fff;font-size:16px;font-weight:900}
