@@ -9,7 +9,7 @@ export function resolveDeveloperWarp({requestedLevel,money,targetArea}){
   money,area:targetArea,
   blueCleared:targetArea!=='grass',
   brockCleared:['cave','lake','cemetery','town','road','city','sea','volcano','strangeForest'].includes(targetArea),
-  mistyCleared:['lake','cemetery','road','city','sea','volcano','strangeForest'].includes(targetArea),
-  greenReturnCleared:['cemetery','road','city','sea','volcano','strangeForest'].includes(targetArea),surgeCleared:['cemetery','road','city','sea','volcano','strangeForest'].includes(targetArea),greenThirdCleared:['town','road','city','sea','volcano','strangeForest'].includes(targetArea),erikaCleared:['road','city','sea','volcano','strangeForest'].includes(targetArea),kogaCleared:['city','sea','volcano','strangeForest'].includes(targetArea),sabrinaCleared:['sea','volcano','strangeForest'].includes(targetArea),blaineCleared:['strangeForest','championRoad'].includes(targetArea),giovanniCleared:targetArea==='championRoad'
+  mistyCleared:['lake','cemetery','town','road','city','sea','volcano','strangeForest'].includes(targetArea),
+  greenReturnCleared:['cemetery','town','road','city','sea','volcano','strangeForest'].includes(targetArea),surgeCleared:['cemetery','town','road','city','sea','volcano','strangeForest'].includes(targetArea),greenThirdCleared:['town','road','city','sea','volcano','strangeForest'].includes(targetArea),erikaCleared:['road','city','sea','volcano','strangeForest'].includes(targetArea),kogaCleared:['city','sea','volcano','strangeForest'].includes(targetArea),sabrinaCleared:['sea','volcano','strangeForest'].includes(targetArea),blaineCleared:['strangeForest','championRoad'].includes(targetArea),giovanniCleared:targetArea==='championRoad'
  };
 }
