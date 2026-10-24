@@ -6,61 +6,10 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.5, strugglePower: 50, struggleRecoil: 0.25,
 });
-export const MOVES = Object.freeze({
-  lick: {name:"핥기", accuracy:1.0, priority:0, power:30, pp:30},
-  crunch: {name:"깨물어부수기", accuracy:1.0, priority:0, power:80, pp:15},
-  gigaImpact: {name:"기가임팩트", accuracy:0.9, priority:0, power:150, pp:5, recharge:true},
-  bite: {name:"물기", accuracy:1.0, priority:0, power:60, pp:25},
-  hydroPump: {name:"하이드로펌프", accuracy:0.8, priority:0, power:110, pp:5},
-  spite: {name:"원한", accuracy:1.0, priority:0, pp:10, reduceTargetPp:3},
-  suckerPunch: {name:"기습", accuracy:1.0, priority:1, power:70, pp:5},
-  sludgeBomb: {name:"오물폭탄", accuracy:1.0, priority:0, power:90, pp:10},
-  wrap: {name:"김밥말이", accuracy:0.9, priority:0, power:15, pp:20},
-  dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, pp:20, inflict:"paralysis", inflictChance:0.3},
-  outrage: {name:"역린", accuracy:1.0, priority:0, power:120, pp:10},
-  vineWhip: {name:"덩굴채찍", accuracy:1.0, priority:0, power:45, pp:25},
-  razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, pp:25},
-  synthesis: {name:"광합성", accuracy:1.0, priority:0, pp:5, healMaxHp:0.5, target:"self"},
-  scratch: {name:"할퀴기", accuracy:1.0, priority:0, power:40, pp:35},
-  ember: {name:"불꽃세례", accuracy:1.0, priority:0, power:40, pp:25},
-  fireFang: {name:"화염엄니", accuracy:0.95, priority:0, power:65, pp:15},
-  airSlash: {name:"에어슬래시", accuracy:0.95, priority:0, power:75, pp:15},
-  waterGun: {name:"물대포", accuracy:1.0, priority:0, power:40, pp:25},
-  waterPulse: {name:"물의파동", accuracy:1.0, priority:0, power:60, pp:20},
-  ironDefense: {name:"철벽", accuracy:1.0, priority:0, pp:5, boosts:{defense:2}, target:"self"},
-  thunderShock: {name:"전기쇼크", accuracy:1.0, priority:0, power:40, pp:30},
-  spark: {name:"스파크", accuracy:1.0, priority:0, power:65, pp:20},
-  lightScreen: {name:"빛의장막", accuracy:1.0, priority:0, pp:10, boosts:{defense:1}, target:"self"},
-  confusion: {name:"염동력", accuracy:1.0, priority:0, power:50, pp:25},
-  quiverDance: {name:"나비춤", accuracy:1.0, priority:0, pp:5, boosts:{attack:1,defense:1,speed:1}, target:"self"},
-  gigaDrain: {name:"기가드레인", accuracy:1.0, priority:0, power:75, pp:10, drain:0.5},
-  tackle: {name:'몸통박치기',power:40,accuracy:1,pp:35,priority:0},
-  flamethrower: {name:'화염방사', power:95, accuracy:1, pp:15, priority:0},
-  bodySlam: {name:'누르기', power:95, accuracy:1, pp:15, priority:0},
-  flail: {name:'바둥바둥', power:85, accuracy:1, pp:5, priority:0, hpScale:'low'},
-  rest: {name:'잠자기(시험용 회복)', accuracy:1, pp:2, priority:0, healMaxHp:0.4, target:'self'},
-  dragonPulse: {name:'용의파동', power:100, accuracy:1, pp:10, priority:0},
-  extremeSpeed: {name:'신속', power:90, accuracy:1, pp:5, priority:2},
-  energyBall: {name:'에너지볼', power:100, accuracy:1, pp:10, priority:0},
-  solarBeam: {name:'솔라빔', power:150, accuracy:0.75, pp:5, priority:0},
-  surf: {name:'파도타기', power:100, accuracy:1, pp:10, priority:0},
-  waterSpout: {name:'하이드로스파우팅', power:135, accuracy:1, pp:5, priority:0, hpScale:'high'},
-  psybeam: {name:'사이케광선', power:85, accuracy:1, pp:15, priority:0},
-  harden: {name:'단단해지기', accuracy:1, pp:5, priority:0, boosts:{defense:1},target:'self'},
-  shadowBall: {name:'섀도볼', power:90, accuracy:1, pp:15, priority:0},
-  dreamEater: {name:'꿈먹기', power:120, accuracy:1, pp:5, priority:0, requiresTargetSleep:true, drain:0.5},
+import {MOVES} from './js/data/moves.js';
+import {chooseEnemyMove} from './js/battle-ai.js';
+export {MOVES};
 
-  thunderbolt: {name:'10만볼트', power:95, accuracy:1, pp:15, priority:0},
-  voltTackle: {name:'볼트태클', power:120, accuracy:1, pp:5, priority:0, recoilMaxHp:0.10, critMultiplier:3},
-  quickAttack: {name:'전광석화', power:40, accuracy:1, pp:20, priority:1},
-  thunderWave: {name:'전기자석파', accuracy:0.9, pp:10, priority:0, inflict:'paralysis'},
-  flareBlitz: {name:'플레어드라이브', power:110, accuracy:1, pp:5, priority:0, recoilMaxHp:0.10, critMultiplier:2},
-  hypnosis: {name:'최면술', accuracy:0.7, pp:5, priority:0, inflict:'sleep'},
-  poisonPowder: {name:'독가루', accuracy:1, pp:5, priority:0, inflict:'poison'},
-  dragonDance: {name:'용의춤', accuracy:1, pp:2, priority:0, boosts:{attack:1,speed:1}, target:'self'},
-  recover: {name:'회복', accuracy:1, pp:5, priority:0, healMaxHp:0.4, target:'self'},
-  swift: {name:'스피드스타', power:70, accuracy:1, pp:20, priority:0},
-});
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
 const roll=(rng)=>clamp(rng(),0,1-Number.EPSILON);
 const isAlive=(p)=>p.hp>0;
@@ -163,13 +112,7 @@ function pickAction(p,requested){
   if(p.moveIds.every(x=>p.pp[x]===0))return {type:'move',moveId:'struggle',priority:0};
   throw new Error('Illegal move selection');
 }
-export function simpleAi(enemy){
-  const usable=enemy.moveIds.filter(id=>enemy.pp[id]>0);
-  if(!usable.length)return {moveId:'struggle'};
-  const id=[...usable].sort((a,b)=>(MOVES[b].power??0)-(MOVES[a].power??0))[0];
-  return {moveId:id};
-}
-function poisonTick(b,p){
+export function poisonTick(b,p){
   if(!isAlive(p)||p.status?.type!=='poison')return;
   const dmg=Math.max(1,Math.floor(p.stats.hp*RULES.poisonFraction));
   p.hp=Math.max(0,p.hp-dmg);say(b,`${p.name}은(는) 독으로 ${dmg} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,p),amount:dmg,hp:p.hp,critical:false,poison:true});
@@ -184,7 +127,7 @@ function settle(b){
   }
 }
 /** Advance exactly one turn; returns new log entries, and mutates battle state. */
-export function takeTurn(b,playerSelection,enemySelection=simpleAi(activeEnemy(b))){
+export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(activeEnemy(b),{wild:b.wild,rng:b.rng})){
   if(b.ended)throw new Error('Battle is over');
   const p=b.player,e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
