@@ -1041,6 +1041,13 @@ function travelTo(destination){
 }
 function showHallOfFame(){
  const list=$('leagueRecordList');list.replaceChildren();
+ for(const h of [...redHallOfFame].reverse()){
+  const wrap=document.createElement('div');wrap.className='league-record';
+  const title=document.createElement('strong');title.textContent='👑 2차 엔딩 제'+h.round+'회 · 레드 격파 · '+h.pokemon+' Lv.'+h.level;
+  const moves=Array.isArray(h.moves)?h.moves.map(id=>MOVES[id]?.name||id).join(' · '):'기록 없음';
+  const info=document.createElement('p');info.textContent=new Date(h.date).toLocaleDateString('ko-KR')+'\nIV  '+Object.entries(h.ivs||{}).map(([k,v])=>k+': '+v).join(' · ')+'\nEV  '+Object.entries(h.evs||{}).map(([k,v])=>k+': '+v).join(' · ')+'\n기술  '+moves;
+  wrap.append(title,info);list.append(wrap);
+ }
  for(const h of [...hallOfFame].reverse()){
   const wrap=document.createElement('div');wrap.className='league-record';
   const iv=Object.entries(h.ivs||{}).map(([k,v])=>k+': '+v).join(' · ');
