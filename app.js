@@ -315,7 +315,7 @@ function finishTrainerBattle(){
    if(battleKind==='giovanni'&&!giovanniCleared){giovanniCleared=true;area='championRoad';}
    if(battleKind==='greenFifth'&&!greenFifthCleared){greenFifthCleared=true;area='championRoad2';}
   const leagueIndex=battleKind.startsWith('league')?Number(battleKind.slice(6)):-1;
-  if(leagueIndex>=0){if(leagueIndex===4){const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
+  if(leagueIndex>=0){if(leagueIndex===4){const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
   const money=leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
@@ -1005,7 +1005,8 @@ function showHallOfFame(){
   const iv=Object.entries(h.ivs||{}).map(([k,v])=>k+': '+v).join(' · ');
   const ev=Object.entries(h.evs||{}).map(([k,v])=>k+': '+v).join(' · ');
   const title=document.createElement('strong');title.textContent='제'+h.round+'회 · '+h.pokemon+' Lv.'+h.level;
-  const info=document.createElement('p');info.textContent=new Date(h.date).toLocaleDateString('ko-KR')+'\nIV  '+iv+'\nEV  '+ev;
+  const moveNames=Array.isArray(h.moves)?h.moves.map(id=>MOVES[id]?.name||id).join(' · '):'기록 없음 (기존 클리어)';
+  const info=document.createElement('p');info.textContent=new Date(h.date).toLocaleDateString('ko-KR')+'\nIV  '+iv+'\nEV  '+ev+'\n기술  '+moveNames;
   wrap.append(title,info);list.append(wrap);
  }
  $('leagueRecordOverlay').hidden=false;
