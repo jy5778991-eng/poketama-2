@@ -450,7 +450,7 @@ function reset(kind='wild'){
   enemies=[trainerFighter('질뻐기',89,35,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,35,{hp:70,attack:90,defense:75,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,36,{hp:65,attack:90,defense:108,speed:60},['tackle','sludgeBomb'])];
   battleOpponent='koga';
  }else if(kind==='blaine'){
-  enemies=[trainerFighter('나인테일',38,48,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,45,{hp:65,attack:100,defense:70,speed:93},['flamethrower','firePunch']),trainerFighter('날쌩마',78,48,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,49,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
+  enemies=[trainerFighter('나인테일',38,48,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,45,{hp:65,attack:100,defense:70,speed:93},['flamethrower','tackle']),trainerFighter('날쌩마',78,48,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,49,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
   battleOpponent='blaine';
  }else if(kind==='sabrina'){
   enemies=[trainerFighter('캐이시',63,42,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,42,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,42,{hp:55,attack:135,defense:75,speed:120},['psybeam','recover'])];
