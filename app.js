@@ -1,14 +1,14 @@
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261023-31';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-55';
-import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-55';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-town';
+import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-town';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js';
-import {resolveDeveloperWarp} from './js/developer.js?v=20261024-55';
+import {resolveDeveloperWarp} from './js/developer.js?v=20261024-town';
 const $=id=>document.getElementById(id);
 
 // Reward choices scale by stage when a stage system is added later.
@@ -71,17 +71,17 @@ const saveReadFailed=existingSaveRaw!==null&&!saved;
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
-let area=['grass','forest','cave','lake','cemetery','road','city','sea','volcano','strangeForest','championRoad'].includes(saved?.area)?saved.area:'grass';
+let area=['grass','forest','cave','lake','cemetery','town','road','city','sea','volcano','strangeForest','championRoad'].includes(saved?.area)?saved.area:'grass';
 let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCleared=!!saved?.mistyCleared;
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,erikaCleared=!!saved?.erikaCleared;
 let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared,blaineCleared=!!saved?.blaineCleared,giovanniCleared=!!saved?.giovanniCleared;
 if(giovanniCleared){blaineCleared=true;area='championRoad';}
 if(blaineCleared){sabrinaCleared=true;if(!giovanniCleared)area='strangeForest';}
-if(sabrinaCleared){kogaCleared=true;if(!blaineCleared&&area!=='strangeForest')area=progress.level>=47?'volcano':'sea';}
+if(sabrinaCleared){kogaCleared=true;if(!blaineCleared&&area!=='strangeForest')area=progress.level>=48?'volcano':'sea';}
 else if(kogaCleared){erikaCleared=true;area='city';}
 if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
-if(greenThirdCleared)surgeCleared=true;
+if(greenThirdCleared){surgeCleared=true;if(!erikaCleared)area='town';}
 if(surgeCleared)greenReturnCleared=true;
 if(greenReturnCleared)mistyCleared=true;
 if(mistyCleared){brockCleared=true;if(!erikaCleared)area=surgeCleared?'cemetery':'lake';}else if(brockCleared){blueCleared=true;area='cave';}else if(blueCleared&&area==='grass')area='forest';
@@ -296,7 +296,7 @@ function finishTrainerBattle(){
   if(battleKind==='misty'&&!mistyCleared){mistyCleared=true;area='lake';}
   if(battleKind==='greenReturn'&&!greenReturnCleared){greenReturnCleared=true;}
   if(battleKind==='surge'&&!surgeCleared){surgeCleared=true;area='cemetery';}
-   if(battleKind==='greenThird'&&!greenThirdCleared){greenThirdCleared=true;}
+   if(battleKind==='greenThird'&&!greenThirdCleared){greenThirdCleared=true;area='town';}
    if(battleKind==='erika'&&!erikaCleared){erikaCleared=true;area='road';}
    if(battleKind==='koga'&&!kogaCleared){kogaCleared=true;area='city';}
    if(battleKind==='sabrina'&&!sabrinaCleared){sabrinaCleared=true;area='sea';}
@@ -316,7 +316,7 @@ function finishTrainerBattle(){
    if(evolved)evolutions.push({before:getForm(chosen,progress.level-1),after:evolved,level:progress.level});
   }
   if(progress.level===100)progress.exp=0;
-  if(sabrinaCleared&&!blaineCleared&&progress.level>=47)area='volcano';
+  if(sabrinaCleared&&!blaineCleared&&progress.level>=48)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
@@ -326,7 +326,7 @@ function finishTrainerBattle(){
  }
  for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
  saveProgress();
- return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='giovanni'?['비주기에게 승리! 그린배지를 획득했어!','챔피언로드가 열렸어!']:battleKind==='blaine'?['강연에게 승리! 크림슨배지를 획득했어!','이상한 숲 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
+ return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!','도시 지역이 열렸어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='giovanni'?['비주기에게 승리! 그린배지를 획득했어!','챔피언로드가 열렸어!']:battleKind==='blaine'?['강연에게 승리! 크림슨배지를 획득했어!','이상한 숲 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
 }
 const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','sabrina','blaine','giovanni'];
 function wildRewardLevelCap(){
@@ -411,13 +411,13 @@ function reset(kind='wild'){
  if(animating||learningBusy)return;
  // Use the current location's scenery for wild and trainer battles alike.
  const arena=document.querySelector('#battleScreen .arena');
- arena.classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad');
+ arena.classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-town','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad');
  arena.classList.add('area-'+area);
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
- const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='road'?36:area==='city'?42:area==='sea'?46:area==='volcano'?50:area==='strangeForest'?55:area==='championRoad'?60:46;
+ const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?43:area==='sea'?47:area==='volcano'?51:area==='strangeForest'?56:area==='championRoad'?61:46;
  const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
@@ -447,19 +447,19 @@ function reset(kind='wild'){
   enemies=[trainerFighter('피죤',17,25,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('캐이시',63,15,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('갸라도스',130,20,{hp:95,attack:125,defense:90,speed:81},['tackle','bite']),trainerFighter(rivalForm.name,rivalForm.dex,27,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenThird';
  }else if(kind==='erika'){
-  enemies=[trainerFighter('우츠보트',71,29,{hp:80,attack:105,defense:63,speed:70},['vineWhip','razorLeaf']),trainerFighter('덩쿠리',114,25,{hp:65,attack:100,defense:83,speed:60},['vineWhip','tackle']),trainerFighter('라플레시아',45,30,{hp:75,attack:110,defense:88,speed:50},['razorLeaf','poisonPowder'])];
+  enemies=[trainerFighter('우츠보트',71,30,{hp:80,attack:105,defense:63,speed:70},['vineWhip','razorLeaf']),trainerFighter('덩쿠리',114,26,{hp:65,attack:100,defense:83,speed:60},['vineWhip','tackle']),trainerFighter('라플레시아',45,31,{hp:75,attack:110,defense:88,speed:50},['razorLeaf','poisonPowder'])];
   battleOpponent='erika';
  }else if(kind==='koga'){
-  enemies=[trainerFighter('질뻐기',89,35,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,35,{hp:70,attack:90,defense:75,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,36,{hp:65,attack:90,defense:108,speed:60},['tackle','sludgeBomb'])];
+  enemies=[trainerFighter('질뻐기',89,36,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,36,{hp:70,attack:90,defense:75,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,37,{hp:65,attack:90,defense:108,speed:60},['tackle','sludgeBomb'])];
   battleOpponent='koga';
  }else if(kind==='giovanni'){
-  enemies=[trainerFighter('닥트리오',51,53,{hp:35,attack:100,defense:50,speed:120},['tackle','bite']),trainerFighter('캥카',115,52,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,54,{hp:65,attack:70,defense:65,speed:115},['bite','quickAttack']),trainerFighter('니드킹',34,53,{hp:81,attack:102,defense:77,speed:85},['tackle','bite']),trainerFighter('코뿌리',112,55,{hp:105,attack:130,defense:113,speed:40},['tackle','bite'])];
+  enemies=[trainerFighter('닥트리오',51,54,{hp:35,attack:100,defense:50,speed:120},['tackle','bite']),trainerFighter('캥카',115,53,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,55,{hp:65,attack:70,defense:65,speed:115},['bite','quickAttack']),trainerFighter('니드킹',34,54,{hp:81,attack:102,defense:77,speed:85},['tackle','bite']),trainerFighter('코뿌리',112,56,{hp:105,attack:130,defense:113,speed:40},['tackle','bite'])];
   battleOpponent='giovanni';
  }else if(kind==='blaine'){
-  enemies=[trainerFighter('나인테일',38,48,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,45,{hp:65,attack:100,defense:70,speed:93},['flamethrower','tackle']),trainerFighter('날쌩마',78,48,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,49,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
+  enemies=[trainerFighter('나인테일',38,49,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,46,{hp:65,attack:100,defense:70,speed:93},['flamethrower','tackle']),trainerFighter('날쌩마',78,49,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,50,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
   battleOpponent='blaine';
  }else if(kind==='sabrina'){
-  enemies=[trainerFighter('캐이시',63,42,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,42,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,42,{hp:55,attack:135,defense:75,speed:120},['psybeam','recover'])];
+  enemies=[trainerFighter('캐이시',63,43,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,43,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,43,{hp:55,attack:135,defense:75,speed:120},['psybeam','recover'])];
   battleOpponent='sabrina';
  }else{
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:['tackle']});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
@@ -749,7 +749,7 @@ function renderHome(){
  if(blaineCleared&&!giovanniCleared&&area!=='strangeForest')area='strangeForest';
  if(sabrinaCleared&&!blaineCleared&&progress.level>=47&&area==='sea')area='volcano';
  refreshHealingDay();renderPowerStatus();refreshLevelCapIndicator();
- $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':area==='strangeForest'?'🌲 이상한 숲':'🏔️ 챔피언로드';
+ $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='town'?'🏘️ 도시':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':area==='strangeForest'?'🌲 이상한 숲':'🏔️ 챔피언로드';
  $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad');
  $('homeSpriteWrap').classList.add('area-'+area);
  $('badgeStatus').textContent='배지 '+(giovanniCleared?8:blaineCleared?7:sabrinaCleared?6:kogaCleared?5:erikaCleared?4:surgeCleared?3:mistyCleared?2:brockCleared?1:0)+' / 8';
@@ -762,7 +762,7 @@ function renderHome(){
  $('trainerChallenge').classList.toggle('adventure-ready',unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',!unlocked||finalArea);
  $('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=finalArea?(area==='championRoad'?'챔피언로드 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'||trainerKind==='greenThird')?'승리해도 지역은 그대로':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ $('trainerButtonNote').textContent=finalArea?(area==='championRoad'?'챔피언로드 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 도시 개방':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!injured;
  $('injuryBandage').hidden=!injured;
  $('healButton').hidden=false;
