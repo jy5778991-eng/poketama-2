@@ -95,4 +95,4 @@
 .plus-power-indicator .boost-chip img{width:22px;height:22px;image-rendering:pixelated}
 
 /* Champion Road: cold stone tunnel with a distant opening, distinct from the regular cave. */
-.home-sprite-wrap.area-championRoad,#battleScreen .arena.area-championRoad{background-color:#303b51;background-image:linear-gradient(180deg,rgba(13,23,39,.38),rgba(12,17,31,.68)),url('https://play.pokemonshowdown.com/fx/bg-rocky.png'),linear-gradient(145deg,#687d8d,#283448 65%,#131b2c);background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-championRoad,#battleScreen .arena.area-championRoad{background-color:#303b51;background-image:linear-gradient(180deg,rgba(13,23,39,.38),rgba(12,17,31,.68)),url('https://play.pokemonshowdown.com/fx/bg-earthycave.png'),linear-gradient(145deg,#687d8d,#283448 65%,#131b2c);background-position:center;background-size:cover;background-repeat:no-repeat}
