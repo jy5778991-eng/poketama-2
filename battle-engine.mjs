@@ -96,6 +96,7 @@ function executeMove(b,user,target,moveId){
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
+  if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
   if(move.reduceTargetPp){const id=target.moveIds.find(id=>target.pp[id]>0);if(id){const lost=Math.min(target.pp[id],move.reduceTargetPp);target.pp[id]-=lost;say(b,`${target.name}의 ${MOVES[id].name} PP -${lost}`);}}
   if(move.inflict&&isAlive(target)&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
   if(move.recharge&&user.hp>0)user.recharge=true;
