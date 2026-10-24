@@ -99,3 +99,6 @@
 
 /* City after the third Green rival battle: separate from later metropolitan skyline. */
 .home-sprite-wrap.area-town,#battleScreen .arena.area-town{background-color:#859aa1;background-image:linear-gradient(180deg,rgba(32,43,57,.19),rgba(38,48,53,.35)),url('https://play.pokemonshowdown.com/fx/bg-city.png');background-size:cover;background-position:center;background-repeat:no-repeat}
+
+/* Champion Road 2: brighter Indigo Plateau-inspired entrance, contrasted with the dark cave of Road 1. */
+.home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{background-color:#758fb4;background-image:linear-gradient(180deg,rgba(68,95,167,.28),rgba(30,39,89,.19) 45%,rgba(71,59,109,.35)),url('https://play.pokemonshowdown.com/fx/bg-castle.png'),linear-gradient(180deg,#b5c6e0 0%,#849bbf 50%,#596885 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
