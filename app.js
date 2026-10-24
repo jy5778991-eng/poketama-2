@@ -237,7 +237,14 @@ async function playCaptureSequence(success){
 
 function sprite(id,dex,back,emoji){const el=$(id),wrap=el.parentElement;wrap.classList.remove('failed');$(id.replace('Sprite','Fallback')).textContent=emoji;let attempt=0;const sources=[animatedImage(dex,back),staticImage(dex,back),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+(back?'back/':'')+dex+'.png'];el.onerror=()=>{attempt++;if(attempt<sources.length)el.src=sources[attempt];else wrap.classList.add('failed')};el.onload=()=>wrap.classList.remove('failed');el.src=sources[0];}
 function trainerFighter(name,dex,level,base,moveIds=['tackle']){
- return createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:calculateStats(base,level,{hp:0,attack:0,defense:0,speed:0},{}),moveIds});
+ // Temporary trainer rule: use the four most recently learned moves at this level.
+ // Starter evolution families share their existing starter learnsets.
+ const starterFamily=Object.keys(EVOLUTIONS).find(id=>EVOLUTIONS[id].some(form=>form.dex===dex));
+ const recent=starterFamily
+  ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
+  :recentWildMoves(dex,level);
+ const selected=recent.length?recent:moveIds;
+ return createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:calculateStats(base,level,{hp:0,attack:0,defense:0,speed:0},{}),moveIds:selected});
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
  return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
