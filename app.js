@@ -84,7 +84,7 @@ if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
 if(greenThirdCleared){surgeCleared=true;if(!erikaCleared)area='town';}
 if(surgeCleared)greenReturnCleared=true;
 if(greenReturnCleared)mistyCleared=true;
-if(mistyCleared){brockCleared=true;if(!erikaCleared)area=surgeCleared?'cemetery':'lake';}else if(brockCleared){blueCleared=true;area='cave';}else if(blueCleared&&area==='grass')area='forest';
+if(mistyCleared){brockCleared=true;if(!erikaCleared)area=greenThirdCleared?'town':surgeCleared?'cemetery':'lake';}else if(brockCleared){blueCleared=true;area='cave';}else if(blueCleared&&area==='grass')area='forest';
 if(brockCleared)blueCleared=true;
 let blueChoice=RIVAL_POOL.some(s=>s.id===saved?.blueChoice)?saved.blueChoice:null;
 let battleKind='wild',battleOpponent=null,defeatedEnemies=0,trainerExpEarned=0;
