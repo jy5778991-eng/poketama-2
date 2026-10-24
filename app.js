@@ -2,6 +2,7 @@ import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-55';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-55';
+import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -276,7 +277,7 @@ function showBadgeAward(kind){
   img.hidden=false;
   img.onerror=()=>{img.hidden=true;$('badgeAwardFallback').hidden=false;};
   $('badgeAwardFallback').hidden=true;
-  img.src='https://archives.bulbagarden.net/wiki/Special:Redirect/file/FRLG_'+badge.file+'_Badge.png';
+  img.src=BADGE_IMAGES[kind];
   dialog.hidden=false;
   button.onclick=()=>{dialog.hidden=true;button.onclick=null;resolve();};
   button.focus();
