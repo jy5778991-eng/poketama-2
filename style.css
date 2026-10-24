@@ -7,3 +7,6 @@
 
 /* Wild-reward level gate: entire level label turns red on both screens. */
 #homeLevel.level-capped,#playerLevel.level-capped{color:#dc182b!important;-webkit-text-fill-color:#dc182b!important;text-shadow:0 1px 2px #ffffffb0}
+
+/* League waiting room and Hall of Fame */
+.league-room{max-width:520px;margin:24px auto;padding:24px;border:3px solid #b4a4d7;border-radius:16px;background:linear-gradient(160deg,#263956,#181d38);color:#f0eefe;text-align:center;display:flex;flex-direction:column;gap:14px}.league-room button{width:100%}.league-room h2,.league-room p{margin:4px 0}.league-record-overlay{position:fixed;inset:0;z-index:3000;background:#0d142adf;overflow:auto;padding:20px}.league-record-overlay[hidden]{display:none}.league-record{border:1px solid #7385a9;padding:12px;margin:8px 0;text-align:left;border-radius:9px}.league-record p{white-space:pre-line;font-size:13px}
