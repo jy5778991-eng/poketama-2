@@ -20,6 +20,8 @@
       <button id="startBattle" type="button" class="home-action primary-action adventure-wild">⚔ 야생 배틀 <small>레벨업 · 상금 · 포획</small></button>
       <button type="button" id="trainerChallenge" class="home-action adventure-trainer"><span id="trainerButtonTitle">🔒 그린에게 도전</span><small id="trainerButtonNote">Lv.5에 해금</small></button>
     </div>
+    <button type="button" id="leagueEnter" class="home-action" hidden>🏆 포켓몬 리그 도전 <small>Lv.67부터 · 사천왕 4명과 챔피언</small></button>
+    <button type="button" id="leagueRecords" class="home-action" hidden>🏅 명예의 전당 기록</button>
     <p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p>
   </section>
 
@@ -28,6 +30,8 @@
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
 <section id="collectionScreen" class="screen" hidden aria-label="수집 메뉴"><div class="shop-shell"><div class="shop-head"><button type="button" id="closeCollection" class="secondary">← 메인으로</button><strong>📚 수집</strong></div><div class="collection-tabs" role="tablist" aria-label="수집 항목"><button type="button" data-collection-tab="dex" role="tab" aria-selected="true">도감</button><button type="button" data-collection-tab="achievements" role="tab" aria-selected="false">업적</button><button type="button" data-collection-tab="trainers" role="tab" aria-selected="false">트레이너</button></div><p id="collectionSummary" class="collection-summary"></p><div id="collectionContent" role="tabpanel"></div></div></section>
+<section id="leagueScreen" class="screen" hidden><div class="league-room"><h2>🏆 포켓몬 리그 대기실</h2><p id="leagueProgress">리그 1 / 5</p><p>다음 상대</p><h2 id="leagueOpponent">칸나</h2><p>상대 레벨과 멤버는 비공개</p><p id="leagueHp"></p><button id="leagueBag" class="home-action">🎒 가방 · 회복과 보유 아이템 사용</button><button id="leagueNext" class="home-action primary-action">다음 상대에게 도전</button><p>상점 이용 불가 · 패배 시 챔피언로드 2로 복귀</p></div></section>
+<div id="leagueRecordOverlay" class="league-record-overlay" hidden><div class="league-room"><h2>🏅 명예의 전당</h2><div id="leagueRecordList"></div><button id="leagueRecordClose" class="home-action">닫기</button></div></div>
 <section id="shopScreen" class="screen" hidden aria-label="가방 또는 프렌들리숍">
  <div class="shop-shell"><div class="shop-head"><button type="button" id="closeShop" class="secondary">← 메인으로</button><strong id="shopMoney">💰 0원</strong></div>
  <h2 id="inventoryScreenTitle">🎒 가방</h2>
@@ -82,4 +86,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261024-road2"></script></body></html>
+</main><script type="module" src="./app.js?v=20261024-league1"></script></body></html>
