@@ -52,7 +52,8 @@ export const MOVES = Object.freeze({
   poisonPowder: {name:'독가루', accuracy:1, pp:5, priority:0, inflict:'poison'},
   dragonDance: {name:'용의춤', accuracy:1, pp:2, priority:0, boosts:{attack:1,speed:1}, target:'self'},
   recover: {name:'회복', accuracy:1, pp:5, priority:0, healMaxHp:0.4, target:'self'},
-  swift: {name:'스피드스타', power:70, accuracy:1, pp:20, priority:0},  boneClub:{name:'뼈다귀치기',power:65,accuracy:0.85,pp:20,priority:0},
+  swift: {name:'스피드스타', power:70, accuracy:1, pp:20, priority:0},
+  boneClub:{name:'뼈다귀치기',power:65,accuracy:0.85,pp:20,priority:0},
   iceBeam:{name:'냉동빔',power:90,accuracy:1,pp:10,priority:0},
 
   wingAttack:{name:'날개치기',power:60,accuracy:1,pp:25,priority:0},
