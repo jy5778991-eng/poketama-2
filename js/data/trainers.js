@@ -10,10 +10,10 @@ export const TRAINERS={
  misty:{name:'이슬이',level:17,money:700,stageAfter:'lake',image:'./assets/trainers/misty.webp'},
  greenReturn:{name:'라이벌 그린',level:19,money:850,stageAfter:null,image:'./assets/trainers/green.webp'},
  surge:{name:'마티즈',level:24,money:1100,stageAfter:'cemetery',image:'./assets/trainers/lt-surge.webp'},
- greenThird:{name:'라이벌 그린',level:27,money:1250,stageAfter:null,image:'./assets/trainers/green.webp'},
- erika:{name:'민화',level:30,money:1400,stageAfter:'road',image:'https://play.pokemonshowdown.com/sprites/trainers/erika.png'},
- koga:{name:'독수',level:36,money:1600,stageAfter:'city',image:'https://play.pokemonshowdown.com/sprites/trainers/koga.png'},
- sabrina:{name:'초련',level:42,money:1850,stageAfter:'sea',image:'https://play.pokemonshowdown.com/sprites/trainers/sabrina.png'},
- blaine:{name:'강연',level:49,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
- giovanni:{name:'비주기',level:55,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
+ greenThird:{name:'라이벌 그린',level:27,money:1250,stageAfter:'town',image:'./assets/trainers/green.webp'},
+ erika:{name:'민화',level:31,money:1400,stageAfter:'road',image:'https://play.pokemonshowdown.com/sprites/trainers/erika.png'},
+ koga:{name:'독수',level:37,money:1600,stageAfter:'city',image:'https://play.pokemonshowdown.com/sprites/trainers/koga.png'},
+ sabrina:{name:'초련',level:43,money:1850,stageAfter:'sea',image:'https://play.pokemonshowdown.com/sprites/trainers/sabrina.png'},
+ blaine:{name:'강연',level:50,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
+ giovanni:{name:'비주기',level:56,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
 };
