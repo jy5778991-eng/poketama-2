@@ -96,3 +96,6 @@
 
 /* Champion Road: cold stone tunnel with a distant opening, distinct from the regular cave. */
 .home-sprite-wrap.area-championRoad,#battleScreen .arena.area-championRoad{background-color:#303b51;background-image:linear-gradient(180deg,rgba(13,23,39,.38),rgba(12,17,31,.68)),url('https://play.pokemonshowdown.com/fx/bg-earthycave.png'),linear-gradient(145deg,#687d8d,#283448 65%,#131b2c);background-position:center;background-size:cover;background-repeat:no-repeat}
+
+/* City after the third Green rival battle: separate from later metropolitan skyline. */
+.home-sprite-wrap.area-town,#battleScreen .arena.area-town{background-color:#859aa1;background-image:linear-gradient(180deg,rgba(32,43,57,.19),rgba(38,48,53,.35)),url('https://play.pokemonshowdown.com/fx/bg-city.png');background-size:cover;background-position:center;background-repeat:no-repeat}
