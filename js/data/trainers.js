@@ -13,7 +13,8 @@ export const TRAINERS={
  greenThird:{name:'라이벌 그린',level:27,money:1250,stageAfter:'town',image:'./assets/trainers/green.webp'},
  erika:{name:'민화',level:31,money:1400,stageAfter:'road',image:'https://play.pokemonshowdown.com/sprites/trainers/erika.png'},
  koga:{name:'독수',level:37,money:1600,stageAfter:'city',image:'https://play.pokemonshowdown.com/sprites/trainers/koga.png'},
- sabrina:{name:'초련',level:43,money:1850,stageAfter:'sea',image:'https://play.pokemonshowdown.com/sprites/trainers/sabrina.png'},
- blaine:{name:'강연',level:50,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
- giovanni:{name:'비주기',level:56,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
+ greenFourth:{name:'라이벌 그린',level:40,money:1750,stageAfter:null,image:'./assets/trainers/green.webp'},
+ sabrina:{name:'초련',level:44,money:1850,stageAfter:'sea',image:'https://play.pokemonshowdown.com/sprites/trainers/sabrina.png'},
+ blaine:{name:'강연',level:51,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
+ giovanni:{name:'비주기',level:57,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
 };
