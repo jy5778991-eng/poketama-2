@@ -1,4 +1,4 @@
-import {MOVES} from '../data/moves.js';
+import {MOVES} from './data/moves.js';
 // Exactly two opponent AI modes; trainer AI is shared by all trainer ranks.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random}={}){
  const usable=enemy.moveIds.filter(id=>enemy.pp[id]>0);
