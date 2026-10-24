@@ -16,5 +16,6 @@ export const TRAINERS={
  greenFourth:{name:'라이벌 그린',level:40,money:1750,stageAfter:null,image:'./assets/trainers/green.webp'},
  sabrina:{name:'초련',level:44,money:1850,stageAfter:'sea',image:'https://play.pokemonshowdown.com/sprites/trainers/sabrina.png'},
  blaine:{name:'강연',level:51,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
+ greenFifth:{name:'라이벌 그린',level:62,money:3000,stageAfter:'championRoad2',image:'./assets/trainers/green.webp'},
  giovanni:{name:'비주기',level:57,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
 };
