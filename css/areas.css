@@ -102,3 +102,9 @@
 
 /* Champion Road 2: brighter Indigo Plateau-inspired entrance, contrasted with the dark cave of Road 1. */
 .home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{background-color:#758fb4;background-image:linear-gradient(180deg,rgba(68,95,167,.28),rgba(30,39,89,.19) 45%,rgba(71,59,109,.35)),url('https://play.pokemonshowdown.com/fx/bg-castle.png'),linear-gradient(180deg,#b5c6e0 0%,#849bbf 50%,#596885 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
+
+/* Post-champion regions */
+.home-sprite-wrap.area-palletTown,#battleScreen .arena.area-palletTown{background-color:#9ccd9e;background-image:linear-gradient(180deg,#9edaf1aa,#68b96c40),url('https://play.pokemonshowdown.com/fx/bg-city.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-rocketBase,#battleScreen .arena.area-rocketBase{background-color:#313246;background-image:linear-gradient(150deg,#121524bf,#51506399),url('https://play.pokemonshowdown.com/fx/bg-warehouse.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-farawayIsland,#battleScreen .arena.area-farawayIsland{background-color:#4aaf86;background-image:linear-gradient(180deg,#8cdecc55,#18462c60),url('https://play.pokemonshowdown.com/fx/bg-forest.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-mountSilver,#battleScreen .arena.area-mountSilver{background-color:#758a9a;background-image:linear-gradient(180deg,#bfd8f488,#334b67b0),url('https://play.pokemonshowdown.com/fx/bg-earthycave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
