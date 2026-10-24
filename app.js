@@ -1,13 +1,13 @@
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261023-31';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-47';
-import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261023-14';
+import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-49';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js';
-import {resolveDeveloperWarp} from './js/developer.js?v=20261023-23';
+import {resolveDeveloperWarp} from './js/developer.js?v=20261024-49';
 const $=id=>document.getElementById(id);
 
 // Reward choices scale by stage when a stage system is added later.
@@ -61,7 +61,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,kogaCleared,sabrinaCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const saved=readSave();
 // Never overwrite a present but unreadable legacy save with default starter data.
@@ -74,8 +74,9 @@ let area=['grass','forest','cave','lake','cemetery','road','city','sea','volcano
 let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCleared=!!saved?.mistyCleared;
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,erikaCleared=!!saved?.erikaCleared;
-let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared;
-if(sabrinaCleared){kogaCleared=true;if(area!=='strangeForest')area=progress.level>=47?'volcano':'sea';}
+let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared,blaineCleared=!!saved?.blaineCleared;
+if(blaineCleared){sabrinaCleared=true;area='strangeForest';}
+if(sabrinaCleared){kogaCleared=true;if(!blaineCleared&&area!=='strangeForest')area=progress.level>=47?'volcano':'sea';}
 else if(kogaCleared){erikaCleared=true;area='city';}
 if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
 if(greenThirdCleared)surgeCleared=true;
@@ -264,7 +265,7 @@ async function showEvolutions(evolutions){
   await pause(1900);layer.hidden=true;
  }
 }
-const GYM_BADGES={brock:{name:'암석배지',file:'Boulder'},misty:{name:'블루배지',file:'Cascade'},surge:{name:'오렌지배지',file:'Thunder'},erika:{name:'레인보우배지',file:'Rainbow'},koga:{name:'핑크배지',file:'Soul'},sabrina:{name:'골드배지',file:'Marsh'}};
+const GYM_BADGES={brock:{name:'암석배지',file:'Boulder'},misty:{name:'블루배지',file:'Cascade'},surge:{name:'오렌지배지',file:'Thunder'},erika:{name:'레인보우배지',file:'Rainbow'},koga:{name:'핑크배지',file:'Soul'},sabrina:{name:'골드배지',file:'Marsh'},blaine:{name:'크림슨배지',file:'Volcano'}};
 function showBadgeAward(kind){
  const badge=GYM_BADGES[kind];if(!badge)return Promise.resolve();
  return new Promise(resolve=>{
@@ -287,7 +288,7 @@ function finishTrainerBattle(){
  let gained=0;
  let badgeEarned=null;
  if(battle.result==='victory'){
-  if(GYM_BADGES[battleKind]&&!({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared})[battleKind])badgeEarned=battleKind;
+  if(GYM_BADGES[battleKind]&&!({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared})[battleKind])badgeEarned=battleKind;
   if(battleKind==='blue'&&!blueCleared){blueCleared=true;area='forest';}
   if(battleKind==='brock'&&!brockCleared){brockCleared=true;area='cave';}
   if(battleKind==='misty'&&!mistyCleared){mistyCleared=true;area='lake';}
@@ -297,6 +298,7 @@ function finishTrainerBattle(){
    if(battleKind==='erika'&&!erikaCleared){erikaCleared=true;area='road';}
    if(battleKind==='koga'&&!kogaCleared){kogaCleared=true;area='city';}
    if(battleKind==='sabrina'&&!sabrinaCleared){sabrinaCleared=true;area='sea';}
+   if(battleKind==='blaine'&&!blaineCleared){blaineCleared=true;area='strangeForest';}
   const money=TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??TRAINERS[battleKind].level;
@@ -311,7 +313,7 @@ function finishTrainerBattle(){
    if(evolved)evolutions.push({before:getForm(chosen,progress.level-1),after:evolved,level:progress.level});
   }
   if(progress.level===100)progress.exp=0;
-  if(sabrinaCleared&&progress.level>=47)area='volcano';
+  if(sabrinaCleared&&!blaineCleared&&progress.level>=47)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
@@ -321,9 +323,9 @@ function finishTrainerBattle(){
  }
  for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
  saveProgress();
- return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
+ return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='blaine'?['강연에게 승리! 크림슨배지를 획득했어!','이상한 숲 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
 }
-const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','sabrina'];
+const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','sabrina','blaine'];
 function wildRewardLevelCap(){
  const current=nextTrainerKind();
  const index=CHALLENGE_ORDER.indexOf(current);
@@ -338,7 +340,7 @@ function refreshLevelCapIndicator(){
   el.title=capped?'성장 제한: 다음 도전을 완료하면 야생 경험치와 보상이 다시 열려.':'';
  }
 }
-function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!sabrinaCleared?'sabrina':null;}
+function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!sabrinaCleared?'sabrina':!blaineCleared?'blaine':null;}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
 let battlePlayerLevelStart=1;
 let pendingTrainerIntro=null;
@@ -360,7 +362,7 @@ function challengeTrainer(){
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
- $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'||kind==='greenThird'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':kind==='erika'?'풀 체육관 관장 민화가 승부를 걸어왔다!':kind==='koga'?'독 체육관 관장 독수가 승부를 걸어왔다!':kind==='sabrina'?'에스퍼 체육관 관장 초련이 승부를 걸어왔다!':'전기 체육관 관장 마티즈가 승부를 걸어왔다!';
+ $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'||kind==='greenThird'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':kind==='erika'?'풀 체육관 관장 민화가 승부를 걸어왔다!':kind==='koga'?'독 체육관 관장 독수가 승부를 걸어왔다!':kind==='sabrina'?'에스퍼 체육관 관장 초련이 승부를 걸어왔다!':kind==='blaine'?'불꽃 체육관 관장 강연이 승부를 걸어왔다!':'전기 체육관 관장 마티즈가 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
  // Use the uploaded animated WebP directly to preserve its original frames.
  $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
@@ -447,6 +449,9 @@ function reset(kind='wild'){
  }else if(kind==='koga'){
   enemies=[trainerFighter('질뻐기',89,35,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,35,{hp:70,attack:90,defense:75,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,36,{hp:65,attack:90,defense:108,speed:60},['tackle','sludgeBomb'])];
   battleOpponent='koga';
+ }else if(kind==='blaine'){
+  enemies=[trainerFighter('나인테일',38,48,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,45,{hp:65,attack:100,defense:70,speed:93},['flamethrower','firePunch']),trainerFighter('날쌩마',78,48,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,49,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
+  battleOpponent='blaine';
  }else if(kind==='sabrina'){
   enemies=[trainerFighter('캐이시',63,42,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,42,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,42,{hp:55,attack:135,defense:75,speed:120},['psybeam','recover'])];
   battleOpponent='sabrina';
@@ -455,7 +460,7 @@ function reset(kind='wild'){
  }
  player.hp=storedHp===null?player.stats.hp:Math.min(player.stats.hp,Math.max(0,storedHp));
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
- if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);
+ if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
  $('captureFlash').className='capture-flash';$('captureFlash').hidden=true;$('captureSuccessNotice').hidden=true;
@@ -734,12 +739,13 @@ function renderPowerStatus(){
  }
 }
 function renderHome(){
- if(sabrinaCleared&&progress.level>=47&&area==='sea')area='volcano';
+ if(blaineCleared&&area!=='strangeForest')area='strangeForest';
+ if(sabrinaCleared&&!blaineCleared&&progress.level>=47&&area==='sea')area='volcano';
  refreshHealingDay();renderPowerStatus();refreshLevelCapIndicator();
  $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':'🌲 이상한 숲';
  $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest');
  $('homeSpriteWrap').classList.add('area-'+area);
- $('badgeStatus').textContent='배지 '+(sabrinaCleared?6:kogaCleared?5:erikaCleared?4:surgeCleared?3:mistyCleared?2:brockCleared?1:0)+' / 8';
+ $('badgeStatus').textContent='배지 '+(blaineCleared?7:sabrinaCleared?6:kogaCleared?5:erikaCleared?4:surgeCleared?3:mistyCleared?2:brockCleared?1:0)+' / 8';
  const trainerKind=nextTrainerKind();
  const finalArea=!trainerKind;
  const targetLevel=trainerKind?TRAINERS[trainerKind].level:0;
@@ -748,8 +754,8 @@ function renderHome(){
  $('trainerChallenge').disabled=challengeDisabled;
  $('trainerChallenge').classList.toggle('adventure-ready',unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',!unlocked||finalArea);
- $('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=finalArea?(area==='volcano'?'화산 지역 탐험':'골드배지 획득 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'||trainerKind==='greenThird')?'승리해도 지역은 그대로':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ $('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
+ $('trainerButtonNote').textContent=finalArea?(area==='strangeForest'?'이상한 숲 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':injured?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'||trainerKind==='greenThird')?'승리해도 지역은 그대로':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!injured;
  $('injuryBandage').hidden=!injured;
  $('healButton').hidden=false;
@@ -924,6 +930,7 @@ function applyDeveloperChanges(e){
  erikaCleared=erikaCleared||warp.erikaCleared;
  kogaCleared=kogaCleared||warp.kogaCleared;
  sabrinaCleared=sabrinaCleared||warp.sabrinaCleared;
+ blaineCleared=blaineCleared||warp.blaineCleared;
  progress.level=targetLevel;
  progress.money=warp.money;
  if(levelChanged){
@@ -969,5 +976,5 @@ function setup(){
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('rewardReroll').addEventListener('click',rerollRewards);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('rewardReroll').addEventListener('click',rerollRewards);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen('home');showRewardChoices();}
 setup();
