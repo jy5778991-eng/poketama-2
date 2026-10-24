@@ -75,7 +75,7 @@ let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCle
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,erikaCleared=!!saved?.erikaCleared;
 let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared;
-if(sabrinaCleared){kogaCleared=true;if(area!=='strangeForest')area=progress.level>=46?'volcano':'sea';}
+if(sabrinaCleared){kogaCleared=true;if(area!=='strangeForest')area=progress.level>=47?'volcano':'sea';}
 else if(kogaCleared){erikaCleared=true;area='city';}
 if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
 if(greenThirdCleared)surgeCleared=true;
@@ -311,7 +311,7 @@ function finishTrainerBattle(){
    if(evolved)evolutions.push({before:getForm(chosen,progress.level-1),after:evolved,level:progress.level});
   }
   if(progress.level===100)progress.exp=0;
-  if(sabrinaCleared&&progress.level>=46)area='volcano';
+  if(sabrinaCleared&&progress.level>=47)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
@@ -412,7 +412,7 @@ function reset(kind='wild'){
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
- const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='road'?36:area==='city'?42:area==='sea'?46:area==='strangeForest'?50:46;
+ const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='road'?36:area==='city'?42:area==='sea'?46:area==='volcano'?50:area==='strangeForest'?50:46;
  const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
@@ -734,6 +734,7 @@ function renderPowerStatus(){
  }
 }
 function renderHome(){
+ if(sabrinaCleared&&progress.level>=47&&area==='sea')area='volcano';
  refreshHealingDay();renderPowerStatus();refreshLevelCapIndicator();
  $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':'🌲 이상한 숲';
  $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest');
