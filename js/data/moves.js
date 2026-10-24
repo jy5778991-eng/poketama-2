@@ -53,7 +53,6 @@ export const MOVES = Object.freeze({
   dragonDance: {name:'용의춤', accuracy:1, pp:2, priority:0, boosts:{attack:1,speed:1}, target:'self'},
   recover: {name:'회복', accuracy:1, pp:5, priority:0, healMaxHp:0.4, target:'self'},
   swift: {name:'스피드스타', power:70, accuracy:1, pp:20, priority:0},
-,
   wingAttack:{name:'날개치기',power:60,accuracy:1,pp:25,priority:0},
   braveBird:{name:'브레이브버드',power:120,accuracy:1,pp:5,priority:0,recoilMaxHp:0.10},
   rockThrow:{name:'돌떨구기',power:50,accuracy:0.9,pp:15,priority:0},
