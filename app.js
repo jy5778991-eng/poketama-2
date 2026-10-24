@@ -449,7 +449,7 @@ function reset(kind='wild'){
   battleOpponent='greenThird';
  }else if(kind==='greenFourth'){
   const rivalForm=getForm(blueChoice,40),rivalMoves=availableMoves(blueChoice,40).slice(-4).map(m=>m.id);
-  enemies=[trainerFighter('피죤투',18,36,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('스라크',123,39,{hp:70,attack:110,defense:80,speed:105},['quickAttack','slash']),trainerFighter('윤겔라',64,35,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter(rivalForm.name,rivalForm.dex,40,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
+  enemies=[trainerFighter('피죤투',18,36,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('스라크',123,39,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윤겔라',64,35,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter(rivalForm.name,rivalForm.dex,40,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenFourth';
  }else if(kind==='erika'){
   enemies=[trainerFighter('우츠보트',71,30,{hp:80,attack:105,defense:63,speed:70},['vineWhip','razorLeaf']),trainerFighter('덩쿠리',114,26,{hp:65,attack:100,defense:83,speed:60},['vineWhip','tackle']),trainerFighter('라플레시아',45,31,{hp:75,attack:110,defense:88,speed:50},['razorLeaf','poisonPowder'])];
