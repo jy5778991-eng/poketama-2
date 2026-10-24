@@ -452,7 +452,7 @@ function reset(kind='wild'){
   enemies=[trainerFighter('질뻐기',89,35,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,35,{hp:70,attack:90,defense:75,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,36,{hp:65,attack:90,defense:108,speed:60},['tackle','sludgeBomb'])];
   battleOpponent='koga';
  }else if(kind==='giovanni'){
-  enemies=[trainerFighter('닥트리오',51,53,{hp:35,attack:100,defense:50,speed:120},['earthquake','slash']),trainerFighter('캥카',115,52,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,54,{hp:65,attack:70,defense:65,speed:115},['slash','quickAttack']),trainerFighter('니드킹',34,53,{hp:81,attack:102,defense:77,speed:85},['earthquake','poisonSting']),trainerFighter('코뿌리',112,55,{hp:105,attack:130,defense:113,speed:40},['earthquake','rockSlide'])];
+  enemies=[trainerFighter('닥트리오',51,53,{hp:35,attack:100,defense:50,speed:120},['tackle','bite']),trainerFighter('캥카',115,52,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,54,{hp:65,attack:70,defense:65,speed:115},['bite','quickAttack']),trainerFighter('니드킹',34,53,{hp:81,attack:102,defense:77,speed:85},['tackle','bite']),trainerFighter('코뿌리',112,55,{hp:105,attack:130,defense:113,speed:40},['tackle','bite'])];
   battleOpponent='giovanni';
  }else if(kind==='blaine'){
   enemies=[trainerFighter('나인테일',38,48,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,45,{hp:65,attack:100,defense:70,speed:93},['flamethrower','tackle']),trainerFighter('날쌩마',78,48,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,49,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
