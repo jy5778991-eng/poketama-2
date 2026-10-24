@@ -35,17 +35,8 @@ export const EVOLUTIONS={
  gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
 export const getForm=(id,level)=>[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
-export const MOVE_LEARNSETS={
- snorlax: [{level:1,id:'tackle'}, {level:8,id:'lick'}, {level:16,id:'bodySlam'}, {level:25,id:'rest'}, {level:32,id:'crunch'}, {level:40,id:'flail'}, {level:48,id:'gigaImpact'}],
- gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:24,id:'surf'}, {level:32,id:'dragonDance'}, {level:40,id:'hydroPump'}],
- gengar: [{level:1,id:'lick'}, {level:7,id:'spite'}, {level:12,id:'shadowBall'}, {level:20,id:'hypnosis'}, {level:25,id:'suckerPunch'}, {level:32,id:'dreamEater'}, {level:40,id:'sludgeBomb'}],
- dragonite: [{level:1,id:'wrap'}, {level:8,id:'quickAttack'}, {level:18,id:'dragonBreath'}, {level:30,id:'dragonPulse'}, {level:40,id:'dragonDance'}, {level:48,id:'outrage'}, {level:55,id:'extremeSpeed'}],
- venusaur: [{level:1,id:'tackle'}, {level:7,id:'vineWhip'}, {level:13,id:'poisonPowder'}, {level:16,id:'razorLeaf'}, {level:24,id:'energyBall'}, {level:32,id:'solarBeam'}, {level:44,id:'synthesis'}],
- charizard: [{level:1,id:'scratch'}, {level:7,id:'ember'}, {level:13,id:'quickAttack'}, {level:16,id:'fireFang'}, {level:24,id:'flamethrower'}, {level:36,id:'flareBlitz'}, {level:48,id:'airSlash'}],
- blastoise: [{level:1,id:'tackle'}, {level:7,id:'waterGun'}, {level:13,id:'harden'}, {level:16,id:'waterPulse'}, {level:25,id:'surf'}, {level:36,id:'waterSpout'}, {level:44,id:'ironDefense'}],
- raichu: [{level:1,id:'quickAttack'}, {level:6,id:'thunderShock'}, {level:12,id:'thunderWave'}, {level:15,id:'spark'}, {level:22,id:'thunderbolt'}, {level:30,id:'voltTackle'}, {level:40,id:'lightScreen'}],
- butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:20,id:'psybeam'}, {level:28,id:'quiverDance'}, {level:36,id:'gigaDrain'}],
-};
+export {MOVE_LEARNSETS} from './learnsets.js';
+import {MOVE_LEARNSETS} from './learnsets.js';
 export const availableMoves=(id,level)=>MOVE_LEARNSETS[id].filter(m=>m.level<=level);
 export const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
 // Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
