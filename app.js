@@ -440,6 +440,7 @@ function showBadgeAward(kind){
  });
 }
 function finishTrainerBattle(){
+ const activeWasCapped=wildRewardCapped(activeMember());
  const old=progress.level;
  const evolutions=[];
  const learnQueue=[];
@@ -478,7 +479,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=!wildRewardCapped(activeMember())&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
+  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
  }else{
   if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -1171,6 +1172,7 @@ function updateBattlePlayerHeader(){
  const m=activeMember();
  $('playerName').textContent=battle.player.name;$('promptName').textContent=battle.player.name;
  $('playerLevel').textContent='LV '+battle.player.level;
+ const cap=wildRewardLevelCap();$('playerLevel').classList.toggle('level-capped',cap!==null&&m.level>=cap);
  sprite('playerSprite',m.dex,true,m.starter?STARTERS.find(x=>x.id===chosen).emoji:'⚔️');
  shownHp.player=battle.player.hp;
 }
