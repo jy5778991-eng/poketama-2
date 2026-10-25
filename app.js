@@ -9,7 +9,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-six-features37';
+import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -1276,7 +1276,7 @@ function showPartyManager(selectedKey=null){
     if(move.target==='self'&&move.boosts?.defense&&move.name==='빛의장막')effects.push('방어 강화');
     effect=effects.join(' · ')||'특수 효과';
    }
-   partyOverlay(move.name,power+' · '+accuracy+(effect?'\\n효과: '+effect:''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
+   partyOverlay(move.name,power+' · '+accuracy+(effect?'\n효과: '+effect:''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
   };
   moves.append(cell);
  }
