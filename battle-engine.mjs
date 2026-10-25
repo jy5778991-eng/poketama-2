@@ -108,7 +108,7 @@ function executeMove(b,user,target,moveId){
 function pickAction(p,requested){
   if(requested?.type==='revive') return {type:'revive',priority:6};
   if(requested?.type==='healAlly') return {type:'healAlly',priority:6};
-  if(requested?.type==='switch') return {type:'switch',priority:7,fighter:requested.fighter};
+  if(requested?.type==='switch') return {type:'switch',priority:Number.POSITIVE_INFINITY,fighter:requested.fighter};
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
   const id=requested?.moveId;
