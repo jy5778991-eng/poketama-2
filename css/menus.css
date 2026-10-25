@@ -154,3 +154,13 @@
 
 /* Small original badge sprites should upscale at an integer factor, without smoothing. */
 .badge-award-shine img{width:60px;height:60px;image-rendering:pixelated;object-fit:contain}
+
+/* Reward selection: compact title/art, independent explanation button */
+.reward-choice-item{overflow-wrap:normal;justify-content:space-between;gap:5px;min-height:160px;padding:8px 5px}
+.reward-pick{width:100%;min-height:94px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:0;background:transparent;color:inherit;font:inherit;font-weight:900;cursor:pointer;padding:5px 2px;overflow-wrap:anywhere}
+.reward-pick:disabled{opacity:.45;cursor:not-allowed}
+.reward-pick .reward-item-sprite{max-width:44px;max-height:44px;object-fit:contain;image-rendering:pixelated}
+.reward-placeholder-icon{font-size:32px;line-height:1.25}
+.reward-item-name{font-size:13px;line-height:1.25}
+.reward-info-button{width:100%;min-height:32px;border:1px solid #7185a6;border-radius:6px;background:#fff;color:#2c4573;font-size:12px;font-weight:800;cursor:pointer}
+.reward-info-button:hover{background:#e8f0ff}
