@@ -40,6 +40,8 @@ function drawThreeRewards(level){
    {kind:'heal',amount:200,icon:'💉'},
    {kind:'item',id:'greatBall',quantity:3,icon:'🔵'},
    {kind:'item',id:'ultraBall',quantity:2,icon:'🟡'},
+   ...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),
+   ...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),
    {kind:'ev',stat:'hp',amount:2,icon:'💊'},
    {kind:'ev',stat:'attack',amount:2,icon:'💊'},
    {kind:'ev',stat:'defense',amount:2,icon:'💊'},
@@ -125,7 +127,9 @@ let caughtSpecies=new Set([...(Array.isArray(saved?.caughtSpecies)?saved.caughtS
 let seenPokemon=new Set([...(Array.isArray(saved?.seenPokemon)?saved.seenPokemon:[]),...capturedPokemon.map(p=>p.dex)].filter(id=>Number.isInteger(id)&&id>0&&id<=1025));
 function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))return;seenPokemon.add(dex);saveProgress();}
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
-let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>[i.id, Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id]]));
+let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];return [i.id,i.category==='key'?Math.min(1,value):value];}));
+// Slot B only makes sense when slot A has been unlocked.
+if(inventory.partySlotB)inventory.partySlotA=1;
 const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defense'}};
 const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=5).slice(0,100)]));
 const boostCount=key=>activeBoosts[key].length;
@@ -625,6 +629,8 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
+ if(choice.kind==='item'&&choice.id==='partySlotA')return '👥 포켓몬 추가 슬롯A · 동료 슬롯 2번째 해금';
+ if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
@@ -639,7 +645,7 @@ function rewardChoiceText(choice){
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defense'}[choice.effect||'attack'];
- if(choice.kind==='item')return {secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
@@ -650,6 +656,9 @@ function showRewardChoices(){
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
   const b=document.createElement('button');b.type='button';
+  const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
+  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1);
+  b.disabled=unavailable;
   b.className='reward-choice-item reward-tier-'+choice.tier;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const imageName=rewardImageName(choice);
@@ -740,7 +749,13 @@ function claimRewardChoice(index){
   const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
   storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
-  inventory[choice.id]=Math.min(99,inventory[choice.id]+choice.quantity);
+  const item=SHOP_ITEMS.find(item=>item.id===choice.id);
+  if(item?.category==='key'){
+   if(inventory[choice.id]===1 || choice.id==='partySlotB'&&inventory.partySlotA!==1){
+    alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
+   }
+   inventory[choice.id]=1;
+  }else inventory[choice.id]=Math.min(99,inventory[choice.id]+choice.quantity);
  }else return;
  pendingRewardChoice=null;
  saveProgress();
