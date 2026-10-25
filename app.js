@@ -130,16 +130,51 @@ let healingDay=typeof saved?.healingDay==='string'?saved.healingDay:todayKST();
 let freeHealsUsed=Number.isInteger(saved?.freeHealsUsed)?Math.max(0,Math.min(10,saved.freeHealsUsed)):0;
 function refreshHealingDay(){const now=todayKST();if(healingDay!==now){healingDay=now;freeHealsUsed=0;saveProgress();}}
 function healInjury(){
+ if(animating||learningBusy||pendingRewardChoice)return;
  refreshHealingDay();
- if(!teamMembers().some(m=>memberHp(m)===0))return;
- const fee=freeHealsUsed<10?0:Math.max(...teamMembers().map(m=>m.level))*100;
- if(progress.money<fee){alert('포켓몬 센터 이용료가 부족해!');return;}
- if(fee)progress.money-=fee;else freeHealsUsed++;
- injured=false;storedHp=null;
- for(const m of companions)m.hp=null;
- for(const m of teamMembers()){const pp=memberMovePp(m);for(const id of (m.starter?playerMoves:m.moves||[]))if(MOVES[id])pp[id]=maxMovePp(m.key,id);}
- appendAdventureLog('🏥 포켓몬 센터에서 HP와 PP를 모두 회복했다!'+(fee?' ('+fee+'원)':' (무료)'));
- saveProgress();renderHome();
+ document.getElementById('pokemonCenterOverlay')?.remove();
+ const members=teamMembers();
+ const fee=freeHealsUsed<10?0:Math.max(...members.map(m=>m.level))*100;
+ const overlay=document.createElement('div');overlay.id='pokemonCenterOverlay';overlay.className='party-summary-overlay';
+ overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 센터');
+ const panel=document.createElement('section');panel.className='party-summary-panel pokemon-center-panel';
+ const title=document.createElement('header');title.className='party-summary-title';title.textContent='🏥 포켓몬 센터';
+ const cards=document.createElement('div');cards.className='party-summary-cards';
+ for(const m of members){
+  const hp=memberHp(m),max=memberMaxHp(m);
+  const card=document.createElement('div');card.className='party-summary-card pokemon-center-card'+(hp===0?' fainted':'');
+  const img=document.createElement('img');img.src=staticImage(m.dex,false);img.alt='';img.className='party-summary-sprite';
+  img.onerror=()=>{img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';img.onerror=()=>{img.hidden=true;};};
+  const info=document.createElement('div');info.className='party-summary-info';
+  const name=document.createElement('strong');name.textContent=m.name+' Lv.'+m.level+(hp===0?' · 기절':'');
+  const meter=document.createElement('div');meter.className='party-summary-meter';
+  const label=document.createElement('b');label.textContent='HP';
+  const track=document.createElement('div');track.className='party-summary-track hp';
+  const fill=document.createElement('div');fill.className='party-summary-fill';fill.style.width=(100*hp/max)+'%';
+  if(hp/max<=.2)fill.classList.add('low');else if(hp/max<=.5)fill.classList.add('mid');
+  track.append(fill);
+  const value=document.createElement('span');value.className='party-summary-meter-count';value.textContent=hp+' / '+max;
+  meter.append(label,track,value);info.append(name,meter);card.append(img,info);cards.append(card);
+ }
+ const description=document.createElement('p');description.className='pokemon-center-description';
+ description.textContent='모든 포켓몬을 최고 컨디션으로 만듭니다. 사용하시겠습니까?';
+ const actions=document.createElement('div');actions.className='pokemon-center-actions';
+ const confirm=document.createElement('button');confirm.type='button';confirm.className='party-summary-lead';
+ confirm.textContent=fee?'유료 사용 ('+fee.toLocaleString('ko-KR')+'원)':'무료 사용 ('+(10-freeHealsUsed)+'/10)';
+ confirm.disabled=progress.money<fee;
+ const cancel=document.createElement('button');cancel.type='button';cancel.className='party-summary-close';cancel.textContent='취소';cancel.onclick=()=>overlay.remove();
+ confirm.onclick=()=>{
+  refreshHealingDay();
+  const actualFee=freeHealsUsed<10?0:Math.max(...teamMembers().map(m=>m.level))*100;
+  if(progress.money<actualFee){alert('포켓몬 센터 이용료가 부족해!');return;}
+  if(actualFee)progress.money-=actualFee;else freeHealsUsed++;
+  injured=false;storedHp=null;
+  for(const m of companions)m.hp=null;
+  for(const m of teamMembers()){const pp=memberMovePp(m);for(const id of (m.starter?playerMoves:m.moves||[]))if(MOVES[id])pp[id]=maxMovePp(m.key,id);}
+  appendAdventureLog('🏥 포켓몬 센터에서 HP와 PP를 모두 회복했다!'+(actualFee?' ('+actualFee+'원)':' (무료)'));
+  saveProgress();overlay.remove();renderHome();
+ };
+ actions.append(confirm,cancel);panel.append(title,cards,description,actions);overlay.append(panel);document.body.append(overlay);cancel.focus();
 }
 let pendingLevelUp=null;
 let battleSpeed=1;
@@ -340,6 +375,7 @@ function addPartyExperience(amount,enemyName,cap=null){
  if(!(amount>0))return;
  const order=teamMembers();
  for(const member of order){
+  if(memberHp(member)===0)continue; // Fainted Pokémon cannot receive EXP until revived.
   const participate=battleParticipants.has(member.key);
   const memberCap=cap===null?wildRewardLevelCap():cap;
   if(memberCap!==null&&member.level>=memberCap)continue;
@@ -515,7 +551,7 @@ let pendingTrainerIntro=null;
 let challengeNotified=Array.isArray(saved?.challengeNotified)?saved.challengeNotified.filter(k=>CHALLENGE_ORDER.includes(k)):[];
 function showChallengeUnlockNotice(){
  const kind=nextTrainerKind();
- if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingRewardChoice||pendingTrainerIntro)return;
+ if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro)return;
  challengeNotified.push(kind);
  saveProgress();
  const name=TRAINERS[kind].name;
@@ -1399,8 +1435,8 @@ function renderHome(){
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
- $('healButton').setAttribute('aria-disabled',String(!teamMembers().some(m=>memberHp(m)===0)));
- $('healButtonNote').textContent=teamMembers().some(m=>memberHp(m)===0)?(freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'이용료 '+(Math.max(...teamMembers().map(m=>m.level))*100).toLocaleString('ko-KR')+'원'):'기절한 동료가 있을 때 이용 가능';
+ $('healButton').setAttribute('aria-disabled','false');
+ $('healButtonNote').textContent=freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'이용료 '+(Math.max(...teamMembers().map(m=>m.level))*100).toLocaleString('ko-KR')+'원';
  $('startBattle').disabled=!livingMembers().length||!!pendingRewardChoice;
  const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
  $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
@@ -1560,7 +1596,8 @@ async function act(a){
    if(pendingPartyGrowth.length){const events=pendingPartyGrowth.splice(0);await processPartyGrowth(events);}
    if(pendingLevelUp){const levels=pendingLevelUp;pendingLevelUp=null;playHomeLevelUp(levels.previous,levels.current);}
    if(learnQueue.length)await processLearnQueue(learnQueue);
-   showRewardChoices();
+   showChallengeUnlockNotice();
+   if($('challengeUnlockOverlay').hidden)showRewardChoices();
   }
  }
 }
@@ -1720,7 +1757,7 @@ function setup(){
  $('leagueRecords').addEventListener('click',showHallOfFame);
  $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});
  $('redEndingNext').addEventListener('click',advanceRedEnding);
- $('challengeUnlockConfirm').addEventListener('click',()=>{$('challengeUnlockOverlay').hidden=true;});
+ $('challengeUnlockConfirm').addEventListener('click',()=>{$('challengeUnlockOverlay').hidden=true;if(pendingRewardChoice)showRewardChoices();});
  $('trainerIntroConfirm').addEventListener('click',confirmTrainerIntro);
  $('healButton').addEventListener('click',healInjury);
  $('openMoveRecall').addEventListener('click',openRecall);
