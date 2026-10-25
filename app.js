@@ -1247,7 +1247,7 @@ function offerCapturedCompanion(){
   if(replaceIndex===null)companions.push(member);else companions.splice(replaceIndex,1,member);
   partyOrder=teamMembers().map(m=>m.key);
   saveProgress();renderHome();
-  partyOverlay('동료 합류!',member.name+' Lv.'+member.level+'이(가) 동료가 됐어! 개체값이 새로 생성됐어.',[{text:'확인',action:()=>{}}]);
+  partyOverlay('동료 합류!',member.name+' Lv.'+member.level+'이(가) 동료가 됐어!',[{text:'확인',action:()=>{}}]);
  };
  const unlocked=inventory.partySlotA===1;
  partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 프렌들리숍에서 추가 슬롯A를 해금한 뒤 가능해.'),[
