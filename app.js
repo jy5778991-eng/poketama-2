@@ -366,6 +366,7 @@ function awardExperience(){
  lastBattleReward={exp:gained,money:baseMoney};
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
  progress.money+=baseMoney;
+ appendAdventureLog('💰 야생 배틀 보상 '+baseMoney+'원 획득');
  pendingRewardChoice=capped?null:{choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
  if(capped)messages.push('도전 단계 성장 상한 도달! 야생 경험치와 랜덤 보상은 지급되지 않아.');
  const evolutions=[];
@@ -435,11 +436,11 @@ function finishTrainerBattle(){
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
   // One EXP reward on full trainer victory, based on final Pokemon only.
-  gained=12+level*6;
-  trainerExpEarned=gained;
+  gained=trainerExpEarned||12+level*6;
   // Experience for each defeated trainer Pokemon is awarded on knockout.
   if(sabrinaCleared&&!blaineCleared&&progress.level>=48)area='volcano';
   progress.money+=baseCashForWin(level);
+  appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
  }else{
@@ -1171,6 +1172,8 @@ async function act(a){
   const events=[...battle.events];
   if(battleKind!=='wild')for(const event of events)if(event.type==='knockout'&&event.side==='enemy'){
    const knocked=battle.enemies[event.enemyIndex];
+   appendAdventureLog('⚔️ '+knocked.name+'을(를) 쓰러뜨렸다!');
+   trainerExpEarned+=12+knocked.level*6;
    addPartyExperience(12+knocked.level*6,knocked.name);
    battleParticipants=new Set([leaderMember().key]);
   }
@@ -1190,11 +1193,13 @@ async function act(a){
   shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);
  }
   if(battle.ended){
+    if(battle.result==='victory'&&battleKind==='wild')appendAdventureLog('⚔️ '+wildEnemy.name+'을(를) 쓰러뜨렸다!');
     if(battle.result==='capture'){
       // Catching is not a battle victory: never open a choice reward.
       pendingRewardChoice=null;
       capturedPokemon.push({name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level});
       caughtSpecies.add(wildEnemy.dex);
+      appendAdventureLog('🔴 '+wildEnemy.name+' Lv.'+wildEnemy.level+' 포획 성공!');
       if(capturedPokemon.length>200)capturedPokemon.shift();
       saveProgress();
       offerCapturedCompanion();
@@ -1210,13 +1215,13 @@ async function act(a){
     } else setLeaderHp(hpBefore);
     if(!leaderMember().starter)setLeaderHp(hpBefore);
     saveProgress();
-    if(reward?.newLevel>reward?.previousLevel)pendingLevelUp={previous:reward.previousLevel,current:reward.newLevel};
+    // Party level-up animations are processed by processPartyGrowth.
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
     // Gym clear sequence: badge reveal first, then reward selection on the home screen.
     if(reward?.badgeEarned)await showBadgeAward(reward.badgeEarned);
     $('battleResult').hidden=false;
     $('resultTitle').textContent=battle.result==='victory'?'승리!':battle.result==='capture'?'포획 성공!':'패배!';
-    if(battle.result==='defeat'){injured=true;setLeaderHp(0);if(battleKind.startsWith('league'))leagueStage=null;saveProgress();}
+    if(battle.result==='defeat'){injured=true;setLeaderHp(0);appendAdventureLog('💥 모든 포켓몬 기절! 포켓몬 센터를 이용하자.');if(battleKind.startsWith('league'))leagueStage=null;saveProgress();}
     $('resultDetail').textContent=battle.result==='capture'?wildEnemy.name+' (Lv.'+wildEnemy.level+') 포획 완료! 포획 도감에 저장했어.':reward?.messages?.length?reward.messages.join('\n'):'경험치를 획득하지 못했어.';
     renderHome();
   }
