@@ -127,3 +127,19 @@
 .party-summary-detail-heading{font-size:16px}.party-summary-statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.party-summary-statgrid span{background:#edf4fa;padding:7px;border:1px solid #c5d2dc}.party-summary-moves{line-height:1.6}
 .party-summary-lead,.party-summary-close{border:2px solid #516787;border-radius:5px;background:#dce9f9;color:#243653;padding:10px;font-weight:900;cursor:pointer}.party-summary-lead:disabled{opacity:.55;cursor:default}.party-summary-close{width:100%;margin-top:11px;background:#f5e4c4}
 @media(max-width:480px){.party-summary-panel{padding:10px}.party-summary-statgrid{grid-template-columns:1fr}.party-summary-sprite{width:50px;height:50px}}
+
+/* Party summary layout: inline HP / EXP meters, one-row IV stars, four move slots */
+.party-summary-cards{margin-top:10px}
+.party-summary-info{gap:5px}
+.party-summary-meter{display:grid;grid-template-columns:32px minmax(55px,1fr) 82px;align-items:center;gap:7px;font-size:11px;min-width:0}
+.party-summary-meter b{font-size:10px}
+.party-summary-meter-count{text-align:right;font-size:11px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.party-summary-meter .party-summary-track{height:9px}
+.party-summary-track.exp .party-summary-fill{background:#4a9bd1}
+.party-summary-statgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.party-summary-stat{display:flex;flex-direction:column;align-items:center;gap:4px;border:1px solid #c5d2dc;background:#edf4fa;padding:7px 3px;min-width:0;font-size:11px;white-space:nowrap}
+.party-summary-stat .iv-star{font-size:20px;line-height:1}
+.party-summary-stat small{font-size:10px}
+.party-summary-moves{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0}
+.party-summary-move{border:2px solid #8098af;background:#f5f9fa;border-radius:5px;padding:11px 7px;text-align:center;font-weight:800;font-size:13px;min-width:0}
+@media(max-width:480px){.party-summary-statgrid{grid-template-columns:repeat(4,minmax(0,1fr))}.party-summary-meter{grid-template-columns:28px minmax(42px,1fr) 70px;gap:4px}.party-summary-meter-count{font-size:10px}}
