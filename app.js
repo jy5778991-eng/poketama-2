@@ -781,16 +781,19 @@ function rerollRewards(){
  saveProgress();
  showRewardChoices();
 }
-function showSilverCapStatChoice(){
+function showSilverCapStatChoice(member=leaderMember()){
  const layer=$('silverCapOverlay'),options=$('silverCapOptions');
  options.replaceChildren();
  for(const stat of EV_STATS){
   const b=document.createElement('button');
   b.type='button';b.className='silver-cap-option';
   b.textContent=STAT_LABELS[stat]+' · 개체값 최대 강화';
-  b.disabled=playerIVs[stat]===16;
+  const targetIVs=member.starter?playerIVs:companions.find(x=>x.family===member.family)?.ivs;
+  b.disabled=!targetIVs||targetIVs[stat]===16;
   b.onclick=()=>{
-   playerIVs[stat]=16;
+   if(!targetIVs)return;
+   targetIVs[stat]=16;
+   appendAdventureLog('🥈 '+member.name+'의 '+STAT_LABELS[stat]+' 개체값 최대 강화!');
    layer.hidden=true;
    pendingRewardChoice=null;
    saveProgress();
@@ -803,12 +806,39 @@ function showSilverCapStatChoice(){
  layer.hidden=false;
  $('rewardChoiceOverlay').hidden=true;
 }
+function choosePermanentTarget(choice){
+ $('rewardChoiceOverlay').hidden=true;
+ partyOverlay('🎁 보상 적용 대상','보상을 받을 포켓몬 한 마리를 선택해.',[
+ ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,action:()=>{
+  if(choice.kind==='silverCap'){showSilverCapStatChoice(m);return;}
+  if(choice.kind==='ev'){
+   const stat=choice.stat,ev=m.starter?playerEVs:companions.find(x=>x.family===m.family)?.evs;
+   if(!ev)return;
+   const total=Object.values(ev).reduce((a,b)=>a+b,0);
+   const gain=Math.min(2,100-ev[stat],216-total);
+   if(gain<=0){alert('선택한 포켓몬의 노력치가 최대치야.');$('rewardChoiceOverlay').hidden=false;return;}
+   ev[stat]+=gain;
+   appendAdventureLog('💊 '+m.name+' '+STAT_LABELS[stat]+' 노력치 +'+gain);
+  }
+  if(choice.kind==='exp'){
+   const before=m.starter?progress.level:companions.find(x=>x.family===m.family).level;
+   if(m.starter){progress.exp+=choice.amount;while(progress.level<100&&progress.exp>=levelNeed(progress.level)){progress.exp-=levelNeed(progress.level);progress.level++;}if(progress.level===100)progress.exp=0;}
+   else {const found=companions.find(x=>x.family===m.family);found.exp=(found.exp||0)+choice.amount;while(found.level<100&&found.exp>=levelNeed(found.level)){found.exp-=levelNeed(found.level);found.level++;}if(found.level===100)found.exp=0;}
+   const after=m.starter?progress.level:companions.find(x=>x.family===m.family).level;
+   if(after>before)pendingPartyGrowth.push({key:m.key,name:m.name,before,after,starter:m.starter,family:m.family});
+   appendAdventureLog('🍬 '+m.name+' 경험치 +'+choice.amount);
+  }
+  pendingRewardChoice=null;saveProgress();renderHome();
+  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
+ }})),{text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
+ ]);
+}
 function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
- if(choice.kind==='silverCap'){
-  showSilverCapStatChoice();
+ if(['silverCap','ev','exp'].includes(choice.kind)){
+  choosePermanentTarget(choice);
   return;
  }else if(choice.kind==='ev'){
   const stat=choice.stat;
@@ -847,6 +877,7 @@ function claimRewardChoice(index){
    inventory[choice.id]=1;
   }else inventory[choice.id]=Math.min(99,inventory[choice.id]+choice.quantity);
  }else return;
+ appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
  saveProgress();
  $('rewardChoiceOverlay').hidden=true;
