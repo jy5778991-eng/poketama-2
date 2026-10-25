@@ -1,15 +1,15 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-instant-recovery26';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-reward-description27';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-instant-recovery26';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-reward-description27';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-instant-recovery26';
+import {renderInventoryView} from './js/inventory.js?v=20261025-reward-description27';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -758,30 +758,54 @@ function rewardImageName(choice){
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
+function rewardChoiceName(choice){
+ if(choice.kind==='maxReviveReward')return '기력의덩어리';
+ if(choice.kind==='sacredAshReward')return '성스러운 분말';
+ if(choice.kind==='silverCap')return '은색 병뚜껑';
+ if(choice.kind==='ev')return ({hp:'맥스업',attack:'타우린',defense:'사포닌',speed:'알칼로이드'})[choice.stat]||'영양제';
+ if(choice.kind==='exp')return '경험치 사탕';
+ if(choice.kind==='power')return BOOST_INFO[choice.effect||'attack']?.name||'플러스파워';
+ if(choice.kind==='cash')return '추가 상금';
+ if(choice.kind==='heal')return choice.full?'전체 회복':'회복약';
+ return SHOP_ITEMS.find(item=>item.id===choice.id)?.name||'랜덤 보상';
+}
+function showRewardDescription(choice){
+ // The explanation never claims the reward or consumes a reroll.
+ partyOverlay('📖 '+rewardChoiceName(choice),rewardChoiceText(choice),[
+  {text:'확인',action:()=>{}}
+ ]);
+}
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
-  const b=document.createElement('button');b.type='button';
+  const card=document.createElement('div');
+  card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
   const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0));
-  b.disabled=unavailable;
-  b.className='reward-choice-item reward-tier-'+choice.tier;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
+  const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
+  pick.disabled=unavailable;
+  pick.setAttribute('aria-label',rewardChoiceName(choice)+' 보상 선택');
   const imageName=rewardImageName(choice);
   if(imageName){
-   const img=document.createElement('img');
-   img.className='reward-item-sprite';
+   const img=document.createElement('img');img.className='reward-item-sprite';
    img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+imageName+'.png';
-   img.alt='';
-   img.loading='lazy';
-   b.append(tag,img);
-  }else b.append(tag);
-  const content=document.createElement('span');
-  content.textContent=imageName?rewardChoiceText(choice).replace(/^[^가-힣A-Za-z0-9]+/,''):rewardChoiceText(choice);
-  b.append(content);b.onclick=()=>claimRewardChoice(index);options.append(b);
+   img.alt='';img.loading='lazy';
+   img.onerror=()=>{img.replaceWith(document.createTextNode(choice.icon||'🎁'));};
+   pick.append(img);
+  }else{
+   const picture=document.createElement('span');picture.className='reward-placeholder-icon';
+   picture.textContent=choice.icon||'🎁';pick.append(picture);
+  }
+  const name=document.createElement('span');name.className='reward-item-name';name.textContent=rewardChoiceName(choice);
+  pick.append(name);pick.onclick=()=>claimRewardChoice(index);
+  const info=document.createElement('button');info.type='button';info.className='reward-info-button';
+  info.textContent='설명';info.setAttribute('aria-label',rewardChoiceName(choice)+' 설명 보기');
+  info.onclick=()=>showRewardDescription(choice);
+  card.append(tag,pick,info);options.append(card);
  });
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  const reroll=$('rewardReroll');
