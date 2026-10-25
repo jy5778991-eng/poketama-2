@@ -1190,6 +1190,7 @@ function showPartyManager(selectedKey=null){
  const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
  const layer=document.getElementById('partyActionOverlay');
  if(layer)layer.remove();
+ document.getElementById('partySummaryOverlay')?.remove();
  const overlay=document.createElement('div');overlay.id='partySummaryOverlay';overlay.className='party-summary-overlay';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 관리');
  const panel=document.createElement('section');panel.className='party-summary-panel';
