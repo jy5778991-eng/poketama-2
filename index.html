@@ -1,14 +1,37 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>포케타마 2.0</title><link rel="stylesheet" href="./style.css?v=20261024-red-ending-final"></head>
-<body><main class="game">
+<body><script>
+(function(){
+  const savedKey='poketama-2-progress-v2';
+  const initial=localStorage.getItem(savedKey);
+  // One immutable rescue snapshot before the updated application can write anything.
+  if(initial!==null&&!localStorage.getItem(savedKey+'-safety-20261025')){
+    try{localStorage.setItem(savedKey+'-safety-20261025',initial);}catch(e){}
+  }
+  function failed(message){
+    if(window.__poketamaReady)return;
+    let panel=document.getElementById('gameBootError');
+    if(!panel){
+      panel=document.createElement('div');panel.id='gameBootError';panel.setAttribute('role','alert');
+      panel.style.cssText='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003';
+      document.body.appendChild(panel);
+    }
+    panel.textContent='포케타마 로딩 오류! 저장 데이터는 삭제하지 마세요. '+message+' (화면을 캡처해 알려주세요.)';
+  }
+  window.addEventListener('error',e=>{if(!window.__poketamaReady)failed(e.message||'모듈/이미지 파일을 확인할 수 없습니다.');});
+  window.addEventListener('unhandledrejection',e=>{if(!window.__poketamaReady)failed(String(e.reason?.message||e.reason||'모듈 로딩 실패'));});
+  window.addEventListener('load',()=>{if(!window.__poketamaReady)failed('게임 스크립트가 시작되지 않았습니다.');});
+})();
+</script>
+<main class="game">
 <header><h1>포케타마 <span>2.0</span></h1></header>
 <section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
   <section class="home-card">
     <div id="homeSpriteWrap" class="home-sprite-wrap area-grass">
       <div class="home-name home-status-row"><span id="currentArea" class="home-area-badge">🌿 초원</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><span class="home-badges" id="badgeStatus">배지 0 / 8</span></div></div>
       <div id="homePlusPower" class="plus-power-indicator" hidden aria-label="활성 강화 효과"></div><span id="injuryBandage" class="injury-bandage" hidden aria-label="부상 상태: 겹친 반창고"></span><img id="homeSprite" alt="내 포켓몬 앞모습" /><span id="homeFallback" class="home-fallback" hidden>⚡</span></div>
-    <div class="home-pokemon-title"><span id="homeName">라이츄</span><span id="homeLevel">LV 50</span></div>
+    <div class="home-pokemon-title"><span id="homeName">게임 불러오는 중</span><span id="homeLevel">...</span></div>
     <div id="homeLevelUp" class="home-level-up" hidden role="status" aria-live="polite"><strong>LEVEL UP!</strong><span id="homeLevelUpDetail">LV 1 → LV 2</span></div>
     <div class="home-hp-row"><b>HP</b><span id="homeHpText">- / -</span></div><div class="home-hp-bar"><div id="homeHpBar"></div></div>
     <div class="home-xp-row"><span>EXP</span><span id="homeExpText">0 / 0</span></div><div class="home-exp-bar"><div id="homeExpBar"></div></div>
@@ -90,4 +113,4 @@
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
 <footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
-</main><script type="module" src="./app.js?v=20261025-party-stage1"></script></body></html>
+</main><script type="module" src="./app.js?v=20261025-startup-recovery2"></script></body></html>
