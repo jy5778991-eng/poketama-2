@@ -532,7 +532,7 @@ function reset(kind='wild'){
  shownHp={player:player.hp,enemy:first.hp};
  $('playerName').textContent=form.name;$('promptName').textContent=form.name;
  $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+progress.level;refreshLevelCapIndicator();
- sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',first.dex||first.id?.replace('trainer-','')||100,false,kind==='wild'?'🐾':'⚔️');
+ sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',kind==='wild'?wild.dex:Number(first.id?.replace('trainer-',''))||100,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':opponentName;
  $('trainerPortrait').hidden=kind==='wild';
  if(kind!=='wild'){
