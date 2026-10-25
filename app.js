@@ -829,8 +829,21 @@ function showItemCategory(category){
  inventoryCategory=category;
  renderInventory();
 }
+function chooseRecoveryTarget(item){
+ const fainted=teamMembers().filter(m=>memberHp(m)===0);
+ if(!fainted.length){alert('기절한 포켓몬이 없어.');return;}
+ partyOverlay('💎 기력의조각','최대 HP의 50%로 회복할 포켓몬을 골라줘.',[
+ ...fainted.map(m=>({text:m.name+' Lv.'+m.level+' · 부활',action:()=>{
+  if(inventory.revive<1||memberHp(m)>0)return;
+  const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
+  if(m.starter)storedHp=hp;else {const target=companions.find(x=>x.family===m.family);if(target)target.hp=hp;}
+  inventory.revive--;injured=false;
+  appendAdventureLog('💎 '+m.name+'이(가) 기력의조각으로 부활했다! (HP '+hp+')');
+  normalizeLivingLead();saveProgress();renderHome();renderInventory();
+ }})),{text:'취소',action:()=>{}}]);
+}
 function renderInventory(){
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;}});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 function renderPowerStatus(){
