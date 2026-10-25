@@ -1,4 +1,4 @@
-import {FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-party-switch17';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
@@ -264,6 +264,62 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
  return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
+}
+const WILD_EVOLUTIONS={
+ 10:[11,7,'단데기'],11:[12,10,'버터플'],13:[14,7,'딱충이'],14:[15,10,'독침붕'],
+ 16:[17,18,'피죤'],17:[18,36,'피죤투'],19:[20,20,'레트라'],21:[22,20,'깨비드릴조'],
+ 27:[28,22,'고지'],29:[30,16,'니드리나'],30:[31,36,'니드퀸'],32:[33,16,'니드리노'],33:[34,36,'니드킹'],
+ 41:[42,22,'골뱃'],43:[44,21,'냄새꼬'],44:[45,40,'라플레시아'],46:[47,24,'파라섹트'],
+ 54:[55,33,'골덕'],60:[61,25,'슈륙챙이'],61:[62,40,'강챙이'],
+ 63:[64,16,'윤겔라'],64:[65,36,'후딘'],66:[67,28,'근육몬'],67:[68,40,'괴력몬'],
+ 69:[70,21,'우츠동'],70:[71,40,'우츠보트'],72:[73,30,'독파리'],
+ 74:[75,25,'데구리'],75:[76,40,'딱구리'],79:[80,37,'야도란'],
+ 81:[82,30,'레어코일'],84:[85,31,'두트리오'],
+ 92:[93,25,'고우스트'],93:[94,40,'팬텀'],96:[97,26,'슬리퍼'],
+ 98:[99,28,'킹크랩'],100:[101,30,'붐볼'],104:[105,28,'텅구리'],
+ 116:[117,32,'시드라'],118:[119,33,'왕콘치'],129:[130,20,'갸라도스']
+};
+async function processPartyGrowth(events){
+ if(!events.length)return;
+ learningBusy=true;
+ try{
+  for(const event of events){
+   const member=event.starter?null:companions.find(x=>x.family===event.family);
+   const names=event.starter?getForm(chosen,event.after).name:member?.name||event.name;
+   $('homeLevelUpDetail').textContent=names+' · LV '+event.before+' → LV '+event.after;
+   const effect=$('homeLevelUp');effect.hidden=false;effect.classList.remove('playing');void effect.offsetWidth;effect.classList.add('playing');
+   appendAdventureLog('🎉 '+names+' Lv.'+event.before+' → Lv.'+event.after+'!');
+   await pause(1200);effect.hidden=true;effect.classList.remove('playing');
+   for(let level=event.before+1;level<=event.after;level++){
+    if(event.starter){
+     const evolved=EVOLUTIONS[chosen].find(form=>form.level===level);
+     if(evolved){await showEvolutions([{before:getForm(chosen,level-1),after:evolved,level}]);appendAdventureLog('🌟 '+evolved.name+'(으)로 진화했다!');}
+     for(const info of MOVE_LEARNSETS[chosen].filter(m=>m.level===level)){
+      await learnOneMove(info.id);
+      appendAdventureLog('📖 '+getForm(chosen,level).name+' 기술 학습: '+MOVES[info.id].name);
+     }
+    }else if(member){
+     const evo=WILD_EVOLUTIONS[member.dex];
+     if(evo&&level>=evo[1]){
+      const before={dex:member.dex,name:member.name},after={dex:evo[0],name:evo[2]};
+      await showEvolutions([{before,after,level}]);
+      member.dex=evo[0];member.name=evo[2];
+      appendAdventureLog('🌟 '+before.name+' → '+after.name+' 진화!');
+     }
+     const known=learnsetForDex(member.dex)||[];
+     for(const info of known.filter(m=>m.level===level&&MOVES[m.id]&&!member.moves.includes(m.id))){
+      if(member.moves.length<4)member.moves.push(info.id);
+      else{
+       const remove=await resolveMoveChoice(info.id,{member});
+       if(remove!==null){member.moves.splice(member.moves.indexOf(remove),1,info.id);}
+      }
+      appendAdventureLog('📖 '+member.name+' 기술 학습: '+MOVES[info.id].name);
+     }
+    }
+   }
+   saveProgress();
+  }
+ }finally{learningBusy=false;renderHome();}
 }
 let pendingPartyGrowth=[];
 function addPartyExperience(amount,enemyName,cap=null){
@@ -607,14 +663,14 @@ function updateBattleMoves(){
  saveProgress();renderHome();
  // The current battle has already ended when learning happens.
 }
-function resolveMoveChoice(newId,{allowSkip=true,source='level'}={}){
+function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null}={}){
  return new Promise(resolve=>{
   const layer=$('learnMoveOverlay'),choices=$('learnMoveChoices');
-  choices.replaceChildren();$('learnMoveTitle').textContent=getForm(chosen,progress.level).name+'은(는) '+MOVES[newId].name+'를 배우고 싶어!';
+  choices.replaceChildren();$('learnMoveTitle').textContent=(member?.name||getForm(chosen,progress.level).name)+'은(는) '+MOVES[newId].name+'를 배우고 싶어!';
   $('learnMoveInfo').textContent=moveInfo(newId);
   $('learnMoveHelp').textContent='기술이 4개야. 잊을 기술을 하나 선택해줘.';
   function finish(oldId){layer.hidden=true;resolve(oldId);}
-  for(const oldId of playerMoves){
+  for(const oldId of (member?.moves||playerMoves)){
    const btn=document.createElement('button');btn.type='button';btn.className='learn-replace-button';
    btn.textContent='잊기: '+moveInfo(oldId);
    btn.onclick=()=>finish(oldId);choices.append(btn);
@@ -1141,9 +1197,10 @@ async function act(a){
   if(battle.ended){
    showMenu('main');
    renderHome();showScreen(leagueStage===null?'home':'league');
-   showRewardChoices();
+   if(pendingPartyGrowth.length){const events=pendingPartyGrowth.splice(0);await processPartyGrowth(events);}
    if(pendingLevelUp){const levels=pendingLevelUp;pendingLevelUp=null;playHomeLevelUp(levels.previous,levels.current);}
    if(learnQueue.length)await processLearnQueue(learnQueue);
+   showRewardChoices();
   }
  }
 }
