@@ -974,6 +974,21 @@ function claimRewardChoice(index){
   ]);
   return;
  }
+ if(choice.kind==='heal'){
+  const targets=teamMembers().filter(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m));
+  if(!targets.length){alert('HP 회복이 필요한 포켓몬이 없어. 다른 보상을 골라줘.');return;}
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('❤️ '+rewardChoiceName(choice),'즉시 회복할 포켓몬을 선택해.',[
+   ...targets.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{
+    const now=teamMembers().find(x=>x.key===m.key);
+    if(!now||!pendingRewardChoice){showRewardChoices();return;}
+    setMemberHp(now,choice.full?memberMaxHp(now):Math.min(memberMaxHp(now),memberHp(now)+choice.amount));
+    completeInstantRecoveryReward(choice,now.name+' HP 회복');
+   }})),
+   {text:'취소',action:()=>showRewardChoices()}
+  ]);
+  return;
+ }
  if(['silverCap','ev','exp','ppAid','rareCandy','ppMax','goldCap'].includes(choice.kind)){
   choosePermanentTarget(choice);
   return;
@@ -1533,7 +1548,12 @@ async function act(a){
   if(battle&&!battle.ended){setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);persistBattlePp();saveProgress();}
   animating=false;
   render();
-  if(needsReplacement&&!battle.ended){showPartyManager(null,true);}
+  if(needsReplacement&&!battle.ended){
+   const candidates=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0);
+   partyOverlay('🔄 다음 포켓몬 선택','기절한 포켓몬을 대신해 출전할 포켓몬을 골라줘. 턴은 소모하지 않아.',[
+    ...candidates.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>sendOutReplacement(m)}))
+   ]);
+  }
   if(battle.ended){
    showMenu('main');
    renderHome();showScreen(leagueStage===null?'home':'league');
