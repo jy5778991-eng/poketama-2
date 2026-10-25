@@ -5,11 +5,11 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-persistent-pp30';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-shop-pp-aid31';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-persistent-pp30';
+import {renderInventoryView} from './js/inventory.js?v=20261025-shop-pp-aid31';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -131,7 +131,7 @@ let freeHealsUsed=Number.isInteger(saved?.freeHealsUsed)?Math.max(0,Math.min(10,
 function refreshHealingDay(){const now=todayKST();if(healingDay!==now){healingDay=now;freeHealsUsed=0;saveProgress();}}
 function healInjury(){
  refreshHealingDay();
- if(!teamMembers().some(m=>memberHp(m)===0)&&!missingPp())return;
+ if(!teamMembers().some(m=>memberHp(m)===0))return;
  const fee=freeHealsUsed<10?0:Math.max(...teamMembers().map(m=>m.level))*100;
  if(progress.money<fee){alert('포켓몬 센터 이용료가 부족해!');return;}
  if(fee)progress.money-=fee;else freeHealsUsed++;
@@ -1056,6 +1056,21 @@ function requestBattleRevive(){
  ]);
 }
 function chooseRecoveryTarget(item){
+ if(item.id==='ppAid'){
+  const targets=teamMembers().filter(m=>(m.starter?playerMoves:m.moves||[]).some(id=>MOVES[id]&&(partyMovePp[m.key]?.[id]??maxMovePp(m.key,id))<maxMovePp(m.key,id)));
+  if(!targets.length){alert('PP 회복이 필요한 포켓몬이 없어.');return;}
+  partyOverlay('🧴 PP 에이드','모든 기술 PP를 회복할 포켓몬을 선택해.',[
+   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:()=>{
+    if(inventory.ppAid<1)return;
+    const pp=memberMovePp(m);
+    for(const id of (m.starter?playerMoves:m.moves||[]))if(MOVES[id])pp[id]=maxMovePp(m.key,id);
+    const fighter=battleRoster.get(m.key);
+    if(fighter)for(const id of fighter.moveIds)fighter.pp[id]=maxMovePp(m.key,id);
+    inventory.ppAid--;appendAdventureLog('🧴 '+m.name+' 모든 기술 PP 회복');saveProgress();renderHome();renderInventory();
+   }})),{text:'취소',action:()=>{}}
+  ]);
+  return;
+ }
  const targets=teamMembers().filter(m=>item.id==='revive'?memberHp(m)===0:memberHp(m)>0&&memberHp(m)<memberMaxHp(m));
  if(!targets.length){alert(item.id==='revive'?'기절한 포켓몬이 없어.':'회복이 필요한 포켓몬이 없어.');return;}
  partyOverlay(item.icon+' '+item.name,'회복할 포켓몬을 선택해.',[
@@ -1245,8 +1260,8 @@ function renderHome(){
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
- $('healButton').setAttribute('aria-disabled',String(!teamMembers().some(m=>memberHp(m)===0)&&!missingPp()));
- $('healButtonNote').textContent=(teamMembers().some(m=>memberHp(m)===0)||missingPp())?(freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'이용료 '+(Math.max(...teamMembers().map(m=>m.level))*100).toLocaleString('ko-KR')+'원'):'기절한 동료 또는 PP 부족 시 이용 가능';
+ $('healButton').setAttribute('aria-disabled',String(!teamMembers().some(m=>memberHp(m)===0)));
+ $('healButtonNote').textContent=teamMembers().some(m=>memberHp(m)===0)?(freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'이용료 '+(Math.max(...teamMembers().map(m=>m.level))*100).toLocaleString('ko-KR')+'원'):'기절한 동료가 있을 때 이용 가능';
  $('startBattle').disabled=!livingMembers().length||!!pendingRewardChoice;
  const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
  $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
