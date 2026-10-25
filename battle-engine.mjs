@@ -106,6 +106,7 @@ function executeMove(b,user,target,moveId){
   }
 }
 function pickAction(p,requested){
+  if(requested?.type==='switch') return {type:'switch',priority:7,fighter:requested.fighter};
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
   const id=requested?.moveId;
@@ -130,8 +131,12 @@ function settle(b){
 /** Advance exactly one turn; returns new log entries, and mutates battle state. */
 export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(activeEnemy(b),{wild:b.wild,rng:b.rng,opponent:b.player})){
   if(b.ended)throw new Error('Battle is over');
-  const p=b.player,e=activeEnemy(b);
+  let p=b.player;const e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
+  if(pAction.type==='switch'){
+    if(!pAction.fighter||pAction.fighter.hp<=0)throw new Error('Cannot switch to fainted Pokemon');
+    p=pAction.fighter;b.player=p;
+  }
   if(pAction.type==='item'&&(!(pAction.power>0)||p.hp>=p.stats.hp))throw new Error('Cannot use healing item now');
   if(pAction.type==='ball'&&!b.wild)throw new Error('Pokeballs can only be used in wild battles');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);
@@ -140,7 +145,9 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   for(const a of order){
     if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
     if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
-    if(a.action.type==='ball'){
+    if(a.action.type==='switch'){
+      say(b,`${a.fighter.name}이(가) 출전했다!`);emit(b,{type:'switch',side:'player',name:a.fighter.name});
+    }else if(a.action.type==='ball'){
       if(!a.player)continue;
       const hpFraction=Math.max(0,Math.min(1,e.hp/e.stats.hp));
       const speciesMultiplier=e.catchMultiplier??(e.rare?0.25:1);
