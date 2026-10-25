@@ -111,3 +111,19 @@
 .adventure-panel{padding:11px 13px;margin-bottom:15px}
 .adventure-actions{margin:0;gap:10px}
 .adventure-panel>.injury-message{margin:12px 1px 0}
+
+/* Retro handheld party manager */
+.party-summary-overlay{position:fixed;inset:0;z-index:15000;background:#152645c9;padding:18px;overflow:auto;display:grid;place-items:center}
+.party-summary-panel{width:min(560px,100%);border:4px solid #293b69;border-radius:11px;background:#eff4e4;color:#293853;padding:14px;box-shadow:0 12px 0 #111b3455,inset 0 0 0 3px #b2c79d;font-family:inherit}
+.party-summary-title{font-weight:1000;letter-spacing:2px;border-bottom:4px double #40597c;padding:8px;background:#d6e5c6}
+.party-summary-intro{font-size:12px;margin:9px 3px;color:#47566e}
+.party-summary-cards{display:grid;gap:6px}
+.party-summary-card{display:flex;align-items:center;gap:12px;border:3px solid #899c91;background:#fafff6;border-radius:5px;text-align:left;padding:5px 10px;width:100%;min-height:77px;cursor:pointer;color:#293853;box-shadow:2px 3px 0 #697b8b}
+.party-summary-card.selected{border-color:#ed9c45;background:#fff4d9}.party-summary-card.fainted{filter:grayscale(.65)}
+.party-summary-sprite{height:62px;width:62px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
+.party-summary-info{flex:1;min-width:0;display:grid;gap:4px}.party-summary-info strong{font-size:14px}.party-summary-info small{font-size:12px}
+.party-summary-track{height:8px;background:#c9d2c8;border:1px solid #60798b;border-radius:2px;overflow:hidden}.party-summary-fill{height:100%;background:#49a875}.party-summary-fill.mid{background:#dab24a}.party-summary-fill.low{background:#db6961}
+.party-summary-details{margin-top:13px;padding:11px;background:#fff;border:3px solid #697f9d;border-radius:5px;display:grid;gap:10px;font-size:12px}
+.party-summary-detail-heading{font-size:16px}.party-summary-statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.party-summary-statgrid span{background:#edf4fa;padding:7px;border:1px solid #c5d2dc}.party-summary-moves{line-height:1.6}
+.party-summary-lead,.party-summary-close{border:2px solid #516787;border-radius:5px;background:#dce9f9;color:#243653;padding:10px;font-weight:900;cursor:pointer}.party-summary-lead:disabled{opacity:.55;cursor:default}.party-summary-close{width:100%;margin-top:11px;background:#f5e4c4}
+@media(max-width:480px){.party-summary-panel{padding:10px}.party-summary-statgrid{grid-template-columns:1fr}.party-summary-sprite{width:50px;height:50px}}
