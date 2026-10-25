@@ -7,7 +7,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
-  ?'아이템별 최대 99개 · 구매 내역 자동 저장'
+  ?'일반 아이템 최대 99개 · 중요 아이템은 1개만 보유 가능'
   :'보유 아이템 자동 저장 · 회복약은 HP 회복용이며 부상은 치료 버튼에서 치료';
  document.querySelectorAll('[data-item-category]').forEach(button=>{
   const selected=button.dataset.itemCategory===inventoryCategory;
@@ -15,7 +15,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   button.tabIndex=selected?0:-1;
  });
  const list=$('inventoryItems');list.replaceChildren();
- const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory&&(inventoryMode!=='shop'||!item.notForSale));
+ const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory&&(inventoryMode!=='shop'||!item.notForSale)&&(inventoryMode==='shop'||item.category!=='key'||inventory[item.id]===1));
  if(items.length===0){
   const placeholder=document.createElement('div');placeholder.className='inventory-empty';
   placeholder.textContent=inventoryMode==='shop'
@@ -28,16 +28,18 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   const info=document.createElement('div');info.className='shop-item-info';
   const name=document.createElement('strong');name.textContent=item.icon+' '+item.name;
   const description=document.createElement('small');
-  description.textContent=item.description+' · '+(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]);
+  description.textContent=item.description+' · '+(item.category==='key'?(inventory[item.id]?'보유':'미보유'):(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]));
   info.append(name,description);row.append(info);
   if(inventoryMode==='shop'){
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
-   buy.textContent=item.price.toLocaleString('ko-KR')+'원 · 구매';
-   buy.disabled=inventory[item.id]>=99||progress.money<item.price;
+   const unique=item.category==='key'||item.unique;
+   const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
+   buy.textContent=inventory[item.id]&&unique?'보유 완료':blockedB?'슬롯A 필요':item.price.toLocaleString('ko-KR')+'원 · 구매';
+   buy.disabled=(unique?inventory[item.id]>=1:inventory[item.id]>=99)||blockedB||progress.money<item.price;
    buy.onclick=()=>{
-    if(inventory[item.id]>=99||progress.money<item.price)return;
-    progress.money-=item.price;inventory[item.id]++;
-    saveProgress();renderHome();
+    if((unique?inventory[item.id]>=1:inventory[item.id]>=99)||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<item.price)return;
+    progress.money-=item.price;inventory[item.id]=unique?1:inventory[item.id]+1;
+    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp});
    };
    row.append(buy);
   }else if(item.category==='heal'){
