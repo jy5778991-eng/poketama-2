@@ -478,7 +478,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
+  pendingRewardChoice=!wildRewardCapped(activeMember())&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
  }else{
   if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
