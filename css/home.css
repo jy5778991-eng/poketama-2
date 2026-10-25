@@ -172,5 +172,6 @@
 body:has(#homeScreen[hidden]) #adventureLogPanel{display:none!important}
 
 /* Strong disabled state, including descendant labels */
-.home-action:disabled,.home-action[aria-disabled="true"],.home-action:disabled *,.home-action[aria-disabled="true"] *{opacity:.48!important;filter:grayscale(.4);cursor:not-allowed!important;text-shadow:none!important}
+.home-action:disabled,.home-action[aria-disabled="true"]{opacity:.76!important;cursor:not-allowed!important}
+.home-action:disabled *,.home-action[aria-disabled="true"] *{cursor:not-allowed!important}
 .badge-collection-overlay{z-index:50000!important}
