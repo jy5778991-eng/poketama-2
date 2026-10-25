@@ -44,21 +44,9 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    row.append(buy);
   }else if(item.category==='heal'){
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
-   use.textContent='사용';
-   const max=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
-   const hp=storedHp===null?max:storedHp;
-   use.disabled=inventory[item.id]===0||(item.id==='revive'?false:hp>=max);
-   if(item.id==='revive'){
-    use.onclick=()=>{if(inventory[item.id]<1)return;chooseRecoveryTarget(item);};
-    row.append(use);list.append(row);continue;
-   }
-   use.onclick=()=>{
-    const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
-    const current=storedHp===null?maxHp:storedHp;
-    if(inventory[item.id]===0||current>=maxHp)return;
-    setStoredHp(Math.min(maxHp,current+item.power));inventory[item.id]--;
-    saveProgress();renderHome();
-   };
+   use.textContent='대상 선택';
+   use.disabled=inventory[item.id]===0;
+   use.onclick=()=>{if(inventory[item.id]>0)chooseRecoveryTarget(item);};
    row.append(use);
   }
   list.append(row);
