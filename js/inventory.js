@@ -3,12 +3,12 @@ import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
-export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp}){
+export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget}){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
   ?'일반 아이템 최대 99개 · 중요 아이템은 1개만 보유 가능'
-  :'보유 아이템 자동 저장 · 회복약은 HP 회복용이며 부상은 치료 버튼에서 치료';
+  :'기력의조각은 기절한 동료 부활 · 포켓몬 센터는 기절한 동료가 있을 때 이용';
  document.querySelectorAll('[data-item-category]').forEach(button=>{
   const selected=button.dataset.itemCategory===inventoryCategory;
   button.setAttribute('aria-selected',String(selected));
@@ -39,7 +39,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    buy.onclick=()=>{
     if((unique?inventory[item.id]>=1:inventory[item.id]>=99)||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<item.price)return;
     progress.money-=item.price;inventory[item.id]=unique?1:inventory[item.id]+1;
-    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp});
+    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget});
    };
    row.append(buy);
   }else if(item.category==='heal'){
@@ -47,7 +47,11 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    use.textContent='사용';
    const max=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
    const hp=storedHp===null?max:storedHp;
-   use.disabled=inventory[item.id]===0||hp>=max;
+   use.disabled=inventory[item.id]===0||(item.id==='revive'?false:hp>=max);
+   if(item.id==='revive'){
+    use.onclick=()=>{if(inventory[item.id]<1)return;chooseRecoveryTarget(item);};
+    row.append(use);list.append(row);continue;
+   }
    use.onclick=()=>{
     const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,{}).hp;
     const current=storedHp===null?maxHp:storedHp;
