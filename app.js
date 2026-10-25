@@ -113,15 +113,16 @@ let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCle
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,greenFourthCleared=!!saved?.greenFourthCleared,greenFifthCleared=!!saved?.greenFifthCleared,erikaCleared=!!saved?.erikaCleared;
 let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared,blaineCleared=!!saved?.blaineCleared,giovanniCleared=!!saved?.giovanniCleared;
-if(giovanniCleared){blaineCleared=true;if(hallOfFame.length===0)area=greenFifthCleared?'championRoad2':'championRoad';}
-if(blaineCleared){sabrinaCleared=true;if(!giovanniCleared)area='strangeForest';}
-if(sabrinaCleared){greenFourthCleared=true;kogaCleared=true;if(!blaineCleared&&area!=='strangeForest')area=progress.level>=49?'volcano':'sea';}
-else if(kogaCleared){erikaCleared=true;area='city';}
-if(erikaCleared){greenThirdCleared=true;if(!kogaCleared)area='road';}
-if(greenThirdCleared){surgeCleared=true;if(!erikaCleared)area='town';}
+// Preserve the saved/current location independently of completed trainer flags.
+if(giovanniCleared)blaineCleared=true;
+if(blaineCleared)sabrinaCleared=true;
+if(sabrinaCleared){greenFourthCleared=true;kogaCleared=true;}
+else if(kogaCleared)erikaCleared=true;
+if(erikaCleared)greenThirdCleared=true;
+if(greenThirdCleared)surgeCleared=true;
 if(surgeCleared)greenReturnCleared=true;
 if(greenReturnCleared)mistyCleared=true;
-if(mistyCleared){brockCleared=true;if(!erikaCleared)area=greenThirdCleared?'town':surgeCleared?'cemetery':'lake';}else if(brockCleared){blueCleared=true;area='cave';}else if(blueCleared&&area==='grass')area='forest';
+if(mistyCleared)brockCleared=true;
 if(brockCleared)blueCleared=true;
 let blueChoice=RIVAL_POOL.some(s=>s.id===saved?.blueChoice)?saved.blueChoice:null;
 let battleKind='wild',battleOpponent=null,defeatedEnemies=0,trainerExpEarned=0;
