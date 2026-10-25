@@ -203,7 +203,7 @@ const visualSprite=side=>document.querySelector('.sprite.'+side);
 function displayHp(side,hp){const f=side==='player'?battle.player:(battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));const pct=Math.max(0,100*hp/f.stats.hp);$(side+'Bar').style.width=pct+'%';$(side+'Bar').style.background=pct>50?'#59c679':pct>20?'#e8b956':'#d86862';$(side+'Hp').textContent='HP '+hp+' / '+f.stats.hp;shownHp[side]=hp;}
 function animateClass(element,klass){element.classList.remove(klass);void element.offsetWidth;element.classList.add(klass);}
 function popup(side,amount,critical=false,healing=false){const el=$(side+'Popup');el.classList.remove('visible');el.replaceChildren();const n=document.createElement('span');n.className='number-hit'+(healing?' heal':'');n.textContent=(healing?'+':'−')+amount;el.append(n);if(critical){const crit=document.createElement('span');crit.className='critical';crit.textContent='Critical Hit!';el.append(crit);}void el.offsetWidth;el.classList.add('visible');}
-async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);animateClass(el,'hit');popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -1184,18 +1184,54 @@ function partyOverlay(title,description,choices){
  }
  layer.hidden=false;
 }
-function showPartyManager(){
+function showPartyManager(selectedKey=null){
  normalizeLivingLead();
  if(animating||learningBusy||pendingRewardChoice)return;
- const members=teamMembers();
- const max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
- partyOverlay('👥 동료 관리','보유 동료 '+members.length+'/'+max+'마리 · 첫 번째 동료가 선봉이야. 스타팅은 방출할 수 없어.',[
- ...members.map((m,i)=>({text:(i+1)+'. '+m.name+' Lv.'+m.level+(m.starter?' · 스타팅':'')+(i===0?' ⭐ 선봉':'')+' · 선봉으로',action:()=>{
- if(memberHp(m)===0){alert('기절한 포켓몬은 선봉이 될 수 없어.');showPartyManager();return;}
- partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];saveProgress();renderHome();showPartyManager();
- }})),
- {text:'닫기',action:()=>{}}
- ]);
+ const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
+ const layer=document.getElementById('partyActionOverlay');
+ if(layer)layer.remove();
+ const overlay=document.createElement('div');overlay.id='partySummaryOverlay';overlay.className='party-summary-overlay';
+ overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 관리');
+ const panel=document.createElement('section');panel.className='party-summary-panel';
+ const title=document.createElement('header');title.className='party-summary-title';title.textContent='POKÉMON · '+members.length+'/'+max;
+ const intro=document.createElement('p');intro.className='party-summary-intro';intro.textContent='포켓몬을 선택하면 능력치와 기술을 볼 수 있어. 선봉 변경은 여기서만 가능해.';
+ const cards=document.createElement('div');cards.className='party-summary-cards';
+ const details=document.createElement('div');details.className='party-summary-details';
+ const footer=document.createElement('button');footer.type='button';footer.className='party-summary-close';footer.textContent='닫기';
+ const close=()=>overlay.remove();
+ footer.onclick=close;
+ const selected=members.find(m=>m.key===selectedKey)||members[0];
+ for(const [i,m] of members.entries()){
+  const hp=memberHp(m),maxHp=memberMaxHp(m);
+  const button=document.createElement('button');button.type='button';button.className='party-summary-card'+(m.key===selected.key?' selected':'')+(hp===0?' fainted':'');
+  const pic=document.createElement('img');pic.className='party-summary-sprite';pic.alt='';pic.src=staticImage(m.dex,false);
+  pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>pic.style.visibility='hidden';};
+  const data=document.createElement('div');data.className='party-summary-info';
+  const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+m.level;
+  const health=document.createElement('small');health.textContent='HP '+hp+' / '+maxHp+(hp===0?' · 기절':'');
+  const track=document.createElement('div');track.className='party-summary-track';
+  const fill=document.createElement('div');fill.className='party-summary-fill';fill.style.width=Math.max(0,100*hp/maxHp)+'%';
+  if(hp/maxHp<=.2)fill.classList.add('low');else if(hp/maxHp<=.5)fill.classList.add('mid');
+  track.append(fill);data.append(name,health,track);button.append(pic,data);
+  button.onclick=()=>showPartyManager(m.key);cards.append(button);
+ }
+ const m=selected,ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
+ const stats=calculateStats(memberBase(m),m.level,ivs,evs);
+ const heading=document.createElement('strong');heading.className='party-summary-detail-heading';heading.textContent=m.name+'의 정보';
+ details.append(heading);
+ const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
+ for(const stat of STAT_KEYS){
+  const tile=document.createElement('span');tile.textContent=STAT_LABELS[stat]+' '+stats[stat]+' · IV '+ivs[stat]+' / EV '+(evs[stat]||0);infoGrid.append(tile);
+ }
+ details.append(infoGrid);
+ const exp=document.createElement('p');exp.textContent='EXP '+(m.starter?progress.exp:m.exp||0)+' / '+(m.level>=100?'MAX':levelNeed(m.level));details.append(exp);
+ const moves=document.createElement('p');moves.className='party-summary-moves';
+ moves.textContent='기술 · '+(m.starter?playerMoves:m.moves||[]).map(id=>MOVES[id]?.name||id).join(' / ');details.append(moves);
+ const lead=document.createElement('button');lead.type='button';lead.className='party-summary-lead';lead.textContent=m.key===members[0].key?'현재 선봉':memberHp(m)<=0?'기절한 포켓몬은 선봉 불가':'이 포켓몬을 선봉으로';
+ lead.disabled=m.key===members[0].key||memberHp(m)<=0;
+ lead.onclick=()=>{partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];saveProgress();renderHome();showPartyManager(m.key);};
+ details.append(lead);
+ panel.append(title,intro,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
 }
 function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
