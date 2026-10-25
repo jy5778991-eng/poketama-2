@@ -1,15 +1,15 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-four-tier-rewards25';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-instant-recovery26';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-four-tier-rewards25';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-instant-recovery26';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-four-tier-rewards25';
+import {renderInventoryView} from './js/inventory.js?v=20261025-instant-recovery26';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -39,12 +39,14 @@ function drawThreeRewards(level){
   rare:[
    {kind:'cash',amount:baseCash*3,icon:'💰'},
    {kind:'heal',amount:200,icon:'💉'},
+   ...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),
    {kind:'item',id:'greatBall',quantity:3,icon:'🔵'},
    {kind:'item',id:'ultraBall',quantity:2,icon:'🟡'},
    ...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),
    ...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),
   ],
   hyper:[
+   ...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),
    {kind:'ev',stat:'hp',amount:10,icon:'💊'},
    {kind:'ev',stat:'attack',amount:10,icon:'💊'},
    {kind:'ev',stat:'defense',amount:10,icon:'💊'},
@@ -155,7 +157,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices,rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -732,6 +734,8 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
+ if(choice.kind==='maxReviveReward')return '🌟 기력의덩어리 · 기절한 포켓몬 1마리 선택 · HP 100% 부활 (즉시 사용)';
+ if(choice.kind==='sacredAshReward')return '✨ 성스러운 분말 · 모든 포켓몬 HP 100% 부활 및 회복 (즉시 사용)';
  if(choice.kind==='item'&&choice.id==='partySlotA')return '👥 포켓몬 추가 슬롯A · 동료 슬롯 2번째 해금';
  if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 비밀기지 이동 해금 (중요 아이템)';
@@ -747,6 +751,8 @@ function rewardChoiceText(choice){
 }
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
+ if(choice.kind==='maxReviveReward')return 'max-revive';
+ if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defense'}[choice.effect||'attack'];
  if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
@@ -760,7 +766,7 @@ function showRewardChoices(){
  pendingRewardChoice.choices.forEach((choice,index)=>{
   const b=document.createElement('button');b.type='button';
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
-  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1);
+  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0));
   b.disabled=unavailable;
   b.className='reward-choice-item reward-tier-'+choice.tier;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
@@ -846,10 +852,39 @@ function choosePermanentTarget(choice){
  }})),{text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
  ]);
 }
+function completeInstantRecoveryReward(choice,details){
+ appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice)+(details?' · '+details:''));
+ injured=!livingMembers().length;
+ pendingRewardChoice=null;
+ saveProgress();
+ $('rewardChoiceOverlay').hidden=true;
+ if(redCeremonyPending){showRedEnding();}else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showHallOfFame();}
+ renderHome();
+ showChallengeUnlockNotice();
+}
 function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
+ if(choice.kind==='maxReviveReward'||choice.kind==='sacredAshReward'){
+  const members=teamMembers(),fainted=members.filter(m=>memberHp(m)===0);
+  if(members.length<2||!fainted.length){alert('포켓몬 2마리 이상 보유하고 기절한 동료가 있을 때만 사용할 수 있어.');showRewardChoices();return;}
+  if(choice.kind==='sacredAshReward'){
+   for(const m of members)setMemberHp(m,memberMaxHp(m));
+   completeInstantRecoveryReward(choice,'파티 전원 회복');
+   return;
+  }
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('🌟 기력의덩어리','최대 HP로 부활시킬 기절한 포켓몬을 선택해.',[
+   ...fainted.map(m=>({text:m.name+' Lv.'+m.level+' · HP 0/'+memberMaxHp(m),action:()=>{
+    if(memberHp(m)!==0){showRewardChoices();return;}
+    setMemberHp(m,memberMaxHp(m));
+    completeInstantRecoveryReward(choice,m.name+' 부활');
+   }})),
+   {text:'취소',action:()=>{showRewardChoices();}}
+  ]);
+  return;
+ }
  if(['silverCap','ev','exp'].includes(choice.kind)){
   choosePermanentTarget(choice);
   return;
