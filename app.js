@@ -440,11 +440,11 @@ async function showEvolutions(evolutions){
   const load=(form)=>{fallback.hidden=true;image.hidden=false;image.onerror=()=>{image.hidden=true;fallback.hidden=false};image.src=animatedImage(form.dex)};
   art.classList.remove('evolved');$('evolutionName').textContent=evolution.before.name;
   $('evolutionMessage').textContent='포켓몬이 진화하고 있어!';load(evolution.before);layer.hidden=false;
-  await pause(1500);
+  await pause(2400);
   art.classList.add('evolved');load(evolution.after);
   $('evolutionName').textContent=evolution.after.name;
   $('evolutionMessage').textContent=evolution.before.name+' → '+evolution.after.name+' 진화 성공! (LV '+evolution.level+')';
-  await pause(1900);layer.hidden=true;
+  await pause(2600);layer.hidden=true;
  }
 }
 const GYM_BADGES={brock:{name:'암석배지',file:'Boulder'},misty:{name:'블루배지',file:'Cascade'},surge:{name:'오렌지배지',file:'Thunder'},erika:{name:'레인보우배지',file:'Rainbow'},koga:{name:'핑크배지',file:'Soul'},sabrina:{name:'골드배지',file:'Marsh'},blaine:{name:'크림슨배지',file:'Volcano'},giovanni:{name:'그린배지',file:'Earth'}};
