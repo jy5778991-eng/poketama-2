@@ -40,7 +40,7 @@
   </section>
   <section class="adventure-panel" aria-label="지역 모험">
     <div class="adventure-actions">
-      <button id="openParty" type="button" class="home-action">👥 동료 관리 <small>동료 확인 · 출전 순서</small></button>
+      <button id="openParty" type="button" class="home-action">👥 내 포켓몬 <small>상태 확인 · 선봉 변경</small></button>
       <button id="startBattle" type="button" class="home-action primary-action adventure-wild">⚔ 야생 배틀 <small>레벨업 · 상금 · 포획</small></button>
       <button type="button" id="trainerChallenge" class="home-action adventure-trainer"><span id="trainerButtonTitle">🔒 그린에게 도전</span><small id="trainerButtonNote">Lv.5에 해금</small></button>
     </div>
@@ -122,7 +122,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261025-recruit-message33');
+ await import('./app.js?v=20261025-my-pokemon34');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
