@@ -169,3 +169,5 @@
 .reward-choice-box{width:min(650px,96vw)}
 .reward-choice-options{grid-template-columns:repeat(auto-fit,minmax(95px,1fr))}
 @media(max-width:430px){.reward-choice-options{grid-template-columns:repeat(3,minmax(0,1fr))}.reward-choice-item{min-height:140px}}
+
+.developer-hall-options{border:1px solid #aab9d2;border-radius:8px;padding:12px;margin:10px 0;display:grid;gap:8px;background:#f3f6fc;color:#273e61}.developer-hall-options[hidden]{display:none!important}.developer-hall-options small{font-size:11px;line-height:1.5}.developer-hall-delete{background:#f9e7e7!important;color:#8b3030!important;border-color:#c99292!important}.developer-hall-delete:disabled{opacity:.55}
