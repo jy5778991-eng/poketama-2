@@ -164,3 +164,8 @@
 .reward-item-name{font-size:13px;line-height:1.25}
 .reward-info-button{width:100%;min-height:32px;border:1px solid #7185a6;border-radius:6px;background:#fff;color:#2c4573;font-size:12px;font-weight:800;cursor:pointer}
 .reward-info-button:hover{background:#e8f0ff}
+
+/* Up to five reward cards, with room to tap each item and its description. */
+.reward-choice-box{width:min(650px,96vw)}
+.reward-choice-options{grid-template-columns:repeat(auto-fit,minmax(95px,1fr))}
+@media(max-width:430px){.reward-choice-options{grid-template-columns:repeat(3,minmax(0,1fr))}.reward-choice-item{min-height:140px}}
