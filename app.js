@@ -504,9 +504,9 @@ function finishTrainerBattle(){
   const leagueIndex=battleKind.startsWith('league')?Number(battleKind.slice(6)):-1;
   if(battleKind==='red'){
    const f=getForm(chosen,progress.level);
-   redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;
+   redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;
   }
-  if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
+  if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
   const money=battleKind==='red'?5000:leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
@@ -547,6 +547,7 @@ function refreshLevelCapIndicator(){
   el.title=capped?'성장 제한: 다음 도전을 완료하면 야생 경험치와 보상이 다시 열려.':'';
  }
 }
+const REGION_TRAINERS={grass:['blue'],forest:['brock'],cave:['misty'],lake:['greenReturn','surge'],cemetery:['greenThird'],town:['erika'],road:['koga'],city:['greenFourth','sabrina'],sea:['blaine'],volcano:['blaine'],strangeForest:['giovanni'],championRoad:['greenFifth']};
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!greenFourthCleared?'greenFourth':!sabrinaCleared?'sabrina':!blaineCleared?'blaine':!giovanniCleared?'giovanni':!greenFifthCleared?'greenFifth':null;}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
 let battlePlayerLevelStart=1;
@@ -554,7 +555,7 @@ let pendingTrainerIntro=null;
 let challengeNotified=Array.isArray(saved?.challengeNotified)?saved.challengeNotified.filter(k=>CHALLENGE_ORDER.includes(k)):[];
 function showChallengeUnlockNotice(){
  const kind=nextTrainerKind();
- if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro)return;
+ if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro)return;
  challengeNotified.push(kind);
  saveProgress();
  const name=TRAINERS[kind].name;
@@ -566,7 +567,7 @@ function challengeTrainer(){
  if(hallOfFame.length>0){showAdventure();return;}
  const kind=nextTrainerKind();
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
- if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
+ if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
@@ -1408,20 +1409,18 @@ function renderHome(){
  normalizeLivingLead();
  renderAdventureLog();
  if(leagueStage!==null){renderLeague();return;}
- if(greenFifthCleared&&hallOfFame.length===0&&!['championRoad2','palletTown'].includes(area))area='championRoad2';
- if(giovanniCleared&&!greenFifthCleared&&hallOfFame.length===0&&area!=='championRoad')area='championRoad';
- if(blaineCleared&&!giovanniCleared&&area!=='strangeForest')area='strangeForest';
- if(sabrinaCleared&&!blaineCleared&&progress.level>=49&&area==='sea')area='volcano';
  refreshHealingDay();renderPowerStatus();refreshLevelCapIndicator();
  $('currentArea').textContent=area==='grass'?'🌿 초원':area==='forest'?'🌳 숲':area==='cave'?'🪨 동굴':area==='lake'?'💧 호수':area==='cemetery'?'🪦 공동묘지':area==='town'?'🏘️ 도시':area==='road'?'🛣️ 도로':area==='city'?'🏙️ 대도시':area==='sea'?'🌊 바다':area==='volcano'?'🌋 화산':area==='strangeForest'?'🌲 이상한 숲':area==='championRoad'?'🏔️ 챔피언로드 1':area==='championRoad2'?'🏛️ 챔피언로드 2':area==='palletTown'?'🏠 태초마을':area==='rocketBase'?'🚀 비밀기지':area==='farawayIsland'?'🏝️ 환상의 섬':'🏔️ 은빛산';
- $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad','area-championRoad2','area-palletTown','area-rocketBase','area-farawayIsland','area-mountSilver');
+ $('homeSpriteWrap').classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-town','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad','area-championRoad2','area-palletTown','area-rocketBase','area-farawayIsland','area-mountSilver');
  $('homeSpriteWrap').classList.add('area-'+area);
  $('badgeStatus').textContent='배지 '+(giovanniCleared?8:blaineCleared?7:sabrinaCleared?6:kogaCleared?5:erikaCleared?4:surgeCleared?3:mistyCleared?2:brockCleared?1:0)+' / 8';
  const trainerKind=nextTrainerKind();
  const finalArea=!trainerKind;
  const targetLevel=trainerKind?TRAINERS[trainerKind].level:0;
  const unlocked=teamMembers().some(m=>m.level>=targetLevel);
- const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea;
+ const currentRegionKinds=REGION_TRAINERS[area]||[];
+ const regionHasChallenge=currentRegionKinds.includes(trainerKind);
+ const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  $('trainerChallenge').disabled=hallOfFame.length>0?false:challengeDisabled;
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
@@ -1430,11 +1429,11 @@ function renderHome(){
  $('trainerButtonTitle').textContent=hallOfFame.length?'🧭 모험':'도전';
  $('leagueEnter').hidden=area!=='championRoad2';
  $('leagueEnter').disabled=area!=='championRoad2'||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
- $('leagueRecords').hidden=hallOfFame.length===0;
+ $('leagueRecords').hidden=hallOfFame.length===0&&redHallOfFame.length===0;
  $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
- if(hallOfFame.length===0)$('trainerButtonTitle').textContent=finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 선택 · 언제든 이동':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 도시 개방':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
+ $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 선택 · 언제든 이동':!regionHasChallenge?'현재 지역에서 가능한 도전 없음':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 도시 개방':trainerKind==='erika'?'승리하면 도로 개방':trainerKind==='koga'?'승리하면 대도시 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
@@ -1661,7 +1660,7 @@ function applyDeveloperChanges(e){
  area=warp.area;
  if(targetArea==='palletTown'&&$('developerHallChoice').value==='register'){
   const lead=leaderMember(),iv=lead.starter?playerIVs:lead.ivs,ev=lead.starter?playerEVs:lead.evs||{};
-  hallOfFame.push({date:new Date().toISOString(),pokemon:lead.name,dex:lead.dex,starter:lead.starter?chosen:null,level:lead.level,ivs:{...iv},evs:{...ev},moves:[...(lead.starter?playerMoves:lead.moves||[])],round:(hallOfFame.at(-1)?.round||0)+1});
+  hallOfFame.push({date:new Date().toISOString(),pokemon:lead.name,dex:lead.dex,starter:lead.starter?chosen:null,level:lead.level,ivs:{...iv},evs:{...ev},moves:[...(lead.starter?playerMoves:lead.moves||[])],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});
   hallOfFame=hallOfFame.slice(-100);
   leagueStage=null;leagueCeremonyPending=false;
  }
@@ -1748,23 +1747,25 @@ function advanceRedEnding(){
  $('redEndingOverlay').hidden=true;
  redCeremonyPending=false;saveProgress();showHallOfFame();
 }
-function showHallOfFame(){
+function hallPartySnapshot(){return teamMembers().slice(0,3).map(m=>({name:m.name,dex:m.dex,level:m.level}));}
+let hallTab='first';
+function showHallOfFame(tab=hallTab){
+ hallTab=tab==='second'?'second':'first';
+ const tabs=$('leagueRecordTabs');tabs.querySelectorAll('button').forEach(button=>{const active=button.dataset.hallTab===hallTab;button.setAttribute('aria-selected',String(active));});
+ const entries=hallTab==='first'?hallOfFame:redHallOfFame;
  const list=$('leagueRecordList');list.replaceChildren();
- for(const h of [...redHallOfFame].reverse()){
-  const wrap=document.createElement('div');wrap.className='league-record league-record-grand';
-  const title=document.createElement('strong');title.textContent='👑 2차 엔딩 제'+h.round+'회 · 레드 격파 · '+h.pokemon+' Lv.'+h.level;
-  const moves=Array.isArray(h.moves)?h.moves.map(id=>MOVES[id]?.name||id).join(' · '):'기록 없음';
-  const info=document.createElement('p');info.textContent=new Date(h.date).toLocaleDateString('ko-KR')+'\nIV  '+Object.entries(h.ivs||{}).map(([k,v])=>k+': '+v).join(' · ')+'\nEV  '+Object.entries(h.evs||{}).map(([k,v])=>k+': '+v).join(' · ')+'\n기술  '+moves;
-  wrap.append(title,info);list.append(wrap);
- }
- for(const h of [...hallOfFame].reverse()){
-  const wrap=document.createElement('div');wrap.className='league-record';
-  const iv=Object.entries(h.ivs||{}).map(([k,v])=>k+': '+v).join(' · ');
-  const ev=Object.entries(h.evs||{}).map(([k,v])=>k+': '+v).join(' · ');
-  const title=document.createElement('strong');title.textContent='제'+h.round+'회 · '+h.pokemon+' Lv.'+h.level;
-  const moveNames=Array.isArray(h.moves)?h.moves.map(id=>MOVES[id]?.name||id).join(' · '):'기록 없음 (기존 클리어)';
-  const info=document.createElement('p');info.textContent=new Date(h.date).toLocaleDateString('ko-KR')+'\nIV  '+iv+'\nEV  '+ev+'\n기술  '+moveNames;
-  wrap.append(title,info);list.append(wrap);
+ if(!entries.length){const empty=document.createElement('p');empty.className='hall-empty';empty.textContent='아직 등록된 기록이 없어.';list.append(empty);}
+ for(const record of [...entries].reverse()){
+  const wrap=document.createElement('article');wrap.className='hall-entry';
+  const head=document.createElement('div');head.className='hall-entry-head';
+  const round=document.createElement('strong');round.textContent=(record.round||1)+'회';
+  const date=document.createElement('time');date.textContent=record.date?new Date(record.date).toLocaleDateString('ko-KR'):'날짜 미상';
+  head.append(round,date);
+  const party=document.createElement('div');party.className='hall-party';
+  const members=Array.isArray(record.party)&&record.party.length?record.party.slice(0,3):[{name:record.pokemon||'포켓몬',dex:record.dex,level:record.level}];
+  for(const m of members){const item=document.createElement('div');item.className='hall-pokemon';const img=document.createElement('img');img.alt=m.name||'포켓몬';img.loading='lazy';if(Number.isInteger(m.dex)&&m.dex>0){img.src=staticImage(m.dex);img.onerror=()=>{img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';img.onerror=()=>{img.hidden=true;};};}else img.hidden=true;
+   const name=document.createElement('strong');name.textContent=m.name||'포켓몬';const level=document.createElement('span');level.textContent='LV '+(m.level??'?');item.append(img,name,level);party.append(item);}
+  wrap.append(head,party);list.append(wrap);
  }
  $('leagueRecordOverlay').hidden=false;
 }
@@ -1779,7 +1780,7 @@ function setup(){
  $('leagueNext').addEventListener('click',()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle')});
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
  $('leagueRecords').addEventListener('click',showHallOfFame);
- $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});
+ $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});document.querySelectorAll('[data-hall-tab]').forEach(button=>button.addEventListener('click',()=>showHallOfFame(button.dataset.hallTab)));
  $('redEndingNext').addEventListener('click',advanceRedEnding);
  $('challengeUnlockConfirm').addEventListener('click',()=>{$('challengeUnlockOverlay').hidden=true;if(pendingRewardChoice)showRewardChoices();});
  $('trainerIntroConfirm').addEventListener('click',confirmTrainerIntro);
