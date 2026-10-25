@@ -108,3 +108,13 @@
 .home-sprite-wrap.area-rocketBase,#battleScreen .arena.area-rocketBase{background-color:#313246;background-image:linear-gradient(150deg,#121524bf,#51506399),url('https://play.pokemonshowdown.com/fx/bg-warehouse.png');background-position:center;background-size:cover;background-repeat:no-repeat}
 .home-sprite-wrap.area-farawayIsland,#battleScreen .arena.area-farawayIsland{background-color:#4aaf86;background-image:linear-gradient(180deg,#8cdecc55,#18462c60),url('https://play.pokemonshowdown.com/fx/bg-forest.png');background-position:center;background-size:cover;background-repeat:no-repeat}
 .home-sprite-wrap.area-mountSilver,#battleScreen .arena.area-mountSilver{background-color:#758a9a;background-image:linear-gradient(180deg,#bfd8f488,#334b67b0),url('https://play.pokemonshowdown.com/fx/bg-earthycave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+
+/* Verified Pokémon Showdown backdrops for the eight requested map regions. */
+.home-sprite-wrap.area-road,#battleScreen .arena.area-road{background-image:url('https://play.pokemonshowdown.com/fx/bg-route.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-sea,#battleScreen .arena.area-sea{background-image:url('https://play.pokemonshowdown.com/fx/bg-beachshore.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-championRoad,#battleScreen .arena.area-championRoad{background-image:url('https://play.pokemonshowdown.com/fx/bg-dampcave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-volcano,#battleScreen .arena.area-volcano{background-image:url('https://play.pokemonshowdown.com/fx/bg-volcanocave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-palletTown,#battleScreen .arena.area-palletTown{background-image:url('https://play.pokemonshowdown.com/fx/bg-thunderplains.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-farawayIsland,#battleScreen .arena.area-farawayIsland{background-image:url('https://play.pokemonshowdown.com/fx/bg-beachshore.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-lake,#battleScreen .arena.area-lake{background-image:url('https://play.pokemonshowdown.com/fx/bg-beachshore.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+.home-sprite-wrap.area-mountSilver,#battleScreen .arena.area-mountSilver{background-image:url('https://play.pokemonshowdown.com/fx/bg-icecave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
