@@ -462,7 +462,8 @@ function reset(kind='wild'){
  const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?95:area==='farawayIsland'?90:area==='mountSilver'?100:46;
  const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
- const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);
+ const leader=leaderMember();
+ const player=leader.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(leader);
  const zeroIV={hp:0,attack:0,defense:0,speed:0};
  let enemies;
  if(kind==='blue'){
@@ -528,7 +529,7 @@ function reset(kind='wild'){
  }else{
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:recentWildMoves(wild.dex,level)});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
  }
- player.hp=storedHp===null?player.stats.hp:Math.min(player.stats.hp,Math.max(0,storedHp));
+ player.hp=leaderHp();
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
@@ -538,9 +539,9 @@ function reset(kind='wild'){
  const opponentName=kind==='red'?'레드':kind.startsWith('league')?LEAGUE_NAMES[Number(kind.slice(6))]:TRAINERS[kind]?.name||'트레이너';
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':opponentName+'의 도전!');
  shownHp={player:player.hp,enemy:first.hp};
- $('playerName').textContent=form.name;$('promptName').textContent=form.name;
- $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+progress.level;refreshLevelCapIndicator();
- sprite('playerSprite',form.dex,true,s.emoji);sprite('enemySprite',kind==='wild'?wild.dex:Number(first.id?.replace('trainer-',''))||100,false,kind==='wild'?'🐾':'⚔️');
+ $('playerName').textContent=player.name;$('promptName').textContent=player.name;
+ $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+player.level;refreshLevelCapIndicator();
+ sprite('playerSprite',leader.dex,true,leader.starter?s.emoji:'⚔️');sprite('enemySprite',kind==='wild'?wild.dex:Number(first.id?.replace('trainer-',''))||100,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':opponentName;
  $('trainerPortrait').hidden=kind==='wild';
  if(kind!=='wild'){
@@ -839,6 +840,13 @@ function teamMembers(){
   return (ia<0?999:ia)-(ib<0?999:ib);
  });
 }
+function leaderMember(){return teamMembers()[0];}
+function memberBase(m){return m.starter?getForm(chosen,progress.level).base:DEX_CATALOG.find(p=>p.dex===m.dex)?.base||{hp:60,attack:65,defense:60,speed:60};}
+function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
+function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
+function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
+function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:100,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
+
 function partyOverlay(title,description,choices){
  let layer=document.getElementById('partyActionOverlay');
  if(!layer){
@@ -936,22 +944,22 @@ function renderHome(){
  $('healButton').setAttribute('aria-disabled',String(!injured));
  $('healButtonNote').textContent=injured?(freeHealsUsed<10?'무료 치료 '+(10-freeHealsUsed)+'/10회 남음':'치료비 '+(progress.level*10).toLocaleString('ko-KR')+'원'):'건강 상태 · 부상 시 치료 가능';
  $('startBattle').disabled=injured||!!pendingRewardChoice;
- const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);
- $('homeName').textContent=form.name;$('homeLevel').textContent='LV '+progress.level;
+ const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
+ $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
  $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원'+(lastBattleReward?' (+'+lastBattleReward.money.toLocaleString('ko-KR')+')':'');
  renderCaptures();
- const maxHp=calculateStats(form.base,progress.level,playerIVs,playerEVs).hp;
- const hp=storedHp===null?maxHp:Math.min(maxHp,Math.max(0,storedHp));
+ const maxHp=memberMaxHp(leader);
+ const hp=leaderHp();
  $('homeHpText').textContent=hp+' / '+maxHp;
  $('homeHpBar').style.width=(100*hp/maxHp)+'%';
  $('homeHpBar').style.background=hp/maxHp>0.5?'#59c679':hp/maxHp>0.2?'#e8b956':'#d86862';
  renderInventory();
 
- const need=levelNeed(progress.level);
- $('homeExpText').textContent=(need?progress.exp+' / '+need:'MAX LEVEL')+(lastBattleReward?' (+'+lastBattleReward.exp.toLocaleString('ko-KR')+')':'');
- $('homeExpBar').style.width=need?100*progress.exp/need+'%':'100%';
+ const need=levelNeed(leader.level);
+ $('homeExpText').textContent=(need?(leader.starter?progress.exp:(leader.exp||0))+' / '+need:'MAX LEVEL')+(lastBattleReward?' (+'+lastBattleReward.exp.toLocaleString('ko-KR')+')':'');
+ $('homeExpBar').style.width=need?100*(leader.starter?progress.exp:(leader.exp||0))/need+'%':'100%';
  const img=$('homeSprite'),fallback=$('homeFallback');
- fallback.textContent=s.emoji;fallback.hidden=true;img.hidden=false;
+ fallback.textContent=leader.starter?s.emoji:'⚔️';fallback.hidden=true;img.hidden=false;
  // Prefer genuine BW animated front GIF. Fall back to static pixel art and CSS idle motion.
  const sources=[animatedImage(form.dex),staticImage(form.dex),'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+form.dex+'.png'];
  let attempt=0;
@@ -1030,7 +1038,8 @@ async function act(a){
     if(reward?.newLevel>reward?.previousLevel){
      const currentMax=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
      storedHp=Math.max(0,Math.min(currentMax,hpBefore+(currentMax-maxBefore)));
-    } else storedHp=hpBefore;
+    } else setLeaderHp(hpBefore);
+    if(!leaderMember().starter)setLeaderHp(hpBefore);
     saveProgress();
     if(reward?.newLevel>reward?.previousLevel)pendingLevelUp={previous:reward.previousLevel,current:reward.newLevel};
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
@@ -1038,13 +1047,13 @@ async function act(a){
     if(reward?.badgeEarned)await showBadgeAward(reward.badgeEarned);
     $('battleResult').hidden=false;
     $('resultTitle').textContent=battle.result==='victory'?'승리!':battle.result==='capture'?'포획 성공!':'패배!';
-    if(battle.result==='defeat'){injured=true;storedHp=0;if(battleKind.startsWith('league'))leagueStage=null;saveProgress();}
+    if(battle.result==='defeat'){injured=true;setLeaderHp(0);if(battleKind.startsWith('league'))leagueStage=null;saveProgress();}
     $('resultDetail').textContent=battle.result==='capture'?wildEnemy.name+' (Lv.'+wildEnemy.level+') 포획 완료! 포획 도감에 저장했어.':reward?.messages?.length?reward.messages.join('\n'):'경험치를 획득하지 못했어.';
     renderHome();
   }
  }catch(err){alert(err.message);console.error(err);}
  finally{
-  if(battle&&!battle.ended){storedHp=battle.player.hp;saveProgress();}
+  if(battle&&!battle.ended){setLeaderHp(battle.player.hp);saveProgress();}
   animating=false;
   render();
   if(battle.ended){
@@ -1243,6 +1252,6 @@ function setup(){
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;if(leagueStage!==null){renderLeague();showScreen('league')}else showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;companions=[];partyOrder=[];area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;leagueStage=null;leagueCeremonyPending=false;redCeremonyPending=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(storedHp===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('rewardReroll').addEventListener('click',rerollRewards);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen(leagueStage===null?'home':'league');if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;companions=[];partyOrder=[];area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;leagueStage=null;leagueCeremonyPending=false;redCeremonyPending=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||injured)return;if(leaderHp()===0){alert('HP가 0이야! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;storedHp=battle.player.hp;saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('rewardReroll').addEventListener('click',rerollRewards);$('developerOverlay').addEventListener('click',e=>{if(e.target===$('developerOverlay'))closeDeveloper()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();reset();showScreen(leagueStage===null?'home':'league');if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
