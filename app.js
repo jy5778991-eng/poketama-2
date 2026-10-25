@@ -194,7 +194,7 @@ function renderStatPanel(){
   const star=document.createElement('span');star.className='iv-star iv-'+ivTier(ivs[key]);star.textContent='★';
   star.setAttribute('aria-label','개체값 등급');
   const value=document.createElement('div');value.className='stat-value';value.textContent=String(stats[key]);
-  head.append(label,star);card.append(head,value);const ev=document.createElement('small');ev.textContent='EV '+(evs[key]||0)+' / 100';ev.className='stat-ev-note';card.append(ev);return card;
+  head.append(label,star);card.append(head,value);return card;
  }));
 }
 
@@ -1194,10 +1194,9 @@ function showPartyManager(selectedKey=null){
  if(layer)layer.remove();
  document.getElementById('partySummaryOverlay')?.remove();
  const overlay=document.createElement('div');overlay.id='partySummaryOverlay';overlay.className='party-summary-overlay';
- overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 관리');
+ overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','내 포켓몬');
  const panel=document.createElement('section');panel.className='party-summary-panel';
- const title=document.createElement('header');title.className='party-summary-title';title.textContent='POKÉMON · '+members.length+'/'+max;
- const intro=document.createElement('p');intro.className='party-summary-intro';intro.textContent='포켓몬을 선택하면 능력치와 기술을 볼 수 있어. 선봉 변경은 여기서만 가능해.';
+ const title=document.createElement('header');title.className='party-summary-title';title.textContent='내 포켓몬 · '+members.length+'/'+max;
  const cards=document.createElement('div');cards.className='party-summary-cards';
  const details=document.createElement('div');details.className='party-summary-details';
  const footer=document.createElement('button');footer.type='button';footer.className='party-summary-close';footer.textContent='닫기';
@@ -1211,11 +1210,18 @@ function showPartyManager(selectedKey=null){
   pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>pic.style.visibility='hidden';};
   const data=document.createElement('div');data.className='party-summary-info';
   const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+m.level;
-  const health=document.createElement('small');health.textContent='HP '+hp+' / '+maxHp+(hp===0?' · 기절':'');
-  const track=document.createElement('div');track.className='party-summary-track';
-  const fill=document.createElement('div');fill.className='party-summary-fill';fill.style.width=Math.max(0,100*hp/maxHp)+'%';
-  if(hp/maxHp<=.2)fill.classList.add('low');else if(hp/maxHp<=.5)fill.classList.add('mid');
-  track.append(fill);data.append(name,health,track);button.append(pic,data);
+  const meter=(label,current,total,type)=>{const row=document.createElement('div');row.className='party-summary-meter';
+   const tag=document.createElement('b');tag.textContent=label;
+   const track=document.createElement('div');track.className='party-summary-track '+type;
+   const fill=document.createElement('div');fill.className='party-summary-fill';fill.style.width=Math.max(0,Math.min(100,total?100*current/total:0))+'%';
+   if(type==='hp'&&current/total<=.2)fill.classList.add('low');else if(type==='hp'&&current/total<=.5)fill.classList.add('mid');
+   track.append(fill);
+   const count=document.createElement('span');count.className='party-summary-meter-count';count.textContent=type==='hp'?current+' / '+total:(m.level>=100?'MAX':current+' / '+total);
+   row.append(tag,track,count);return row;};
+  const xp=m.starter?progress.exp:m.exp||0;
+  data.append(name,meter('HP',hp,maxHp,'hp'),meter('EXP',xp,m.level>=100?1:levelNeed(m.level),'exp'));
+  if(hp===0){const faint=document.createElement('small');faint.textContent='기절';data.append(faint);}
+  button.append(pic,data);
   button.onclick=()=>showPartyManager(m.key);cards.append(button);
  }
  const m=selected,ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
@@ -1224,17 +1230,23 @@ function showPartyManager(selectedKey=null){
  details.append(heading);
  const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
  for(const stat of STAT_KEYS){
-  const tile=document.createElement('span');tile.textContent=STAT_LABELS[stat]+' '+stats[stat]+' · IV '+ivs[stat]+' / EV '+(evs[stat]||0);infoGrid.append(tile);
+  const tile=document.createElement('div');tile.className='party-summary-stat';
+  const label=document.createElement('b');label.textContent=STAT_LABELS[stat]+' '+stats[stat];
+  const iv=document.createElement('span');iv.className='iv-star iv-'+ivTier(ivs[stat]);iv.textContent='★';iv.title='개체값 '+ivs[stat];iv.setAttribute('aria-label','개체값 '+ivs[stat]);
+  const ev=document.createElement('small');ev.textContent='EV '+(evs[stat]||0);
+  tile.append(label,iv,ev);infoGrid.append(tile);
  }
  details.append(infoGrid);
- const exp=document.createElement('p');exp.textContent='EXP '+(m.starter?progress.exp:m.exp||0)+' / '+(m.level>=100?'MAX':levelNeed(m.level));details.append(exp);
- const moves=document.createElement('p');moves.className='party-summary-moves';
- moves.textContent='기술 · '+(m.starter?playerMoves:m.moves||[]).map(id=>MOVES[id]?.name||id).join(' / ');details.append(moves);
+ const moveHeading=document.createElement('strong');moveHeading.textContent='기술';details.append(moveHeading);
+ const moves=document.createElement('div');moves.className='party-summary-moves';
+ const moveIds=m.starter?playerMoves:m.moves||[];
+ for(let i=0;i<4;i++){const cell=document.createElement('div');cell.className='party-summary-move';const id=moveIds[i];cell.textContent=id?(MOVES[id]?.name||id):'—';moves.append(cell);}
+ details.append(moves);
  const lead=document.createElement('button');lead.type='button';lead.className='party-summary-lead';lead.textContent=m.key===members[0].key?'현재 선봉':memberHp(m)<=0?'기절한 포켓몬은 선봉 불가':'이 포켓몬을 선봉으로';
  lead.disabled=m.key===members[0].key||memberHp(m)<=0;
  lead.onclick=()=>{partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];saveProgress();renderHome();showPartyManager(m.key);};
  details.append(lead);
- panel.append(title,intro,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
+ panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
 }
 function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
