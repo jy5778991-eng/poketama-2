@@ -1231,10 +1231,13 @@ function showPartyManager(selectedKey=null){
  const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
  for(const stat of STAT_KEYS){
   const tile=document.createElement('div');tile.className='party-summary-stat';
-  const label=document.createElement('b');label.textContent=STAT_LABELS[stat]+' '+stats[stat];
+  const head=document.createElement('div');head.className='party-summary-stat-head';
+  const label=document.createElement('b');label.textContent=STAT_LABELS[stat];
   const iv=document.createElement('span');iv.className='iv-star iv-'+ivTier(ivs[stat]);iv.textContent='★';iv.title='개체값 '+ivs[stat];iv.setAttribute('aria-label','개체값 '+ivs[stat]);
-  const ev=document.createElement('small');ev.textContent='EV '+(evs[stat]||0);
-  tile.append(label,iv,ev);infoGrid.append(tile);
+  head.append(label,iv);
+  const value=document.createElement('strong');value.className='party-summary-stat-value';value.textContent=String(stats[stat]);
+  const ev=document.createElement('small');ev.textContent='EV: '+(evs[stat]||0);
+  tile.append(head,value,ev);infoGrid.append(tile);
  }
  details.append(infoGrid);
  const moveHeading=document.createElement('strong');moveHeading.textContent='기술';details.append(moveHeading);
