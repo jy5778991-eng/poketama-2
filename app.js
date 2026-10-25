@@ -9,7 +9,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-shop-pp-aid31';
+import {renderInventoryView} from './js/inventory.js?v=20261025-six-features37';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -406,6 +406,22 @@ async function showEvolutions(evolutions){
  }
 }
 const GYM_BADGES={brock:{name:'암석배지',file:'Boulder'},misty:{name:'블루배지',file:'Cascade'},surge:{name:'오렌지배지',file:'Thunder'},erika:{name:'레인보우배지',file:'Rainbow'},koga:{name:'핑크배지',file:'Soul'},sabrina:{name:'골드배지',file:'Marsh'},blaine:{name:'크림슨배지',file:'Volcano'},giovanni:{name:'그린배지',file:'Earth'}};
+function showBadgeCollection(){
+ const prior=document.getElementById('badgeCollectionOverlay');if(prior)prior.remove();
+ const ownership={brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared};
+ const overlay=document.createElement('div');overlay.id='badgeCollectionOverlay';overlay.className='badge-collection-overlay';overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','배지 수집');
+ const panel=document.createElement('div');panel.className='badge-collection-panel';
+ const heading=document.createElement('h2');heading.textContent='🏅 나의 배지';panel.append(heading);
+ const grid=document.createElement('div');grid.className='badge-collection-grid';
+ for(const [kind,badge] of Object.entries(GYM_BADGES)){
+  const owned=!!ownership[kind],slot=document.createElement('div');slot.className='badge-collection-slot';
+  const img=document.createElement('img');img.src=BADGE_IMAGES[kind];img.alt=owned?badge.name:badge.name+' 미획득';img.className=owned?'':'badge-collection-locked';
+  const name=document.createElement('small');name.textContent=owned?badge.name:'???';
+  slot.append(img,name);grid.append(slot);
+ }
+ const close=document.createElement('button');close.type='button';close.textContent='닫기';close.className='party-summary-close';close.onclick=()=>overlay.remove();
+ panel.append(grid,close);overlay.append(panel);document.body.append(overlay);close.focus();
+}
 function showBadgeAward(kind){
  const badge=GYM_BADGES[kind];if(!badge)return Promise.resolve();
  return new Promise(resolve=>{
@@ -1088,7 +1104,7 @@ function chooseRecoveryTarget(item){
 function renderInventory(){
  return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget});
 }
-function showScreen(next){if(animating||learningBusy)return;screen=next;$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
+function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 function renderPowerStatus(){
  for(const id of ['homePlusPower','battlePlusPower']){
   const el=$(id);if(!el)continue;
@@ -1243,7 +1259,27 @@ function showPartyManager(selectedKey=null){
  const moveHeading=document.createElement('strong');moveHeading.textContent='기술';details.append(moveHeading);
  const moves=document.createElement('div');moves.className='party-summary-moves';
  const moveIds=m.starter?playerMoves:m.moves||[];
- for(let i=0;i<4;i++){const cell=document.createElement('div');cell.className='party-summary-move';const id=moveIds[i];cell.textContent=id?(MOVES[id]?.name||id):'—';moves.append(cell);}
+ for(let i=0;i<4;i++){
+  const id=moveIds[i],move=id?MOVES[id]:null;
+  const cell=document.createElement('button');cell.type='button';cell.className='party-summary-move';
+  cell.textContent=move?.name||'—';cell.disabled=!move;
+  cell.onclick=()=>{
+   const power=move.power?'위력 '+move.power:'위력 --';
+   const accuracy='명중률 '+Math.round((move.accuracy??1)*100)+'%';
+   let effect='';
+   if(!move.power){
+    const effects=[];
+    if(move.boosts){const names={attack:'공격',defense:'방어',speed:'스피드'};for(const [stat,level] of Object.entries(move.boosts))effects.push((move.target==='self'?'자신의 ':'상대의 ')+(names[stat]||stat)+' '+(level>0?'+':'')+level+'랭크');}
+    if(move.inflict)effects.push(({poison:'독',paralysis:'마비',sleep:'잠듦'})[move.inflict]||move.inflict);
+    if(move.healMaxHp)effects.push('최대 HP의 '+Math.round(move.healMaxHp*100)+'% 회복');
+    if(move.reduceTargetPp)effects.push('상대 기술 PP '+move.reduceTargetPp+' 감소');
+    if(move.target==='self'&&move.boosts?.defense&&move.name==='빛의장막')effects.push('방어 강화');
+    effect=effects.join(' · ')||'특수 효과';
+   }
+   partyOverlay(move.name,power+' · '+accuracy+(effect?'\\n효과: '+effect:''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
+  };
+  moves.append(cell);
+ }
  details.append(moves);
  const lead=document.createElement('button');lead.type='button';lead.className='party-summary-lead';lead.textContent=m.key===members[0].key?'현재 선봉':memberHp(m)<=0?'기절한 포켓몬은 선봉 불가':'이 포켓몬을 선봉으로';
  lead.disabled=m.key===members[0].key||memberHp(m)<=0;
@@ -1661,7 +1697,8 @@ function setup(){
    }else act({type:'ball',itemId:item.id,multiplier:item.multiplier,guaranteedCatch:item.guaranteedCatch===true});
   });
  }
- $('openParty')?.addEventListener('click',showPartyManager);
+ $('openParty')?.addEventListener('click',()=>showPartyManager());
+ $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
