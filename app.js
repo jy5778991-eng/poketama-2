@@ -1,15 +1,15 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-reward-description27';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-reward-count28';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-reward-description27';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-reward-count28';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-reward-description27';
+import {renderInventoryView} from './js/inventory.js?v=20261025-reward-count28';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -19,10 +19,11 @@ const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
 const bonusCashForWin=level=>10+level*10;
-// Independently roll all 3 reward slots: 74% normal, 20% rare, 5% hyper, 1% legendary.
+// Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
 const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
-function drawThreeRewards(level){
+function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
+function drawThreeRewards(level,count=rewardChoiceCount()){
  const baseCash=bonusCashForWin(level);
  const pool={
   normal:[
@@ -62,7 +63,7 @@ function drawThreeRewards(level){
    {kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'}
   ]
  };
- return Array.from({length:3},()=>{
+ return Array.from({length:count},()=>{
   const roll=Math.random()*100;
   const tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';
   return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};
@@ -157,7 +158,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices,rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -420,6 +421,7 @@ function finishTrainerBattle(){
  let gained=0;
  let badgeEarned=null;
  if(battle.result==='victory'){
+  const rewardCountBeforeVictory=rewardChoiceCount();
   if(GYM_BADGES[battleKind]&&!({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[battleKind])badgeEarned=battleKind;
   if(battleKind==='blue'&&!blueCleared){blueCleared=true;area='forest';}
   if(battleKind==='brock'&&!brockCleared){brockCleared=true;area='cave';}
@@ -451,7 +453,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice={choices:drawThreeRewards(level),rerolls:0,gym:!!GYM_BADGES[battleKind]};
+  pendingRewardChoice={choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]};
  }else{
   if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -819,7 +821,7 @@ function rerollRewards(){
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  if(!Number.isFinite(cost)||progress.money<cost)return;
  progress.money-=cost;
- pendingRewardChoice.choices=drawThreeRewards(progress.level);
+ pendingRewardChoice.choices=drawThreeRewards(progress.level,pendingRewardChoice.choices.length);
  pendingRewardChoice.rerolls++;
  saveProgress();
  showRewardChoices();
