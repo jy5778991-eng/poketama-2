@@ -107,6 +107,7 @@ function executeMove(b,user,target,moveId){
 }
 function pickAction(p,requested){
   if(requested?.type==='revive') return {type:'revive',priority:6};
+  if(requested?.type==='healAlly') return {type:'healAlly',priority:6};
   if(requested?.type==='switch') return {type:'switch',priority:7,fighter:requested.fighter};
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
@@ -148,6 +149,8 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
     if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
     if(a.action.type==='revive'){
       say(b,'기력의조각을 사용했다!');emit(b,{type:'revive',side:'player'});
+    }else if(a.action.type==='healAlly'){
+      say(b,'동료에게 회복약을 사용했다!');
     }else if(a.action.type==='switch'){
       say(b,`${a.fighter.name}이(가) 출전했다!`);emit(b,{type:'switch',side:'player',name:a.fighter.name});
     }else if(a.action.type==='ball'){
