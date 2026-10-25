@@ -941,15 +941,17 @@ function requestBattleRevive(){
  ]);
 }
 function chooseRecoveryTarget(item){
- const fainted=teamMembers().filter(m=>memberHp(m)===0);
- if(!fainted.length){alert('기절한 포켓몬이 없어.');return;}
- partyOverlay('💎 기력의조각','최대 HP의 50%로 회복할 포켓몬을 골라줘.',[
- ...fainted.map(m=>({text:m.name+' Lv.'+m.level+' · 부활',action:()=>{
-  if(inventory.revive<1||memberHp(m)>0)return;
-  const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
-  if(m.starter)storedHp=hp;else {const target=companions.find(x=>x.family===m.family);if(target)target.hp=hp;}
-  inventory.revive--;injured=false;
-  appendAdventureLog('💎 '+m.name+'이(가) 기력의조각으로 부활했다! (HP '+hp+')');
+ const targets=teamMembers().filter(m=>item.id==='revive'?memberHp(m)===0:memberHp(m)>0&&memberHp(m)<memberMaxHp(m));
+ if(!targets.length){alert(item.id==='revive'?'기절한 포켓몬이 없어.':'회복이 필요한 포켓몬이 없어.');return;}
+ partyOverlay(item.icon+' '+item.name,'회복할 포켓몬을 선택해.',[
+ ...targets.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{
+  if(inventory[item.id]<1)return;
+  const before=memberHp(m),max=memberMaxHp(m);
+  const hp=item.id==='revive'?Math.max(1,Math.floor(max/2)):Math.min(max,before+item.power);
+  if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}
+  inventory[item.id]--;
+  if(item.id==='revive')injured=false;
+  appendAdventureLog(item.icon+' '+m.name+'에게 '+item.name+' 사용 (HP '+before+' → '+hp+')');
   normalizeLivingLead();saveProgress();renderHome();renderInventory();
  }})),{text:'취소',action:()=>{}}]);
 }
