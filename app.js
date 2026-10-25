@@ -1,15 +1,15 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-party-exp-switch23';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-party-exp-switch24';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-party-exp-switch23';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-party-exp-switch24';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-party-exp-switch23';
+import {renderInventoryView} from './js/inventory.js?v=20261025-party-exp-switch24';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -174,7 +174,7 @@ if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>216)playerEVs={hp:0,attack:
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
 let learningBusy=false;
 function renderStatPanel(){
- const m=leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
+ const m=screen==='battle'?activeMember():leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
  grid.replaceChildren(...STAT_KEYS.map(key=>{
   const card=document.createElement('div');card.className='stat-card';
   const head=document.createElement('div');head.className='stat-compact-head';
@@ -943,7 +943,7 @@ function reviveMember(m){
 }
 function requestBattleRevive(){
  if(animating||battle.ended||inventory.revive<1)return;
- const targets=teamMembers().filter(m=>memberHp(m)===0);
+ const targets=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)===0);
  if(!targets.length){alert('기절한 동료가 없어.');return;}
  partyOverlay('💎 기력의조각 사용','부활시킬 동료를 선택해. 사용하면 1턴이 지나.',[
  ...targets.map(m=>({text:m.name+' Lv.'+m.level+' · HP 50% 부활',action:()=>act({type:'revive',targetKey:m.key,itemId:'revive'})})),
@@ -1168,7 +1168,7 @@ function render(){renderPowerStatus();const switchButton=$('commandSwitch');if(s
  for(const item of SHOP_ITEMS){
   const el=$('battleItem-'+item.id);
   if(!el)continue; // Key items don't have battle buttons.
-  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&item.id!=='revive'&&!teamMembers().some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m)))||(item.id==='revive'&&!teamMembers().some(m=>memberHp(m)===0))||(item.category==='ball'&&!battle.wild);
+  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&item.id!=='revive'&&!teamMembers().some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m)))||(item.id==='revive'&&!teamMembers().some(m=>m.key!==activeBattleKey&&memberHp(m)===0))||(item.category==='ball'&&!battle.wild);
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
 
