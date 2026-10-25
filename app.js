@@ -924,6 +924,22 @@ function showItemCategory(category){
  inventoryCategory=category;
  renderInventory();
 }
+function reviveMember(m){
+ if(inventory.revive<1||memberHp(m)!==0)return false;
+ const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
+ if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}
+ appendAdventureLog('💎 '+m.name+' 기력의조각 부활: '+hp+' HP');
+ return true;
+}
+function requestBattleRevive(){
+ if(animating||battle.ended||inventory.revive<1)return;
+ const targets=teamMembers().filter(m=>memberHp(m)===0);
+ if(!targets.length){alert('기절한 동료가 없어.');return;}
+ partyOverlay('💎 기력의조각 사용','부활시킬 동료를 선택해. 사용하면 1턴이 지나.',[
+ ...targets.map(m=>({text:m.name+' Lv.'+m.level+' · HP 50% 부활',action:()=>act({type:'revive',targetKey:m.key,itemId:'revive'})})),
+ {text:'취소',action:()=>{}}
+ ]);
+}
 function chooseRecoveryTarget(item){
  const fainted=teamMembers().filter(m=>memberHp(m)===0);
  if(!fainted.length){alert('기절한 포켓몬이 없어.');return;}
@@ -1136,7 +1152,7 @@ function render(){renderPowerStatus();const switchButton=$('commandSwitch');if(s
  for(const item of SHOP_ITEMS){
   const el=$('battleItem-'+item.id);
   if(!el)continue; // Key items don't have battle buttons.
-  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&p.hp>=p.stats.hp)||(item.category==='ball'&&!battle.wild);
+  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&item.id!=='revive'&&p.hp>=p.stats.hp)||(item.id==='revive'&&!teamMembers().some(m=>memberHp(m)===0))||(item.category==='ball'&&!battle.wild);
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
 
@@ -1156,6 +1172,10 @@ async function act(a){
   battle.player.accuracyBuff=0.1*boostCount('accuracy');
   battle.player.critBuff=0.1*boostCount('critical');
   battle.player.defenseBuffMultiplier=1+0.1*boostCount('defense');
+  if(a.type==='revive'){
+   const target=teamMembers().find(m=>m.key===a.targetKey);
+   if(!target||!reviveMember(target))return;
+  }
   takeTurn(battle,a);
   if(a.type==='switch')updateBattlePlayerHeader();
   if(battle.player.hp===0){
@@ -1164,7 +1184,7 @@ async function act(a){
    if(next){chooseActiveMember(next);battle.player=makeMemberFighter(next);battle.ended=false;battle.result=null;battle.log.push('🔄 '+next.name+'이(가) 자동 출전했다!');updateBattlePlayerHeader();}
   }
   tickBoosts();saveProgress();renderPowerStatus();
-  if(a.type==='item'||a.type==='ball'){
+  if(a.type==='item'||a.type==='ball'||a.type==='revive'){
    inventory[a.itemId]--;
    saveProgress();
   }
@@ -1417,6 +1437,7 @@ function setup(){
  for(const item of SHOP_ITEMS){
   const button=$('battleItem-'+item.id);
   if(!button)continue; // Key items do not have battle action buttons.
+  if(item.id==='revive'){button.addEventListener('click',requestBattleRevive);continue;}
   button.addEventListener('click',()=>act({type:item.category==='ball'?'ball':'item',itemId:item.id,power:item.power,multiplier:item.multiplier,guaranteedCatch:item.guaranteedCatch===true}));
  }
  $('openParty')?.addEventListener('click',showPartyManager);
