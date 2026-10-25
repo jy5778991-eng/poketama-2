@@ -42,6 +42,8 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
     saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget});
    };
    row.append(buy);
+  }else if(item.category==='key'){
+   const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;row.append(status);
   }else if(item.category==='heal'){
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
    use.textContent='대상 선택';
