@@ -153,3 +153,17 @@
 
 /* IV star must not inherit the generic stat-grid span tile frame. */
 .party-summary-statgrid .party-summary-stat-head .iv-star{background:transparent;border:0;padding:0;box-shadow:none;outline:0;border-radius:0;display:inline-block}
+
+/* Badge gallery and party move details */
+.home-badges{cursor:pointer;font-family:inherit;color:inherit}
+.badge-collection-overlay{position:fixed;inset:0;z-index:16000;display:grid;place-items:center;padding:16px;background:#0a1839c9}
+.badge-collection-panel{width:min(470px,100%);padding:20px;border:4px solid #506d9c;border-radius:12px;background:#f7f8ed;color:#293c5c;box-shadow:0 15px 45px #0006}
+.badge-collection-panel h2{font-size:19px;text-align:center;margin:0 0 16px}
+.badge-collection-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.badge-collection-slot{display:grid;justify-items:center;gap:6px;padding:10px 3px;background:#e5ecf7;border:2px solid #a9bbd7;border-radius:6px;text-align:center;min-width:0}
+.badge-collection-slot img{width:52px;height:52px;image-rendering:pixelated;object-fit:contain}
+.badge-collection-slot img.badge-collection-locked{filter:brightness(0);opacity:.8}
+.badge-collection-slot small{font-size:10px}
+.party-summary-move{cursor:pointer;font-family:inherit;color:#293c5c}
+.party-summary-move:disabled{cursor:default;opacity:.65}
+#partyActionInfo{white-space:pre-line}
