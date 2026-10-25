@@ -170,3 +170,7 @@
 
 /* Adventure log belongs to the home view, never to battles or other screens. */
 body:has(#homeScreen[hidden]) #adventureLogPanel{display:none!important}
+
+/* Strong disabled state, including descendant labels */
+.home-action:disabled,.home-action[aria-disabled="true"],.home-action:disabled *,.home-action[aria-disabled="true"] *{opacity:.48!important;filter:grayscale(.4);cursor:not-allowed!important;text-shadow:none!important}
+.badge-collection-overlay{z-index:50000!important}
