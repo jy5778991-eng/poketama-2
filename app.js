@@ -68,10 +68,6 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-let adventureLog=Array.isArray(saved?.adventureLog)?saved.adventureLog.filter(x=>typeof x==='string').slice(-100):[];
-function appendAdventureLog(s){adventureLog.push(String(s));adventureLog=adventureLog.slice(-100);renderAdventureLog();}
-function renderAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;box.replaceChildren(...adventureLog.slice(-5).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));}
-function toggleAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;const isFull=box.dataset.full==='true';box.dataset.full=String(!isFull);box.replaceChildren(...adventureLog.slice(isFull?-5:-100).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));document.getElementById('adventureLogToggle').textContent=isFull?'전체 보기':'최근 5줄 보기';}
 function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
@@ -82,6 +78,11 @@ const LEAGUE_TEAMS=[
 [['갸라도스',130,69,95,125,90,81],['신뇽',148,70,61,84,65,70],['신뇽',148,70,61,84,65,70],['프테라',142,72,80,105,70,130],['망나뇽',149,73,91,134,98,80]],
 [['피죤투',18,71,83,80,75,101],['후딘',65,72,55,135,75,120],['코뿌리',112,72,105,130,113,40],['갸라도스',130,73,95,125,90,81],['윈디',59,74,90,110,80,95]]];
 const saved=readSave();
+let adventureLog=Array.isArray(saved?.adventureLog)?saved.adventureLog.filter(x=>typeof x==='string').slice(-100):[];
+function appendAdventureLog(s){adventureLog.push(String(s));adventureLog=adventureLog.slice(-100);renderAdventureLog();}
+function renderAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;box.replaceChildren(...adventureLog.slice(-5).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));}
+function toggleAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;const isFull=box.dataset.full==='true';box.dataset.full=String(!isFull);box.replaceChildren(...adventureLog.slice(isFull?-5:-100).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));document.getElementById('adventureLogToggle').textContent=isFull?'전체 보기':'최근 5줄 보기';}
+
 // Companion state is additive. Legacy starter progress remains authoritative.
 let companions=Array.isArray(saved?.companions)?saved.companions.filter(m=>m&&typeof m.name==='string'&&Number.isInteger(m.dex)&&Number.isInteger(m.level)&&m.level>0&&m.level<=100&&m.ivs&&m.family).slice(0,2):[];
 let partyOrder=Array.isArray(saved?.partyOrder)?saved.partyOrder.filter(x=>typeof x==='string'):[];
