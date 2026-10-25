@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261025-party-update18';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs';
 
