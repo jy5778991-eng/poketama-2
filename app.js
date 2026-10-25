@@ -134,6 +134,7 @@ function healInjury(){
  refreshHealingDay();
  document.getElementById('pokemonCenterOverlay')?.remove();
  const members=teamMembers();
+ if(members.every(m=>memberHp(m)>=memberMaxHp(m))){alert('이미 포켓몬이 최고 컨디션이다');return;}
  const fee=freeHealsUsed<10?0:Math.max(...members.map(m=>m.level))*100;
  const overlay=document.createElement('div');overlay.id='pokemonCenterOverlay';overlay.className='party-summary-overlay';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 센터');
@@ -164,6 +165,7 @@ function healInjury(){
  confirm.disabled=progress.money<fee;
  const cancel=document.createElement('button');cancel.type='button';cancel.className='party-summary-close';cancel.textContent='취소';cancel.onclick=()=>overlay.remove();
  confirm.onclick=()=>{
+  if(teamMembers().every(m=>memberHp(m)>=memberMaxHp(m))){overlay.remove();alert('이미 포켓몬이 최고 컨디션이다');return;}
   refreshHealingDay();
   const actualFee=freeHealsUsed<10?0:Math.max(...teamMembers().map(m=>m.level))*100;
   if(progress.money<actualFee){alert('포켓몬 센터 이용료가 부족해!');return;}
