@@ -1,15 +1,15 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-party-exp-switch24';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-four-tier-rewards25';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-party-exp-switch24';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261025-four-tier-rewards25';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
-import {renderInventoryView} from './js/inventory.js?v=20261025-party-exp-switch24';
+import {renderInventoryView} from './js/inventory.js?v=20261025-four-tier-rewards25';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261024-road2';
 const $=id=>document.getElementById(id);
 
@@ -19,9 +19,9 @@ const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
 const bonusCashForWin=level=>10+level*10;
-// Independently roll all 3 reward slots: 85% normal, 14% rare, 1% legendary.
+// Independently roll all 3 reward slots: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
-const REWARD_TIERS={normal:{label:'일반',weight:85},rare:{label:'레어',weight:14},legendary:{label:'전설',weight:1}};
+const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
 function drawThreeRewards(level){
  const baseCash=bonusCashForWin(level);
  const pool={
@@ -43,10 +43,12 @@ function drawThreeRewards(level){
    {kind:'item',id:'ultraBall',quantity:2,icon:'🟡'},
    ...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),
    ...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),
-   {kind:'ev',stat:'hp',amount:2,icon:'💊'},
-   {kind:'ev',stat:'attack',amount:2,icon:'💊'},
-   {kind:'ev',stat:'defense',amount:2,icon:'💊'},
-   {kind:'ev',stat:'speed',amount:2,icon:'💊'}
+  ],
+  hyper:[
+   {kind:'ev',stat:'hp',amount:10,icon:'💊'},
+   {kind:'ev',stat:'attack',amount:10,icon:'💊'},
+   {kind:'ev',stat:'defense',amount:10,icon:'💊'},
+   {kind:'ev',stat:'speed',amount:10,icon:'💊'}
   ],
   legendary:[
    {kind:'cash',amount:baseCash*10,icon:'💰'},
@@ -60,7 +62,7 @@ function drawThreeRewards(level){
  };
  return Array.from({length:3},()=>{
   const roll=Math.random()*100;
-  const tier=roll<85?'normal':roll<99?'rare':'legendary';
+  const tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';
   return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};
  });
 }
@@ -153,7 +155,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&x.amount===2||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length===3&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices,rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -735,7 +737,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
- if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +2 즉시 적용';
+ if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
  if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +10%',accuracy:'명중률 +10%p',critical:'급소 확률 +10%p',defense:'방어력 +10%'}[choice.effect||'attack']);
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
@@ -826,7 +828,7 @@ function choosePermanentTarget(choice){
    const stat=choice.stat,ev=m.starter?playerEVs:companions.find(x=>x.family===m.family)?.evs;
    if(!ev)return;
    const total=Object.values(ev).reduce((a,b)=>a+b,0);
-   const gain=Math.min(2,100-ev[stat],216-total);
+   const gain=Math.min(choice.amount||2,100-ev[stat],216-total);
    if(gain<=0){alert('선택한 포켓몬의 노력치가 최대치야.');$('rewardChoiceOverlay').hidden=false;return;}
    ev[stat]+=gain;
    appendAdventureLog('💊 '+m.name+' '+STAT_LABELS[stat]+' 노력치 +'+gain);
@@ -855,7 +857,7 @@ function claimRewardChoice(index){
   const stat=choice.stat;
   if(!EV_STATS.includes(stat))return;
   const total=Object.values(playerEVs).reduce((sum,n)=>sum+n,0);
-  const gain=Math.min(2,100-playerEVs[stat],216-total);
+  const gain=Math.min(choice.amount||2,100-playerEVs[stat],216-total);
   playerEVs[stat]+=gain;
   // Preserve HP lost as maximum HP increases; never auto-heal via EV rewards.
   if(storedHp!==null){
