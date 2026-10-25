@@ -1208,7 +1208,7 @@ function partyOverlay(title,description,choices){
  }
  layer.hidden=false;
 }
-function showPartyManager(selectedKey=null){
+function showPartyManager(selectedKey=null,replacement=false){
  normalizeLivingLead();
  if(animating||learningBusy||pendingRewardChoice)return;
  const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
@@ -1218,13 +1218,13 @@ function showPartyManager(selectedKey=null){
  const overlay=document.createElement('div');overlay.id='partySummaryOverlay';overlay.className='party-summary-overlay';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','내 포켓몬');
  const panel=document.createElement('section');panel.className='party-summary-panel';
- const title=document.createElement('header');title.className='party-summary-title';title.textContent='내 포켓몬 · '+members.length+'/'+max;
+ const title=document.createElement('header');title.className='party-summary-title';title.textContent=(replacement?'다음 포켓몬을 선택해!':'내 포켓몬')+' · '+members.length+'/'+max;
  const cards=document.createElement('div');cards.className='party-summary-cards';
  const details=document.createElement('div');details.className='party-summary-details';
  const footer=document.createElement('button');footer.type='button';footer.className='party-summary-close';footer.textContent='닫기';
- const close=()=>overlay.remove();
- footer.onclick=close;
- const selected=members.find(m=>m.key===selectedKey)||members[0];
+ const close=()=>{if(!replacement)overlay.remove();};
+ footer.onclick=close;footer.hidden=replacement;
+ const selected=members.find(m=>m.key===selectedKey)||(replacement?members.find(m=>memberHp(m)>0):members[0]);
  for(const [i,m] of members.entries()){
   const hp=memberHp(m),maxHp=memberMaxHp(m);
   const button=document.createElement('button');button.type='button';button.className='party-summary-card'+(m.key===selected.key?' selected':'')+(hp===0?' fainted':'');
@@ -1244,7 +1244,7 @@ function showPartyManager(selectedKey=null){
   data.append(name,meter('HP',hp,maxHp,'hp'),meter('EXP',xp,m.level>=100?1:levelNeed(m.level),'exp'));
   if(hp===0){const faint=document.createElement('small');faint.textContent='기절';data.append(faint);}
   button.append(pic,data);
-  button.onclick=()=>showPartyManager(m.key);cards.append(button);
+  button.onclick=()=>showPartyManager(m.key,replacement);cards.append(button);
  }
  const m=selected,ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
  const stats=calculateStats(memberBase(m),m.level,ivs,evs);
@@ -1287,11 +1287,38 @@ function showPartyManager(selectedKey=null){
   moves.append(cell);
  }
  details.append(moves);
- const lead=document.createElement('button');lead.type='button';lead.className='party-summary-lead';lead.textContent=m.key===members[0].key?'현재 선봉':memberHp(m)<=0?'기절한 포켓몬은 선봉 불가':'이 포켓몬을 선봉으로';
- lead.disabled=m.key===members[0].key||memberHp(m)<=0;
- lead.onclick=()=>{partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];saveProgress();renderHome();showPartyManager(m.key);};
+ const lead=document.createElement('button');lead.type='button';lead.className='party-summary-lead';lead.textContent=replacement?(memberHp(m)<=0?'기절한 포켓몬은 출전 불가':'너로 정했다!'):(m.key===members[0].key?'현재 선봉':memberHp(m)<=0?'기절한 포켓몬은 선봉 불가':'이 포켓몬을 선봉으로');
+ lead.disabled=memberHp(m)<=0||(!replacement&&m.key===members[0].key);
+ lead.onclick=()=>{if(replacement){overlay.remove();sendOutReplacement(m);}else{partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];saveProgress();renderHome();showPartyManager(m.key);}};
  details.append(lead);
  panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
+}
+async function sendOutReplacement(m){
+ if(!battle||memberHp(m)<=0||battle.ended||animating)return;
+ animating=true;
+ try{
+  const arena=document.querySelector('#battleScreen .arena');
+  const playerSprite=document.querySelector('#battleScreen .sprite.player');
+  const ball=document.createElement('img');ball.className='replacement-pokeball';ball.alt='';
+  ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+  if(arena)arena.append(ball);
+  if(playerSprite)playerSprite.classList.remove('party-fainted','party-entering');
+  try{
+   await pause(540);
+   chooseActiveMember(m);
+   battle.player=battleRoster.get(m.key)||makeMemberFighter(m);
+   battleRoster.set(m.key,battle.player);
+   battle.ended=false;battle.result=null;
+   updateBattlePlayerHeader();
+   playerSprite?.classList.add('party-entering');
+   battle.log.push('🔴 '+m.name+'! 너로 정했다!');
+   render();
+   await pause(420);
+  }finally{
+   ball.remove();playerSprite?.classList.remove('party-entering');
+  }
+  persistBattlePp();saveProgress();
+ }finally{animating=false;render();showMenu('main');}
 }
 function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
@@ -1404,6 +1431,7 @@ $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.cr
 async function act(a){
  if(animating||battle.ended||learningBusy)return;
  let learnQueue=[];
+ let needsReplacement=false;
  const previousHp={player:battle.player.hp,enemy:(battle.enemies[battle.enemyIndex]??battle.enemies.at(-1)).hp};
  try{
   animating=true;
@@ -1432,8 +1460,8 @@ async function act(a){
   persistBattlePp();
   if(battle.player.hp===0){
    setActiveHp(0);
-   const next=teamMembers().find(m=>memberHp(m)>0);
-   if(next){battleRoster.set(activeBattleKey,battle.player);chooseActiveMember(next);battle.player=battleRoster.get(next.key)||makeMemberFighter(next);battleRoster.set(next.key,battle.player);battle.ended=false;battle.result=null;battle.log.push('🔄 '+next.name+'이(가) 자동 출전했다!');updateBattlePlayerHeader();}
+   needsReplacement=teamMembers().some(m=>m.key!==activeBattleKey&&memberHp(m)>0);
+   if(needsReplacement){battle.ended=false;battle.result=null;}
   }
   tickBoosts();persistBattlePp();saveProgress();renderPowerStatus();
   if(a.type==='item'||a.type==='ball'||a.type==='revive'||a.type==='healAlly'){
@@ -1456,6 +1484,7 @@ async function act(a){
   }}
  }
  shownHp={...previousHp};render();await playEvents(events);
+ if(needsReplacement){const playerSprite=document.querySelector('#battleScreen .sprite.player');if(playerSprite){playerSprite.classList.add('party-fainted');await pause(500);}}
  if(battleKind!=='wild'&&events.some(ev=>ev.type==='knockout'&&ev.side==='enemy')&&!battle.ended){
   const enemy=battle.enemies[battle.enemyIndex];
   if(battleKind==='brock')registerEncounter(95);
@@ -1504,6 +1533,7 @@ async function act(a){
   if(battle&&!battle.ended){setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);persistBattlePp();saveProgress();}
   animating=false;
   render();
+  if(needsReplacement&&!battle.ended){showPartyManager(null,true);}
   if(battle.ended){
    showMenu('main');
    renderHome();showScreen(leagueStage===null?'home':'league');
