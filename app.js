@@ -997,7 +997,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:DEX_
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){if(m.starter){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);player.hp=memberHp(m);return player;}const player=makeCompanionFighter(m);player.hp=memberHp(m);return player;}
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=1+0.1*boostCount('attack');player.accuracyBuff=0.1*boostCount('accuracy');player.critBuff=0.1*boostCount('critical');player.defenseBuffMultiplier=1+0.1*boostCount('defense');return player;}
 function chooseActiveMember(m){
  const members=teamMembers();
  if(memberHp(m)<=0)return false;
