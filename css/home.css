@@ -175,3 +175,10 @@ body:has(#homeScreen[hidden]) #adventureLogPanel{display:none!important}
 .home-action:disabled,.home-action[aria-disabled="true"]{opacity:.76!important;cursor:not-allowed!important}
 .home-action:disabled *,.home-action[aria-disabled="true"] *{cursor:not-allowed!important}
 .badge-collection-overlay{z-index:50000!important}
+
+/* Center review: same compact party visuals, explicit confirmation. */
+.pokemon-center-card{cursor:default;box-shadow:2px 3px 0 #697b8b}
+.pokemon-center-description{margin:18px 3px 12px;font-size:15px;line-height:1.6;font-weight:800;text-align:center}
+.pokemon-center-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pokemon-center-actions .party-summary-close{margin-top:0}
+.pokemon-center-actions button{min-height:47px}
