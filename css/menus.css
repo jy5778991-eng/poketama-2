@@ -129,6 +129,7 @@
 .reward-choice-item{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:9px;min-width:0;min-height:114px;padding:10px 5px;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
 .reward-tier-label{display:block;width:100%;border-radius:5px;padding:3px;font-size:12px;color:#fff;background:#8b9aaf}
 .reward-tier-rare{border-color:#4e8fd0;background:#edf6ff}.reward-tier-rare .reward-tier-label{background:#3978c1}
+.reward-tier-hyper{border-color:#9a59d5;background:#f5ecff;box-shadow:0 0 10px #a06bda45}.reward-tier-hyper .reward-tier-label{background:#8542c5}
 .reward-tier-legendary{border-color:#d5a02b;background:#fff7dc;box-shadow:0 0 14px #d6a63b60}.reward-tier-legendary .reward-tier-label{background:#be8a20}
 .reward-reroll{display:block;width:100%;margin-top:16px;padding:12px;border:2px solid #557cb8;border-radius:9px;background:#567bc0;color:white;font-size:15px;font-weight:900}
 .reward-reroll:disabled{opacity:.45;cursor:not-allowed}
