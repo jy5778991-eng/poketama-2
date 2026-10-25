@@ -1180,7 +1180,9 @@ function partyOverlay(title,description,choices){
   const button=document.createElement('button');button.type='button';
   button.style.cssText='min-height:48px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold;font-size:16px;padding:8px';
   button.textContent=option.text;
-  button.onclick=()=>{layer.remove();option.action?.();};target.append(button);
+  button.disabled=option.disabled===true;
+  if(button.disabled){button.style.opacity='0.45';button.style.cursor='not-allowed';if(option.reason)button.title=option.reason;}
+  button.onclick=()=>{if(button.disabled)return;layer.remove();option.action?.();};target.append(button);
  }
  layer.hidden=false;
 }
@@ -1247,8 +1249,9 @@ function offerCapturedCompanion(){
   saveProgress();renderHome();
   partyOverlay('동료 합류!',member.name+' Lv.'+member.level+'이(가) 동료가 됐어! 개체값이 새로 생성됐어.',[{text:'확인',action:()=>{}}]);
  };
- partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+'을(를) 동료로 영입할까?',[
- {text:'동료로 영입',action:()=>{
+ const unlocked=inventory.partySlotA===1;
+ partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 프렌들리숍에서 추가 슬롯A를 해금한 뒤 가능해.'),[
+ {text:'동료로 영입',disabled:!unlocked,reason:'포켓몬 추가 슬롯A 해금 필요',action:()=>{
   if(1+companions.length<limit){recruit(null);return;}
   if(!companions.length){partyOverlay('슬롯 부족','스타팅 포켓몬은 교체할 수 없어. 상점에서 포켓몬 추가 슬롯A를 획득해줘.',[{text:'확인',action:()=>{}}]);return;}
   partyOverlay('동료 교체','동료가 가득 찼어. 교체하면 기존 동료는 영구 삭제돼.',[
