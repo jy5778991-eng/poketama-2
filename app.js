@@ -542,6 +542,7 @@ function reset(kind='wild'){
  arena.classList.add('area-'+area);
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
  battleParticipants=new Set([leaderMember().key]);
+ battleRoster=new Map();
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
@@ -616,6 +617,7 @@ function reset(kind='wild'){
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:calculateStats(wild.base,level,zeroIV,{}),moveIds:recentWildMoves(wild.dex,level)});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
  }
  player.hp=leaderHp();
+ battleRoster.set(leader.key,player);
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
@@ -989,6 +991,7 @@ function teamMembers(){
  });
 }
 let battleParticipants=new Set();
+let battleRoster=new Map();
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
@@ -1016,7 +1019,7 @@ function requestBattleSwitch(){
  if(animating||battle.ended)return;
  const others=teamMembers().filter(m=>m.key!==leaderMember().key&&memberHp(m)>0);
  if(!others.length){alert('교체할 수 있는 동료가 없어.');return;}
- partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{if(animating||battle.ended)return;setLeaderHp(battle.player.hp);if(!chooseActiveMember(m))return;act({type:'switch',fighter:makeMemberFighter(m)});}})),{text:'취소',action:()=>{}}]);
+ partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{if(animating||battle.ended)return;setLeaderHp(battle.player.hp);battleRoster.set(leaderMember().key,battle.player);if(!chooseActiveMember(m))return;const newFighter=battleRoster.get(m.key)||makeMemberFighter(m);battleRoster.set(m.key,newFighter);act({type:'switch',fighter:newFighter});}})),{text:'취소',action:()=>{}}]);
 }
 function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:100,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
 
@@ -1183,7 +1186,7 @@ async function act(a){
   if(battle.player.hp===0){
    setLeaderHp(0);
    const next=teamMembers().find(m=>memberHp(m)>0);
-   if(next){chooseActiveMember(next);battle.player=makeMemberFighter(next);battle.ended=false;battle.result=null;battle.log.push('🔄 '+next.name+'이(가) 자동 출전했다!');updateBattlePlayerHeader();}
+   if(next){battleRoster.set(leaderMember().key,battle.player);chooseActiveMember(next);battle.player=battleRoster.get(next.key)||makeMemberFighter(next);battleRoster.set(next.key,battle.player);battle.ended=false;battle.result=null;battle.log.push('🔄 '+next.name+'이(가) 자동 출전했다!');updateBattlePlayerHeader();}
   }
   tickBoosts();saveProgress();renderPowerStatus();
   if(a.type==='item'||a.type==='ball'||a.type==='revive'){
