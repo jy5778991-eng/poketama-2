@@ -1,6 +1,6 @@
 import {FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js';
 import {recentWildMoves} from './js/data/learnsets.js';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261024-moves-refactor1';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261025-party-switch17';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves} from './js/data/pokemon.js?v=20261024-moves-refactor1';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
@@ -478,6 +478,7 @@ function reset(kind='wild'){
  arena.classList.remove('area-grass','area-forest','area-cave','area-lake','area-cemetery','area-town','area-road','area-city','area-sea','area-volcano','area-strangeForest','area-championRoad','area-championRoad2','area-palletTown','area-rocketBase','area-farawayIsland','area-mountSilver');
  arena.classList.add('area-'+area);
  battleKind=kind;battleOpponent=null;defeatedEnemies=0;trainerExpEarned=0;
+ battleParticipants=new Set([leaderMember().key]);
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
@@ -875,6 +876,7 @@ function teamMembers(){
   return (ia<0?999:ia)-(ib<0?999:ib);
  });
 }
+let battleParticipants=new Set();
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
@@ -883,6 +885,27 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:DEX_
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
+function makeMemberFighter(m){if(m.starter){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves);player.hp=memberHp(m);return player;}const player=makeCompanionFighter(m);player.hp=memberHp(m);return player;}
+function chooseActiveMember(m){
+ const members=teamMembers();
+ if(memberHp(m)<=0)return false;
+ partyOrder=[m.key,...members.filter(x=>x.key!==m.key).map(x=>x.key)];
+ battleParticipants.add(m.key);
+ saveProgress();return true;
+}
+function updateBattlePlayerHeader(){
+ const m=leaderMember();
+ $('playerName').textContent=battle.player.name;$('promptName').textContent=battle.player.name;
+ $('playerLevel').textContent='LV '+battle.player.level;
+ sprite('playerSprite',m.dex,true,m.starter?STARTERS.find(x=>x.id===chosen).emoji:'⚔️');
+ shownHp.player=battle.player.hp;
+}
+function requestBattleSwitch(){
+ if(animating||battle.ended)return;
+ const others=teamMembers().filter(m=>m.key!==leaderMember().key&&memberHp(m)>0);
+ if(!others.length){alert('교체할 수 있는 동료가 없어.');return;}
+ partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{if(animating||battle.ended)return;setLeaderHp(battle.player.hp);if(!chooseActiveMember(m))return;act({type:'switch',fighter:makeMemberFighter(m)});}})),{text:'취소',action:()=>{}}]);
+}
 function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:100,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
 
 function partyOverlay(title,description,choices){
@@ -1011,7 +1034,7 @@ function renderHome(){
  renderStatPanel();
  renderMoveSummary();
 }
-function render(){renderPowerStatus();const p=battle.player,e=battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+function render(){renderPowerStatus();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==leaderMember().key&&memberHp(m)>0).length===0;const p=battle.player,e=battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
@@ -1040,6 +1063,12 @@ async function act(a){
   battle.player.critBuff=0.1*boostCount('critical');
   battle.player.defenseBuffMultiplier=1+0.1*boostCount('defense');
   takeTurn(battle,a);
+  if(a.type==='switch')updateBattlePlayerHeader();
+  if(battle.player.hp===0){
+   setLeaderHp(0);
+   const next=teamMembers().find(m=>memberHp(m)>0);
+   if(next){chooseActiveMember(next);battle.player=makeMemberFighter(next);battle.ended=false;battle.result=null;battle.log.push('🔄 '+next.name+'이(가) 자동 출전했다!');updateBattlePlayerHeader();}
+  }
   tickBoosts();saveProgress();renderPowerStatus();
   if(a.type==='item'||a.type==='ball'){
    inventory[a.itemId]--;
@@ -1274,6 +1303,7 @@ function setup(){
   $('speedToggle').setAttribute('aria-pressed',String(battleSpeed===2));
   $('speedToggle').textContent='⏩ 2배속 '+(battleSpeed===2?'ON':'OFF');
  });
+ $('commandSwitch')?.addEventListener('click',requestBattleSwitch);
  $('commandFight').addEventListener('click',()=>showMenu('fight'));
  $('commandBall').addEventListener('click',()=>showMenu('ball'));
  $('commandHeal').addEventListener('click',()=>showMenu('heal'));
