@@ -50,7 +50,7 @@
     <p id="injuryStatus" class="injury-message" hidden>🩹 부상 상태 · 치료 전까지 배틀 불가</p>
   </section>
 
-  <div class="home-actions"><button type="button" id="healButton" class="home-action heal-home-action">🩹 치료하기 <small id="healButtonNote">건강 상태 · 부상 시 치료 가능</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button><button type="button" id="openCollection" class="home-action">📚 수집 <small>도감 · 업적 · 트레이너</small></button></div>
+  <div class="home-actions"><button type="button" id="healButton" class="home-action heal-home-action">🏥 포켓몬 센터 <small id="healButtonNote">기절한 동료가 있을 때 이용 가능</small></button><button id="openBag" class="home-action">🎒 가방 / 아이템 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button><button type="button" id="openCollection" class="home-action">📚 수집 <small>도감 · 업적 · 트레이너</small></button></div>
   <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
@@ -112,7 +112,7 @@
  </div>
 </div>
 <div id="evolutionOverlay" class="evolution-overlay" hidden role="status" aria-live="polite"><div class="evolution-box"><div class="evolution-heading">EVOLUTION!</div><div class="evolution-art"><img id="evolutionSprite" alt="진화 중인 포켓몬"/><span id="evolutionFallback" hidden>✨</span></div><strong id="evolutionName">진화 중...</strong><div id="evolutionMessage">포켓몬이 진화하고 있어!</div></div></div>
-<footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
+<section id="adventureLogPanel" style="margin:16px 0;padding:14px;background:#f5f7f1;border:2px solid #a3b1a8;border-radius:14px;color:#263f39"><strong>📜 모험 기록</strong><button type="button" id="adventureLogToggle" style="float:right;padding:6px;border-radius:6px">전체 보기</button><div id="adventureLogEntries" style="clear:both;display:grid;gap:5px;padding-top:10px;font-size:14px;white-space:pre-wrap"></div></section><footer>본 게임은 개인이 제작한 비공식 포켓몬 팬게임으로, 비영리 목적으로 운영됩니다. Pokémon 및 관련 캐릭터의 권리는 각 권리자에게 있으며, 본 게임은 공식 포켓몬 게임과 무관합니다.</footer>
 </main><script type="module">
 const panel=()=>document.getElementById('gameBootError');
 const report=(message)=>{
@@ -122,7 +122,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261025-leader-battle13');
+ await import('./app.js?v=20261025-multi-system16');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
