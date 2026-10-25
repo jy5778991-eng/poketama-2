@@ -156,7 +156,7 @@ function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];return [i.id,i.category==='key'?Math.min(1,value):value];}));
 // Slot B only makes sense when slot A has been unlocked.
 if(inventory.partySlotB)inventory.partySlotA=1;
-const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defense'}};
+const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defend'}};
 const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=5).slice(0,100)]));
 const boostCount=key=>activeBoosts[key].length;
 function tickBoosts(){for(const key of Object.keys(activeBoosts))activeBoosts[key]=activeBoosts[key].map(n=>n-1).filter(n=>n>0);}
@@ -341,12 +341,14 @@ function addPartyExperience(amount,enemyName,cap=null){
  const order=teamMembers();
  for(const member of order){
   const participate=battleParticipants.has(member.key);
+  const memberCap=cap===null?wildRewardLevelCap():cap;
+  if(memberCap!==null&&member.level>=memberCap)continue;
   const gained=Math.floor(amount*(participate?1:0.7));
   const oldLevel=member.level;
   if(member.starter){
-   if(cap!==null&&progress.level>=cap)continue;
+   if(memberCap!==null&&progress.level>=memberCap)continue;
    progress.exp+=gained;
-   while(progress.level<100&&(cap===null||progress.level<cap)&&progress.exp>=levelNeed(progress.level)){
+   while(progress.level<100&&(memberCap===null||progress.level<memberCap)&&progress.exp>=levelNeed(progress.level)){
     progress.exp-=levelNeed(progress.level);progress.level++;
    }
    if(progress.level===100)progress.exp=0;
@@ -357,7 +359,7 @@ function addPartyExperience(amount,enemyName,cap=null){
    const found=companions.find(x=>x.family===member.family);
    if(!found)continue;
    found.exp=(found.exp||0)+gained;
-   while(found.level<100&&found.exp>=levelNeed(found.level)){
+   while(found.level<100&&(memberCap===null||found.level<memberCap)&&found.exp>=levelNeed(found.level)){
     found.exp-=levelNeed(found.level);found.level++;
    }
    if(found.level===100)found.exp=0;
@@ -373,8 +375,8 @@ function addPartyExperience(amount,enemyName,cap=null){
 function awardExperience(){
  if(rewardClaimed||battle.result!=='victory')return [];
  rewardClaimed=true;
- const capped=wildRewardCapped();
  const cap=wildRewardLevelCap();
+ const capped=wildRewardCapped(activeMember());
  const gained=capped?0:12+wildEnemy.level*6;
  const baseMoney=baseCashForWin(wildEnemy.level);
  const bonusMoney=bonusCashForWin(wildEnemy.level);
@@ -469,14 +471,14 @@ function finishTrainerBattle(){
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
   // One EXP reward on full trainer victory, based on final Pokemon only.
-  gained=trainerExpEarned||12+level*6;
+  gained=trainerExpEarned;
   // Experience for each defeated trainer Pokemon is awarded on knockout.
   if(sabrinaCleared&&!blaineCleared&&progress.level>=48)area='volcano';
   progress.money+=baseCashForWin(level);
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice={choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]};
+  pendingRewardChoice=gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
  }else{
   if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -494,11 +496,13 @@ function wildRewardLevelCap(){
  const index=CHALLENGE_ORDER.indexOf(current);
  return index>=0&&index<CHALLENGE_ORDER.length-1?TRAINERS[CHALLENGE_ORDER[index+1]].level-1:null;
 }
-function wildRewardCapped(){const cap=wildRewardLevelCap();return cap!==null&&progress.level>=cap;}
+function wildRewardCapped(member=leaderMember()){const cap=wildRewardLevelCap();return cap!==null&&member.level>=cap;}
 function refreshLevelCapIndicator(){
- const capped=wildRewardCapped();
+ const cap=wildRewardLevelCap();
  for(const id of ['homeLevel','playerLevel']){
   const el=$(id);if(!el)continue;
+  const member=id==='homeLevel'?leaderMember():activeMember();
+  const capped=cap!==null&&member.level>=cap;
   el.classList.toggle('level-capped',capped);
   el.title=capped?'성장 제한: 다음 도전을 완료하면 야생 경험치와 보상이 다시 열려.':'';
  }
@@ -510,7 +514,7 @@ let pendingTrainerIntro=null;
 let challengeNotified=Array.isArray(saved?.challengeNotified)?saved.challengeNotified.filter(k=>CHALLENGE_ORDER.includes(k)):[];
 function showChallengeUnlockNotice(){
  const kind=nextTrainerKind();
- if(!kind||progress.level<TRAINERS[kind].level||challengeNotified.includes(kind)||animating||learningBusy||pendingRewardChoice||pendingTrainerIntro)return;
+ if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingRewardChoice||pendingTrainerIntro)return;
  challengeNotified.push(kind);
  saveProgress();
  const name=TRAINERS[kind].name;
@@ -522,7 +526,7 @@ function challengeTrainer(){
  if(hallOfFame.length>0){showAdventure();return;}
  const kind=nextTrainerKind();
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
- if(!kind||progress.level<TRAINERS[kind].level)return;
+ if(!kind||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
@@ -584,7 +588,7 @@ function reset(kind='wild'){
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
  const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?95:area==='farawayIsland'?90:area==='mountSilver'?100:46;
- const level=Math.max(1,Math.min(cap,progress.level-Math.floor(Math.random()*6)));
+ const level=Math.max(1,Math.min(cap,leaderMember().level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const leader=leaderMember();
  const player=makeMemberFighter(leader);
@@ -786,7 +790,7 @@ function rewardImageName(choice){
  if(choice.kind==='goldCap')return 'gold-bottle-cap';
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
- if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defense'}[choice.effect||'attack'];
+ if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
  if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
@@ -1114,7 +1118,7 @@ function renderPowerStatus(){
    if(!durations.length)continue;
    const chip=document.createElement('span');chip.className='boost-chip';
    const img=document.createElement('img');
-   img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+info.img+'.png';img.alt=info.name;
+   img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+info.img+'.png';img.alt=info.name;img.onerror=()=>{img.replaceWith(document.createTextNode(key==='defense'?'🛡️':'✨'));};
    const txt=document.createElement('span');txt.textContent='+'+(durations.length*10)+'% · '+durations.join('/')+'턴';
    chip.title=info.name+' · '+durations.length+'중첩 · 개별 남은 턴 '+durations.join(', ');
    chip.append(img,txt);el.append(chip);
@@ -1333,7 +1337,7 @@ function renderHome(){
  const trainerKind=nextTrainerKind();
  const finalArea=!trainerKind;
  const targetLevel=trainerKind?TRAINERS[trainerKind].level:0;
- const unlocked=progress.level>=targetLevel;
+ const unlocked=teamMembers().some(m=>m.level>=targetLevel);
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea;
  $('trainerChallenge').disabled=hallOfFame.length>0?false:challengeDisabled;
  const redButton=$('redChallenge');
@@ -1439,8 +1443,9 @@ async function act(a){
   if(battleKind!=='wild')for(const event of events)if(event.type==='knockout'&&event.side==='enemy'){
    const knocked=battle.enemies[event.enemyIndex];
    appendAdventureLog('⚔️ '+knocked.name+'을(를) 쓰러뜨렸다!');
-   trainerExpEarned+=12+knocked.level*6;
-   addPartyExperience(12+knocked.level*6,knocked.name);
+   const expForKo=wildRewardCapped(activeMember())?0:12+knocked.level*6;
+   trainerExpEarned+=expForKo;
+   addPartyExperience(expForKo,knocked.name);
    battleParticipants=new Set([activeBattleKey]);
   }
  if(battleKind!=='wild'){
