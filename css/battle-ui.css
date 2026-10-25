@@ -106,3 +106,8 @@
 #battleScreen .battle-name-line span{font:inherit;color:inherit;white-space:nowrap}
 #battleScreen .battle-name-line .enemy-caught-mark{height:16px;width:16px;flex:0 0 16px}
 @media(max-width:600px){#battleScreen .battle-name-line{gap:4px;font-size:13px}}
+
+/* Short critical-hit recoil, respecting reduced-motion accessibility. */
+@keyframes poketama-critical-shake{0%,100%{transform:translateX(0)}12%{transform:translateX(-7px)}30%{transform:translateX(6px)}48%{transform:translateX(-5px)}65%{transform:translateX(4px)}85%{transform:translateX(-2px)}}
+#battleScreen .arena.critical-shake{animation:poketama-critical-shake .34s steps(2,end)}
+@media(prefers-reduced-motion:reduce){#battleScreen .arena.critical-shake{animation:none}}
