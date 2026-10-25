@@ -265,18 +265,39 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
  return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
 }
-function grantCompanionExp(amount){
- const leader=leaderMember();
- if(leader.starter)return false;
- const m=companions.find(x=>x.family===leader.family);
- if(!m)return false;
- m.exp=(m.exp||0)+amount;
- while(m.level<100&&m.exp>=levelNeed(m.level)){
-  m.exp-=levelNeed(m.level);m.level++;
-  m.moves=recentWildMoves(m.dex,m.level);
+let pendingPartyGrowth=[];
+function addPartyExperience(amount,enemyName,cap=null){
+ if(!(amount>0))return;
+ const order=teamMembers();
+ for(const member of order){
+  const participate=battleParticipants.has(member.key);
+  const gained=Math.floor(amount*(participate?1:0.7));
+  const oldLevel=member.level;
+  if(member.starter){
+   if(cap!==null&&progress.level>=cap)continue;
+   progress.exp+=gained;
+   while(progress.level<100&&(cap===null||progress.level<cap)&&progress.exp>=levelNeed(progress.level)){
+    progress.exp-=levelNeed(progress.level);progress.level++;
+   }
+   if(progress.level===100)progress.exp=0;
+   if(progress.level>oldLevel){
+    pendingPartyGrowth.push({key:member.key,name:getForm(chosen,progress.level).name,before:oldLevel,after:progress.level,starter:true});
+   }
+  }else{
+   const found=companions.find(x=>x.family===member.family);
+   if(!found)continue;
+   found.exp=(found.exp||0)+gained;
+   while(found.level<100&&found.exp>=levelNeed(found.level)){
+    found.exp-=levelNeed(found.level);found.level++;
+   }
+   if(found.level===100)found.exp=0;
+   if(found.level>oldLevel){
+    pendingPartyGrowth.push({key:member.key,name:found.name,before:oldLevel,after:found.level,starter:false,family:found.family});
+   }
+  }
+  appendAdventureLog('✨ '+member.name+' +'+gained+' EXP ('+(participate?'참여 100%':'대기 70%')+')');
  }
- if(m.level===100)m.exp=0;
- return true;
+ saveProgress();
 }
 function awardExperience(){
  if(rewardClaimed||battle.result!=='victory')return [];
@@ -294,15 +315,7 @@ function awardExperience(){
  const evolutions=[];
  const learnQueue=[];
  const previousLevel=progress.level;
- if(!grantCompanionExp(gained))progress.exp+=gained;
- while(progress.level<100&&(cap===null||progress.level<cap)&&progress.exp>=levelNeed(progress.level)){
-  progress.exp-=levelNeed(progress.level);progress.level++;
-  messages.push('LEVEL UP! LV '+progress.level);
-  for(const m of MOVE_LEARNSETS[chosen])if(m.level===progress.level)learnQueue.push(m.id);
-  const form=EVOLUTIONS[chosen].find(f=>f.level===progress.level);
-  if(form){const before=getForm(chosen,progress.level-1);evolutions.push({before,after:form,level:progress.level});messages.push(before.name+' → '+form.name+' 진화!');}
- }
- if(progress.level===100||cap!==null&&progress.level>=cap)progress.exp=0;
+ addPartyExperience(gained,wildEnemy.name,cap);
  saveProgress();
  return {messages,evolutions,learnQueue,previousLevel,newLevel:progress.level};
 }
@@ -368,14 +381,7 @@ function finishTrainerBattle(){
   // One EXP reward on full trainer victory, based on final Pokemon only.
   gained=12+level*6;
   trainerExpEarned=gained;
-  if(!grantCompanionExp(gained))progress.exp+=gained;
-  while(progress.level<100&&progress.exp>=levelNeed(progress.level)){
-   progress.exp-=levelNeed(progress.level);
-   progress.level++;
-   const evolved=EVOLUTIONS[chosen].find(form=>form.level===progress.level);
-   if(evolved)evolutions.push({before:getForm(chosen,progress.level-1),after:evolved,level:progress.level});
-  }
-  if(progress.level===100)progress.exp=0;
+  // Experience for each defeated trainer Pokemon is awarded on knockout.
   if(sabrinaCleared&&!blaineCleared&&progress.level>=48)area='volcano';
   progress.money+=baseCashForWin(level);
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
@@ -385,7 +391,7 @@ function finishTrainerBattle(){
   trainerExpEarned=0;
   lastBattleReward={exp:0,money:0};
  }
- if(leaderMember().starter)for(const m of MOVE_LEARNSETS[chosen])if(m.level<=progress.level&&!playerMoves.includes(m.id)&&m.level>battlePlayerLevelStart)learnQueue.push(m.id);
+ // Party growth and move learning are processed together after combat.
  saveProgress();
  return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='red'?['전설의 트레이너 레드에게 승리했어!','2차 엔딩 달성!']:battleKind.startsWith('league')?[LEAGUE_NAMES[Number(battleKind.slice(6))]+'에게 승리했어!',Number(battleKind.slice(6))===4?'명예의 전당에 등록됐어!':'다음 리그 대기실로 이동!']:battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenFifth'?['라이벌 그린에게 승리했어!','챔피언로드 2로 이동했어!']:battleKind==='greenFourth'?['라이벌 그린에게 승리했어!','대도시에서 계속 모험해!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!','도시 지역이 열렸어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대도시 지역이 열렸어!']:battleKind==='giovanni'?['비주기에게 승리! 그린배지를 획득했어!','챔피언로드가 열렸어!']:battleKind==='blaine'?['강연에게 승리! 크림슨배지를 획득했어!','이상한 숲 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
 }
@@ -1076,6 +1082,11 @@ async function act(a){
   }
 
   const events=[...battle.events];
+  if(battleKind!=='wild')for(const event of events)if(event.type==='knockout'&&event.side==='enemy'){
+   const knocked=battle.enemies[event.enemyIndex];
+   addPartyExperience(12+knocked.level*6,knocked.name);
+   battleParticipants=new Set([leaderMember().key]);
+  }
  if(battleKind!=='wild'){
   for(const event of events){if(event.type==='knockout'&&event.side==='enemy'){
    defeatedEnemies++;
