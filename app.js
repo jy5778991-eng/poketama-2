@@ -1135,7 +1135,9 @@ function setup(){
  $('submenuBack').addEventListener('click',()=>{if(!animating&&!battle.ended)showMenu('main')});
  $('homeLevelUp').addEventListener('animationend',e=>{if(e.target!==$('homeLevelUp'))return;$('homeLevelUp').classList.remove('playing');$('homeLevelUp').hidden=true;});
  for(const item of SHOP_ITEMS){
-  $('battleItem-'+item.id).addEventListener('click',()=>act({type:item.category==='ball'?'ball':'item',itemId:item.id,power:item.power,multiplier:item.multiplier,guaranteedCatch:item.guaranteedCatch===true}));
+  const button=$('battleItem-'+item.id);
+  if(!button)continue; // Key items do not have battle action buttons.
+  button.addEventListener('click',()=>act({type:item.category==='ball'?'ball':'item',itemId:item.id,power:item.power,multiplier:item.multiplier,guaranteedCatch:item.guaranteedCatch===true}));
  }
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
