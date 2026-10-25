@@ -875,6 +875,7 @@ function render(){renderPowerStatus();const p=battle.player,e=battle.enemies[bat
  $('commandRun').disabled=animating||battle.ended||!battle.wild;
  for(const item of SHOP_ITEMS){
   const el=$('battleItem-'+item.id);
+  if(!el)continue; // Key items don't have battle buttons.
   el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&p.hp>=p.stats.hp)||(item.category==='ball'&&!battle.wild);
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
