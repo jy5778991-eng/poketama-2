@@ -150,3 +150,6 @@
 .party-summary-stat-head .iv-star{font-size:16px;line-height:1}
 .party-summary-stat-value{font-size:19px;line-height:1.2;font-variant-numeric:tabular-nums}
 .party-summary-stat small{font-size:11px;white-space:nowrap}
+
+/* IV star must not inherit the generic stat-grid span tile frame. */
+.party-summary-statgrid .party-summary-stat-head .iv-star{background:transparent;border:0;padding:0;box-shadow:none;outline:0;border-radius:0;display:inline-block}
