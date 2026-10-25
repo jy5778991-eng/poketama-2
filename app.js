@@ -172,15 +172,15 @@ if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>216)playerEVs={hp:0,attack:
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
 let learningBusy=false;
 function renderStatPanel(){
- const grid=$('statGrid'),form=getForm(chosen,progress.level),stats=calculateStats(form.base,progress.level,playerIVs,playerEVs);
+ const m=leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
  grid.replaceChildren(...STAT_KEYS.map(key=>{
   const card=document.createElement('div');card.className='stat-card';
   const head=document.createElement('div');head.className='stat-compact-head';
   const label=document.createElement('span');label.className='stat-name';label.textContent=STAT_LABELS[key];
-  const star=document.createElement('span');star.className='iv-star iv-'+ivTier(playerIVs[key]);star.textContent='★';
+  const star=document.createElement('span');star.className='iv-star iv-'+ivTier(ivs[key]);star.textContent='★';
   star.setAttribute('aria-label','개체값 등급');
   const value=document.createElement('div');value.className='stat-value';value.textContent=String(stats[key]);
-  head.append(label,star);card.append(head,value);const ev=document.createElement('small');ev.textContent='EV '+playerEVs[key]+' / 100';ev.className='stat-ev-note';card.append(ev);return card;
+  head.append(label,star);card.append(head,value);const ev=document.createElement('small');ev.textContent='EV '+(evs[key]||0)+' / 100';ev.className='stat-ev-note';card.append(ev);return card;
  }));
 }
 
@@ -655,7 +655,7 @@ function playHomeLevelUp(previousLevel,newLevel){
 
 function renderMoveSummary(){
  const target=$('moveRecallSummary');target.replaceChildren();
- for(const id of playerMoves){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id].name;target.append(chip);}
+ const m=leaderMember();for(const id of (m.starter?playerMoves:m.moves||[])){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;target.append(chip);}
 }
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
 function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.power?'위력 '+m.power:'변화기')+' · 명중 '+Math.round((m.accuracy??1)*100)+'%';}
