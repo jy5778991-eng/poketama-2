@@ -167,3 +167,6 @@
 .party-summary-move{cursor:pointer;font-family:inherit;color:#293c5c}
 .party-summary-move:disabled{cursor:default;opacity:.65}
 #partyActionInfo{white-space:pre-line}
+
+/* Adventure log belongs to the home view, never to battles or other screens. */
+body:has(#homeScreen[hidden]) #adventureLogPanel{display:none!important}
