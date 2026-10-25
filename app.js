@@ -80,7 +80,7 @@ const LEAGUE_TEAMS=[
 const saved=readSave();
 let adventureLog=Array.isArray(saved?.adventureLog)?saved.adventureLog.filter(x=>typeof x==='string').slice(-100):[];
 function appendAdventureLog(s){adventureLog.push(String(s));adventureLog=adventureLog.slice(-100);renderAdventureLog();}
-function renderAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;box.replaceChildren(...adventureLog.slice(-5).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));}
+function renderAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;box.replaceChildren(...adventureLog.slice(box.dataset.full==='true'?-100:-5).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));}
 function toggleAdventureLog(){const box=document.getElementById('adventureLogEntries');if(!box)return;const isFull=box.dataset.full==='true';box.dataset.full=String(!isFull);box.replaceChildren(...adventureLog.slice(isFull?-5:-100).map(s=>{const p=document.createElement('div');p.textContent=s;return p;}));document.getElementById('adventureLogToggle').textContent=isFull?'전체 보기':'최근 5줄 보기';}
 
 // Companion state is additive. Legacy starter progress remains authoritative.
@@ -1106,7 +1106,7 @@ function renderHome(){
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
  redButton.disabled=progress.level<92||injured||!!pendingRewardChoice||animating;
- $('redChallengeNote').textContent=progress.level<92?'Lv.92에 해금':injured?'치료 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
+ $('redChallengeNote').textContent=progress.level<92?'Lv.92에 해금':injured?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
  $('trainerButtonTitle').textContent=hallOfFame.length?'🧭 모험':'도전';
  $('leagueEnter').hidden=area!=='championRoad2';
  $('leagueEnter').disabled=area!=='championRoad2'||progress.level<67||injured||!!pendingRewardChoice;
