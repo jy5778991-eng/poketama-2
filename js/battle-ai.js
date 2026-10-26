@@ -1,8 +1,8 @@
 import {MOVES} from './data/moves.js';
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
- const usable=enemy.moveIds.filter(id=>enemy.pp[id]>0);
- if(!usable.length)return {moveId:'struggle'};
+ const usable=enemy.moveIds.filter(id=>MOVES[id]);
+ if(!usable.length)return {moveId:'tackle'};
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
  const hp=enemy.hp/Math.max(1,enemy.stats.hp);
  const opponentHp=opponent?.hp??Infinity;
