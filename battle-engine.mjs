@@ -4,7 +4,7 @@
 export const RULES = Object.freeze({
   stageLimit: 2, criticalMultiplier: 1.5, randomMin: 0.85,
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
-  sleepSecondActionWakeChance: 0.5, strugglePower: 50, struggleRecoil: 0.25,
+  sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
 import {MOVES} from './js/data/moves.js';
 import {chooseEnemyMove} from './js/battle-ai.js';
@@ -64,6 +64,7 @@ function canAct(p,b){
     const n=p.status.sleepBlockedActions;
     if(n===0){p.status.sleepBlockedActions=1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}
     if(n===1&&roll(b.rng)>=RULES.sleepSecondActionWakeChance){p.status.sleepBlockedActions=2;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
+    if(n===2&&roll(b.rng)>=RULES.sleepThirdActionWakeChance){p.status.sleepBlockedActions=3;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
     p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);
   }
   if(p.status?.type==='paralysis'&&roll(b.rng)<RULES.paralysisSkipChance){say(b,`${p.name}은(는) 마비로 움직이지 못했다.`);return false;}
