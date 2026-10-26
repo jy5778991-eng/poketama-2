@@ -35,7 +35,7 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
   if(!Array.isArray(moveIds)||moveIds.length<1||moveIds.length>4||new Set(moveIds).size!==moveIds.length) throw new Error('Choose 1-4 unique moves');
   for(const m of moveIds) if(!MOVES[m]) throw new Error('Unknown move: '+m);
   return {id,name,level,stats:{...stats},hp:stats.hp,friendship:clamp(friendship,0,100),
-    moveIds:[...moveIds],pp:Object.fromEntries(moveIds.map(id=>[id,MOVES[id].pp])),
+    moveIds:[...moveIds],
     stages:{attack:0,defense:0,speed:0},status:null};
 }
 export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math.random}={}) {
@@ -75,9 +75,8 @@ function executeMove(b,user,target,moveId){
   const struggle=moveId==='struggle';
   const move=struggle ? {name:'발버둥',power:RULES.strugglePower,accuracy:1,priority:0} : MOVES[moveId];
   if(!move)throw new Error('Invalid move');
-  if(!struggle&&(!user.moveIds.includes(moveId)||user.pp[moveId]<=0))throw new Error('Move not available');
+  if(!struggle&&!user.moveIds.includes(moveId))throw new Error('Move not available');
   if(!canAct(user,b))return;
-  if(!struggle)user.pp[moveId]--;
   say(b,`${user.name}의 ${move.name}!`);
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
   if(!accuracySuccess(move,b,user)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
@@ -98,7 +97,6 @@ function executeMove(b,user,target,moveId){
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
-  if(move.reduceTargetPp){const id=target.moveIds.find(id=>target.pp[id]>0);if(id){const lost=Math.min(target.pp[id],move.reduceTargetPp);target.pp[id]-=lost;say(b,`${target.name}의 ${MOVES[id].name} PP -${lost}`);}}
   if(move.inflict&&isAlive(target)&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
   if(move.recharge&&user.hp>0)user.recharge=true;
   if(move.recoilMaxHp||struggle){
@@ -113,8 +111,7 @@ function pickAction(p,requested){
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
   const id=requested?.moveId;
-  if(id&&p.moveIds.includes(id)&&p.pp[id]>0)return {type:'move',moveId:id,priority:MOVES[id].priority??0};
-  if(p.moveIds.every(x=>p.pp[x]===0))return {type:'move',moveId:'struggle',priority:0};
+  if(id&&p.moveIds.includes(id))return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   throw new Error('Illegal move selection');
 }
 export function poisonTick(b,p){
