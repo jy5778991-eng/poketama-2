@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-starter-tuning61';
+import {MOVES} from './js/data/moves.js?v=20261029-status-spout62';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-growth-moves60';
 export {MOVES};
 
@@ -79,6 +79,7 @@ function executeMove(b,user,target,moveId){
   if(!canAct(user,b))return;
   say(b,`${user.name}의 ${move.name}!`);
   if(!accuracySuccess(move,b,user)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
@@ -89,7 +90,7 @@ function executeMove(b,user,target,moveId){
   if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);emit(b,{type:'heal',side:sideOf(b,user),amount:gain,hp:user.hp});}
   if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
   if(move.power){
-    const scaledPower=move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
+    const scaledPower=move.hpScale==='currentRatio'?150*user.hp/user.stats.hp:move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
     const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     target.hp=Math.max(0,target.hp-damage);
     emit(b,{type:'damage',side:sideOf(b,target),amount:damage,hp:target.hp,critical});
@@ -97,7 +98,7 @@ function executeMove(b,user,target,moveId){
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
-  if(move.inflict&&isAlive(target)&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
+  if(move.inflict&&isAlive(target)&&!target.status&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
   if(move.recharge&&user.hp>0)user.recharge=true;
   if(move.recoilMaxHp||struggle){
     const recoil=Math.max(1,Math.floor(user.stats.hp*(struggle?RULES.struggleRecoil:move.recoilMaxHp)));
