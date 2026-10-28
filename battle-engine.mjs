@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261026-remove-pp56';
+import {MOVES} from './js/data/moves.js?v=20261029-growth-moves59';
 import {chooseEnemyMove} from './js/battle-ai.js';
 export {MOVES};
 
@@ -78,8 +78,8 @@ function executeMove(b,user,target,moveId){
   if(!struggle&&!user.moveIds.includes(moveId))throw new Error('Move not available');
   if(!canAct(user,b))return;
   say(b,`${user.name}의 ${move.name}!`);
-  emit(b,{type:'move',side:sideOf(b,user),name:move.name});
   if(!accuracySuccess(move,b,user)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  emit(b,{type:'move',side:sideOf(b,user),name:move.name});
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
