@@ -1,13 +1,13 @@
 // One learnset per evolution family. Starter learnsets retain their existing levels.
 export const STARTER_LEARNSETS={
- snorlax: [{level:1,id:'tackle'}, {level:8,id:'lick'}, {level:16,id:'bodySlam'}, {level:25,id:'rest'}, {level:32,id:'crunch'}, {level:40,id:'flail'}, {level:48,id:'gigaImpact'}],
- gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}],
- gengar: [{level:1,id:'lick'}, {level:12,id:'shadowBall'}, {level:20,id:'hypnosis'}, {level:25,id:'suckerPunch'}, {level:32,id:'dreamEater'}, {level:40,id:'sludgeBomb'}],
- dragonite: [{level:1,id:'wrap'}, {level:8,id:'quickAttack'}, {level:18,id:'dragonBreath'}, {level:30,id:'dragonPulse'}, {level:40,id:'dragonDance'}, {level:48,id:'outrage'}, {level:55,id:'extremeSpeed'}],
+ snorlax: [{level:1,id:'tackle'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:65,id:'bellyDrum'}],
+ gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}, {level:76,id:'thrash'}],
+ gengar: [{level:1,id:'lick'}, {level:20,id:'nightShade'}, {level:28,id:'hypnosis'}, {level:38,id:'shadowBall'}, {level:48,id:'sludgeBomb'}, {level:55,id:'dreamEater'}, {level:66,id:'confuseRay'}],
+ dragonite: [{level:1,id:'tackle'}, {level:18,id:'slam'}, {level:29,id:'dragonBreath'}, {level:36,id:'thunderWave'}, {level:51,id:'dragonPulse'}, {level:60,id:'outrage'}, {level:70,id:'extremeSpeed'}, {level:82,id:'roost'}],
  venusaur: [{level:1,id:'tackle'}, {level:8,id:'vineWhip'}, {level:18,id:'poisonPowder'}, {level:25,id:'razorLeaf'}, {level:34,id:'energyBall'}, {level:49,id:'synthesis'}, {level:56,id:'sleepPowder'}, {level:68,id:'solarBeam'}],
  charizard: [{level:1,id:'scratch'}, {level:11,id:'ember'}, {level:24,id:'fireFang'}, {level:34,id:'flamethrower'}, {level:52,id:'flareBlitz'}, {level:58,id:'fireBlast'}, {level:66,id:'dragonDance'}],
  blastoise: [{level:1,id:'tackle'}, {level:9,id:'waterGun'}, {level:14,id:'harden'}, {level:22,id:'bubbleBeam'}, {level:38,id:'surf'}, {level:48,id:'hydroPump'}, {level:55,id:'shellSmash'}, {level:71,id:'waterSpout'}],
- raichu: [{level:1,id:'quickAttack'}, {level:6,id:'thunderShock'}, {level:12,id:'thunderWave'}, {level:15,id:'spark'}, {level:22,id:'thunderbolt'}, {level:30,id:'voltTackle'}, {level:40,id:'lightScreen'}],
+ raichu: [{level:1,id:'tackle'}, {level:5,id:'thunderShock'}, {level:12,id:'quickAttack'}, {level:16,id:'thunderWave'}, {level:25,id:'thunderbolt'}, {level:32,id:'doubleTeam'}, {level:40,id:'thunder'}, {level:50,id:'voltTackle'}],
  butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:20,id:'psybeam'}, {level:28,id:'quiverDance'}, {level:36,id:'gigaDrain'}],
 };
 export const FAMILY_LEARNSETS={
