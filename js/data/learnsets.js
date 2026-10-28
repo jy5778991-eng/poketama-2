@@ -4,9 +4,9 @@ export const STARTER_LEARNSETS={
  gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}],
  gengar: [{level:1,id:'lick'}, {level:12,id:'shadowBall'}, {level:20,id:'hypnosis'}, {level:25,id:'suckerPunch'}, {level:32,id:'dreamEater'}, {level:40,id:'sludgeBomb'}],
  dragonite: [{level:1,id:'wrap'}, {level:8,id:'quickAttack'}, {level:18,id:'dragonBreath'}, {level:30,id:'dragonPulse'}, {level:40,id:'dragonDance'}, {level:48,id:'outrage'}, {level:55,id:'extremeSpeed'}],
- venusaur: [{level:1,id:'tackle'}, {level:7,id:'vineWhip'}, {level:13,id:'poisonPowder'}, {level:16,id:'razorLeaf'}, {level:24,id:'energyBall'}, {level:32,id:'solarBeam'}, {level:44,id:'synthesis'}],
- charizard: [{level:1,id:'scratch'}, {level:7,id:'ember'}, {level:13,id:'quickAttack'}, {level:16,id:'fireFang'}, {level:24,id:'flamethrower'}, {level:36,id:'flareBlitz'}, {level:48,id:'airSlash'}],
- blastoise: [{level:1,id:'tackle'}, {level:7,id:'waterGun'}, {level:13,id:'harden'}, {level:16,id:'waterPulse'}, {level:25,id:'surf'}, {level:36,id:'waterSpout'}, {level:44,id:'ironDefense'}],
+ venusaur: [{level:1,id:'tackle'}, {level:8,id:'vineWhip'}, {level:18,id:'poisonPowder'}, {level:25,id:'razorLeaf'}, {level:34,id:'energyBall'}, {level:49,id:'synthesis'}, {level:54,id:'solarBeam'}],
+ charizard: [{level:1,id:'scratch'}, {level:11,id:'ember'}, {level:24,id:'fireFang'}, {level:34,id:'flamethrower'}, {level:52,id:'flareBlitz'}, {level:58,id:'fireBlast'}, {level:66,id:'dragonDance'}],
+ blastoise: [{level:1,id:'tackle'}, {level:9,id:'waterGun'}, {level:14,id:'harden'}, {level:22,id:'bubbleBeam'}, {level:38,id:'surf'}, {level:48,id:'hydroPump'}, {level:55,id:'shellSmash'}],
  raichu: [{level:1,id:'quickAttack'}, {level:6,id:'thunderShock'}, {level:12,id:'thunderWave'}, {level:15,id:'spark'}, {level:22,id:'thunderbolt'}, {level:30,id:'voltTackle'}, {level:40,id:'lightScreen'}],
  butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:20,id:'psybeam'}, {level:28,id:'quiverDance'}, {level:36,id:'gigaDrain'}],
 };
