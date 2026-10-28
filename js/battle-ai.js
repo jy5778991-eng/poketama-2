@@ -1,4 +1,4 @@
-import {MOVES} from './data/moves.js?v=20261029-growth-moves59';
+import {MOVES} from './data/moves.js?v=20261029-balance-confusion63';
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]);
