@@ -1,5 +1,15 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
+ zapCannon:{name:'전자포',power:120,accuracy:0.5,priority:0,inflict:'paralysis'},
+ willOWisp:{name:'도깨비불',accuracy:0.85,priority:0,inflict:'burn'},
+ aquaRing:{name:'아쿠아링',accuracy:1,priority:0,aquaRing:true,target:'self'},
+ acidArmor:{name:'녹기',accuracy:1,priority:0,boosts:{defense:2},target:'self'},
+ calmMind:{name:'명상',accuracy:1,priority:0,boosts:{attack:1,defense:1},target:'self'},
+ morningSun:{name:'아침햇살',accuracy:1,priority:0,healMaxHp:0.5,target:'self'},
+ moonlight:{name:'달빛',accuracy:1,priority:0,healMaxHp:0.5,target:'self'},
+ darkPulse:{name:'악의파동',power:80,accuracy:1,priority:0},
+ snarl:{name:'바크아웃',power:55,accuracy:1,priority:0,lowerTargetAttackChance:1},
+ toxic:{name:'맹독',accuracy:1,priority:0,inflict:'poison'},
   lick: {name:'핥기',accuracy:1,priority:0,power:40,inflict:'paralysis',inflictChance:0.3},
   crunch: {name:"깨물어부수기", accuracy:1.0, priority:0, power:80},
   gigaImpact: {name:"기가임팩트", accuracy:0.9, priority:0, power:150, recharge:true},
@@ -38,7 +48,7 @@ export const MOVES = Object.freeze({
   ironDefense: {name:"철벽", accuracy:1.0, priority:0, boosts:{defense:2}, target:"self"},
   thunderShock: {name:'전기쇼크',accuracy:1,priority:0,power:45},
   spark: {name:"스파크", accuracy:1.0, priority:0, power:65},
-  lightScreen: {name:"빛의장막", accuracy:1.0, priority:0, boosts:{defense:1}, target:"self"},
+  lightScreen: {name:"빛의장막", accuracy:1.0, priority:0, shieldTurns:5, target:"self"},
   confusion: {name:"염동력", accuracy:1.0, priority:0, power:50},
   quiverDance: {name:"나비춤", accuracy:1.0, priority:0, boosts:{attack:1,defense:1,speed:1}, target:"self"},
   gigaDrain: {name:"기가드레인", accuracy:1.0, priority:0, power:75, drain:0.5},
@@ -71,7 +81,7 @@ export const MOVES = Object.freeze({
   recover: {name:'회복', accuracy:1, priority:0, healMaxHp:0.4, target:'self'},
   swift: {name:'스피드스타', power:70, accuracy:1, priority:0},
   boneClub:{name:'뼈다귀치기',power:65,accuracy:0.85,priority:0},
-  iceBeam:{name:'냉동빔',power:90,accuracy:1,priority:0},
+  iceBeam:{name:'냉동빔',power:90,accuracy:1,priority:0,inflict:'freeze',inflictChance:0.1},
 
   wingAttack:{name:'날개치기',power:60,accuracy:1,priority:0},
   braveBird:{name:'브레이브버드',power:120,accuracy:1,priority:0,recoilMaxHp:0.10},
