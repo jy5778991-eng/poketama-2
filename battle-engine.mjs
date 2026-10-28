@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-butterfree64';
+import {MOVES} from './js/data/moves.js?v=20261029-eevee65';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-balance-confusion63';
 export {MOVES};
 
@@ -40,23 +40,23 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
 }
 export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math.random}={}) {
   if(!enemies.length) throw new Error('Need enemies');
-  return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng};
+  return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng,shields:{player:0,enemy:0},rings:{player:false,enemy:false}};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
 function accuracySuccess(move,b,user,target){const evasion=target?.stages?.evasion||0;const factor=evasion>=0?3/(3+evasion):(3-evasion)/3;return roll(b.rng)<Math.min(1,((move.accuracy??1)+(user.accuracyBuff||0))*factor);}
 function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at friendship 100
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
-  const atk=effectiveStat(attacker,'attack'), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
+  const atk=effectiveStat(attacker,'attack')*(attacker.status?.type==='burn'?0.5:1), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
   const levelFactor=Math.floor(2*attacker.level/5)+2;
   const raw=Math.floor(levelFactor*move.power*atk*(attacker.attackBuffMultiplier||1)/Math.max(1,def)/50)+2;
   const critical=roll(rng)<Math.min(1,critRate(attacker)*(move.critMultiplier??1)+(attacker.critBuff||0));
   const variance=RULES.randomMin+(1-RULES.randomMin)*roll(rng);
-  return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance)),critical};
+  return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance*(defender.sideShieldTurns>0?0.5:1))),critical};
 }
 function afflict(target,type,b){
   if(target.status) {say(b,`${target.name}에게는 이미 상태이상이 있다.`);return false;}
   target.status={type, sleepBlockedActions:0};
-  say(b,`${target.name}: ${type==='sleep'?'수면':type==='poison'?'독':'마비'} 상태!`);
+  say(b,`${target.name}: ${type==='sleep'?'수면':type==='poison'?'독':type==='freeze'?'얼음':type==='burn'?'화상':'마비'} 상태!`);
   return true;
 }
 function applyConfusion(target,b,turns=null){
@@ -65,6 +65,7 @@ function applyConfusion(target,b,turns=null){
  say(b,`${target.name}은(는) 혼란에 빠졌다!`);return true;
 }
 function canAct(p,b){
+  if(p.status?.type==='freeze'){const n=p.status.freezeActions||0;const chance=n===0?0:n>=4?1:0.2;if(roll(b.rng)<chance){p.status=null;say(b,`${p.name}의 얼음이 풀렸다!`);}else{p.status.freezeActions=n+1;say(b,`${p.name}은(는) 꽁꽁 얼어있다!`);return false;}}
   if(p.status?.type==='sleep') {
     const n=p.status.sleepBlockedActions;
     if(p.status.fromRest){if(n<2){p.status.sleepBlockedActions=n+1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);return true;}
@@ -92,6 +93,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
+  if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
+  if(move.aquaRing){b.rings[sideOf(b,user)]=true;say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
@@ -108,6 +111,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
+  if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
   if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
   if(move.confuseTarget)applyConfusion(target,b);
   if(move.confuseChance&&isAlive(target)&&target.confusionTurns<=0&&roll(b.rng)<move.confuseChance)applyConfusion(target,b);
@@ -156,7 +160,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   }
   if(pAction.type==='item'&&(!(pAction.power>0)||p.hp>=p.stats.hp))throw new Error('Cannot use healing item now');
   if(pAction.type==='ball'&&!b.wild)throw new Error('Pokeballs can only be used in wild battles');
-  const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);
+  const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);for(const key of ['player','enemy'])if(b.shields[key]>0)b.shields[key]--;
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
   order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
@@ -183,8 +187,8 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,a.action.power);
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
-    } else {if(a.action.moveId==='sleepTalk'&&a.fighter.status?.type==='sleep'){const wasRest=!!a.fighter.status.fromRest;if(wasRest){const n=a.fighter.status.sleepBlockedActions;if(n>=2){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}else{const n=a.fighter.status.sleepBlockedActions;const chance=n===0?0:n===1?RULES.sleepSecondActionWakeChance:n===2?RULES.sleepThirdActionWakeChance:1;if(roll(b.rng)<chance){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}}executeMove(b,a.fighter,a.target,a.action.moveId,a.action.moveId==='sleepTalk');}
+    } else {a.target.sideShieldTurns=b.shields[sideOf(b,a.target)];if(a.action.moveId==='sleepTalk'&&a.fighter.status?.type==='sleep'){const wasRest=!!a.fighter.status.fromRest;if(wasRest){const n=a.fighter.status.sleepBlockedActions;if(n>=2){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}else{const n=a.fighter.status.sleepBlockedActions;const chance=n===0?0:n===1?RULES.sleepSecondActionWakeChance:n===2?RULES.sleepThirdActionWakeChance:1;if(roll(b.rng)<chance){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}}executeMove(b,a.fighter,a.target,a.action.moveId,a.action.moveId==='sleepTalk');}
   }
-  if(!b.ended){poisonTick(b,p);poisonTick(b,e);settle(b);}
+  if(!b.ended){poisonTick(b,p);poisonTick(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.08));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp});}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}settle(b);}
   return b.log.slice(start);
 }
