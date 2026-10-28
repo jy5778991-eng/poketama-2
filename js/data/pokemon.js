@@ -1,4 +1,4 @@
-import {MOVES} from '../../battle-engine.mjs?v=20261029-growth-moves60';
+import {MOVES} from '../../battle-engine.mjs?v=20261029-balance-confusion63';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'snorlax',name:'먹고자',form:'잠만보',dex:143,baby:446,base:{hp:160,attack:110,defense:88,speed:30},moves:['bodySlam','flail','rest','swift'],emoji:'💤'},
