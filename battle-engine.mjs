@@ -67,7 +67,7 @@ function applyConfusion(target,b,turns=null){
 function canAct(p,b){
   if(p.status?.type==='sleep') {
     const n=p.status.sleepBlockedActions;
-    if(p.status.fromRest){if(n<2){p.status.sleepBlockedActions=n+1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);}
+    if(p.status.fromRest){if(n<2){p.status.sleepBlockedActions=n+1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);return true;}
     if(n===0){p.status.sleepBlockedActions=1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}
     if(n===1&&roll(b.rng)>=RULES.sleepSecondActionWakeChance){p.status.sleepBlockedActions=2;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
     if(n===2&&roll(b.rng)>=RULES.sleepThirdActionWakeChance){p.status.sleepBlockedActions=3;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
@@ -84,7 +84,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!move)throw new Error('Invalid move');
   if(!struggle&&!user.moveIds.includes(moveId))throw new Error('Move not available');
   if(!fromSleepTalk&&!canAct(user,b))return;
-  if(move.sleepTalk){if(user.status?.type!=='sleep'){say(b,'실패했다!');return;}const eligible=user.moveIds.filter(id=>id!=='sleepTalk'&&id!=='rest'&&id!=='bellyDrum');if(!eligible.length){say(b,'실패했다!');return;}const selected=eligible[Math.floor(roll(b.rng)*eligible.length)];say(b,`${user.name}의 잠꼬대!`);executeMove(b,user,target,selected,true);return;}
+  if(move.sleepTalk){if(user.status?.type!=='sleep'){say(b,'실패했다!');return;}const eligible=user.moveIds.filter(id=>MOVES[id]);if(!eligible.length){say(b,'실패했다!');return;}const selected=eligible[Math.floor(roll(b.rng)*eligible.length)];say(b,`${user.name}의 잠꼬대!`);if(selected==='sleepTalk'){say(b,'실패했다!');return;}executeMove(b,user,target,selected,true);return;}
   if(move.rest){if(user.status){say(b,'실패했다!');return;}user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'heal',side:sideOf(b,user),amount:0,hp:user.hp});return;}
   if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false});return;}
   say(b,`${user.name}의 ${move.name}!`);
