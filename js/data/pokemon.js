@@ -38,11 +38,11 @@ export const EVOLUTIONS={
  gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
 export const EEVEE_FORMS={
- jolteon:{level:25,name:'쥬피썬더',dex:135,base:{hp:65,attack:110,defense:72,speed:130}},
- flareon:{level:25,name:'부스터',dex:136,base:{hp:65,attack:130,defense:92,speed:65}},
- vaporeon:{level:25,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:77,speed:65}},
- espeon:{level:25,name:'에브이',dex:196,base:{hp:65,attack:130,defense:67,speed:110}},
- umbreon:{level:25,name:'블래키',dex:197,base:{hp:95,attack:65,defense:117,speed:65}}
+ jolteon:{level:22,name:'쥬피썬더',dex:135,base:{hp:65,attack:110,defense:72,speed:130}},
+ flareon:{level:22,name:'부스터',dex:136,base:{hp:65,attack:130,defense:92,speed:65}},
+ vaporeon:{level:22,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:77,speed:65}},
+ espeon:{level:22,name:'에브이',dex:196,base:{hp:65,attack:130,defense:67,speed:110}},
+ umbreon:{level:22,name:'블래키',dex:197,base:{hp:95,attack:65,defense:117,speed:65}}
 };
 let eeveeForm=null;
 export const setEeveeForm=id=>{eeveeForm=EEVEE_FORMS[id]?id:null;};
