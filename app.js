@@ -5,7 +5,7 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261026-remove-pp56';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261028-hyper-potion58';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261028-rewards-exp57';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
@@ -18,17 +18,17 @@ const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
 const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:4;
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
-const bonusCashForWin=()=>100+18*Math.max(...teamMembers().map(m=>m.level));
+const bonusCashForWin=()=>100+16*Math.max(...teamMembers().map(m=>m.level));
 // Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
 const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
- const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=30?{amount:60,icon:'💊'}:{amount:200,icon:'💉'};
+ const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
-  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:200,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[])],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[])],
   hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'}))],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'}]
  };
@@ -163,7 +163,7 @@ let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
  if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
-  pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+18*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
+  pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+16*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
   pendingRewardChoice={choices:[{tier:'normal',kind:'cash',amount:p.bonusCash,icon:'💰'},...p.items.slice(0,2).map(x=>({tier:'normal',kind:SHOP_ITEMS.find(item=>item.id===x.id)?.category==='heal'?'heal':'item',id:x.id,quantity:x.quantity,amount:(SHOP_ITEMS.find(item=>item.id===x.id)?.power||0)*x.quantity}))].slice(0,3),rerolls:0,gym:!!p.gym};
