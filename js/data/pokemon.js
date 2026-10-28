@@ -1,6 +1,7 @@
 import {MOVES} from '../../battle-engine.mjs?v=20261029-balance-confusion63';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
+{id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:50,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
 {id:'snorlax',name:'먹고자',form:'잠만보',dex:143,baby:446,base:{hp:160,attack:110,defense:88,speed:30},moves:['bodySlam','flail','rest','swift'],emoji:'💤'},
 {id:'dragonite',name:'미뇽',form:'망나뇽',dex:149,baby:147,base:{hp:91,attack:134,defense:98,speed:80},moves:['dragonPulse','extremeSpeed','quickAttack','swift'],emoji:'🐉'},
 {id:'venusaur',name:'이상해씨',form:'이상해꽃',dex:3,baby:1,base:{hp:80,attack:100,defense:92,speed:80},moves:['energyBall','solarBeam','recover','swift'],emoji:'🌿'},
@@ -12,6 +13,7 @@ export const STARTERS=[
 {id:'gyarados',name:'잉어킹',form:'갸라도스',dex:130,baby:129,base:{hp:95,attack:125,defense:90,speed:81},moves:['surf','dragonDance','bodySlam','swift'],emoji:'🐟'}
 ];
 export const START_BASES={
+ eevee:{hp:55,attack:55,defense:50,speed:55},
  snorlax:{hp:135,attack:85,defense:63,speed:5},
  dragonite:{hp:41,attack:64,defense:48,speed:50},
  venusaur:{hp:45,attack:65,defense:57,speed:45},
@@ -24,6 +26,7 @@ export const START_BASES={
 };
 /* Each threshold produces an immediate, unskippable evolution. IV/EV, EXP and level persist. */
 export const EVOLUTIONS={
+ eevee:[{level:1,name:'이브이',dex:133,base:START_BASES.eevee}],
  snorlax:[{level:1,name:'먹고자',dex:446,base:START_BASES.snorlax},{level:40,name:'잠만보',dex:143,base:{hp:160,attack:110,defense:88,speed:30}}],
  dragonite:[{level:1,name:'미뇽',dex:147,base:START_BASES.dragonite},{level:30,name:'신뇽',dex:148,base:{hp:61,attack:84,defense:68,speed:70}},{level:55,name:'망나뇽',dex:149,base:{hp:91,attack:134,defense:98,speed:80}}],
  venusaur:[{level:1,name:'이상해씨',dex:1,base:START_BASES.venusaur},{level:16,name:'이상해풀',dex:2,base:{hp:60,attack:80,defense:72,speed:60}},{level:32,name:'이상해꽃',dex:3,base:{hp:80,attack:100,defense:92,speed:80}}],
@@ -34,10 +37,20 @@ export const EVOLUTIONS={
  gengar:[{level:1,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:50,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
  gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
-export const getForm=(id,level)=>[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
+export const EEVEE_FORMS={
+ jolteon:{level:25,name:'쥬피썬더',dex:135,base:{hp:65,attack:110,defense:72,speed:130}},
+ flareon:{level:25,name:'부스터',dex:136,base:{hp:65,attack:130,defense:92,speed:65}},
+ vaporeon:{level:25,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:77,speed:65}},
+ espeon:{level:25,name:'에브이',dex:196,base:{hp:65,attack:130,defense:67,speed:110}},
+ umbreon:{level:25,name:'블래키',dex:197,base:{hp:95,attack:65,defense:117,speed:65}}
+};
+let eeveeForm=null;
+export const setEeveeForm=id=>{eeveeForm=EEVEE_FORMS[id]?id:null;};
+export const getEeveeForm=()=>eeveeForm;
+export const getForm=(id,level)=>id==='eevee'&&level>=25&&eeveeForm?EEVEE_FORMS[eeveeForm]:[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
 export {MOVE_LEARNSETS} from './learnsets.js';
 import {MOVE_LEARNSETS} from './learnsets.js';
-export const availableMoves=(id,level)=>MOVE_LEARNSETS[id].filter(m=>m.level<=level);
+export const availableMoves=(id,level)=>(id==='eevee'&&eeveeForm?[...MOVE_LEARNSETS.eevee,...MOVE_LEARNSETS[eeveeForm]]:MOVE_LEARNSETS[id]).filter(m=>m.level<=level);
 export const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
 // Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
 export const migrateMoves=(id,level)=>availableMoves(id,level).slice(-4).map(m=>m.id);
