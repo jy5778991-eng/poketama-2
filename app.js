@@ -1,7 +1,7 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-eevee66';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261029-eevee66';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-eevee66';
-import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved} from './js/data/pokemon.js?v=20261029-eevee66';
+import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved} from './js/data/pokemon.js?v=20261029-eevee67';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
@@ -74,7 +74,7 @@ const existingSaveRaw=localStorage.getItem(SAVE_KEY);
 const saveReadFailed=existingSaveRaw!==null&&!saved;
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 setEeveeForm(saved?.eeveeForm||null);
-setGengarEvolved(saved?.gengarEvolved===true);
+setGengarEvolved(saved?.gengarEvolved===true || (saved?.gengarEvolved===undefined&&saved?.id==='gengar'&&saved?.level>=40));
 let animatingEnemy=null; // Keep the defeated opponent's HP denominator until hit animation finishes.
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
@@ -523,6 +523,7 @@ function refreshLevelCapIndicator(){
 }
 const REGION_TRAINERS={grass:['blue'],forest:['brock'],cave:['misty'],lake:['greenReturn','surge'],cemetery:['greenThird'],town:['erika'],road:['koga'],city:['greenFourth','sabrina'],sea:['blaine'],volcano:['blaine'],strangeForest:['giovanni'],championRoad:['greenFifth']};
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!greenFourthCleared?'greenFourth':!sabrinaCleared?'sabrina':!blaineCleared?'blaine':!giovanniCleared?'giovanni':!greenFifthCleared?'greenFifth':null;}
+function rivalForm(id,level){return id==='gengar'&&level>=40?EVOLUTIONS.gengar.at(-1):getForm(id,level);}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
 let battlePlayerLevelStart=1;
 let pendingTrainerIntro=null;
@@ -611,7 +612,7 @@ function reset(kind='wild'){
  let enemies;
  if(kind==='blue'){
   if(!blueChoice){blueChoice=chooseRivalStarter(chosen);saveProgress();}
-  const other=getForm(blueChoice,7);
+  const other=rivalForm(blueChoice,7);
   enemies=[trainerFighter(other.name,other.dex,7,other.base,initialMoves(blueChoice))];
   battleOpponent='blue';
  }else if(kind==='brock'){
@@ -621,7 +622,7 @@ function reset(kind='wild'){
   enemies=[trainerFighter('별가사리',120,15,{hp:30,attack:70,defense:63,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,17,{hp:60,attack:100,defense:83,speed:115},['waterPulse','swift'])];
   battleOpponent='misty';
  }else if(kind==='greenReturn'){
-  const rivalForm=getForm(blueChoice,19);
+  const rivalForm=rivalForm(blueChoice,19);
   const rivalMoves=availableMoves(blueChoice,19).slice(-4).map(move=>move.id);
   enemies=[trainerFighter('피죤',17,17,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('레트라',20,16,{hp:55,attack:81,defense:60,speed:97},['tackle','quickAttack']),trainerFighter(rivalForm.name,rivalForm.dex,19,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenReturn';
@@ -629,7 +630,7 @@ function reset(kind='wild'){
   enemies=[trainerFighter('찌리리공',100,22,{hp:40,attack:55,defense:60,speed:100},['tackle','thunderWave']),trainerFighter('코일',81,21,{hp:25,attack:95,defense:63,speed:45},['tackle','thunderbolt']),trainerFighter('라이츄',26,24,{hp:60,attack:90,defense:68,speed:110},['quickAttack','thunderbolt'])];
   battleOpponent='surge';
  }else if(kind==='greenThird'){
-  const rivalForm=getForm(blueChoice,27),rivalMoves=availableMoves(blueChoice,27).slice(-4).map(m=>m.id);
+  const rivalForm=rivalForm(blueChoice,27),rivalMoves=availableMoves(blueChoice,27).slice(-4).map(m=>m.id);
   enemies=[trainerFighter('피죤',17,25,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('캐이시',63,15,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('갸라도스',130,20,{hp:95,attack:125,defense:90,speed:81},['tackle','bite']),trainerFighter(rivalForm.name,rivalForm.dex,27,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenThird';
  }else if(kind==='red'){
@@ -644,14 +645,14 @@ function reset(kind='wild'){
  }else if(kind.startsWith('league')){
   const n=Number(kind.slice(6));
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
-  if(n===4){const rival=getForm(blueChoice,75);enemies.push(trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id)))}
+  if(n===4){const rival=rivalForm(blueChoice,75);enemies.push(trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id)))}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
-  const rivalForm=getForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
+  const rivalForm=rivalForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
   enemies=[trainerFighter('피죤투',18,60,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('아라리',102,59,{hp:60,attack:40,defense:65,speed:40},['confusion','tackle']),trainerFighter('스라크',123,61,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윈디',59,56,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite']),trainerFighter(rivalForm.name,rivalForm.dex,62,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenFifth';
  }else if(kind==='greenFourth'){
-  const rivalForm=getForm(blueChoice,40),rivalMoves=availableMoves(blueChoice,40).slice(-4).map(m=>m.id);
+  const rivalForm=rivalForm(blueChoice,40),rivalMoves=availableMoves(blueChoice,40).slice(-4).map(m=>m.id);
   enemies=[trainerFighter('피죤투',18,36,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('스라크',123,39,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윤겔라',64,35,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter(rivalForm.name,rivalForm.dex,40,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenFourth';
  }else if(kind==='erika'){
@@ -675,7 +676,7 @@ function reset(kind='wild'){
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});rewardClaimed=false;menuPage='main';
- if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(getForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
+ if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(rivalForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
  $('captureFlash').className='capture-flash';$('captureFlash').hidden=true;$('captureSuccessNotice').hidden=true;
@@ -1547,7 +1548,7 @@ async function act(a){
   if(battleKind==='misty')registerEncounter(121);
   if(['greenReturn','surge','greenThird','erika','koga','sabrina'].includes(battleKind))registerEncounter(Number(enemy.id.slice(8)));
   $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='LV '+enemy.level;
-  sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):getForm(blueChoice,7).dex,false,'⚔️');
+  sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):rivalForm(blueChoice,7).dex,false,'⚔️');
   shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);
  }
   if(battle.ended){
