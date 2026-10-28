@@ -1,4 +1,4 @@
-import {MOVES} from '../../battle-engine.mjs?v=20261029-balance-confusion63';
+import {MOVES} from './moves.js?v=20261029-eevee65';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:50,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
@@ -34,7 +34,7 @@ export const EVOLUTIONS={
  blastoise:[{level:1,name:'꼬부기',dex:7,base:START_BASES.blastoise},{level:16,name:'어니부기',dex:8,base:{hp:59,attack:65,defense:80,speed:58}},{level:36,name:'거북왕',dex:9,base:{hp:79,attack:85,defense:103,speed:78}}],
  raichu:[{level:1,name:'피츄',dex:172,base:START_BASES.raichu},{level:15,name:'피카츄',dex:25,base:{hp:35,attack:55,defense:45,speed:90}},{level:30,name:'라이츄',dex:26,base:{hp:60,attack:90,defense:68,speed:110}}],
  butterfree:[{level:1,name:'캐터피',dex:10,base:START_BASES.butterfree},{level:7,name:'단데기',dex:11,base:{hp:50,attack:25,defense:40,speed:30}},{level:10,name:'버터플',dex:12,base:{hp:60,attack:90,defense:65,speed:70}}],
- gengar:[{level:1,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:50,speed:95}},{level:40,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
+ gengar:[{level:1,name:'고오스',dex:92,base:START_BASES.gengar},{level:25,name:'고우스트',dex:93,base:{hp:45,attack:115,defense:50,speed:95}},{level:101,name:'팬텀',dex:94,base:{hp:60,attack:130,defense:68,speed:110}}],
  gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
 export const EEVEE_FORMS={
@@ -47,7 +47,10 @@ export const EEVEE_FORMS={
 let eeveeForm=null;
 export const setEeveeForm=id=>{eeveeForm=EEVEE_FORMS[id]?id:null;};
 export const getEeveeForm=()=>eeveeForm;
-export const getForm=(id,level)=>id==='eevee'&&level>=25&&eeveeForm?EEVEE_FORMS[eeveeForm]:[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
+let gengarEvolved=false;
+export const setGengarEvolved=value=>{gengarEvolved=!!value;};
+export const getGengarEvolved=()=>gengarEvolved;
+export const getForm=(id,level)=>id==='eevee'&&eeveeForm?EEVEE_FORMS[eeveeForm]:id==='gengar'&&gengarEvolved?EVOLUTIONS.gengar.at(-1):[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
 export {MOVE_LEARNSETS} from './learnsets.js';
 import {MOVE_LEARNSETS} from './learnsets.js';
 export const availableMoves=(id,level)=>(id==='eevee'&&eeveeForm?[...MOVE_LEARNSETS.eevee,...MOVE_LEARNSETS[eeveeForm]]:MOVE_LEARNSETS[id]).filter(m=>m.level<=level);
