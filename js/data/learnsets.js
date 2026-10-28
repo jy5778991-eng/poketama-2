@@ -1,5 +1,11 @@
 // One learnset per evolution family. Starter learnsets retain their existing levels.
 export const STARTER_LEARNSETS={
+ eevee:[{level:1,id:'tackle'},{level:8,id:'quickAttack'},{level:15,id:'bite'},{level:25,id:'swift'}],
+ jolteon:[{level:32,id:'thunderWave'},{level:38,id:'thunderbolt'},{level:45,id:'doubleTeam'},{level:54,id:'thunder'},{level:62,id:'zapCannon'}],
+ flareon:[{level:34,id:'fireFang'},{level:44,id:'flamethrower'},{level:55,id:'fireBlast'},{level:58,id:'willOWisp'},{level:70,id:'flareBlitz'}],
+ vaporeon:[{level:32,id:'iceBeam'},{level:48,id:'aquaRing'},{level:56,id:'acidArmor'},{level:64,id:'hydroPump'}],
+ espeon:[{level:25,id:'confusion'},{level:30,id:'psybeam'},{level:44,id:'calmMind'},{level:52,id:'lightScreen'},{level:55,id:'psychic'},{level:70,id:'morningSun'}],
+ umbreon:[{level:25,id:'bite'},{level:32,id:'snarl'},{level:34,id:'confuseRay'},{level:40,id:'toxic'},{level:44,id:'darkPulse'},{level:55,id:'moonlight'}],
  snorlax: [{level:1,id:'tackle'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:65,id:'bellyDrum'}],
  gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}, {level:76,id:'thrash'}],
  gengar: [{level:1,id:'lick'}, {level:20,id:'nightShade'}, {level:28,id:'hypnosis'}, {level:38,id:'shadowBall'}, {level:48,id:'sludgeBomb'}, {level:55,id:'dreamEater'}, {level:66,id:'confuseRay'}],
@@ -1422,7 +1428,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  ]
 };
 export const ADDITIONAL_FAMILY_BY_DEX={"13":"weedle","14":"weedle","15":"weedle","21":"spearow","22":"spearow","27":"sandshrew","28":"sandshrew","29":"nidoranF","30":"nidoranF","31":"nidoranF","35":"clefairy","36":"clefairy","46":"paras","47":"paras","54":"psyduck","55":"psyduck","60":"poliwag","61":"poliwag","62":"poliwag","72":"tentacool","73":"tentacool","84":"doduo","85":"doduo","96":"drowzee","97":"drowzee","104":"cubone","105":"cubone","116":"horsea","117":"horsea","118":"goldeen","119":"goldeen","133":"eevee","134":"eevee","135":"eevee","136":"eevee","144":"articuno","150":"mewtwo","151":"mew"};
-export const STARTER_FAMILY_BY_DEX={"1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
+export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
 export function learnsetForDex(dex){return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||null;}
 export function recentWildMoves(dex,level){
