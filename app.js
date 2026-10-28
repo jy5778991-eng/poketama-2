@@ -6,7 +6,7 @@ import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEnc
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261026-remove-pp56';
-import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js';
+import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261028-rewards-exp57';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -18,64 +18,27 @@ const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
 const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:4;
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>10+level*5;
-const bonusCashForWin=level=>10+level*10;
+const bonusCashForWin=()=>100+18*Math.max(...teamMembers().map(m=>m.level));
 // Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
 const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 function drawThreeRewards(level,count=rewardChoiceCount()){
- const baseCash=bonusCashForWin(level);
+ const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
+ const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=30?{amount:60,icon:'💊'}:{amount:200,icon:'💉'};
  const pool={
-  normal:[
-   {kind:'cash',amount:baseCash,icon:'💰'},
-   {kind:'heal',amount:20,icon:'🧪'},
-   {kind:'heal',amount:60,icon:'💊'},
-   {kind:'item',id:'pokeBall',quantity:2,icon:'🔴'},
-   {kind:'exp',amount:50,icon:'🍬'},
-   {kind:'power',effect:'attack',turns:5,icon:'⚔️'},
-   {kind:'power',effect:'accuracy',turns:5,icon:'🎯'},
-   {kind:'power',effect:'critical',turns:5,icon:'✂️'},
-   {kind:'power',effect:'defense',turns:5,icon:'🛡️'}
-  ],
-  rare:[
-   {kind:'cash',amount:baseCash*3,icon:'💰'},
-   {kind:'heal',amount:200,icon:'💉'},
-   ...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),
-   {kind:'item',id:'greatBall',quantity:3,icon:'🔵'},
-   {kind:'item',id:'ultraBall',quantity:2,icon:'🟡'},
-   ...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),
-   ...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),
-  ],
-  hyper:[
-   {kind:'rareCandy',icon:'🍬'},
-   ...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),
-   {kind:'ev',stat:'hp',amount:10,icon:'💊'},
-   {kind:'ev',stat:'attack',amount:10,icon:'💊'},
-   {kind:'ev',stat:'defense',amount:10,icon:'💊'},
-   {kind:'ev',stat:'speed',amount:10,icon:'💊'}
-  ],
-  legendary:[
-   {kind:'goldCap',icon:'🥇'},
-   {kind:'cash',amount:baseCash*10,icon:'💰'},
-   {kind:'heal',full:true,icon:'❤️'},
-   {kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},
-   {kind:'item',id:'masterBall',quantity:1,icon:'🟣'},
-   {kind:'silverCap',icon:'🥈'},
-   {kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},
-   {kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'}
-  ]
+  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:200,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[])],
+  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'}))],
+  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'}]
  };
- return Array.from({length:count},()=>{
-  const roll=Math.random()*100;
-  const tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';
-  return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};
- });
+ return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
 }
 function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:2,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
 const LEAGUE_TEAMS=[
@@ -199,8 +162,8 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
-  pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:bonusCashForWin(saved?.level||1)*(c.tier==='hyper'?3:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+  pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+18*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
   pendingRewardChoice={choices:[{tier:'normal',kind:'cash',amount:p.bonusCash,icon:'💰'},...p.items.slice(0,2).map(x=>({tier:'normal',kind:SHOP_ITEMS.find(item=>item.id===x.id)?.category==='heal'?'heal':'item',id:x.id,quantity:x.quantity,amount:(SHOP_ITEMS.find(item=>item.id===x.id)?.power||0)*x.quantity}))].slice(0,3),rerolls:0,gym:!!p.gym};
@@ -800,7 +763,9 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
-  if(choice.kind==='rareCandy')return '🍬 이상한 사탕 · 선택한 포켓몬 레벨 +1 (최대 Lv.100)';
+  if(choice.kind==='expCandy')return ({S:'경험치를 소량 얻는다.',M:'경험치를 적당히 얻는다.',L:'경험치를 많이 얻는다.'})[choice.size];
+ if(choice.kind==='candyBundle')return '내 파티의 포켓몬이 모두 레벨업을 하는 이상한 사탕 보따리';
+ if(choice.kind==='rareCandy')return '포켓몬의 레벨이 오르는 이상한 사탕.';
   if(choice.kind==='goldCap')return '🥇 금색 병뚜껑 · 선택한 포켓몬의 모든 개체값 최대 강화';
  if(choice.kind==='maxReviveReward')return '🌟 기력의덩어리 · 기절한 포켓몬 1마리 선택 · HP 100% 부활 (즉시 사용)';
  if(choice.kind==='sacredAshReward')return '✨ 성스러운 분말 · 모든 포켓몬 HP 100% 부활 및 회복 (즉시 사용)';
@@ -811,7 +776,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
- if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +10%',accuracy:'명중률 +10%p',critical:'급소 확률 +10%p',defense:'방어력 +10%'}[choice.effect||'attack']);
+ if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%p',critical:'급소 확률 +15%p',defense:'방어력 +20%'}[choice.effect||'attack']);
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
  if(choice.kind==='heal')return choice.full?'❤️ 즉시 HP 100% 회복':(choice.icon||'🧪')+' 즉시 HP '+choice.amount+' 회복';
  const item=SHOP_ITEMS.find(x=>x.id===choice.id);
@@ -819,7 +784,9 @@ function rewardChoiceText(choice){
 }
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
-  if(choice.kind==='rareCandy')return 'rare-candy';
+  if(choice.kind==='expCandy')return 'exp-candy-'+choice.size.toLowerCase();
+ if(choice.kind==='candyBundle')return 'rare-candy';
+ if(choice.kind==='rareCandy')return 'rare-candy';
   if(choice.kind==='goldCap')return 'gold-bottle-cap';
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
@@ -829,7 +796,9 @@ function rewardImageName(choice){
  return null;
 }
 function rewardChoiceName(choice){
-  if(choice.kind==='rareCandy')return '이상한 사탕';
+  if(choice.kind==='expCandy')return '경험사탕 '+choice.size;
+ if(choice.kind==='candyBundle')return '사탕 보따리';
+ if(choice.kind==='rareCandy')return '이상한 사탕';
   if(choice.kind==='goldCap')return '금색 병뚜껑';
  if(choice.kind==='maxReviveReward')return '기력의덩어리';
  if(choice.kind==='sacredAshReward')return '성스러운 분말';
@@ -856,7 +825,7 @@ function showRewardChoices(){
   const card=document.createElement('div');
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
-  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0));
+  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -877,7 +846,7 @@ function showRewardChoices(){
   const info=document.createElement('button');info.type='button';info.className='reward-info-button';
   info.textContent='설명';info.setAttribute('aria-label',rewardChoiceName(choice)+' 설명 보기');
   info.onclick=()=>showRewardDescription(choice);
-  card.append(tag,pick,info);options.append(card);
+  if(choice.kind==='cash'){const amount=document.createElement('span');amount.className='reward-info-button';amount.textContent='+'+choice.amount.toLocaleString('ko-KR')+'원';card.append(tag,pick,amount);}else card.append(tag,pick,info);options.append(card);
  });
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  const reroll=$('rewardReroll');
@@ -891,7 +860,7 @@ function rerollRewards(){
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  if(!Number.isFinite(cost)||progress.money<cost)return;
  progress.money-=cost;
- pendingRewardChoice.choices=drawThreeRewards(progress.level,pendingRewardChoice.choices.length);
+ pendingRewardChoice.choices=drawThreeRewards(Math.max(...teamMembers().map(m=>m.level)),pendingRewardChoice.choices.length);
  pendingRewardChoice.rerolls++;
  saveProgress();
  showRewardChoices();
@@ -921,10 +890,9 @@ function showSilverCapStatChoice(member=leaderMember()){
  layer.hidden=false;
  $('rewardChoiceOverlay').hidden=true;
 }
-function choosePermanentTarget(choice){
+function choosePermanentTarget(choice,autoMember=null){
  $('rewardChoiceOverlay').hidden=true;
- partyOverlay('🎁 보상 적용 대상','보상을 받을 포켓몬 한 마리를 선택해.',[
- ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,action:()=>{
+ const applyToMember=m=>{
   if(choice.kind==='silverCap'){showSilverCapStatChoice(m);return;}
   if(choice.kind==='goldCap'){
    const iv=m.starter?playerIVs:companions.find(x=>x.family===m.family)?.ivs;
@@ -935,6 +903,16 @@ function choosePermanentTarget(choice){
   if(choice.kind==='rareCandy'){
    const member=m.starter?progress:companions.find(x=>x.family===m.family);
    if(member&&member.level<100){const before=member.level;member.level++;member.exp=0;pendingPartyGrowth.push({key:m.key,name:m.name,before,after:member.level,starter:m.starter,family:m.family});appendAdventureLog('🍬 '+m.name+' 레벨 +1');}
+  }
+  if(choice.kind==='expCandy'){
+   const member=m.starter?progress:companions.find(x=>x.family===m.family);
+   if(!member||member.level>=100){alert('Lv.100 포켓몬은 경험치를 받을 수 없어.');$('rewardChoiceOverlay').hidden=false;return;}
+   const before=member.level,earned=before*choice.multiplier;
+   member.exp=(member.exp||0)+earned;
+   while(member.level<100&&member.exp>=levelNeed(member.level)){member.exp-=levelNeed(member.level);member.level++;}
+   if(member.level===100)member.exp=0;
+   if(member.level>before)pendingPartyGrowth.push({key:m.key,name:m.name,before,after:member.level,starter:m.starter,family:m.family});
+   appendAdventureLog('🍬 '+m.name+' 경험사탕 '+choice.size+' +'+earned+' EXP');
   }
   if(choice.kind==='ev'){
    const stat=choice.stat,ev=m.starter?playerEVs:companions.find(x=>x.family===m.family)?.evs;
@@ -955,7 +933,11 @@ function choosePermanentTarget(choice){
   }
   pendingRewardChoice=null;saveProgress();renderHome();
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
- }})),{text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
+ };
+ if(autoMember){applyToMember(autoMember);return;}
+ partyOverlay('🎁 보상 적용 대상','보상을 받을 포켓몬 한 마리를 선택해.',[
+  ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,action:()=>applyToMember(m)})),
+  {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
  ]);
 }
 function completeInstantRecoveryReward(choice,details){
@@ -1006,7 +988,19 @@ function claimRewardChoice(index){
   ]);
   return;
  }
- if(['silverCap','ev','exp','rareCandy','goldCap'].includes(choice.kind)){
+ if(choice.kind==='candyBundle'){
+  if(teamMembers().length<2)return;
+  for(const m of teamMembers()){
+   const member=m.starter?progress:companions.find(x=>x.family===m.family);
+   if(member&&member.level<100){const before=member.level;member.level++;member.exp=0;pendingPartyGrowth.push({key:m.key,name:m.name,before,after:member.level,starter:m.starter,family:m.family});}
+  }
+  appendAdventureLog('🍬 사탕 보따리 · 파티 전원 레벨업');
+  pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;renderHome();
+  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
+  return;
+ }
+ if(['silverCap','ev','exp','expCandy','rareCandy','goldCap'].includes(choice.kind)){
+  if(['expCandy','rareCandy'].includes(choice.kind)&&teamMembers().length===1){choosePermanentTarget(choice,teamMembers()[0]);return;}
   choosePermanentTarget(choice);
   return;
  }else if(choice.kind==='ev'){
@@ -1137,7 +1131,7 @@ function renderPowerStatus(){
    const chip=document.createElement('span');chip.className='boost-chip';
    const img=document.createElement('img');
    img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+info.img+'.png';img.alt=info.name;img.onerror=()=>{img.replaceWith(document.createTextNode(key==='defense'?'🛡️':'✨'));};
-   const txt=document.createElement('span');txt.textContent='+'+(durations.length*10)+'% · '+durations.join('/')+'턴';
+   const txt=document.createElement('span');txt.textContent='+'+(durations.length*({attack:20,accuracy:10,critical:15,defense:20}[key]))+(key==='accuracy'||key==='critical'?'%p':'%')+' · '+durations.join('/')+'턴';
    chip.title=info.name+' · '+durations.length+'중첩 · 개별 남은 턴 '+durations.join(', ');
    chip.append(img,txt);el.append(chip);
   }
@@ -1170,7 +1164,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:DEX_
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=1+0.1*boostCount('attack');player.accuracyBuff=0.1*boostCount('accuracy');player.critBuff=0.1*boostCount('critical');player.defenseBuffMultiplier=1+0.1*boostCount('defense');return player;}
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=1+0.2*boostCount('attack');player.accuracyBuff=0.1*boostCount('accuracy');player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
  activeBattleKey=m.key;
@@ -1444,10 +1438,10 @@ async function act(a){
   animating=true;
   // Consume one item only after the engine accepts the player's turn.
   // Each completed battle turn consumes one boost turn, including capture/item turns.
-  battle.player.attackBuffMultiplier=1+0.1*boostCount('attack');
+  battle.player.attackBuffMultiplier=1+0.2*boostCount('attack');
   battle.player.accuracyBuff=0.1*boostCount('accuracy');
-  battle.player.critBuff=0.1*boostCount('critical');
-  battle.player.defenseBuffMultiplier=1+0.1*boostCount('defense');
+  battle.player.critBuff=0.15*boostCount('critical');
+  battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
    if(!target||target.key===activeBattleKey||!reviveMember(target))return;
