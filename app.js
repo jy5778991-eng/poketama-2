@@ -1,7 +1,7 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-eevee65';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-butterfree64';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-eevee66';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-eevee66';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-butterfree64';
-import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm} from './js/data/pokemon.js?v=20261029-eevee65';
+import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved} from './js/data/pokemon.js?v=20261029-eevee65';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
@@ -22,13 +22,26 @@ const bonusCashForWin=()=>100+16*Math.max(...teamMembers().map(m=>m.level));
 // Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
 const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
+const TRADE_EVOLUTIONS={93:{dex:94,name:'팬텀'},64:{dex:65,name:'후딘'},67:{dex:68,name:'괴력몬'},75:{dex:76,name:'딱구리'}};
+const EVOLUTION_REWARD_ITEMS=[
+ {id:'thunderStone',name:'번개의돌',form:'jolteon',icon:'⚡'},
+ {id:'waterStone',name:'물의돌',form:'vaporeon',icon:'💧'},
+ {id:'fireStone',name:'불꽃의돌',form:'flareon',icon:'🔥'},
+ {id:'dawnStone',name:'각성의돌',form:'espeon',icon:'🔮'},
+ {id:'duskStone',name:'어둠의돌',form:'umbreon',icon:'🌙'}
+];
+function eligibleEvolutionTargets(choice){
+ return teamMembers().filter(member=>choice.id==='linkCord'?
+    member.level>=30&&TRADE_EVOLUTIONS[member.dex]:
+    member.dex===133&&member.level>=22&&!member.starter||member.dex===133&&member.level>=22&&member.starter&&!getEeveeForm());
+}
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
-  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[])],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...(teamMembers().some(m=>m.dex===133&&m.level>=22)?EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon})):[])],
   hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'}))],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'}]
  };
@@ -38,7 +51,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
 const LEAGUE_TEAMS=[
@@ -61,6 +74,7 @@ const existingSaveRaw=localStorage.getItem(SAVE_KEY);
 const saveReadFailed=existingSaveRaw!==null&&!saved;
 let battle,chosen=saved?.id||'raichu',animating=false,shownHp={player:0,enemy:0},screen='home';
 setEeveeForm(saved?.eeveeForm||null);
+setGengarEvolved(saved?.gengarEvolved===true);
 let animatingEnemy=null; // Keep the defeated opponent's HP denominator until hit animation finishes.
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money||0};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
@@ -283,11 +297,11 @@ const WILD_EVOLUTIONS={
  27:[28,22,'고지'],29:[30,16,'니드리나'],30:[31,36,'니드퀸'],32:[33,16,'니드리노'],33:[34,36,'니드킹'],
  41:[42,22,'골뱃'],43:[44,21,'냄새꼬'],44:[45,40,'라플레시아'],46:[47,24,'파라섹트'],
  54:[55,33,'골덕'],60:[61,25,'슈륙챙이'],61:[62,40,'강챙이'],
- 63:[64,16,'윤겔라'],64:[65,36,'후딘'],66:[67,28,'근육몬'],67:[68,40,'괴력몬'],
+ 63:[64,16,'윤겔라'],66:[67,28,'근육몬'],
  69:[70,21,'우츠동'],70:[71,40,'우츠보트'],72:[73,30,'독파리'],
- 74:[75,25,'데구리'],75:[76,40,'딱구리'],79:[80,37,'야도란'],
+ 74:[75,25,'데구리'],79:[80,37,'야도란'],
  81:[82,30,'레어코일'],84:[85,31,'두트리오'],
- 92:[93,25,'고우스트'],93:[94,40,'팬텀'],96:[97,26,'슬리퍼'],
+ 92:[93,25,'고우스트'],96:[97,26,'슬리퍼'],
  98:[99,28,'킹크랩'],100:[101,30,'붐볼'],104:[105,28,'텅구리'],
  116:[117,32,'시드라'],118:[119,33,'왕콘치'],129:[130,20,'갸라도스']
 };
@@ -304,13 +318,6 @@ async function processPartyGrowth(events){
    await pause(1200);effect.hidden=true;effect.classList.remove('playing');
    for(let level=event.before+1;level<=event.after;level++){
     if(event.starter){
-     if(chosen==='eevee'&&level===25&&!getEeveeForm()){
-      const options=['쥬피썬더','부스터','샤미드','에브이','블래키'];
-      let selection=window.prompt('이브이가 진화할 차례야! 번호를 선택해줘.\n1. 쥬피썬더\n2. 부스터\n3. 샤미드\n4. 에브이\n5. 블래키','1');
-      while(!['1','2','3','4','5'].includes(selection)){selection=window.prompt('1~5 사이 숫자로 진화형을 선택해줘.','1');if(selection===null)selection='1';}
-      const key=['jolteon','flareon','vaporeon','espeon','umbreon'][Number(selection)-1];
-      const previous=EVOLUTIONS.eevee[0];setEeveeForm(key);await showEvolutions([{before:previous,after:EEVEE_FORMS[key],level}]);appendAdventureLog('🌟 이브이가 '+EEVEE_FORMS[key].name+'(으)로 진화했다!');saveProgress();
-     }
      const evolved=EVOLUTIONS[chosen].find(form=>form.level===level);
      if(evolved){await showEvolutions([{before:getForm(chosen,level-1),after:evolved,level}]);appendAdventureLog('🌟 '+evolved.name+'(으)로 진화했다!');}
      for(const info of (chosen==='eevee'&&getEeveeForm()?[...MOVE_LEARNSETS.eevee,...MOVE_LEARNSETS[getEeveeForm()]]:MOVE_LEARNSETS[chosen]).filter(m=>m.level===level)){
@@ -771,6 +778,7 @@ function openRecallList(){
 }
 
 function rewardChoiceText(choice){
+ if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
   if(choice.kind==='expCandy')return ({S:'경험치를 소량 얻는다.',M:'경험치를 적당히 얻는다.',L:'경험치를 많이 얻는다.'})[choice.size];
  if(choice.kind==='candyBundle')return '내 파티의 포켓몬이 모두 레벨업을 하는 이상한 사탕 보따리';
  if(choice.kind==='rareCandy')return '포켓몬의 레벨이 오르는 이상한 사탕.';
@@ -793,6 +801,7 @@ function rewardChoiceText(choice){
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
   if(choice.kind==='expCandy')return 'exp-candy-'+choice.size.toLowerCase();
+ if(choice.kind==='evolution')return choice.id==='linkCord'?'linking-cord':({thunderStone:'thunder-stone',waterStone:'water-stone',fireStone:'fire-stone',dawnStone:'dawn-stone',duskStone:'dusk-stone'})[choice.id]||null;
  if(choice.kind==='candyBundle')return 'rare-candy';
  if(choice.kind==='rareCandy')return 'rare-candy';
   if(choice.kind==='goldCap')return 'gold-bottle-cap';
@@ -807,6 +816,7 @@ function rewardChoiceName(choice){
   if(choice.kind==='expCandy')return '경험사탕 '+choice.size;
  if(choice.kind==='candyBundle')return '사탕 보따리';
  if(choice.kind==='rareCandy')return '이상한 사탕';
+ if(choice.kind==='evolution')return choice.id==='linkCord'?'연결의 끈':EVOLUTION_REWARD_ITEMS.find(item=>item.id===choice.id)?.name||'진화 아이템';
   if(choice.kind==='goldCap')return '금색 병뚜껑';
  if(choice.kind==='maxReviveReward')return '기력의덩어리';
  if(choice.kind==='sacredAshReward')return '성스러운 분말';
@@ -833,7 +843,7 @@ function showRewardChoices(){
   const card=document.createElement('div');
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
-  const unavailable=unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||unique&&(inventory[choice.id]===1||choice.id==='partySlotB'&&inventory.partySlotA!==1)||['maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -962,6 +972,41 @@ function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
+ if(choice.kind==='evolution'){
+  const targets=eligibleEvolutionTargets(choice);
+  if(!targets.length){alert('현재 이 아이템으로 진화할 수 있는 포켓몬이 없어.');showRewardChoices();return;}
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('✨ '+rewardChoiceName(choice),'아이템을 사용할 포켓몬을 선택해. 선택하면 즉시 진화해.',[
+   ...targets.map(member=>({text:member.name+' Lv.'+member.level,action:async()=>{
+    if(!pendingRewardChoice)return;
+    learningBusy=true;
+    try{
+     const before={dex:member.dex,name:member.name};
+     let after;
+     if(choice.id==='linkCord'){
+      const evolved=TRADE_EVOLUTIONS[member.dex];
+      if(!evolved)return;
+      after={dex:evolved.dex,name:evolved.name};
+      if(member.starter){setGengarEvolved(true);}else{
+       const obj=companions.find(x=>'companion-'+x.family===member.key);
+       if(!obj)return;obj.dex=after.dex;obj.name=after.name;
+      }
+     }else{
+      const config=EVOLUTION_REWARD_ITEMS.find(item=>item.id===choice.id);
+      if(!config)return;
+      after={...EEVEE_FORMS[config.form]};
+      if(member.starter)setEeveeForm(config.form);
+      else{const obj=companions.find(x=>'companion-'+x.family===member.key);if(!obj)return;obj.dex=after.dex;obj.name=after.name;}
+     }
+     await showEvolutions([{before,after,level:member.level}]);
+     appendAdventureLog('🌟 '+before.name+' → '+after.name+' 진화! ('+rewardChoiceName(choice)+')');
+     completeInstantRecoveryReward(choice,after.name+' 진화');
+    }finally{learningBusy=false;renderHome();}
+   }})),
+   {text:'취소',action:()=>showRewardChoices()}
+  ]);
+  return;
+ }
  if(choice.kind==='maxReviveReward'||choice.kind==='sacredAshReward'){
   const members=teamMembers(),fainted=members.filter(m=>memberHp(m)===0);
   if(members.length<2||!fainted.length){alert('포켓몬 2마리 이상 보유하고 기절한 동료가 있을 때만 사용할 수 있어.');showRewardChoices();return;}
@@ -1804,6 +1849,6 @@ function setup(){
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;if(leagueStage!==null){renderLeague();showScreen('league')}else showScreen('home')});
  document.querySelectorAll('[data-item-category]').forEach(button=>button.addEventListener('click',()=>showItemCategory(button.dataset.itemCategory)));
 
- const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;setEeveeForm(null);companions=[];partyOrder=[];area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;leagueStage=null;leagueCeremonyPending=false;redCeremonyPending=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ const box=$('starters');STARTERS.forEach(s=>{const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=s.id;b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(s.baby)+'"><span>'+s.name+'</span>';b.onclick=()=>{if(animating||learningBusy||chosen===s.id)return;if(!confirm('스타팅을 바꾸면 레벨, 경험치, 보유금, 포획 도감이 초기화돼. 바꿀까?'))return;chosen=s.id;setEeveeForm(null);setGengarEvolved(false);companions=[];partyOrder=[];area='grass';blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;leagueStage=null;leagueCeremonyPending=false;redCeremonyPending=false;erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;blueChoice=chooseRivalStarter(s.id);injured=false;healingDay=todayKST();freeHealsUsed=0;playerIVs=randomIVs();playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(s.id);capturedPokemon=[];caughtSpecies=new Set();seenPokemon=new Set();lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];$('challengeUnlockOverlay').hidden=true;storedHp=null;for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];inventory={...START_INVENTORY};progress={level:1,exp:0,money:0};saveProgress();reset()};box.append(b)});$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
