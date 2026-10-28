@@ -2,11 +2,11 @@
  * Draft rules v1.0. UI and storage are deliberately excluded.
  */
 export const RULES = Object.freeze({
-  stageLimit: 2, criticalMultiplier: 1.5, randomMin: 0.85,
+  stageLimit: 6, criticalMultiplier: 1.5, randomMin: 0.85,
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-growth-moves59';
+import {MOVES} from './js/data/moves.js?v=20261029-starter-tuning61';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-growth-moves60';
 export {MOVES};
 
