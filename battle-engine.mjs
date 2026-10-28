@@ -6,8 +6,8 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-status-spout62';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-growth-moves60';
+import {MOVES} from './js/data/moves.js?v=20261029-balance-confusion63';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-balance-confusion63';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
@@ -36,14 +36,14 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
   for(const m of moveIds) if(!MOVES[m]) throw new Error('Unknown move: '+m);
   return {id,name,level,stats:{...stats},hp:stats.hp,friendship:clamp(friendship,0,100),
     moveIds:[...moveIds],
-    stages:{attack:0,defense:0,speed:0},status:null};
+    stages:{attack:0,defense:0,speed:0,evasion:0},status:null,confusionTurns:0,lockedMove:null};
 }
 export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math.random}={}) {
   if(!enemies.length) throw new Error('Need enemies');
   return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
-function accuracySuccess(move,b,user){return roll(b.rng)<Math.min(1,(move.accuracy??1)+(user.accuracyBuff||0));}
+function accuracySuccess(move,b,user,target){const evasion=target?.stages?.evasion||0;const factor=evasion>=0?3/(3+evasion):(3-evasion)/3;return roll(b.rng)<Math.min(1,((move.accuracy??1)+(user.accuracyBuff||0))*factor);}
 function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at friendship 100
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
   const atk=effectiveStat(attacker,'attack'), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
@@ -59,27 +59,38 @@ function afflict(target,type,b){
   say(b,`${target.name}: ${type==='sleep'?'수면':type==='poison'?'독':'마비'} 상태!`);
   return true;
 }
+function applyConfusion(target,b,turns=null){
+ if(target.confusionTurns>0){say(b,'실패했다!');return false;}
+ target.confusionTurns=turns??(1+Math.floor(roll(b.rng)*3));
+ say(b,`${target.name}은(는) 혼란에 빠졌다!`);return true;
+}
 function canAct(p,b){
   if(p.status?.type==='sleep') {
     const n=p.status.sleepBlockedActions;
+    if(p.status.fromRest){if(n<2){p.status.sleepBlockedActions=n+1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);}
     if(n===0){p.status.sleepBlockedActions=1;say(b,`${p.name}은(는) 잠들어 행동할 수 없다.`);return false;}
     if(n===1&&roll(b.rng)>=RULES.sleepSecondActionWakeChance){p.status.sleepBlockedActions=2;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
     if(n===2&&roll(b.rng)>=RULES.sleepThirdActionWakeChance){p.status.sleepBlockedActions=3;say(b,`${p.name}은(는) 아직 자고 있다.`);return false;}
     p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);
   }
   if(p.status?.type==='paralysis'&&roll(b.rng)<RULES.paralysisSkipChance){say(b,`${p.name}은(는) 마비로 움직이지 못했다.`);return false;}
+  if(p.confusionTurns>0){p.confusionTurns--;if(roll(b.rng)<0.33){const {damage}=damageRoll(p,p,{power:40},{rng:b.rng});p.hp=Math.max(0,p.hp-damage);say(b,`${p.name}은(는) 혼란으로 자신을 공격했다!`);emit(b,{type:'damage',side:sideOf(b,p),amount:damage,hp:p.hp,critical:false});if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);return false;}if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);}
   return true;
 }
-function executeMove(b,user,target,moveId){
+function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
   const struggle=moveId==='struggle';
   const move=struggle ? {name:'발버둥',power:RULES.strugglePower,accuracy:1,priority:0} : MOVES[moveId];
   if(!move)throw new Error('Invalid move');
   if(!struggle&&!user.moveIds.includes(moveId))throw new Error('Move not available');
-  if(!canAct(user,b))return;
+  if(!fromSleepTalk&&!canAct(user,b))return;
+  if(move.sleepTalk){if(user.status?.type!=='sleep'){say(b,'실패했다!');return;}const eligible=user.moveIds.filter(id=>id!=='sleepTalk'&&id!=='rest'&&id!=='bellyDrum');if(!eligible.length){say(b,'실패했다!');return;}const selected=eligible[Math.floor(roll(b.rng)*eligible.length)];say(b,`${user.name}의 잠꼬대!`);executeMove(b,user,target,selected,true);return;}
+  if(move.rest){if(user.status){say(b,'실패했다!');return;}user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'heal',side:sideOf(b,user),amount:0,hp:user.hp});return;}
+  if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false});return;}
   say(b,`${user.name}의 ${move.name}!`);
-  if(!accuracySuccess(move,b,user)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  if(!accuracySuccess(move,b,user,target)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
+  if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
@@ -97,9 +108,13 @@ function executeMove(b,user,target,moveId){
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
   }
+  if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
+  if(move.confuseTarget)applyConfusion(target,b);
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
   if(move.inflict&&isAlive(target)&&!target.status&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
   if(move.recharge&&user.hp>0)user.recharge=true;
+  if(move.lockedTurns&&!user.lockedMove)user.lockedMove={id:moveId,remaining:2+Math.floor(roll(b.rng)*2)};
+  if(move.lockedTurns&&user.lockedMove){user.lockedMove.remaining--;if(user.lockedMove.remaining<=0){user.lockedMove=null;applyConfusion(user,b,1+Math.floor(roll(b.rng)*2));}}
   if(move.recoilMaxHp||struggle){
     const recoil=Math.max(1,Math.floor(user.stats.hp*(struggle?RULES.struggleRecoil:move.recoilMaxHp)));
     user.hp=Math.max(0,user.hp-recoil);say(b,`${user.name} 반동 피해 ${recoil}`);emit(b,{type:'damage',side:sideOf(b,user),amount:recoil,hp:user.hp,critical:false,recoil:true});
@@ -111,7 +126,7 @@ function pickAction(p,requested){
   if(requested?.type==='switch') return {type:'switch',priority:Number.POSITIVE_INFINITY,fighter:requested.fighter};
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
-  const id=requested?.moveId;
+  const id=p.lockedMove?.id||requested?.moveId;
   if(id&&p.moveIds.includes(id))return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   throw new Error('Illegal move selection');
 }
@@ -167,7 +182,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,a.action.power);
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
-    } else executeMove(b,a.fighter,a.target,a.action.moveId);
+    } else {if(a.action.moveId==='sleepTalk'&&a.fighter.status?.type==='sleep'){const wasRest=!!a.fighter.status.fromRest;if(wasRest){const n=a.fighter.status.sleepBlockedActions;if(n>=2){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}else{const n=a.fighter.status.sleepBlockedActions;const chance=n===0?0:n===1?RULES.sleepSecondActionWakeChance:n===2?RULES.sleepThirdActionWakeChance:1;if(roll(b.rng)<chance){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}}executeMove(b,a.fighter,a.target,a.action.moveId,a.action.moveId==='sleepTalk');}
   }
   if(!b.ended){poisonTick(b,p);poisonTick(b,e);settle(b);}
   return b.log.slice(start);
