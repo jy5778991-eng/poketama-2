@@ -2126,7 +2126,7 @@ function setup(){
   b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(st.baby)+'"><span>'+st.name+'</span>';
   b.onclick=()=>beginNewAdventure(id,true);box.append(b);
  }
- const egg=document.createElement('button');egg.type='button';egg.className='starter';egg.dataset.id='egg';
+ const egg=document.createElement('button');egg.type='button';egg.className='starter starter-egg';egg.dataset.id='egg';
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
  egg.onclick=()=>beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);
  box.append(egg);
