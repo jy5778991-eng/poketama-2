@@ -1,13 +1,13 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-movetext115';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-movetext115';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-movetext115';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-recallstar116';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-recallstar116';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-recallstar116';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-movetext115';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-recallstar116';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
-import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-movetext115';
+import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar116';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -755,10 +755,6 @@ function playHomeLevelUp(previousLevel,newLevel){
  effect.classList.add('playing');
 }
 
-function renderMoveSummary(){
- const target=$('moveRecallSummary');target.replaceChildren();
- const m=teamMembers().find(x=>x.key===recallSelectedKey)||leaderMember();for(const id of recallMemberMoves(m)){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;target.append(chip);}
-}
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
 function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+Math.round((m.accuracy??1)*100)+'%'+(m.description?' · '+m.description:'');}
 function updateBattleMoves(){
@@ -828,7 +824,7 @@ function openRecall(){
   btn.onclick=()=>{recallSelectedKey=m.key;openRecall();};picker.append(btn);
  }
  $('recallSelectedName').textContent=member.name+' · Lv.'+member.level;
- const current=$('moveRecallSummary');current.replaceChildren();
+
  const list=$('recallMoveList');list.replaceChildren();
  const detailText=id=>{
   const m=MOVES[id];if(!m)return '기술 정보 없음';
@@ -853,7 +849,9 @@ function openRecall(){
   const move=MOVES[id];if(!move)return;
   const wrap=document.createElement('div');wrap.className='recall-move-entry';
   const header=document.createElement('button');header.type='button';header.className='learn-replace-button recall-move-toggle';
-  header.textContent=(level===null?'장착 중 · ':'Lv.'+level+' · ')+move.name+(isOwned?' ✓':'')+'  ▾';
+  const label=(level===null?'': 'Lv.'+level+' · ')+move.name;
+  const drawHeader=expanded=>{header.replaceChildren();const name=document.createElement('span');name.textContent=label;header.append(name);if(isOwned){const star=document.createElement('span');star.className='recall-equipped-star';star.textContent='★';star.setAttribute('aria-label','장착 중');header.append(star);}const arrow=document.createElement('span');arrow.className='recall-move-chevron';arrow.textContent=expanded?'▴':'▾';header.append(arrow);};
+  drawHeader(false);
   header.setAttribute('aria-expanded','false');
   const detail=document.createElement('div');detail.className='recall-move-detail';detail.hidden=true;
   const info=document.createElement('div');info.className='recall-move-description';info.textContent=detailText(id);detail.append(info);
@@ -864,10 +862,9 @@ function openRecall(){
   }else{
    const owned=document.createElement('small');owned.textContent='현재 장착된 기술';detail.append(owned);
   }
-  header.onclick=()=>{detail.hidden=!detail.hidden;header.setAttribute('aria-expanded',String(!detail.hidden));header.textContent=(level===null?'장착 중 · ':'Lv.'+level+' · ')+move.name+(isOwned?' ✓':'')+(detail.hidden?'  ▾':'  ▴');};
+  header.onclick=()=>{detail.hidden=!detail.hidden;header.setAttribute('aria-expanded',String(!detail.hidden));drawHeader(!detail.hidden);};
   wrap.append(header,detail);return wrap;
  };
- for(const id of recallMemberMoves(member)){const entry=appendMove(id,null,true);if(entry)current.append(entry);}
  for(const entry of recallLearnable(member)){
   const row=appendMove(entry.id,entry.level,recallMemberMoves(member).includes(entry.id));
   if(row)list.append(row);
