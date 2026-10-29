@@ -1,7 +1,7 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-learnsets118';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-learnsets118';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-learnsets118';
-import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-learnsets118';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-party-status119';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-party-status119';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-party-status119';
+import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-party-status119';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
@@ -59,8 +59,8 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
-  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
-  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[])],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
+  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[])],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
  };
  return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
@@ -1525,10 +1525,9 @@ async function sendOutReplacement(m){
 }
 function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
- if(teamMembers().some(m=>m.starter?teamFamily(m.dex)===family:m.family===family)){
-  partyOverlay('포획 성공!','이미 같은 진화 계열 동료가 있어. 도감 기록은 유지되고 포켓몬은 놓아줘.',[{text:'확인',action:()=>{}}]);return;
- }
  const limit=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
+ const unlocked=inventory.partySlotA===1;
+ const duplicateMessage='같은 포켓몬 종류를 2마리 이상 데리고 다닐 수 없습니다!\\n도감 기록은 유지됩니다.';
  const recruit=replaceIndex=>{
   const member={family,name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level,exp:0,ivs:randomIVs(),evs:{hp:0,attack:0,defense:0,speed:0},moves:recentWildMoves(wildEnemy.dex,wildEnemy.level),hp:null};
   if(replaceIndex===null)companions.push(member);else companions.splice(replaceIndex,1,member);
@@ -1536,23 +1535,31 @@ function offerCapturedCompanion(){
   saveProgress();renderHome();
   partyOverlay('동료 합류!',member.name+' Lv.'+member.level+'이(가) 동료가 됐어!',[{text:'확인',action:()=>{}}]);
  };
- const unlocked=inventory.partySlotA===1;
- partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 프렌들리숍에서 추가 슬롯A를 해금한 뒤 가능해.'),[
- {text:'동료로 영입',disabled:!unlocked,reason:'포켓몬 추가 슬롯A 해금 필요',action:()=>{
-  if(1+companions.length<limit){recruit(null);return;}
-  if(!companions.length){partyOverlay('슬롯 부족','스타팅 포켓몬은 교체할 수 없어. 상점에서 포켓몬 추가 슬롯A를 획득해줘.',[{text:'확인',action:()=>{}}]);return;}
-  partyOverlay('동료 교체','동료가 가득 찼어. 교체하면 기존 동료는 영구 삭제돼.',[
-  ...companions.map((m,i)=>({text:m.name+' Lv.'+m.level+'과 교체',action:()=>{
-   partyOverlay('정말 교체할까?',m.name+'을(를) 영구 삭제하고 '+wildEnemy.name+'을(를) 영입할까?',[
-    {text:'교체 확정',action:()=>recruit(i)},{text:'취소',action:()=>{}}
-   ]);
-  }})),{text:'교체하지 않고 보내주기',action:()=>{}}
+ const chooseReplacement=()=>{
+  partyOverlay('동료 교체','교체하면 기존 동료는 영구 삭제돼.',[
+   ...companions.map((m,i)=>({text:m.name+' Lv.'+m.level+'과 교체',action:()=>{
+    const stillDuplicated=teamMembers().some(other=>other.starter?teamFamily(other.dex)===family:other.family===family&&other.family!==m.family);
+    if(stillDuplicated){
+     partyOverlay('동료 교체 불가',duplicateMessage,[{text:'확인',action:chooseReplacement}]);
+     return;
+    }
+    partyOverlay('정말 교체할까?',m.name+'을(를) 영구 삭제하고 '+wildEnemy.name+'을(를) 영입할까?',[
+     {text:'교체 확정',action:()=>recruit(i)},{text:'취소',action:chooseReplacement}
+    ]);
+   }})),
+   {text:'동료 교체 취소',action:()=>{}}
   ]);
- }},
- {text:'보내주기',action:()=>{}}
+ };
+ partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 프렌들리숍에서 추가 슬롯A를 해금한 뒤 가능해.'),[
+  {text:'동료로 영입',disabled:!unlocked,reason:'포켓몬 추가 슬롯A 해금 필요',action:()=>{
+   const hasSameFamily=teamMembers().some(m=>m.starter?teamFamily(m.dex)===family:m.family===family);
+   if(!hasSameFamily&&1+companions.length<limit){recruit(null);return;}
+   if(!companions.length){partyOverlay('동료 교체 불가',duplicateMessage,[{text:'확인',action:()=>{}}]);return;}
+   chooseReplacement();
+  }},
+  {text:'보내주기',action:()=>{}}
  ]);
 }
-
 function renderHome(){
  normalizeLivingLead();
  renderAdventureLog();
