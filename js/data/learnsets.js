@@ -304,162 +304,12 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "sandshrew": [{"level":1,"id":"scratch"},{"level":10,"id":"harden"},{"level":12,"id":"mudSlap"},{"level":26,"id":"dig"},{"level":32,"id":"slash"},{"level":45,"id":"earthquake"},{"level":52,"id":"swordsDance"}],
  "clefairy": [{"level":1,"id":"tackle"},{"level":20,"id":"doubleKick"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"}],
  "poliwag": [{"level":1,"id":"tackle"},{"level":10,"id":"waterGun"},{"level":24,"id":"bubbleBeam"},{"level":32,"id":"bodySlam"},{"level":48,"id":"hydroPump"},{"level":52,"id":"dynamicPunch"},{"level":60,"id":"acidArmor"}],
- "goldeen": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "quickAttack"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "surf"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
- ],
- "psyduck": [
-  {
-   "level": 1,
-   "id": "scratch"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "confusion"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "psybeam"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
- ],
- "tentacool": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "poisonPowder"
-  },
-  {
-   "level": 20,
-   "id": "waterGun"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "sludgeBomb"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
- ],
- "horsea": [
-  {
-   "level": 1,
-   "id": "waterGun"
-  },
-  {
-   "level": 10,
-   "id": "swift"
-  },
-  {
-   "level": 20,
-   "id": "waterPulse"
-  },
-  {
-   "level": 30,
-   "id": "dragonBreath"
-  },
-  {
-   "level": 40,
-   "id": "surf"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
- ],
- "drowzee": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "confusion"
-  },
-  {
-   "level": 20,
-   "id": "hypnosis"
-  },
-  {
-   "level": 30,
-   "id": "psybeam"
-  },
-  {
-   "level": 40,
-   "id": "dreamEater"
-  },
-  {
-   "level": 55,
-   "id": "psychic"
-  }
- ],
- "cubone": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "boneClub"
-  },
-  {
-   "level": 30,
-   "id": "dig"
-  },
-  {
-   "level": 40,
-   "id": "earthquake"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
+ "goldeen": [{"level":1,"id":"tackle"},{"level":12,"id":"waterGun"},{"level":20,"id":"hornAttack"},{"level":29,"id":"bubbleBeam"},{"level":40,"id":"surf"},{"level":55,"id":"hydroPump"}],
+ "psyduck": [{"level":1,"id":"scratch"},{"level":8,"id":"waterGun"},{"level":20,"id":"confusion"},{"level":32,"id":"psybeam"},{"level":42,"id":"surf"},{"level":50,"id":"calmMind"},{"level":59,"id":"hydroPump"}],
+ "tentacool": [{"level":1,"id":"tackle"},{"level":15,"id":"waterGun"},{"level":25,"id":"bubbleBeam"},{"level":32,"id":"poisonJab"},{"level":45,"id":"sludgeBomb"},{"level":58,"id":"hydroPump"}],
+ "horsea": [{"level":1,"id":"waterGun"},{"level":18,"id":"bubbleBeam"},{"level":24,"id":"dragonBreath"},{"level":37,"id":"dragonPulse"},{"level":45,"id":"agility"},{"level":54,"id":"hydroPump"}],
+ "drowzee": [{"level":1,"id":"tackle"},{"level":17,"id":"confusion"},{"level":20,"id":"hypnosis"},{"level":30,"id":"psybeam"},{"level":36,"id":"dreamEater"},{"level":49,"id":"psychic"},{"level":60,"id":"calmMind"}],
+ "cubone": [{"level":1,"id":"tackle"},{"level":12,"id":"mudSlap"},{"level":20,"id":"boneClub"},{"level":25,"id":"dig"},{"level":32,"id":"headbutt"},{"level":42,"id":"swordsDance"},{"level":55,"id":"doubleEdge"}],
  "doduo": [{"level":1,"id":"tackle"},{"level":12,"id":"sandAttack"},{"level":27,"id":"airSlash"},{"level":35,"id":"rotaryPeck"},{"level":43,"id":"agility"},{"level":55,"id":"closeCombat"}],
  "articuno": [
   {
@@ -551,4 +401,4 @@ export function recentWildMoves(dex,level){
  return learned.length?learned:['tackle'];
 }
 
-export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder','slowpoke','jynx','hitmonchan','hitmonlee','machop','zubat','ekans','poliwag','weedle','doduo','aerodactyl','spearow','paras','sandshrew','clefairy']});
+export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder','slowpoke','jynx','hitmonchan','hitmonlee','machop','zubat','ekans','poliwag','weedle','doduo','aerodactyl','spearow','paras','sandshrew','clefairy','goldeen','psyduck','tentacool','horsea','drowzee','cubone']});
