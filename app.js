@@ -1,6 +1,6 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-curated72';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-curated72';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-curated72';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-curated97';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-curated97';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-curated97';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
@@ -37,13 +37,15 @@ const STONE_WILD_EVOLUTIONS={
  moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
  leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'}},
  waterStone:{61:{dex:62,name:'강챙이'}},
- metalCoat:{95:{dex:208,name:'강철톤'}}
+ metalCoat:{95:{dex:208,name:'강철톤'},123:{dex:212,name:'핫삼'}},
+ fireStone:{58:{dex:59,name:'윈디'}}
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
   if(choice.id==='linkCord')return member.level>=30&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
-  if(choice.id==='metalCoat')return member.dex===95&&member.level>=34;
+  if(choice.id==='metalCoat')return (member.dex===95&&member.level>=34)||(member.dex===123&&member.level>=40);
+  if(choice.id==='fireStone'&&member.dex===58&&member.level>=36)return true;
   if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
   if(choice.id==='leafStone')return [44,70].includes(member.dex)&&member.level>=30;
   if(choice.id==='waterStone'&&member.dex===61&&member.level>=30)return true;
@@ -1253,7 +1255,7 @@ function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.f
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
 function leaderMember(){return teamMembers()[0];}
-function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.dex===208?{hp:75,attack:85,defense:160,speed:30}:DEX_CATALOG.find(p=>p.dex===m.dex)?.base)||{hp:60,attack:65,defense:60,speed:60};}
+function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.dex===208?{hp:75,attack:85,defense:160,speed:30}:m.dex===212?{hp:70,attack:130,defense:90,speed:65}:DEX_CATALOG.find(p=>p.dex===m.dex)?.base)||{hp:60,attack:65,defense:60,speed:60};}
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
