@@ -87,7 +87,7 @@ export const FAMILY_LEARNSETS={
   {"level":40,"id":"hpRecover"},
   {"level":50,"id":"lightScreen"}
  ],
- "lapras": [{"level":1,"id":"tackle"},{"level":15,"id":"waterGun"},{"level":28,"id":"auroraBeam"},{"level":35,"id":"surf"},{"level":40,"id":"bodySlam"},{"level":45,"id":"iceBeam"},{"level":58,"id":"blizzard"}],
+ "lapras": [{"level":1,"id":"tackle"},{"level":15,"id":"waterGun"},{"level":20,"id":"sing"},{"level":28,"id":"auroraBeam"},{"level":35,"id":"surf"},{"level":40,"id":"bodySlam"},{"level":45,"id":"iceBeam"},{"level":58,"id":"blizzard"},{"level":80,"id":"sheerCold"}],
  "exeggcute": [{"level":1,"id":"tackle"},{"level":10,"id":"confusion"},{"level":20,"id":"razorLeaf"},{"level":30,"id":"synthesis"},{"level":40,"id":"energyBall"},{"level":50,"id":"psychic"}],
  "scyther": [{"level":1,"id":"quickAttack"},{"level":20,"id":"wingAttack"},{"level":30,"id":"slash"},{"level":40,"id":"airSlash"},{"level":44,"id":"swordsDance"},{"level":52,"id":"doubleTeam"}],
  "growlithe": [{"level":1,"id":"tackle"},{"level":16,"id":"ember"},{"level":25,"id":"bite"},{"level":32,"id":"fireFang"},{"level":38,"id":"flamethrower"},{"level":42,"id":"extremeSpeed"},{"level":58,"id":"flareBlitz"}],
@@ -153,7 +153,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "weedle": [{"level":1,"id":"poisonSting"},{"level":7,"id":"harden"},{"level":12,"id":"furyAttack"},{"level":27,"id":"poisonJab"},{"level":38,"id":"fellStinger"},{"level":43,"id":"agility"}],
  "paras": [{"level":1,"id":"scratch"},{"level":10,"id":"poisonPowder"},{"level":13,"id":"absorb"},{"level":22,"id":"slash"},{"level":28,"id":"megaDrain"},{"level":45,"id":"gigaDrain"}],
  "sandshrew": [{"level":1,"id":"scratch"},{"level":10,"id":"harden"},{"level":12,"id":"mudSlap"},{"level":26,"id":"dig"},{"level":32,"id":"slash"},{"level":45,"id":"earthquake"},{"level":52,"id":"swordsDance"}],
- "clefairy": [{"level":1,"id":"tackle"},{"level":20,"id":"doubleKick"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"}],
+ "clefairy": [{"level":1,"id":"tackle"},{"level":15,"id":"sing"},{"level":20,"id":"doubleKick"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"},{"level":55,"id":"megaKick"}],
  "poliwag": [{"level":1,"id":"tackle"},{"level":10,"id":"waterGun"},{"level":24,"id":"bubbleBeam"},{"level":32,"id":"bodySlam"},{"level":48,"id":"hydroPump"},{"level":52,"id":"dynamicPunch"},{"level":60,"id":"acidArmor"}],
  "goldeen": [{"level":1,"id":"tackle"},{"level":12,"id":"waterGun"},{"level":20,"id":"hornAttack"},{"level":29,"id":"bubbleBeam"},{"level":40,"id":"surf"},{"level":55,"id":"hydroPump"}],
  "psyduck": [{"level":1,"id":"scratch"},{"level":8,"id":"waterGun"},{"level":20,"id":"confusion"},{"level":32,"id":"psybeam"},{"level":42,"id":"surf"},{"level":50,"id":"calmMind"},{"level":59,"id":"hydroPump"}],
