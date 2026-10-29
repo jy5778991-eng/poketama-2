@@ -460,7 +460,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
    "id": "gigaImpact"
   }
  ],
- "doduo": [{"level":1,"id":"tackle"},{"level":12,"id":"sandAttack"},{"level":27,"id":"airSlash"},{"level":35,"id":"drillPeck"},{"level":43,"id":"agility"},{"level":55,"id":"closeCombat"}],
+ "doduo": [{"level":1,"id":"tackle"},{"level":12,"id":"sandAttack"},{"level":27,"id":"airSlash"},{"level":35,"id":"rotaryPeck"},{"level":43,"id":"agility"},{"level":55,"id":"closeCombat"}],
  "articuno": [
   {
    "level": 1,
