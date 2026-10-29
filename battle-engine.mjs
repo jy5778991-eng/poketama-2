@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-party99';
+import {MOVES} from './js/data/moves.js?v=20261029-mewtransform109';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-icicle98';
 export {MOVES};
 
@@ -78,6 +78,7 @@ function canAct(p,b){
   if(p.confusionTurns>0){p.confusionTurns--;if(roll(b.rng)<0.33){const {damage}=damageRoll(p,p,{power:40},{rng:b.rng});p.hp=Math.max(0,p.hp-damage);say(b,`${p.name}은(는) 혼란으로 자신을 공격했다!`);emit(b,{type:'damage',side:sideOf(b,p),amount:damage,hp:p.hp,critical:false});if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);return false;}if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);}
   return true;
 }
+function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
 function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
   const struggle=moveId==='struggle';
@@ -93,6 +94,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name,isStatus:!move.power});
+  if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
   if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
   if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
   if(move.boosts) {
@@ -123,6 +125,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
     }
   }
+  if(move.boostOnHit&&roll(b.rng)<(move.boostChance??1)){for(const [stat,n] of Object.entries(move.boostOnHit)){const before=user.stages[stat]||0;user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}say(b,`${user.name}의 능력치가 상승했다!`);}
   if(move.boostsOnHit){for(const [stat,n] of Object.entries(move.boostsOnHit)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);say(b,`${user.name}의 ${stat} 랭크가 올랐다!`);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
   if(move.lowerTargetDefense&&isAlive(target)){const before=target.stages.defense;target.stages.defense=clamp(before-move.lowerTargetDefense,-RULES.stageLimit,RULES.stageLimit);if(before!==target.stages.defense)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-before});}
   if(move.boostOnKnockout&&!isAlive(target)){for(const [stat,n] of Object.entries(move.boostOnKnockout)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
@@ -172,6 +175,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   let p=b.player;const e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
   if(pAction.type==='switch'){
+    restoreTransform(b.player);
     if(!pAction.fighter||pAction.fighter.hp<=0)throw new Error('Cannot switch to fainted Pokemon');
     p=pAction.fighter;b.player=p;
   }
