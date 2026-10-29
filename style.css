@@ -66,3 +66,16 @@
 #battleScreen .sprite .stat-change-arrow{animation-duration:1.55s!important}
 #battleScreen .sprite .stat-change-arrow:nth-child(2){animation-delay:.08s}
 #battleScreen .sprite .stat-change-arrow:nth-child(3){animation-delay:.16s}
+
+/* New-adventure selection and safe reset */
+header{display:flex;align-items:center;justify-content:center;gap:14px}
+.game-reset-button{font-size:13px;padding:7px 12px;border:1px solid #a4b4cc;border-radius:9px;background:#fff;color:#405675;font-weight:700}
+.game-reset-button:disabled{opacity:.4}
+.starter-selection-overlay:not([hidden]){position:fixed;inset:0;z-index:12000;display:flex;justify-content:center;align-items:center;background:#12223ce6;padding:18px;overflow-y:auto}
+.starter-selection-dialog{background:#fff;border-radius:18px;padding:22px 16px;max-width:540px;width:100%;color:#293e59;text-align:center;box-shadow:0 16px 44px #0006}
+.starter-selection-dialog h2{margin:0 0 10px}
+.starter-selection-dialog p{font-size:13px;line-height:1.6}
+.starter-selection-dialog .starters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
+.starter-selection-dialog .starter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:145px;padding:12px;border:2px solid #b9c9df;border-radius:12px;background:#f7faff;color:#283c5a}
+.starter-selection-dialog .starter img{width:76px;height:76px;object-fit:contain}
+.starter-selection-dialog .starter small{font-size:11px;opacity:.8}
