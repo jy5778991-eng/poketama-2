@@ -1758,11 +1758,9 @@ async function act(a){
     const hpBefore=battle.player.hp;
     const reward=battleKind==='wild'?awardExperience():finishTrainerBattle();
     learnQueue=reward?.learnQueue||[];
-    if(reward?.newLevel>reward?.previousLevel&&activeMember().starter){
-     const currentMax=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
-     storedHp=Math.max(0,Math.min(currentMax,hpBefore+(currentMax-maxBefore)));
-    } else setActiveHp(hpBefore);
-    if(!activeMember().starter)setActiveHp(hpBefore);
+    const currentMax=memberMaxHp(activeMember());
+    const adjustedHp=hpBefore<=0?0:Math.min(currentMax,hpBefore+Math.max(0,currentMax-maxBefore));
+    setActiveHp(adjustedHp);
     saveProgress();
     // Party level-up animations are processed by processPartyGrowth.
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
