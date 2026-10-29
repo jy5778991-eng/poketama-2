@@ -42,3 +42,8 @@
 .recall-move-detail[hidden]{display:none}
 .recall-move-description{white-space:pre-line;line-height:1.6;font-size:14px}
 .recall-move-equip{background:#dceafc!important;border-color:#6489c2!important}
+
+/* Clearly distinguish equipped moves in the recall list. */
+.recall-move-toggle{display:flex!important;align-items:center;gap:8px;justify-content:flex-start}
+.recall-equipped-star{color:#ffc928;font-size:26px;line-height:1;text-shadow:0 1px 0 #926400,1px 0 0 #926400,-1px 0 0 #926400;flex-shrink:0}
+.recall-move-chevron{margin-left:auto;color:#516888}
