@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261029-battleui111"></head>
+<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261029-statarrows112"></head>
 <body><script>
 (function(){
   const savedKey='poketama-2-progress-v2';
@@ -14,7 +14,7 @@
     let panel=document.getElementById('gameBootError');
     if(!panel){
       panel=document.createElement('div');panel.id='gameBootError';panel.setAttribute('role','alert');
-      panel.style.cssText='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003';
+      panel.style.css?v=20261029-statarrows112Text='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003';
       document.body.appendChild(panel);
     }
     panel.textContent='포케타마 로딩 오류! 저장 데이터는 삭제하지 마세요. '+message+' (화면을 캡처해 알려주세요.)';
@@ -118,11 +118,11 @@ const panel=()=>document.getElementById('gameBootError');
 const report=(message)=>{
  let p=panel();
  if(!p){p=document.createElement('div');p.id='gameBootError';document.body.prepend(p);}
- p.style.cssText='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003;white-space:pre-wrap';
+ p.style.css?v=20261029-statarrows112Text='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003;white-space:pre-wrap';
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261029-battleui111');
+ await import('./app.js?v=20261029-statarrows112');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
