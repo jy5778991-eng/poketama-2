@@ -34,3 +34,11 @@
 @keyframes stat-arrows-rise{0%{opacity:0;transform:translateY(18px) scale(.75)}22%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translateY(-38px) scale(1.12)}}
 @keyframes stat-arrows-fall{0%{opacity:0;transform:translateY(-18px) scale(.75)}22%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translateY(38px) scale(1.12)}}
 @media(prefers-reduced-motion:reduce){#battleScreen .sprite .stat-change-arrow{animation-duration:.01ms;opacity:1}}
+
+/* Move management: inspect before choosing to equip. */
+.recall-move-entry{display:grid;gap:5px;margin:6px 0}
+.recall-move-toggle{text-align:left;width:100%}
+.recall-move-detail{border:1px solid #9aabc4;border-radius:10px;padding:10px;background:#f5f8fd;color:#273d5c;display:grid;gap:9px}
+.recall-move-detail[hidden]{display:none}
+.recall-move-description{white-space:pre-line;line-height:1.6;font-size:14px}
+.recall-move-equip{background:#dceafc!important;border-color:#6489c2!important}
