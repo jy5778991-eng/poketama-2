@@ -1,6 +1,7 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
-drillPeck:{name:'회전부리',power:80,accuracy:1,priority:0},
+drillPeck:{name:'드릴부리',power:80,accuracy:1,priority:0},
+rotaryPeck:{name:'회전부리',power:80,accuracy:1,priority:0},
 stoneEdge:{name:'스톤엣지',power:100,accuracy:0.8,priority:0},
 fly:{name:'공중날기',power:90,accuracy:1,priority:0},
 mudSlap:{name:'진흙뿌리기',power:30,accuracy:1,priority:0,lowerTargetAccuracy:1},
@@ -132,7 +133,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   slash:{name:'베어가르기',power:70,accuracy:1,priority:0,critMultiplier:2},
   swordsDance:{name:'칼춤',accuracy:1,priority:0,boosts:{attack:2},target:'self'},
   explosion:{name:'대폭발',power:180,accuracy:1,priority:0,selfKo:true},
-  dig:{name:'구멍파기',power:80,accuracy:1,priority:0},
+  dig:{name:'구멍파기',power:60,accuracy:1,priority:0},
   poisonJab:{name:'독찌르기',power:80,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
   fireBlast:{name:'불대문자',power:110,accuracy:0.85,priority:0},
   auroraBeam:{name:'오로라빔',power:65,accuracy:1,priority:0},
