@@ -6,8 +6,8 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-curated72';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-curated72';
+import {MOVES} from './js/data/moves.js?v=20261029-icicle98';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-icicle98';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
@@ -105,11 +105,23 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
   if(move.power||move.currentHpFraction||move.oneHitKo){
     const scaledPower=move.hpScale==='currentRatio'?150*user.hp/user.stats.hp:move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
-    const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
+    if(move.multiHit){
+      const hits=move.multiHit.min+Math.floor(roll(b.rng)*(move.multiHit.max-move.multiHit.min+1));let landed=0;
+      for(let i=0;i<hits&&isAlive(target);i++){
+        const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
+        const actual=Math.min(target.hp,damage);target.hp=Math.max(0,target.hp-damage);landed++;
+        if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
+        emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
+        say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
+      }
+      say(b,`총 ${landed}회 명중!`);
+    }else{
+      const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     target.hp=Math.max(0,target.hp-damage);
     emit(b,{type:'damage',side:sideOf(b,target),amount:damage,hp:target.hp,critical});
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
+    }
   }
   if(move.boostsOnHit){for(const [stat,n] of Object.entries(move.boostsOnHit)){user.stages[stat]=clamp(user.stages[stat]+n,-RULES.stageLimit,RULES.stageLimit);say(b,`${user.name}의 ${stat} 랭크가 올랐다!`);}}
   if(move.lowerTargetAccuracy&&isAlive(target)){target.stages.accuracy=clamp((target.stages.accuracy||0)-move.lowerTargetAccuracy,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 명중률 랭크가 내려갔다!`);}
