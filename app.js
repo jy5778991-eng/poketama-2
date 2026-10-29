@@ -1229,7 +1229,13 @@ function showCollection(tab='dex'){
  renderCollection();window.scrollTo({top:0,behavior:'instant'});
 }
 function renderCollection(){
- return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,kogaCleared,sabrinaCleared});
+ let old={};try{old=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
+ const a=old.achievements||{};
+ return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,
+ blueCleared:blueCleared||a.blueCleared,brockCleared:brockCleared||a.brockCleared,
+ mistyCleared:mistyCleared||a.mistyCleared,greenReturnCleared:greenReturnCleared||a.greenReturnCleared,
+ surgeCleared:surgeCleared||a.surgeCleared,greenThirdCleared:greenThirdCleared||a.greenThirdCleared,
+ erikaCleared:erikaCleared||a.erikaCleared,kogaCleared,sabrinaCleared});
 }
 function renderCaptures(){
  if(!$('captureCount'))return;
