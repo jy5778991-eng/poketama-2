@@ -57,12 +57,13 @@ function afflict(target,type,b){
   if(target.status) {say(b,`${target.name}에게는 이미 상태이상이 있다.`);return false;}
   target.status={type, sleepBlockedActions:0};
   say(b,`${target.name}: ${type==='sleep'?'수면':type==='poison'?'독':type==='freeze'?'얼음':type==='burn'?'화상':'마비'} 상태!`);
+  emit(b,{type:'statusApplied',side:sideOf(b,target),status:type});
   return true;
 }
 function applyConfusion(target,b,turns=null){
  if(target.confusionTurns>0){say(b,'실패했다!');return false;}
  target.confusionTurns=turns??(1+Math.floor(roll(b.rng)*3));
- say(b,`${target.name}은(는) 혼란에 빠졌다!`);return true;
+ say(b,`${target.name}은(는) 혼란에 빠졌다!`);emit(b,{type:'statusApplied',side:sideOf(b,target),status:'confusion'});return true;
 }
 function canAct(p,b){
   if(p.status?.type==='freeze'){const n=p.status.freezeActions||0;const chance=n===0?0:n>=4?1:0.2;if(roll(b.rng)<chance){p.status=null;say(b,`${p.name}의 얼음이 풀렸다!`);}else{p.status.freezeActions=n+1;say(b,`${p.name}은(는) 꽁꽁 얼어있다!`);return false;}}
@@ -93,7 +94,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!accuracySuccess(move,b,user,target)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
-  emit(b,{type:'move',side:sideOf(b,user),name:move.name,isStatus:!move.power});
+  emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
   if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
   if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
   if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
