@@ -232,188 +232,13 @@ export const FAMILY_LEARNSETS={
  ],
  "seel": [{"level":1,"id":"tackle"},{"level":18,"id":"waterGun"},{"level":25,"id":"auroraBeam"},{"level":38,"id":"surf"},{"level":45,"id":"iceBeam"},{"level":55,"id":"blizzard"}],
  "shellder": [{"level":1,"id":"tackle"},{"level":20,"id":"waterGun"},{"level":30,"id":"auroraBeam"},{"level":45,"id":"icicleSpear"},{"level":58,"id":"minimize"},{"level":70,"id":"hydroPump"}],
- "slowpoke": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "confusion"
-  },
-  {
-   "level": 20,
-   "id": "waterPulse"
-  },
-  {
-   "level": 30,
-   "id": "psybeam"
-  },
-  {
-   "level": 40,
-   "id": "recover"
-  },
-  {
-   "level": 55,
-   "id": "psychic"
-  }
- ],
- "jynx": [
-  {
-   "level": 1,
-   "id": "lick"
-  },
-  {
-   "level": 10,
-   "id": "confusion"
-  },
-  {
-   "level": 20,
-   "id": "auroraBeam"
-  },
-  {
-   "level": 30,
-   "id": "psybeam"
-  },
-  {
-   "level": 40,
-   "id": "waterPulse"
-  },
-  {
-   "level": 55,
-   "id": "psychic"
-  }
- ],
- "hitmonchan": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "machPunch"
-  },
-  {
-   "level": 30,
-   "id": "bodySlam"
-  },
-  {
-   "level": 40,
-   "id": "closeCombat"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
- "hitmonlee": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "doubleKick"
-  },
-  {
-   "level": 30,
-   "id": "bodySlam"
-  },
-  {
-   "level": 40,
-   "id": "closeCombat"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
- "machop": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "bodySlam"
-  },
-  {
-   "level": 30,
-   "id": "crunch"
-  },
-  {
-   "level": 40,
-   "id": "closeCombat"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
- "zubat": [
-  {
-   "level": 1,
-   "id": "leechLife"
-  },
-  {
-   "level": 10,
-   "id": "bite"
-  },
-  {
-   "level": 20,
-   "id": "wingAttack"
-  },
-  {
-   "level": 30,
-   "id": "poisonJab"
-  },
-  {
-   "level": 40,
-   "id": "airSlash"
-  },
-  {
-   "level": 55,
-   "id": "crunch"
-  }
- ],
- "ekans": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "bite"
-  },
-  {
-   "level": 20,
-   "id": "poisonPowder"
-  },
-  {
-   "level": 30,
-   "id": "bodySlam"
-  },
-  {
-   "level": 40,
-   "id": "poisonJab"
-  },
-  {
-   "level": 55,
-   "id": "crunch"
-  }
- ],
+ "slowpoke": [{"level":1,"id":"tackle"},{"level":20,"id":"confusion"},{"level":28,"id":"bubbleBeam"},{"level":35,"id":"amnesia"},{"level":45,"id":"psychic"},{"level":50,"id":"curse"},{"level":58,"id":"rest"}],
+ "jynx": [{"level":1,"id":"lick"},{"level":10,"id":"confusion"},{"level":27,"id":"icePunch"},{"level":34,"id":"psychic"},{"level":40,"id":"hypnosis"},{"level":52,"id":"blizzard"}],
+ "hitmonchan": [{"level":1,"id":"quickAttack"},{"level":20,"id":"machPunch"},{"level":30,"id":"thunderPunch"},{"level":31,"id":"firePunch"},{"level":32,"id":"icePunch"},{"level":40,"id":"bulkUp"},{"level":58,"id":"closeCombat"}],
+ "hitmonlee": [{"level":1,"id":"quickAttack"},{"level":20,"id":"doubleKick"},{"level":40,"id":"bulkUp"},{"level":45,"id":"highJumpKick"},{"level":55,"id":"doubleTeam"}],
+ "machop": [{"level":1,"id":"tackle"},{"level":12,"id":"karateChop"},{"level":25,"id":"vitalThrow"},{"level":35,"id":"rockSlide"},{"level":40,"id":"crossChop"},{"level":50,"id":"dynamicPunch"}],
+ "zubat": [{"level":1,"id":"absorb"},{"level":16,"id":"wingAttack"},{"level":30,"id":"poisonJab"},{"level":34,"id":"confuseRay"},{"level":50,"id":"leechLife"},{"level":54,"id":"doubleTeam"}],
+ "ekans": [{"level":1,"id":"poisonSting"},{"level":15,"id":"bite"},{"level":22,"id":"screech"},{"level":30,"id":"crunch"},{"level":45,"id":"sludgeBomb"}],
  "aerodactyl": [
   {
    "level": 1,
@@ -524,32 +349,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
    "id": "gigaImpact"
   }
  ],
- "weedle": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "poisonPowder"
-  },
-  {
-   "level": 30,
-   "id": "poisonJab"
-  },
-  {
-   "level": 40,
-   "id": "swift"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
+ "weedle": [{"level":1,"id":"poisonSting"},{"level":7,"id":"harden"},{"level":12,"id":"furyAttack"},{"level":27,"id":"poisonJab"},{"level":38,"id":"fellStinger"},{"level":43,"id":"agility"}],
  "paras": [
   {
    "level": 1,
@@ -628,32 +428,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
    "id": "gigaImpact"
   }
  ],
- "poliwag": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "bodySlam"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "surf"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
- ],
+ "poliwag": [{"level":1,"id":"tackle"},{"level":10,"id":"waterGun"},{"level":24,"id":"bubbleBeam"},{"level":32,"id":"bodySlam"},{"level":48,"id":"hydroPump"},{"level":52,"id":"dynamicPunch"},{"level":60,"id":"acidArmor"}],
  "goldeen": [
   {
    "level": 1,
@@ -926,4 +701,4 @@ export function recentWildMoves(dex,level){
  return learned.length?learned:['tackle'];
 }
 
-export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder']});
+export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder','slowpoke','jynx','hitmonchan','hitmonlee','machop','zubat','ekans','poliwag','weedle']});
