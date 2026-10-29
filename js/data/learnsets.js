@@ -246,7 +246,7 @@ export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"ratt
 
 // Additional wild encounter families. Six curated milestone moves per evolution family.
 export const ADDITIONAL_FAMILY_LEARNSETS={
- "spearow": [{"level":1,"id":"tackle"},{"level":16,"id":"wingAttack"},{"level":32,"id":"drillPeck"},{"level":43,"id":"fly"},{"level":55,"id":"braveBird"}],
+ "spearow": [{"level":1,"id":"tackle"},{"level":16,"id":"wingAttack"},{"level":32,"id":"rotaryPeck"},{"level":43,"id":"fly"},{"level":55,"id":"braveBird"}],
  "nidoranF": [
   {
    "level": 1,
@@ -302,7 +302,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "weedle": [{"level":1,"id":"poisonSting"},{"level":7,"id":"harden"},{"level":12,"id":"furyAttack"},{"level":27,"id":"poisonJab"},{"level":38,"id":"fellStinger"},{"level":43,"id":"agility"}],
  "paras": [{"level":1,"id":"scratch"},{"level":10,"id":"poisonPowder"},{"level":13,"id":"absorb"},{"level":22,"id":"slash"},{"level":28,"id":"megaDrain"},{"level":45,"id":"gigaDrain"}],
  "sandshrew": [{"level":1,"id":"scratch"},{"level":10,"id":"harden"},{"level":12,"id":"mudSlap"},{"level":26,"id":"dig"},{"level":32,"id":"slash"},{"level":45,"id":"earthquake"},{"level":52,"id":"swordsDance"}],
- "clefairy": [{"level":1,"id":"tackle"},{"level":20,"id":"doubleSlap"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"}],
+ "clefairy": [{"level":1,"id":"tackle"},{"level":20,"id":"doubleKick"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"}],
  "poliwag": [{"level":1,"id":"tackle"},{"level":10,"id":"waterGun"},{"level":24,"id":"bubbleBeam"},{"level":32,"id":"bodySlam"},{"level":48,"id":"hydroPump"},{"level":52,"id":"dynamicPunch"},{"level":60,"id":"acidArmor"}],
  "goldeen": [
   {
