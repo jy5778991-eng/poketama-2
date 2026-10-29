@@ -28,12 +28,22 @@ const EVOLUTION_REWARD_ITEMS=[
  {id:'waterStone',name:'물의돌',form:'vaporeon',icon:'💧'},
  {id:'fireStone',name:'불꽃의돌',form:'flareon',icon:'🔥'},
  {id:'dawnStone',name:'각성의돌',form:'espeon',icon:'🔮'},
- {id:'duskStone',name:'어둠의돌',form:'umbreon',icon:'🌙'}
+ {id:'duskStone',name:'어둠의돌',form:'umbreon',icon:'🌙'},
+ {id:'moonStone',name:'달의돌',icon:'🌕'},
+ {id:'leafStone',name:'리프의돌',icon:'🍃'}
 ];
+const STONE_WILD_EVOLUTIONS={
+ moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
+ leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'}},
+ waterStone:{61:{dex:62,name:'강챙이'}}
+};
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
   if(choice.id==='linkCord')return member.level>=30&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
+  if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
+  if(choice.id==='leafStone')return [44,70].includes(member.dex)&&member.level>=30;
+  if(choice.id==='waterStone'&&member.dex===61&&member.level>=30)return true;
   return member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm());
  });
 }
@@ -180,7 +190,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+16*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -297,11 +307,11 @@ function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.bas
 const WILD_EVOLUTIONS={
  10:[11,7,'단데기'],11:[12,10,'버터플'],13:[14,7,'딱충이'],14:[15,10,'독침붕'],
  16:[17,18,'피죤'],17:[18,36,'피죤투'],19:[20,20,'레트라'],21:[22,20,'깨비드릴조'],
- 27:[28,22,'고지'],29:[30,16,'니드리나'],30:[31,36,'니드퀸'],32:[33,16,'니드리노'],33:[34,36,'니드킹'],
- 41:[42,22,'골뱃'],43:[44,21,'냄새꼬'],44:[45,40,'라플레시아'],46:[47,24,'파라섹트'],
- 54:[55,33,'골덕'],60:[61,25,'슈륙챙이'],61:[62,40,'강챙이'],
+ 27:[28,22,'고지'],29:[30,16,'니드리나'],32:[33,16,'니드리노'],
+ 41:[42,22,'골뱃'],43:[44,21,'냄새꼬'],46:[47,24,'파라섹트'],
+ 54:[55,33,'골덕'],60:[61,25,'슈륙챙이'],
  63:[64,16,'윤겔라'],66:[67,28,'근육몬'],
- 69:[70,21,'우츠동'],70:[71,40,'우츠보트'],72:[73,30,'독파리'],
+ 69:[70,21,'우츠동'],72:[73,30,'독파리'],
  74:[75,25,'데구리'],79:[80,37,'야도란'],
  81:[82,30,'레어코일'],84:[85,31,'두트리오'],
  92:[93,25,'고우스트'],96:[97,26,'슬리퍼'],
@@ -808,7 +818,7 @@ function rewardChoiceText(choice){
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
   if(choice.kind==='expCandy')return 'exp-candy-'+choice.size.toLowerCase();
- if(choice.kind==='evolution')return choice.id==='linkCord'?'linking-cord':({thunderStone:'thunder-stone',waterStone:'water-stone',fireStone:'fire-stone',dawnStone:'dawn-stone',duskStone:'dusk-stone'})[choice.id]||null;
+ if(choice.kind==='evolution')return choice.id==='linkCord'?'linking-cord':({thunderStone:'thunder-stone',waterStone:'water-stone',fireStone:'fire-stone',dawnStone:'dawn-stone',duskStone:'dusk-stone',moonStone:'moon-stone',leafStone:'leaf-stone'})[choice.id]||null;
  if(choice.kind==='candyBundle')return 'rare-candy';
  if(choice.kind==='rareCandy')return 'rare-candy';
   if(choice.kind==='goldCap')return 'gold-bottle-cap';
@@ -1001,8 +1011,22 @@ function claimRewardChoice(index){
      }else{
       const config=EVOLUTION_REWARD_ITEMS.find(item=>item.id===choice.id);
       if(!config)return;
-      if(choice.id==='thunderStone'&&member.dex===25){after={...EVOLUTIONS.raichu.at(-1)};if(member.starter)setRaichuEvolved(true);else{const obj=companions.find(x=>'companion-'+x.family===member.key);if(!obj)return;obj.dex=26;obj.name='라이츄';}}
-      else{after={...EEVEE_FORMS[config.form]};if(member.starter)setEeveeForm(config.form);else{const obj=companions.find(x=>'companion-'+x.family===member.key);if(!obj)return;obj.dex=after.dex;obj.name=after.name;}}
+      const wildEvolution=STONE_WILD_EVOLUTIONS[choice.id]?.[member.dex];
+      if(wildEvolution){
+       after={...wildEvolution};
+       const obj=companions.find(x=>'companion-'+x.family===member.key);
+       if(!obj)return;
+       obj.dex=after.dex;obj.name=after.name;
+      }else if(choice.id==='thunderStone'&&member.dex===25){
+       after={...EVOLUTIONS.raichu.at(-1)};
+       if(member.starter)setRaichuEvolved(true);
+       else{const obj=companions.find(x=>'companion-'+x.family===member.key);if(!obj)return;obj.dex=26;obj.name='라이츄';}
+      }else{
+       if(!config.form)return;
+       after={...EEVEE_FORMS[config.form]};
+       if(member.starter)setEeveeForm(config.form);
+       else{const obj=companions.find(x=>'companion-'+x.family===member.key);if(!obj)return;obj.dex=after.dex;obj.name=after.name;}
+      }
      }
      await showEvolutions([{before,after,level:member.level}]);
      appendAdventureLog('🌟 '+before.name+' → '+after.name+' 진화! ('+rewardChoiceName(choice)+')');
