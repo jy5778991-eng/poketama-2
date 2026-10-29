@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261029-polish122"></head>
+<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261029-reset124"></head>
 <body><script>
 (function(){
   const savedKey='poketama-2-progress-v2';
@@ -25,8 +25,8 @@
 })();
 </script>
 <main class="game">
-<header><h1>포케타마<span>2</span></h1></header>
-<section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
+<header><h1>포케타마<span>2</span></h1><button type="button" id="gameResetButton" class="game-reset-button">↻ 리셋</button></header>
+<div id="starterSelectionOverlay" class="starter-selection-overlay" hidden><div class="starter-selection-dialog"><h2>🥚 스타팅 포켓몬 선택</h2><p>이상해씨 · 파이리 · 꼬부기는 모든 IV가 4! 랜덤 알은 랜덤 포켓몬과 랜덤 IV가 나와.</p><div id="starters" class="starters"></div></div></div><section id="homeScreen" class="screen" aria-label="포케타마 메인 화면">
   <section class="home-card">
     <div id="homeSpriteWrap" class="home-sprite-wrap area-grass">
       <div class="home-name home-status-row"><span id="currentArea" class="home-area-badge">🌿 초원</span><div class="home-wallet"><span id="homeMoney" aria-label="보유금">💰 0원</span><button type="button" class="home-badges" id="badgeStatus" aria-label="배지 확인">배지 0 / 8</button></div></div>
@@ -51,7 +51,6 @@
   </section>
 
   <div class="home-actions"><button id="openParty" type="button" class="home-action">👥 내 포켓몬 <small>상태 확인 · 선봉 변경</small></button><button type="button" id="healButton" class="home-action heal-home-action">🏥 포켓몬 센터 <small id="healButtonNote">HP 전원 회복</small></button><button id="openBag" class="home-action">🎒 가방 <small>보유 아이템 확인</small></button><button id="openShop" class="home-action">🏪 프렌들리숍 <small>아이템 구매</small></button><button type="button" id="openMoveRecall" class="home-action">📖 기술 관리 <small>기술 확인 · 떠올리기</small></button><button type="button" id="openCollection" class="home-action">📚 수집 <small>도감 · 업적 · 트레이너</small></button></div>
-  <section class="pick-panel"><h2>스타팅 선택 <small>Lv.1 시작 · 레벨에 도달하면 자동 진화 · 다른 스타팅 선택 시 육성 데이터 초기화</small></h2><div id="starters" class="starters"></div></section>
 <div class="dev-entry"><button type="button" id="openDeveloper" class="dev-open-button">⚙ 개발자모드</button></div>
 </section>
 <section id="collectionScreen" class="screen" hidden aria-label="수집 메뉴"><div class="shop-shell"><div class="shop-head"><button type="button" id="closeCollection" class="secondary">← 메인으로</button><strong>📚 수집</strong></div><div class="collection-tabs" role="tablist" aria-label="수집 항목"><button type="button" data-collection-tab="dex" role="tab" aria-selected="true">도감</button><button type="button" data-collection-tab="achievements" role="tab" aria-selected="false">업적</button><button type="button" data-collection-tab="trainers" role="tab" aria-selected="false">트레이너</button></div><p id="collectionSummary" class="collection-summary"></p><div id="collectionContent" role="tabpanel"></div></div></section>
@@ -122,7 +121,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261029-polish123');
+ await import('./app.js?v=20261029-reset124');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
