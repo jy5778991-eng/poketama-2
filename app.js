@@ -1,6 +1,6 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-rankfix104';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-rankfix104';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-rankfix104';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-effects105';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-effects105';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-effects105';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
@@ -233,7 +233,7 @@ const visualSprite=side=>document.querySelector('.sprite.'+side);
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));const pct=Math.max(0,100*hp/f.stats.hp);$(side+'Bar').style.width=pct+'%';$(side+'Bar').style.background=pct>50?'#59c679':pct>20?'#e8b956':'#d86862';$(side+'Hp').textContent='HP '+hp+' / '+f.stats.hp;shownHp[side]=hp;}
 function animateClass(element,klass){element.classList.remove(klass);void element.offsetWidth;element.classList.add(klass);}
 function popup(side,amount,critical=false,healing=false){const el=$(side+'Popup');el.classList.remove('visible');el.replaceChildren();const n=document.createElement('span');n.className='number-hit'+(healing?' heal':'');n.textContent=(healing?'+':'−')+amount;el.append(n);if(critical){const crit=document.createElement('span');crit.className='critical';crit.textContent='Critical Hit!';el.append(crit);}void el.offsetWidth;el.classList.add('visible');}
-async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='statChange'){const el=visualSprite(ev.side);if(el){const rect=el.getBoundingClientRect();const tag=document.createElement('span');tag.textContent=(ev.change>0?'▲ ':'▼ ')+({attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'}[ev.stat]||ev.stat)+' '+(ev.change>0?'+':'')+ev.change;tag.style.cssText='position:fixed;z-index:9999;left:'+Math.round(rect.left+rect.width/2)+'px;top:'+Math.round(rect.top-16)+'px;transform:translateX(-50%);font-weight:900;font-size:17px;color:'+(ev.change>0?'#22c55e':'#ef4444')+';text-shadow:0 2px 3px #111;pointer-events:none;white-space:nowrap';document.body.append(tag);const animation=tag.animate([{opacity:0,transform:'translate(-50%,12px)'},{opacity:1,transform:'translate(-50%,-8px)'},{opacity:1,transform:'translate(-50%,-18px)'},{opacity:0,transform:'translate(-50%,-28px)'}],{duration:700,fill:'forwards'});await pause(700);animation.cancel();tag.remove();}}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='statChange'||ev.type==='fieldEffect'){renderBattleEffects();await pause(220);}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -1241,6 +1241,23 @@ function renderInventory(){
  return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
+const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
+function renderBattleEffects(){
+ if(!battle)return;
+ for(const side of ['player','enemy']){
+  const container=$(side==='player'?'playerBattleEffects':'enemyBattleEffects');if(!container)continue;
+  container.replaceChildren();
+  const fighter=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));
+  if(fighter?.stages)for(const [stat,rank] of Object.entries(fighter.stages)){
+   if(!rank)continue;
+   const chip=document.createElement('span');chip.className='battle-effect-chip '+(rank>0?'positive':'negative');
+   chip.textContent=(rank>0?'▲ ':'▼ ')+(BATTLE_RANK_LABELS[stat]||stat)+' '+(rank>0?'+':'')+rank;
+   container.append(chip);
+  }
+  if(battle.shields?.[side]>0){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='✨ 빛의장막 '+battle.shields[side]+'턴';container.append(chip);}
+  if(battle.rings?.[side]){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='💧 아쿠아링';container.append(chip);}
+ }
+}
 function renderPowerStatus(){
  for(const id of ['homePlusPower','battlePlusPower']){
   const el=$(id);if(!el)continue;
@@ -1533,7 +1550,7 @@ function renderHome(){
  renderStatPanel();
  renderMoveSummary();
 }
-function render(){renderPowerStatus();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+function render(){renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
