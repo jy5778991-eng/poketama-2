@@ -23,3 +23,14 @@
 #battleScreen .battle-effect-chip.positive{color:#137344;border-color:#58b98a}
 #battleScreen .battle-effect-chip.negative{color:#b02d37;border-color:#e19b9b}
 #battleScreen .battle-effect-chip.field{color:#61409e;border-color:#a88bde}
+
+/* Animated stat-rank feedback: three pixel arrows near the active Pokémon. */
+#battleScreen .sprite .stat-change-arrows{position:absolute;left:50%;top:28%;z-index:25;display:flex;align-items:center;justify-content:center;gap:5px;pointer-events:none;transform:translate(-50%,-50%);filter:drop-shadow(1px 2px 0 #182b2e)}
+#battleScreen .sprite .stat-change-arrow{font-size:23px;line-height:1;font-family:monospace;font-weight:900;text-shadow:1px 0 currentColor,-1px 0 currentColor;animation:stat-arrows-rise .8s ease-out both}
+#battleScreen .sprite .stat-change-arrow:nth-child(2){animation-delay:.06s}
+#battleScreen .sprite .stat-change-arrow:nth-child(3){animation-delay:.12s}
+#battleScreen .sprite .stat-arrows-up .stat-change-arrow{color:#2be37c}
+#battleScreen .sprite .stat-arrows-down .stat-change-arrow{color:#f04a56;animation-name:stat-arrows-fall}
+@keyframes stat-arrows-rise{0%{opacity:0;transform:translateY(18px) scale(.75)}22%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translateY(-38px) scale(1.12)}}
+@keyframes stat-arrows-fall{0%{opacity:0;transform:translateY(-18px) scale(.75)}22%{opacity:1}75%{opacity:1}100%{opacity:0;transform:translateY(38px) scale(1.12)}}
+@media(prefers-reduced-motion:reduce){#battleScreen .sprite .stat-change-arrow{animation-duration:.01ms;opacity:1}}
