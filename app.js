@@ -378,7 +378,7 @@ async function processPartyGrowth(events){
    }
    saveProgress();
   }
- }finally{learningBusy=false;renderHome();}
+ }finally{learningBusy=false;renderHome();showChallengeUnlockNotice();}
 }
 let pendingPartyGrowth=[];
 function addPartyExperience(amount,enemyName,cap=null){
@@ -993,7 +993,7 @@ function showSilverCapStatChoice(member=leaderMember()){
  for(const stat of EV_STATS){
   const b=document.createElement('button');
   b.type='button';b.className='silver-cap-option';
-  b.textContent=STAT_LABELS[stat]+' · 개체값 최대 강화';
+  b.append(document.createTextNode(STAT_LABELS[stat]+' · 현재 값 : '));const ivs=member.starter?playerIVs:companions.find(x=>x.family===member.family)?.ivs;const star=document.createElement('span');star.className='iv-star iv-'+ivTier(ivs?.[stat]??0);star.textContent='★';b.append(star);
   const targetIVs=member.starter?playerIVs:companions.find(x=>x.family===member.family)?.ivs;
   b.disabled=!targetIVs||targetIVs[stat]===16;
   b.onclick=()=>{
@@ -1012,9 +1012,10 @@ function showSilverCapStatChoice(member=leaderMember()){
  layer.hidden=false;
  $('rewardChoiceOverlay').hidden=true;
 }
+function preserveLevelUpHp(m,beforeMax,beforeHp){const now=teamMembers().find(x=>x.key===m.key)||m;const afterMax=memberMaxHp(now);const hp=beforeHp<=0?0:Math.min(afterMax,beforeHp+Math.max(0,afterMax-beforeMax));if(now.starter)storedHp=hp;else{const found=companions.find(x=>x.family===now.family);if(found)found.hp=hp;}}
 function choosePermanentTarget(choice,autoMember=null){
  $('rewardChoiceOverlay').hidden=true;
- const applyToMember=m=>{
+ const applyToMember=m=>{const beforeMax=memberMaxHp(m),beforeHp=memberHp(m);
   if(choice.kind==='silverCap'){showSilverCapStatChoice(m);return;}
   if(choice.kind==='goldCap'){
    const iv=m.starter?playerIVs:companions.find(x=>x.family===m.family)?.ivs;
@@ -1054,6 +1055,7 @@ function choosePermanentTarget(choice,autoMember=null){
    appendAdventureLog('🍬 '+m.name+' 경험치 +'+choice.amount);
   }
   pendingRewardChoice=null;saveProgress();renderHome();
+  if(['rareCandy','expCandy','exp'].includes(choice.kind))preserveLevelUpHp(m,beforeMax,beforeHp);
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
  };
  if(autoMember){applyToMember(autoMember);return;}
@@ -1161,8 +1163,9 @@ function claimRewardChoice(index){
  if(choice.kind==='candyBundle'){
   if(teamMembers().length<2)return;
   for(const m of teamMembers()){
+    const beforeMax=memberMaxHp(m),beforeHp=memberHp(m);
    const member=m.starter?progress:companions.find(x=>x.family===m.family);
-   if(member&&member.level<100){const before=member.level;member.level++;member.exp=0;pendingPartyGrowth.push({key:m.key,name:m.name,before,after:member.level,starter:m.starter,family:m.family});}
+   if(member&&member.level<100){const before=member.level;member.level++;member.exp=0;pendingPartyGrowth.push({key:m.key,name:m.name,before,after:member.level,starter:m.starter,family:m.family});preserveLevelUpHp(m,beforeMax,beforeHp);}
   }
   appendAdventureLog('🍬 사탕 보따리 · 파티 전원 레벨업');
   pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;renderHome();
@@ -1590,7 +1593,7 @@ function offerCapturedCompanion(){
    if(!companions.length){partyOverlay('동료 교체 불가',duplicateMessage,[{text:'확인',action:()=>{}}]);return;}
    chooseReplacement();
   }},
-  {text:'보내주기',action:()=>{}}
+  {text:'도감에만 등록',action:()=>{}}
  ]);
 }
 function renderHome(){
