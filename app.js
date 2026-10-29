@@ -431,6 +431,12 @@ async function showEvolutions(evolutions){
   $('evolutionName').textContent=evolution.after.name;
   $('evolutionMessage').textContent=evolution.before.name+' → '+evolution.after.name+' 진화 성공! (LV '+evolution.level+')';
   await pause(2600);layer.hidden=true;
+  // A Pokémon obtained by evolving a caught/owned Pokémon counts as caught in the Pokédex.
+  if(Number.isInteger(evolution.after.dex)&&evolution.after.dex>0&&evolution.after.dex<=1025){
+   caughtSpecies.add(evolution.after.dex);
+   seenPokemon.add(evolution.after.dex);
+   saveProgress();
+  }
  }
 }
 const GYM_BADGES={brock:{name:'암석배지',file:'Boulder'},misty:{name:'블루배지',file:'Cascade'},surge:{name:'오렌지배지',file:'Thunder'},erika:{name:'레인보우배지',file:'Rainbow'},koga:{name:'핑크배지',file:'Soul'},sabrina:{name:'골드배지',file:'Marsh'},blaine:{name:'크림슨배지',file:'Volcano'},giovanni:{name:'그린배지',file:'Earth'}};
@@ -625,8 +631,8 @@ function reset(kind='wild'){
  let enemies;
  if(kind==='blue'){
   if(!blueChoice){blueChoice=chooseRivalStarter(chosen);saveProgress();}
-  const other=rivalForm(blueChoice,7);
-  enemies=[trainerFighter(other.name,other.dex,7,other.base,initialMoves(blueChoice))];
+  const other=rivalForm(blueChoice,5);
+  enemies=[trainerFighter(other.name,other.dex,5,other.base,initialMoves(blueChoice))];
   battleOpponent='blue';
  }else if(kind==='brock'){
   enemies=[trainerFighter('꼬마돌',74,11,{"hp":40,"attack":80,"defense":65,"speed":20}),trainerFighter('롱스톤',95,12,{"hp":35,"attack":45,"defense":103,"speed":70})];
