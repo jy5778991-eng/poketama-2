@@ -2042,7 +2042,7 @@ function requestAdventureReset(){
  if(needsStarterSelection||animating||learningBusy)return;
  const used=resetUsage();
  if(used>=RESET_LIMIT){partyOverlay('오늘 리셋 횟수 소진','하루 최대 20회까지 리셋할 수 있어. 한국 시간 자정에 다시 이용할 수 있어.',[{text:'확인'}]);return;}
- partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\\n도감 · 업적 · 명예의전당은 영구 유지돼. 정말 리셋할까?',[
+ partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼. 정말 리셋할까?',[
   {text:'취소'},
   {text:'리셋 확정',action:()=>{
    try{
@@ -2123,11 +2123,11 @@ function setup(){
  for(const id of starterOptions){
   const st=STARTERS.find(p=>p.id===id);
   const b=document.createElement('button');b.type='button';b.className='starter';b.dataset.id=id;
-  b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(st.baby)+'"><span>'+st.name+'</span><small>IV 모두 4</small>';
+  b.innerHTML='<img alt="" loading="lazy" src="'+staticImage(st.baby)+'"><span>'+st.name+'</span>';
   b.onclick=()=>beginNewAdventure(id,true);box.append(b);
  }
  const egg=document.createElement('button');egg.type='button';egg.className='starter';egg.dataset.id='egg';
- egg.innerHTML='<span style="font-size:54px;line-height:1.25">🥚</span><span>랜덤 알</span><small>랜덤 포켓몬 · 랜덤 IV</small>';
+ egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
  egg.onclick=()=>beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);
  box.append(egg);
  $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
