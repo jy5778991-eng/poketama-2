@@ -1272,7 +1272,6 @@ function renderPowerStatus(){
    chip.title=info.name+' · '+durations.length+'중첩 · 개별 남은 턴 '+durations.join(', ');
    chip.append(img,txt);el.append(chip);
   }
-  if(id==='battlePlusPower'&&typeof battle!=='undefined'&&battle?.shields?.player>0){const chip=document.createElement('span');chip.className='boost-chip';chip.textContent='✨ 빛의장막 · '+battle.shields.player+'턴';el.append(chip);}
   el.hidden=!el.childElementCount;
  }
 }
