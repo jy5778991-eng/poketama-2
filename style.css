@@ -76,6 +76,6 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .starter-selection-dialog h2{margin:0 0 10px}
 .starter-selection-dialog p{font-size:13px;line-height:1.6}
 .starter-selection-dialog .starters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
-.starter-selection-dialog .starter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:145px;padding:12px;border:2px solid #b9c9df;border-radius:12px;background:#f7faff;color:#283c5a}
-.starter-selection-dialog .starter img{width:76px;height:76px;object-fit:contain}
+.starter-selection-dialog .starter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:220px;padding:12px;border:2px solid #b9c9df;border-radius:12px;background:#f7faff;color:#283c5a}
+.starter-selection-dialog .starter img{width:152px;height:152px;max-width:100%;object-fit:contain}
 .starter-selection-dialog .starter small{font-size:11px;opacity:.8}
