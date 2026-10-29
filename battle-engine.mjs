@@ -93,8 +93,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name});
-  if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
-  if(move.aquaRing){b.rings[sideOf(b,user)]=true;say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
+  if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
+  if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
@@ -126,10 +126,10 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.boostsOnHit){for(const [stat,n] of Object.entries(move.boostsOnHit)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);say(b,`${user.name}의 ${stat} 랭크가 올랐다!`);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
   if(move.lowerTargetDefense&&isAlive(target)){const before=target.stages.defense;target.stages.defense=clamp(before-move.lowerTargetDefense,-RULES.stageLimit,RULES.stageLimit);if(before!==target.stages.defense)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-before});}
   if(move.boostOnKnockout&&!isAlive(target)){for(const [stat,n] of Object.entries(move.boostOnKnockout)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
-  if(move.lowerTargetAccuracy&&isAlive(target)){target.stages.accuracy=clamp((target.stages.accuracy||0)-move.lowerTargetAccuracy,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 명중률 랭크가 내려갔다!`);}
-  if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
-  if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
-  if(move.lowerTargetSpeedChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetSpeedChance){target.stages.speed=clamp(target.stages.speed-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 스피드 랭크가 내려갔다!`);}
+  if(move.lowerTargetAccuracy&&isAlive(target)){const oldStage=target.stages.accuracy||0;target.stages.accuracy=clamp((target.stages.accuracy||0)-move.lowerTargetAccuracy,-RULES.stageLimit,RULES.stageLimit);if(target.stages.accuracy!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'accuracy',change:target.stages.accuracy-oldStage});say(b,`${target.name}의 명중률 랭크가 내려갔다!`);}
+  if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){const oldStage=target.stages.attack||0;target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.attack!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'attack',change:target.stages.attack-oldStage});say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
+  if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){const oldStage=target.stages.defense||0;target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.defense!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-oldStage});say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
+  if(move.lowerTargetSpeedChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetSpeedChance){const oldStage=target.stages.speed||0;target.stages.speed=clamp(target.stages.speed-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.speed!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'speed',change:target.stages.speed-oldStage});say(b,`${target.name}의 스피드 랭크가 내려갔다!`);}
   if(move.confuseTarget)applyConfusion(target,b);
   if(move.confuseChance&&isAlive(target)&&target.confusionTurns<=0&&roll(b.rng)<move.confuseChance)applyConfusion(target,b);
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
