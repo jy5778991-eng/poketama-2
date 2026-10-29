@@ -80,3 +80,25 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .starter-selection-dialog .starter img{width:228px;height:228px;max-width:100%;object-fit:contain}
 .starter-selection-dialog .starter.starter-egg img{width:182px;height:182px}
 .starter-selection-dialog .starter small{font-size:11px;opacity:.8}
+
+/* Successful moves: pixel-like elemental overlays; no FX are created on missed moves. */
+#battleScreen .arena .move-impact-fx{position:absolute;z-index:28;pointer-events:none;display:flex;align-items:center;justify-content:center;gap:0;transform:translate(-50%,-50%);isolation:isolate;filter:drop-shadow(0 2px 1px #17233799)}
+#battleScreen .move-impact-fx span{font-size:clamp(24px,6vw,38px);line-height:1;position:absolute;opacity:0;animation:move-impact-pop .43s ease-out both;animation-delay:calc(var(--fx-index) * 45ms)}
+#battleScreen .move-impact-fx span:nth-child(1){--fx-x:-22px;--fx-y:-18px}
+#battleScreen .move-impact-fx span:nth-child(2){--fx-x:0px;--fx-y:9px}
+#battleScreen .move-impact-fx span:nth-child(3){--fx-x:22px;--fx-y:-12px}
+#battleScreen .move-impact-fx.fx-dragon span,#battleScreen .move-impact-fx.fx-ghost span{color:#b56eff;text-shadow:0 0 8px #7e26eb}
+#battleScreen .move-impact-fx.fx-psychic span{color:#ff71cf;text-shadow:0 0 9px #ff48bf}
+#battleScreen .move-impact-fx.fx-electric span{color:#ffe342}
+#battleScreen .move-impact-fx.fx-ice span{color:#b9faff}
+#battleScreen .move-impact-fx.fx-dark span{color:#a18fdd}
+#battleScreen .move-impact-fx.fx-critical span{font-size:clamp(32px,8vw,48px)}
+@keyframes move-impact-pop{0%{opacity:0;transform:translate(0,0) scale(.3)}35%{opacity:1;transform:translate(var(--fx-x),var(--fx-y)) scale(1.3)}72%{opacity:1}100%{opacity:0;transform:translate(calc(var(--fx-x) * 1.4),calc(var(--fx-y) * 1.4)) scale(.7)}}
+/* Explicit 4-point lateral recoil for landed hits, stronger on critical. */
+#battleScreen .sprite.impact-shake{animation:impact-side-shake .43s ease-in-out!important}
+#battleScreen .sprite.impact-shake-heavy{animation:impact-side-shake-heavy .43s ease-in-out!important}
+@keyframes impact-side-shake{0%,100%{transform:translateX(0)}18%{transform:translateX(-7px)}38%{transform:translateX(7px)}58%{transform:translateX(-5px)}78%{transform:translateX(4px)}}
+@keyframes impact-side-shake-heavy{0%,100%{transform:translateX(0)}18%{transform:translateX(-14px)}38%{transform:translateX(14px)}58%{transform:translateX(-10px)}78%{transform:translateX(8px)}}
+.battle-fast #battleScreen .sprite.impact-shake,.battle-fast #battleScreen .sprite.impact-shake-heavy{animation-duration:.215s!important}
+.battle-fast #battleScreen .move-impact-fx span{animation-duration:.215s}
+@media(prefers-reduced-motion:reduce){#battleScreen .sprite.impact-shake,#battleScreen .sprite.impact-shake-heavy{animation:none!important}#battleScreen .move-impact-fx span{animation-duration:.01ms}}
