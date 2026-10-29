@@ -1527,7 +1527,7 @@ function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
  const limit=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
  const unlocked=inventory.partySlotA===1;
- const duplicateMessage='같은 포켓몬 종류를 2마리 이상 데리고 다닐 수 없습니다!\\n도감 기록은 유지됩니다.';
+ const duplicateMessage='같은 포켓몬 종류를 2마리 이상 데리고 다닐 수 없습니다!\n도감 기록은 유지됩니다.';
  const recruit=replaceIndex=>{
   const member={family,name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level,exp:0,ivs:randomIVs(),evs:{hp:0,attack:0,defense:0,speed:0},moves:recentWildMoves(wildEnemy.dex,wildEnemy.level),hp:null};
   if(replaceIndex===null)companions.push(member);else companions.splice(replaceIndex,1,member);
