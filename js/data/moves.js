@@ -1,5 +1,8 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
+  transform:{name:'변신',accuracy:1,priority:0,transform:true},
+  ancientPower:{name:'원시의힘',power:60,accuracy:1,priority:0,boostChance:0.2,boostOnHit:{attack:1,defense:1,speed:1}},
+  psystrike:{name:'사이코브레이크',power:100,accuracy:1,priority:0},
   hornAttack:{name:'뿔찌르기',power:65,accuracy:1,priority:0},
   doubleEdge:{name:'이판사판태클',power:120,accuracy:1,priority:0,recoilMaxHp:0.15},
 drillPeck:{name:'드릴부리',power:80,accuracy:1,priority:0},
@@ -116,8 +119,8 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   sleepPowder: {name:'수면가루', accuracy:0.75, priority:0, inflict:'sleep'},
   poisonPowder: {name:'독가루', accuracy:1, priority:0, inflict:'poison'},
   dragonDance: {name:'용의춤', accuracy:1, priority:0, boosts:{attack:1,speed:1}, target:'self'},
-  recover: {name:'회복', accuracy:1, priority:0, healMaxHp:0.4, target:'self'},
-  swift: {name:'스피드스타', power:70, accuracy:1, priority:0},
+  recover: {name:'회복', accuracy:1, priority:0, healMaxHp:0.5, target:'self'},
+  swift: {name:'스피드스타', power:65, accuracy:1, priority:0},
   boneClub:{name:'뼈다귀치기',power:65,accuracy:0.85,priority:0},
   iceBeam:{name:'냉동빔',power:90,accuracy:1,priority:0,inflict:'freeze',inflictChance:0.1},
 
