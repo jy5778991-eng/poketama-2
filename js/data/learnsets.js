@@ -18,212 +18,74 @@ export const STARTER_LEARNSETS={
 };
 export const FAMILY_LEARNSETS={
  "pidgey": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "swift"
-  },
-  {
-   "level": 30,
-   "id": "wingAttack"
-  },
-  {
-   "level": 40,
-   "id": "airSlash"
-  },
-  {
-   "level": 55,
-   "id": "braveBird"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":9,"id":"gust"},
+  {"level":12,"id":"quickAttack"},
+  {"level":22,"id":"wingAttack"},
+  {"level":30,"id":"roost"},
+  {"level":38,"id":"airSlash"},
+  {"level":47,"id":"agility"},
+  {"level":51,"id":"braveBird"}
  ],
  "rattata": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "bite"
-  },
-  {
-   "level": 30,
-   "id": "bodySlam"
-  },
-  {
-   "level": 40,
-   "id": "crunch"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":10,"id":"quickAttack"},
+  {"level":20,"id":"superFang"},
+  {"level":22,"id":"bite"},
+  {"level":32,"id":"swift"},
+  {"level":40,"id":"crunch"}
  ],
  "geodude": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "rockThrow"
-  },
-  {
-   "level": 30,
-   "id": "rockSlide"
-  },
-  {
-   "level": 40,
-   "id": "earthquake"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":10,"id":"harden"},
+  {"level":15,"id":"rockThrow"},
+  {"level":20,"id":"rockTomb"},
+  {"level":30,"id":"rockSlide"},
+  {"level":40,"id":"explosion"},
+  {"level":50,"id":"earthquake"}
  ],
  "onix": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "rockThrow"
-  },
-  {
-   "level": 30,
-   "id": "ironDefense"
-  },
-  {
-   "level": 40,
-   "id": "rockSlide"
-  },
-  {
-   "level": 55,
-   "id": "earthquake"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":20,"id":"rockThrow"},
+  {"level":26,"id":"ironDefense"},
+  {"level":32,"id":"rockSlide"},
+  {"level":40,"id":"crunch"},
+  {"level":48,"id":"earthquake"},
+  {"level":56,"id":"agility"}
  ],
  "staryu": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "swift"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "recover"
-  },
-  {
-   "level": 55,
-   "id": "hydroPump"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":10,"id":"waterGun"},
+  {"level":17,"id":"bubbleBeam"},
+  {"level":25,"id":"swift"},
+  {"level":36,"id":"hpRecover"},
+  {"level":40,"id":"surf"},
+  {"level":55,"id":"hydroPump"}
  ],
  "voltorb": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "thunderShock"
-  },
-  {
-   "level": 20,
-   "id": "thunderWave"
-  },
-  {
-   "level": 30,
-   "id": "spark"
-  },
-  {
-   "level": 40,
-   "id": "thunderbolt"
-  },
-  {
-   "level": 55,
-   "id": "lightScreen"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":10,"id":"thunderShock"},
+  {"level":20,"id":"thunderWave"},
+  {"level":22,"id":"spark"},
+  {"level":38,"id":"thunderbolt"},
+  {"level":48,"id":"lightScreen"},
+  {"level":55,"id":"explosion"}
  ],
  "magnemite": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "thunderShock"
-  },
-  {
-   "level": 20,
-   "id": "thunderWave"
-  },
-  {
-   "level": 30,
-   "id": "spark"
-  },
-  {
-   "level": 40,
-   "id": "thunderbolt"
-  },
-  {
-   "level": 55,
-   "id": "ironDefense"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":10,"id":"thunderShock"},
+  {"level":16,"id":"thunderWave"},
+  {"level":22,"id":"swift"},
+  {"level":40,"id":"thunderbolt"},
+  {"level":54,"id":"zapCannon"}
  ],
  "abra": [
-  {
-   "level": 1,
-   "id": "confusion"
-  },
-  {
-   "level": 10,
-   "id": "swift"
-  },
-  {
-   "level": 20,
-   "id": "psybeam"
-  },
-  {
-   "level": 30,
-   "id": "lightScreen"
-  },
-  {
-   "level": 40,
-   "id": "recover"
-  },
-  {
-   "level": 55,
-   "id": "psychic"
-  }
+  {"level":1,"id":"tackle"},
+  {"level":15,"id":"confusion"},
+  {"level":22,"id":"psybeam"},
+  {"level":36,"id":"psychic"},
+  {"level":40,"id":"hpRecover"},
+  {"level":50,"id":"lightScreen"}
  ],
  "lapras": [
   {
@@ -954,7 +816,7 @@ export const FAMILY_LEARNSETS={
   }
  ]
 };
-export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"rattata","20":"rattata","23":"ekans","24":"ekans","32":"nidoranM","33":"nidoranM","34":"nidoranM","37":"vulpix","38":"vulpix","41":"zubat","42":"zubat","43":"oddish","44":"oddish","45":"oddish","48":"venonat","49":"venonat","50":"diglett","51":"diglett","52":"meowth","53":"meowth","58":"growlithe","59":"growlithe","63":"abra","64":"abra","65":"abra","66":"machop","67":"machop","68":"machop","69":"bellsprout","70":"bellsprout","71":"bellsprout","74":"geodude","75":"geodude","76":"geodude","77":"ponyta","78":"ponyta","79":"slowpoke","80":"slowpoke","81":"magnemite","82":"magnemite","86":"seel","87":"seel","88":"grimer","89":"grimer","90":"shellder","91":"shellder","95":"onix","100":"voltorb","101":"voltorb","102":"exeggcute","103":"exeggcute","106":"hitmonlee","107":"hitmonchan","109":"koffing","110":"koffing","111":"rhyhorn","112":"rhyhorn","114":"tangela","115":"kangaskhan","120":"staryu","121":"staryu","123":"scyther","124":"jynx","126":"magmar","131":"lapras","142":"aerodactyl"};
+export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"rattata","20":"rattata","23":"ekans","24":"ekans","32":"nidoranM","33":"nidoranM","34":"nidoranM","37":"vulpix","38":"vulpix","41":"zubat","42":"zubat","43":"oddish","44":"oddish","45":"oddish","48":"venonat","49":"venonat","50":"diglett","51":"diglett","52":"meowth","53":"meowth","58":"growlithe","59":"growlithe","63":"abra","64":"abra","65":"abra","66":"machop","67":"machop","68":"machop","69":"bellsprout","70":"bellsprout","71":"bellsprout","74":"geodude","75":"geodude","76":"geodude","77":"ponyta","78":"ponyta","79":"slowpoke","80":"slowpoke","81":"magnemite","82":"magnemite","86":"seel","87":"seel","88":"grimer","89":"grimer","90":"shellder","91":"shellder","95":"onix","208":"onix","100":"voltorb","101":"voltorb","102":"exeggcute","103":"exeggcute","106":"hitmonlee","107":"hitmonchan","109":"koffing","110":"koffing","111":"rhyhorn","112":"rhyhorn","114":"tangela","115":"kangaskhan","120":"staryu","121":"staryu","123":"scyther","124":"jynx","126":"magmar","131":"lapras","142":"aerodactyl"};
 
 // Additional wild encounter families. Six curated milestone moves per evolution family.
 export const ADDITIONAL_FAMILY_LEARNSETS={
@@ -1437,3 +1299,5 @@ export function recentWildMoves(dex,level){
  const learned=list.filter(m=>m.level<=level).slice(-4).map(m=>m.id);
  return learned.length?learned:['tackle'];
 }
+
+export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra']});
