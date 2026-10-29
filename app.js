@@ -367,10 +367,10 @@ async function processPartyGrowth(events){
      }
      const known=learnsetForDex(member.dex)||[];
      for(const info of known.filter(m=>m.level===level&&MOVES[m.id]&&!member.moves.includes(m.id))){
-      if(member.moves.length<4)member.moves.push(info.id);
+      if(member.moves.length<4){member.moves.push(info.id);await showLearnedMoveNotice(member.name,info.id);}
       else{
        const remove=await resolveMoveChoice(info.id,{member});
-       if(remove!==null){member.moves.splice(member.moves.indexOf(remove),1,info.id);}
+       if(remove!==null){member.moves.splice(member.moves.indexOf(remove),1,info.id);await showLearnedMoveNotice(member.name,info.id);}
       }
       appendAdventureLog('📖 '+member.name+' 기술 학습: '+MOVES[info.id].name);
      }
@@ -778,14 +778,19 @@ function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null}={})
   layer.hidden=false;
  });
 }
+function showLearnedMoveNotice(name,id){
+ return new Promise(resolve=>{
+  partyOverlay('새로운 기술 습득!',name+'은(는) '+MOVES[id].name+' 기술을 배웠다!',[{text:'확인',action:resolve}]);
+ });
+}
 async function learnOneMove(id){
  if(!canLearnNow(id)||playerMoves.includes(id))return;
- if(playerMoves.length<4){playerMoves.push(id);updateBattleMoves();return;}
+ if(playerMoves.length<4){playerMoves.push(id);updateBattleMoves();await showLearnedMoveNotice(getForm(chosen,progress.level).name,id);return;}
  const oldId=await resolveMoveChoice(id);
  if(oldId===null)return; // A skipped move remains available in the recall menu.
  const index=playerMoves.indexOf(oldId);
  if(index<0)return;
- playerMoves.splice(index,1,id);updateBattleMoves();
+ playerMoves.splice(index,1,id);updateBattleMoves();await showLearnedMoveNotice(getForm(chosen,progress.level).name,id);
 }
 async function processLearnQueue(queue){
  if(!queue.length)return;
@@ -1365,7 +1370,21 @@ function requestBattleSwitch(){
  if(animating||battle.ended)return;
  const others=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0);
  if(!others.length){alert('교체할 수 있는 동료가 없어.');return;}
- partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:()=>{if(animating||battle.ended)return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);if(!chooseActiveMember(m))return;const newFighter=battleRoster.get(m.key)||makeMemberFighter(m);battleRoster.set(m.key,newFighter);act({type:'switch',fighter:newFighter});}})),{text:'취소',action:()=>{}}]);
+ partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:async()=>{
+  if(animating||battle.ended)return;
+  animating=true;
+  try{
+   setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);
+   await playSwitchBallAnimation(()=>{
+    if(!chooseActiveMember(m))return;
+    const newFighter=battleRoster.get(m.key)||makeMemberFighter(m);
+    battleRoster.set(m.key,newFighter);
+    battle.player=newFighter;updateBattlePlayerHeader();render();
+   },true);
+  }finally{animating=false;}
+  const newFighter=battleRoster.get(m.key);
+  if(newFighter&&!battle.ended)await act({type:'switch',fighter:newFighter});
+ }})),{text:'취소',action:()=>{}}]);
 }
 function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:100,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
 
@@ -1496,30 +1515,44 @@ function showPartyManager(selectedKey=null,replacement=false){
  details.append(lead);
  panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
 }
+async function playSwitchBallAnimation(onArrive,recall=false){
+ const arena=document.querySelector('#battleScreen .arena');
+ const playerSprite=document.querySelector('#battleScreen .sprite.player');
+ if(!arena||!playerSprite){onArrive();return;}
+ const ball=document.createElement('img');
+ ball.className='replacement-pokeball';ball.alt='';ball.setAttribute('aria-hidden','true');
+ ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+ playerSprite.classList.remove('party-fainted','party-entering','party-recalling');
+ try{
+  if(recall){playerSprite.classList.add('party-recalling');await pause(270);}
+  playerSprite.classList.add('party-sprite-hidden');
+  arena.append(ball);
+  void ball.offsetWidth;
+  ball.classList.add('replacement-pokeball-throw');
+  await pause(570);
+  onArrive();
+  ball.classList.add('replacement-pokeball-open');
+  playerSprite.classList.remove('party-sprite-hidden','party-recalling');
+  playerSprite.classList.add('party-entering');
+  await pause(440);
+ }finally{
+  ball.remove();
+  playerSprite.classList.remove('party-recalling','party-sprite-hidden','party-entering');
+ }
+}
 async function sendOutReplacement(m){
  if(!battle||memberHp(m)<=0||battle.ended||animating)return;
  animating=true;
  try{
-  const arena=document.querySelector('#battleScreen .arena');
-  const playerSprite=document.querySelector('#battleScreen .sprite.player');
-  const ball=document.createElement('img');ball.className='replacement-pokeball';ball.alt='';
-  ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
-  if(arena)arena.append(ball);
-  if(playerSprite)playerSprite.classList.remove('party-fainted','party-entering');
-  try{
-   await pause(540);
+  await playSwitchBallAnimation(()=>{
    chooseActiveMember(m);
    battle.player=battleRoster.get(m.key)||makeMemberFighter(m);
    battleRoster.set(m.key,battle.player);
    battle.ended=false;battle.result=null;
    updateBattlePlayerHeader();
-   playerSprite?.classList.add('party-entering');
    battle.log.push('🔴 '+m.name+'! 너로 정했다!');
    render();
-   await pause(420);
-  }finally{
-   ball.remove();playerSprite?.classList.remove('party-entering');
-  }
+  });
   saveProgress();
  }finally{animating=false;render();showMenu('main');}
 }
