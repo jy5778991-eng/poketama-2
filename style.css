@@ -47,3 +47,15 @@
 .recall-move-toggle{display:flex!important;align-items:center;gap:8px;justify-content:flex-start}
 .recall-equipped-star{color:#ffc928;font-size:26px;line-height:1;text-shadow:0 1px 0 #926400,1px 0 0 #926400,-1px 0 0 #926400;flex-shrink:0}
 .recall-move-chevron{margin-left:auto;color:#516888}
+
+/* Party switch: recall the current Pokémon, throw a Poké Ball, then reveal the replacement. */
+#battleScreen .sprite.player.party-recalling{animation:party-recall .27s ease-in forwards}
+#battleScreen .sprite.player.party-sprite-hidden{opacity:0!important}
+#battleScreen .sprite.player.party-entering{animation:party-appear .44s ease-out both}
+#battleScreen .arena .replacement-pokeball{position:absolute;z-index:30;width:36px;height:36px;left:10%;top:66%;object-fit:contain;pointer-events:none;opacity:0;transform-origin:center}
+#battleScreen .arena .replacement-pokeball-throw{animation:party-ball-throw .57s ease-out forwards}
+#battleScreen .arena .replacement-pokeball-open{opacity:0}
+@keyframes party-recall{from{opacity:1;transform:scale(1)}to{opacity:0;transform:scale(.18)}}
+@keyframes party-ball-throw{0%{opacity:1;transform:translate(0,0) rotate(-45deg) scale(.65)}55%{opacity:1;transform:translate(110%, -180%) rotate(180deg) scale(1.15)}83%{opacity:1;transform:translate(185%, -145%) rotate(330deg) scale(1)}100%{opacity:1;transform:translate(210%, -115%) rotate(360deg) scale(1.2)}}
+@keyframes party-appear{0%{opacity:0;transform:scale(.2);filter:brightness(3)}60%{opacity:1;transform:scale(1.1);filter:brightness(1.7)}100%{opacity:1;transform:scale(1);filter:brightness(1)}}
+@media(prefers-reduced-motion:reduce){#battleScreen .sprite.player.party-recalling,#battleScreen .sprite.player.party-entering,#battleScreen .arena .replacement-pokeball-throw{animation-duration:.01ms}}
