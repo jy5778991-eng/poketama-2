@@ -1,6 +1,6 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-eevee66';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-eevee66';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-eevee66';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-curated72';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-curated72';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-curated72';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
@@ -30,17 +30,20 @@ const EVOLUTION_REWARD_ITEMS=[
  {id:'dawnStone',name:'각성의돌',form:'espeon',icon:'🔮'},
  {id:'duskStone',name:'어둠의돌',form:'umbreon',icon:'🌙'},
  {id:'moonStone',name:'달의돌',icon:'🌕'},
- {id:'leafStone',name:'리프의돌',icon:'🍃'}
+ {id:'leafStone',name:'리프의돌',icon:'🍃'},
+ {id:'metalCoat',name:'금속코트',icon:'🔩'}
 ];
 const STONE_WILD_EVOLUTIONS={
  moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
  leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'}},
- waterStone:{61:{dex:62,name:'강챙이'}}
+ waterStone:{61:{dex:62,name:'강챙이'}},
+ metalCoat:{95:{dex:208,name:'강철톤'}}
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
   if(choice.id==='linkCord')return member.level>=30&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
+  if(choice.id==='metalCoat')return member.dex===95&&member.level>=34;
   if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
   if(choice.id==='leafStone')return [44,70].includes(member.dex)&&member.level>=30;
   if(choice.id==='waterStone'&&member.dex===61&&member.level>=30)return true;
@@ -190,7 +193,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&['S','M','L'].includes(x.size)&&[7,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone','metalCoat'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+16*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -1250,7 +1253,7 @@ function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.f
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
 function leaderMember(){return teamMembers()[0];}
-function memberBase(m){return m.starter?getForm(chosen,progress.level).base:DEX_CATALOG.find(p=>p.dex===m.dex)?.base||{hp:60,attack:65,defense:60,speed:60};}
+function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.dex===208?{hp:75,attack:85,defense:160,speed:30}:DEX_CATALOG.find(p=>p.dex===m.dex)?.base)||{hp:60,attack:65,defense:60,speed:60};}
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
