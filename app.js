@@ -1,13 +1,13 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-moveinfo113';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-moveinfo113';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-moveinfo113';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-recalldetail114';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-recalldetail114';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-recalldetail114';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-moveinfo113';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-recalldetail114';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
-import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-moveinfo113';
+import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recalldetail114';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -829,18 +829,48 @@ function openRecall(){
  }
  $('recallSelectedName').textContent=member.name+' · Lv.'+member.level;
  const current=$('moveRecallSummary');current.replaceChildren();
- for(const id of recallMemberMoves(member)){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;current.append(chip);}
  const list=$('recallMoveList');list.replaceChildren();
+ const detailText=id=>{
+  const m=MOVES[id];if(!m)return '기술 정보 없음';
+  const effects=[],statNames={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
+  const addBoosts=(boosts,prefix)=>{for(const [stat,value] of Object.entries(boosts||{}))effects.push(prefix+(statNames[stat]||stat)+' '+(value>0?'+':'')+value+'랭크');};
+  addBoosts(m.boosts,'자신 ');
+  if(m.boostOnHit)effects.push('명중 시 '+Math.round((m.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
+  if(m.boostsOnHit)addBoosts(m.boostsOnHit,'자신 ');
+  if(m.critMultiplier>1)effects.push('급소 확률 '+m.critMultiplier+'배');
+  if(m.inflict)effects.push((({poison:'독',sleep:'수면',paralysis:'마비',burn:'화상',freeze:'얼음'})[m.inflict]||m.inflict)+' '+Math.round((m.inflictChance??1)*100)+'% 확률');
+  if(m.healMaxHp)effects.push('최대 HP의 '+Math.round(m.healMaxHp*100)+'% 회복');
+  if(m.shieldTurns)effects.push('빛의장막 '+m.shieldTurns+'턴');
+  if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사');
+  if(m.recoilMaxHp)effects.push('최대 HP의 '+Math.round(m.recoilMaxHp*100)+'% 반동 피해');
+  if(m.drain)effects.push('피해량의 '+Math.round(m.drain*100)+'% 회복');
+  if(m.priority>0)effects.push('선공 기술');
+  if(m.hpScale)effects.push('HP에 따라 위력 변동');
+  if(m.description)effects.push(m.description);
+  return '위력: '+(m.power??'—')+'  |  명중률: '+Math.round((m.accuracy??1)*100)+'%\\n효과: '+(effects.join(' · ')||'추가 효과 없음');
+ };
+ const appendMove=(id,level,isOwned)=>{
+  const move=MOVES[id];if(!move)return;
+  const wrap=document.createElement('div');wrap.className='recall-move-entry';
+  const header=document.createElement('button');header.type='button';header.className='learn-replace-button recall-move-toggle';
+  header.textContent=(level===null?'장착 중 · ':'Lv.'+level+' · ')+move.name+(isOwned?' ✓':'')+'  ▾';
+  header.setAttribute('aria-expanded','false');
+  const detail=document.createElement('div');detail.className='recall-move-detail';detail.hidden=true;
+  const info=document.createElement('div');info.className='recall-move-description';info.textContent=detailText(id);detail.append(info);
+  if(!isOwned){
+   const equip=document.createElement('button');equip.type='button';equip.className='learn-replace-button recall-move-equip';equip.textContent='이 기술 장착 / 교체';
+   equip.onclick=async()=>{if(learningBusy)return;$('moveRecallOverlay').hidden=true;learningBusy=true;try{await recallTeach(member,id);}finally{learningBusy=false;}openRecall();};
+   detail.append(equip);
+  }else{
+   const owned=document.createElement('small');owned.textContent='현재 장착된 기술';detail.append(owned);
+  }
+  header.onclick=()=>{detail.hidden=!detail.hidden;header.setAttribute('aria-expanded',String(!detail.hidden));header.textContent=(level===null?'장착 중 · ':'Lv.'+level+' · ')+move.name+(isOwned?' ✓':'')+(detail.hidden?'  ▾':'  ▴');};
+  wrap.append(header,detail);return wrap;
+ };
+ for(const id of recallMemberMoves(member)){const entry=appendMove(id,null,true);if(entry)current.append(entry);}
  for(const entry of recallLearnable(member)){
-  const btn=document.createElement('button');btn.type='button';btn.className='learn-replace-button';
-  btn.textContent='Lv.'+entry.level+' · '+moveInfo(entry.id)+(recallMemberMoves(member).includes(entry.id)?' (현재 보유)':'');
-  btn.disabled=recallMemberMoves(member).includes(entry.id);
-  btn.onclick=async()=>{
-   $('moveRecallOverlay').hidden=true;learningBusy=true;
-   try{await recallTeach(member,entry.id);}finally{learningBusy=false;}
-   openRecall();
-  };
-  list.append(btn);
+  const row=appendMove(entry.id,entry.level,recallMemberMoves(member).includes(entry.id));
+  if(row)list.append(row);
  }
  $('moveRecallOverlay').hidden=false;
 }
