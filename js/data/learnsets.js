@@ -239,7 +239,7 @@ export const FAMILY_LEARNSETS={
  "machop": [{"level":1,"id":"tackle"},{"level":12,"id":"karateChop"},{"level":25,"id":"vitalThrow"},{"level":35,"id":"rockSlide"},{"level":40,"id":"crossChop"},{"level":50,"id":"dynamicPunch"}],
  "zubat": [{"level":1,"id":"absorb"},{"level":16,"id":"wingAttack"},{"level":30,"id":"poisonJab"},{"level":34,"id":"confuseRay"},{"level":50,"id":"leechLife"},{"level":54,"id":"doubleTeam"}],
  "ekans": [{"level":1,"id":"poisonSting"},{"level":15,"id":"bite"},{"level":22,"id":"screech"},{"level":30,"id":"crunch"},{"level":45,"id":"sludgeBomb"}],
- "aerodactyl": [{"level":1,"id":"tackle"},{"level":20,"id":"wingAttack"},{"level":30,"id":"rockSlide"},{"level":40,"id":"crunch"},{"level":45,"id":"stoneEdge"},{"level":64,"id":"hyperBeam"}]
+ "aerodactyl": [{"level":1,"id":"tackle"},{"level":20,"id":"wingAttack"},{"level":30,"id":"rockSlide"},{"level":33,"id":"ancientPower"},{"level":40,"id":"crunch"},{"level":45,"id":"stoneEdge"},{"level":64,"id":"hyperBeam"}]
 };
 export const SCIZOR_LEARNSET=[{"level":1,"id":"quickAttack"},{"level":20,"id":"wingAttack"},{"level":30,"id":"slash"},{"level":40,"id":"airSlash"},{"level":44,"id":"swordsDance"},{"level":45,"id":"bulletPunch"},{"level":52,"id":"doubleTeam"},{"level":68,"id":"ironDefense"}];
 export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"rattata","20":"rattata","23":"ekans","24":"ekans","32":"nidoranM","33":"nidoranM","34":"nidoranM","37":"vulpix","38":"vulpix","41":"zubat","42":"zubat","43":"oddish","44":"oddish","45":"oddish","48":"venonat","49":"venonat","50":"diglett","51":"diglett","52":"meowth","53":"meowth","58":"growlithe","59":"growlithe","63":"abra","64":"abra","65":"abra","66":"machop","67":"machop","68":"machop","69":"bellsprout","70":"bellsprout","71":"bellsprout","74":"geodude","75":"geodude","76":"geodude","77":"ponyta","78":"ponyta","79":"slowpoke","80":"slowpoke","81":"magnemite","82":"magnemite","86":"seel","87":"seel","88":"grimer","89":"grimer","90":"shellder","91":"shellder","95":"onix","208":"onix","100":"voltorb","101":"voltorb","102":"exeggcute","103":"exeggcute","106":"hitmonlee","107":"hitmonchan","109":"koffing","110":"koffing","111":"rhyhorn","112":"rhyhorn","114":"tangela","115":"kangaskhan","120":"staryu","121":"staryu","123":"scyther","212":"scyther","124":"jynx","126":"magmar","131":"lapras","142":"aerodactyl"};
@@ -337,58 +337,8 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
    "id": "hydroPump"
   }
  ],
- "mewtwo": [
-  {
-   "level": 1,
-   "id": "confusion"
-  },
-  {
-   "level": 10,
-   "id": "psybeam"
-  },
-  {
-   "level": 20,
-   "id": "recover"
-  },
-  {
-   "level": 30,
-   "id": "psychic"
-  },
-  {
-   "level": 40,
-   "id": "shadowBall"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
- "mew": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "confusion"
-  },
-  {
-   "level": 20,
-   "id": "swift"
-  },
-  {
-   "level": 30,
-   "id": "recover"
-  },
-  {
-   "level": 40,
-   "id": "psychic"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ]
+ "mewtwo": [{"level":1,"id":"confusion"},{"level":16,"id":"ancientPower"},{"level":24,"id":"swift"},{"level":32,"id":"psychic"},{"level":56,"id":"recover"},{"level":64,"id":"calmMind"},{"level":72,"id":"psystrike"}],
+ "mew": [{"level":1,"id":"confusion"},{"level":10,"id":"swift"},{"level":20,"id":"lightScreen"},{"level":30,"id":"ancientPower"},{"level":40,"id":"calmMind"},{"level":50,"id":"psychic"},{"level":60,"id":"recover"},{"level":70,"id":"transform"},{"level":80,"id":"doubleTeam"},{"level":90,"id":"hyperBeam"}]
 };
 export const ADDITIONAL_FAMILY_BY_DEX={"13":"weedle","14":"weedle","15":"weedle","21":"spearow","22":"spearow","27":"sandshrew","28":"sandshrew","29":"nidoranF","30":"nidoranF","31":"nidoranF","35":"clefairy","36":"clefairy","46":"paras","47":"paras","54":"psyduck","55":"psyduck","60":"poliwag","61":"poliwag","62":"poliwag","72":"tentacool","73":"tentacool","84":"doduo","85":"doduo","96":"drowzee","97":"drowzee","104":"cubone","105":"cubone","116":"horsea","117":"horsea","118":"goldeen","119":"goldeen","133":"eevee","134":"eevee","135":"eevee","136":"eevee","144":"articuno","150":"mewtwo","151":"mew"};
 export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
