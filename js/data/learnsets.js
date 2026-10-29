@@ -230,58 +230,8 @@ export const FAMILY_LEARNSETS={
    "id": "flareBlitz"
   }
  ],
- "seel": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "auroraBeam"
-  },
-  {
-   "level": 30,
-   "id": "waterPulse"
-  },
-  {
-   "level": 40,
-   "id": "hydroPump"
-  },
-  {
-   "level": 55,
-   "id": "surf"
-  }
- ],
- "shellder": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "waterGun"
-  },
-  {
-   "level": 20,
-   "id": "ironDefense"
-  },
-  {
-   "level": 30,
-   "id": "auroraBeam"
-  },
-  {
-   "level": 40,
-   "id": "hydroPump"
-  },
-  {
-   "level": 55,
-   "id": "waterPulse"
-  }
- ],
+ "seel": [{"level":1,"id":"tackle"},{"level":18,"id":"waterGun"},{"level":25,"id":"auroraBeam"},{"level":38,"id":"surf"},{"level":45,"id":"iceBeam"},{"level":55,"id":"blizzard"}],
+ "shellder": [{"level":1,"id":"tackle"},{"level":20,"id":"waterGun"},{"level":30,"id":"auroraBeam"},{"level":45,"id":"icicleSpear"},{"level":58,"id":"minimize"},{"level":70,"id":"hydroPump"}],
  "slowpoke": [
   {
    "level": 1,
@@ -976,4 +926,4 @@ export function recentWildMoves(dex,level){
  return learned.length?learned:['tackle'];
 }
 
-export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth']});
+export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder']});
