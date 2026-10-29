@@ -1982,7 +1982,7 @@ function showHallOfFame(tab=hallTab){
 }
 // Reset quotas and permanent collection records are stored outside the adventure save.
 const RESET_LIMIT=20,RESET_USAGE_KEY='poketama-2-reset-usage-v1',PERMANENT_KEY='poketama-2-permanent-v1';
-let needsStarterSelection=!saved;
+let needsStarterSelection=!saved||localStorage.getItem('poketama-2-reset-pending-v1')==='yes';
 let adventureResetPending=false;
 function resetUsage(){
  try{const v=JSON.parse(localStorage.getItem(RESET_USAGE_KEY)||'null');return v?.day===todayKST()?Math.min(RESET_LIMIT,Math.max(0,Number(v.count)||0)):0;}catch{return 0;}
@@ -2028,7 +2028,7 @@ function beginNewAdventure(id,fixedIV){
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
  inventory={...START_INVENTORY};progress={level:1,exp:0,money:500};
- needsStarterSelection=false;adventureResetPending=false;
+ needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
  saveProgress();reset();showScreen('home');
 }
@@ -2050,7 +2050,7 @@ function requestAdventureReset(){
    capturedPokemon=keep.captures||[];caughtSpecies=new Set(keep.caughtSpecies||[]);
    seenPokemon=new Set(keep.seenPokemon||[]);hallOfFame=keep.hallOfFame||[];redHallOfFame=keep.redHallOfFame||[];
    // The permanent collection survives; new badges and story start from zero.
-   needsStarterSelection=true;adventureResetPending=true;showStarterSelection();
+   localStorage.setItem('poketama-2-reset-pending-v1','yes');needsStarterSelection=true;adventureResetPending=true;showStarterSelection();
   }}
  ]);
 }
