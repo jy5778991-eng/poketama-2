@@ -1,5 +1,7 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
+  hornAttack:{name:'뿔찌르기',power:65,accuracy:1,priority:0},
+  doubleEdge:{name:'이판사판태클',power:120,accuracy:1,priority:0,recoilMaxHp:0.15},
 drillPeck:{name:'드릴부리',power:80,accuracy:1,priority:0},
 rotaryPeck:{name:'회전부리',power:80,accuracy:1,priority:0},
 stoneEdge:{name:'스톤엣지',power:100,accuracy:0.8,priority:0},
