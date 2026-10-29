@@ -76,9 +76,10 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .starter-selection-dialog h2{margin:0 0 10px}
 .starter-selection-dialog p{font-size:13px;line-height:1.6}
 .starter-selection-dialog .starters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:18px}
-.starter-selection-dialog .starter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;min-height:220px;padding:12px;border:2px solid #b9c9df;border-radius:12px;background:#f7faff;color:#283c5a}
-.starter-selection-dialog .starter img{width:228px;height:228px;max-width:100%;object-fit:contain}
-.starter-selection-dialog .starter.starter-egg img{width:182px;height:182px}
+.starter-selection-dialog .starter{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:0;padding:4px 2px 6px;border:2px solid #b9c9df;border-radius:12px;background:#f7faff;color:#283c5a;overflow:hidden}
+.starter-selection-dialog .starter img{display:block;width:100%;height:auto;aspect-ratio:1/1;max-width:none;object-fit:contain;image-rendering:pixelated;margin:0;transform:scale(1.16)}
+.starter-selection-dialog .starter.starter-egg img{width:82%;height:auto;max-width:none;transform:none}
+.starter-selection-dialog .starter span{position:relative;font-size:13px;line-height:1.25;margin-top:0}
 .starter-selection-dialog .starter small{font-size:11px;opacity:.8}
 
 /* Successful moves: pixel-like elemental overlays; no FX are created on missed moves. */
