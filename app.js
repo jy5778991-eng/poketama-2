@@ -1,4 +1,4 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-icicle98';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-party99';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261029-icicle98';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-icicle98';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
@@ -233,7 +233,7 @@ const visualSprite=side=>document.querySelector('.sprite.'+side);
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));const pct=Math.max(0,100*hp/f.stats.hp);$(side+'Bar').style.width=pct+'%';$(side+'Bar').style.background=pct>50?'#59c679':pct>20?'#e8b956':'#d86862';$(side+'Hp').textContent='HP '+hp+' / '+f.stats.hp;shownHp[side]=hp;}
 function animateClass(element,klass){element.classList.remove(klass);void element.offsetWidth;element.classList.add(klass);}
 function popup(side,amount,critical=false,healing=false){const el=$(side+'Popup');el.classList.remove('visible');el.replaceChildren();const n=document.createElement('span');n.className='number-hit'+(healing?' heal':'');n.textContent=(healing?'+':'−')+amount;el.append(n);if(critical){const crit=document.createElement('span');crit.className='critical';crit.textContent='Critical Hit!';el.append(crit);}void el.offsetWidth;el.classList.add('visible');}
-async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+async function playEvents(events){for(const ev of events){if(ev.type==='move'){const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='statChange'){const el=visualSprite(ev.side);if(el){const tag=document.createElement('span');tag.textContent=(ev.change>0?'▲ ':'▼ ')+({attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'}[ev.stat]||ev.stat)+' '+(ev.change>0?'+':'')+ev.change;tag.style.cssText='position:absolute;z-index:50;left:50%;top:0;transform:translate(-50%,-20%);font-weight:900;font-size:17px;color:'+(ev.change>0?'#22c55e':'#ef4444')+';text-shadow:0 2px 3px #111;pointer-events:none;white-space:nowrap';el.style.position='relative';el.append(tag);el.animate([{filter:'brightness(1)',transform:'translateY(0)'},{filter:'brightness(1.35)',transform:'translateY('+(ev.change>0?'-7px':'7px')+')'},{filter:'brightness(1)',transform:'translateY(0)'}],{duration:700});await pause(700);tag.remove();}}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -742,7 +742,7 @@ function playHomeLevelUp(previousLevel,newLevel){
 
 function renderMoveSummary(){
  const target=$('moveRecallSummary');target.replaceChildren();
- const m=leaderMember();for(const id of (m.starter?playerMoves:m.moves||[])){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;target.append(chip);}
+ const m=teamMembers().find(x=>x.key===recallSelectedKey)||leaderMember();for(const id of recallMemberMoves(m)){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;target.append(chip);}
 }
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
 function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+Math.round((m.accuracy??1)*100)+'%'+(m.description?' · '+m.description:'');}
@@ -785,25 +785,51 @@ async function processLearnQueue(queue){
   for(const id of queue)await learnOneMove(id);
  }finally{learningBusy=false;}
 }
+let recallSelectedKey=null;
+function recallMemberMoves(member){return member.starter?playerMoves:(companions.find(c=>c.family===member.family)?.moves||[]);}
+function recallLearnable(member){return member.starter?availableMoves(chosen,progress.level):((learnsetForDex(member.dex)||[]).filter(x=>x.level<=member.level&&MOVES[x.id]));}
+async function recallTeach(member,id){
+ const moves=recallMemberMoves(member);
+ if(!recallLearnable(member).some(x=>x.id===id)||moves.includes(id))return;
+ if(moves.length<4){moves.push(id);}
+ else{
+  const old=await resolveMoveChoice(id,{member:{name:member.name,moves}});
+  if(old===null)return;
+  const at=moves.indexOf(old);if(at<0)return;
+  moves.splice(at,1,id);
+ }
+ saveProgress();renderHome();
+}
 function openRecall(){
  if(screen!=='home'||animating||learningBusy)return;
- const list=$('recallMoveList');list.replaceChildren();
- for(const entry of availableMoves(chosen,progress.level)){
+ const members=teamMembers();
+ if(!members.some(m=>m.key===recallSelectedKey))recallSelectedKey=members[0]?.key;
+ const member=members.find(m=>m.key===recallSelectedKey);if(!member)return;
+ const picker=$('recallPokemonPicker');picker.replaceChildren();
+ for(const m of members){
   const btn=document.createElement('button');btn.type='button';btn.className='learn-replace-button';
-  btn.textContent='Lv.'+entry.level+' · '+moveInfo(entry.id)+(playerMoves.includes(entry.id)?' (현재 보유)':'');
-  btn.disabled=playerMoves.includes(entry.id);
+  btn.textContent=m.name+' · Lv.'+m.level+(m.key===recallSelectedKey?' ✓':'');
+  btn.setAttribute('aria-pressed',String(m.key===recallSelectedKey));
+  btn.onclick=()=>{recallSelectedKey=m.key;openRecall();};picker.append(btn);
+ }
+ $('recallSelectedName').textContent=member.name+' · Lv.'+member.level;
+ const current=$('moveRecallSummary');current.replaceChildren();
+ for(const id of recallMemberMoves(member)){const chip=document.createElement('span');chip.className='learn-move-chip';chip.textContent=MOVES[id]?.name||id;current.append(chip);}
+ const list=$('recallMoveList');list.replaceChildren();
+ for(const entry of recallLearnable(member)){
+  const btn=document.createElement('button');btn.type='button';btn.className='learn-replace-button';
+  btn.textContent='Lv.'+entry.level+' · '+moveInfo(entry.id)+(recallMemberMoves(member).includes(entry.id)?' (현재 보유)':'');
+  btn.disabled=recallMemberMoves(member).includes(entry.id);
   btn.onclick=async()=>{
    $('moveRecallOverlay').hidden=true;learningBusy=true;
-   try{await learnOneMove(entry.id);}finally{learningBusy=false;}
-   $('moveRecallOverlay').hidden=false;openRecallList();
+   try{await recallTeach(member,entry.id);}finally{learningBusy=false;}
+   openRecall();
   };
   list.append(btn);
  }
  $('moveRecallOverlay').hidden=false;
 }
-function openRecallList(){
- $('moveRecallOverlay').hidden=true;openRecall();
-}
+function openRecallList(){openRecall();}
 
 function rewardChoiceText(choice){
  if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
