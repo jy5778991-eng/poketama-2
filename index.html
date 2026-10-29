@@ -118,7 +118,7 @@ const panel=()=>document.getElementById('gameBootError');
 const report=(message)=>{
  let p=panel();
  if(!p){p=document.createElement('div');p.id='gameBootError';document.body.prepend(p);}
- p.style.css?v=20261029-statarrows112Text='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003;white-space:pre-wrap';
+ p.style.cssText='position:fixed;z-index:999999;left:12px;right:12px;top:12px;padding:16px;border-radius:12px;background:#fff5ee;color:#761d16;border:2px solid #bd3325;font:14px/1.5 sans-serif;box-shadow:0 4px 18px #0003;white-space:pre-wrap';
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
