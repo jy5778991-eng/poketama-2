@@ -6,8 +6,8 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-eevee66';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-eevee66';
+import {MOVES} from './js/data/moves.js?v=20261029-curated72';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-curated72';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
@@ -103,9 +103,9 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   }
   if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);emit(b,{type:'heal',side:sideOf(b,user),amount:gain,hp:user.hp});}
   if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
-  if(move.power){
+  if(move.power||move.currentHpFraction){
     const scaledPower=move.hpScale==='currentRatio'?150*user.hp/user.stats.hp:move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
-    const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
+    const {damage,critical}=move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     target.hp=Math.max(0,target.hp-damage);
     emit(b,{type:'damage',side:sideOf(b,target),amount:damage,hp:target.hp,critical});
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
@@ -113,6 +113,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   }
   if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
   if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
+  if(move.lowerTargetSpeedChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetSpeedChance){target.stages.speed=clamp(target.stages.speed-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 스피드 랭크가 내려갔다!`);}
   if(move.confuseTarget)applyConfusion(target,b);
   if(move.confuseChance&&isAlive(target)&&target.confusionTurns<=0&&roll(b.rng)<move.confuseChance)applyConfusion(target,b);
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
