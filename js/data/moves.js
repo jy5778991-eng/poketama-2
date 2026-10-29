@@ -1,5 +1,7 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
+  sing:{name:'노래하기',accuracy:0.6,priority:0,inflict:'sleep'},
+  megaKick:{name:'메가톤킥',power:120,accuracy:0.75,priority:0},
   tackle40:{name:'몸통박치기',power:40,accuracy:1,priority:0},
   hornAttack50:{name:'뿔찌르기',power:50,accuracy:1,priority:0},
   poisonSting15:{name:'독침',power:15,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
