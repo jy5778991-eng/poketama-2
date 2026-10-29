@@ -239,64 +239,14 @@ export const FAMILY_LEARNSETS={
  "machop": [{"level":1,"id":"tackle"},{"level":12,"id":"karateChop"},{"level":25,"id":"vitalThrow"},{"level":35,"id":"rockSlide"},{"level":40,"id":"crossChop"},{"level":50,"id":"dynamicPunch"}],
  "zubat": [{"level":1,"id":"absorb"},{"level":16,"id":"wingAttack"},{"level":30,"id":"poisonJab"},{"level":34,"id":"confuseRay"},{"level":50,"id":"leechLife"},{"level":54,"id":"doubleTeam"}],
  "ekans": [{"level":1,"id":"poisonSting"},{"level":15,"id":"bite"},{"level":22,"id":"screech"},{"level":30,"id":"crunch"},{"level":45,"id":"sludgeBomb"}],
- "aerodactyl": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "bite"
-  },
-  {
-   "level": 20,
-   "id": "wingAttack"
-  },
-  {
-   "level": 30,
-   "id": "rockSlide"
-  },
-  {
-   "level": 40,
-   "id": "airSlash"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ]
+ "aerodactyl": [{"level":1,"id":"tackle"},{"level":20,"id":"wingAttack"},{"level":30,"id":"rockSlide"},{"level":40,"id":"crunch"},{"level":45,"id":"stoneEdge"},{"level":64,"id":"hyperBeam"}]
 };
 export const SCIZOR_LEARNSET=[{"level":1,"id":"quickAttack"},{"level":20,"id":"wingAttack"},{"level":30,"id":"slash"},{"level":40,"id":"airSlash"},{"level":44,"id":"swordsDance"},{"level":45,"id":"bulletPunch"},{"level":52,"id":"doubleTeam"},{"level":68,"id":"ironDefense"}];
 export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"rattata","20":"rattata","23":"ekans","24":"ekans","32":"nidoranM","33":"nidoranM","34":"nidoranM","37":"vulpix","38":"vulpix","41":"zubat","42":"zubat","43":"oddish","44":"oddish","45":"oddish","48":"venonat","49":"venonat","50":"diglett","51":"diglett","52":"meowth","53":"meowth","58":"growlithe","59":"growlithe","63":"abra","64":"abra","65":"abra","66":"machop","67":"machop","68":"machop","69":"bellsprout","70":"bellsprout","71":"bellsprout","74":"geodude","75":"geodude","76":"geodude","77":"ponyta","78":"ponyta","79":"slowpoke","80":"slowpoke","81":"magnemite","82":"magnemite","86":"seel","87":"seel","88":"grimer","89":"grimer","90":"shellder","91":"shellder","95":"onix","208":"onix","100":"voltorb","101":"voltorb","102":"exeggcute","103":"exeggcute","106":"hitmonlee","107":"hitmonchan","109":"koffing","110":"koffing","111":"rhyhorn","112":"rhyhorn","114":"tangela","115":"kangaskhan","120":"staryu","121":"staryu","123":"scyther","212":"scyther","124":"jynx","126":"magmar","131":"lapras","142":"aerodactyl"};
 
 // Additional wild encounter families. Six curated milestone moves per evolution family.
 export const ADDITIONAL_FAMILY_LEARNSETS={
- "spearow": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "swift"
-  },
-  {
-   "level": 30,
-   "id": "wingAttack"
-  },
-  {
-   "level": 40,
-   "id": "airSlash"
-  },
-  {
-   "level": 55,
-   "id": "braveBird"
-  }
- ],
+ "spearow": [{"level":1,"id":"tackle"},{"level":16,"id":"wingAttack"},{"level":32,"id":"drillPeck"},{"level":43,"id":"fly"},{"level":55,"id":"braveBird"}],
  "nidoranF": [
   {
    "level": 1,
@@ -350,84 +300,9 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
   }
  ],
  "weedle": [{"level":1,"id":"poisonSting"},{"level":7,"id":"harden"},{"level":12,"id":"furyAttack"},{"level":27,"id":"poisonJab"},{"level":38,"id":"fellStinger"},{"level":43,"id":"agility"}],
- "paras": [
-  {
-   "level": 1,
-   "id": "scratch"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "poisonPowder"
-  },
-  {
-   "level": 30,
-   "id": "leechLife"
-  },
-  {
-   "level": 40,
-   "id": "slash"
-  },
-  {
-   "level": 55,
-   "id": "gigaDrain"
-  }
- ],
- "sandshrew": [
-  {
-   "level": 1,
-   "id": "scratch"
-  },
-  {
-   "level": 10,
-   "id": "harden"
-  },
-  {
-   "level": 20,
-   "id": "dig"
-  },
-  {
-   "level": 30,
-   "id": "slash"
-  },
-  {
-   "level": 40,
-   "id": "earthquake"
-  },
-  {
-   "level": 55,
-   "id": "swordsDance"
-  }
- ],
- "clefairy": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "swift"
-  },
-  {
-   "level": 20,
-   "id": "lightScreen"
-  },
-  {
-   "level": 30,
-   "id": "bodySlam"
-  },
-  {
-   "level": 40,
-   "id": "recover"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
+ "paras": [{"level":1,"id":"scratch"},{"level":10,"id":"poisonPowder"},{"level":13,"id":"absorb"},{"level":22,"id":"slash"},{"level":28,"id":"megaDrain"},{"level":45,"id":"gigaDrain"}],
+ "sandshrew": [{"level":1,"id":"scratch"},{"level":10,"id":"harden"},{"level":12,"id":"mudSlap"},{"level":26,"id":"dig"},{"level":32,"id":"slash"},{"level":45,"id":"earthquake"},{"level":52,"id":"swordsDance"}],
+ "clefairy": [{"level":1,"id":"tackle"},{"level":20,"id":"doubleSlap"},{"level":29,"id":"lightScreen"},{"level":38,"id":"calmMind"},{"level":40,"id":"moonlight"},{"level":49,"id":"bodySlam"}],
  "poliwag": [{"level":1,"id":"tackle"},{"level":10,"id":"waterGun"},{"level":24,"id":"bubbleBeam"},{"level":32,"id":"bodySlam"},{"level":48,"id":"hydroPump"},{"level":52,"id":"dynamicPunch"},{"level":60,"id":"acidArmor"}],
  "goldeen": [
   {
@@ -585,32 +460,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
    "id": "gigaImpact"
   }
  ],
- "doduo": [
-  {
-   "level": 1,
-   "id": "quickAttack"
-  },
-  {
-   "level": 10,
-   "id": "tackle"
-  },
-  {
-   "level": 20,
-   "id": "wingAttack"
-  },
-  {
-   "level": 30,
-   "id": "swift"
-  },
-  {
-   "level": 40,
-   "id": "airSlash"
-  },
-  {
-   "level": 55,
-   "id": "braveBird"
-  }
- ],
+ "doduo": [{"level":1,"id":"tackle"},{"level":12,"id":"sandAttack"},{"level":27,"id":"airSlash"},{"level":35,"id":"drillPeck"},{"level":43,"id":"agility"},{"level":55,"id":"closeCombat"}],
  "articuno": [
   {
    "level": 1,
@@ -701,4 +551,4 @@ export function recentWildMoves(dex,level){
  return learned.length?learned:['tackle'];
 }
 
-export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder','slowpoke','jynx','hitmonchan','hitmonlee','machop','zubat','ekans','poliwag','weedle']});
+export const MANUALLY_UPDATED_FAMILIES=Object.freeze({starter:['eevee','jolteon','flareon','vaporeon','espeon','umbreon','snorlax','gyarados','gengar','dragonite','venusaur','charizard','blastoise','raichu','butterfree'],wild:['pidgey','rattata','geodude','onix','staryu','voltorb','magnemite','abra','lapras','exeggcute','scyther','growlithe','bellsprout','tangela','oddish','grimer','venonat','koffing','diglett','kangaskhan','meowth','seel','shellder','slowpoke','jynx','hitmonchan','hitmonlee','machop','zubat','ekans','poliwag','weedle','doduo','aerodactyl','spearow','paras','sandshrew','clefairy']});
