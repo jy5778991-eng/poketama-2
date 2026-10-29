@@ -1,13 +1,13 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-recalldetail114';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-recalldetail114';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-recalldetail114';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-movetext115';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-movetext115';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-movetext115';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-recalldetail114';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-movetext115';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
-import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recalldetail114';
+import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-movetext115';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -847,7 +847,7 @@ function openRecall(){
   if(m.priority>0)effects.push('선공 기술');
   if(m.hpScale)effects.push('HP에 따라 위력 변동');
   if(m.description)effects.push(m.description);
-  return '위력: '+(m.power??'—')+'  |  명중률: '+Math.round((m.accuracy??1)*100)+'%\\n효과: '+(effects.join(' · ')||'추가 효과 없음');
+  return '위력: '+(m.power??'—')+'  |  명중률: '+Math.round((m.accuracy??1)*100)+'%'+(effects.length?'\n효과: '+effects.join(' · '):'');
  };
  const appendMove=(id,level,isOwned)=>{
   const move=MOVES[id];if(!move)return;
@@ -1385,6 +1385,7 @@ function partyOverlay(title,description,choices){
  }
  document.getElementById('partyActionTitle').textContent=title;
  document.getElementById('partyActionInfo').textContent=description;
+ document.getElementById('partyActionInfo').style.whiteSpace='pre-line';
  const target=document.getElementById('partyActionButtons');target.replaceChildren();
  for(const option of choices){
   const button=document.createElement('button');button.type='button';
@@ -1487,7 +1488,7 @@ function showPartyManager(selectedKey=null,replacement=false){
    if(move.recharge)effects.push('사용 후 다음 턴 행동 불가');
    if(move.hpScale)effects.push('현재 HP에 따라 위력 변동');
    if(move.description)effects.push(move.description);
-   partyOverlay(move.name,power+'\\n'+accuracy+'\\n효과: '+(effects.join(' · ')||'추가 효과 없음'),[{text:'확인',action:()=>showPartyManager(m.key)}]);
+   partyOverlay(move.name,power+'\n'+accuracy+(effects.length?'\n효과: '+effects.join(' · '):''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
   };
   moves.append(cell);
  }
