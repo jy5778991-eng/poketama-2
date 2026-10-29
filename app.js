@@ -232,12 +232,11 @@ function renderStatPanel(){
 
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/battleSpeed));
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));displayHpBar(side,hp,f);shownHp[side]=hp;}
-async function playEvents(events){for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statChange'){
+async function playEvents(events){for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statChange'){
   // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
   // Display one three-arrow animation for the whole group.
   const side=ev.side,positive=ev.change>0;
-  while(i+1<events.length&&events[i+1].type==='statChange'&&events[i+1].side===side&&Math.sign(events[i+1].change)===Math.sign(ev.change))i++;
-  renderBattleEffects();
+  const rankEvents=[ev];while(i+1<events.length&&events[i+1].type==='statChange'&&events[i+1].side===side&&Math.sign(events[i+1].change)===Math.sign(ev.change))rankEvents.push(events[++i]);if(battleEffectDisplay){for(const re of rankEvents){const stages=battleEffectDisplay[side].stages;stages[re.stat]=(stages[re.stat]||0)+re.change;}}renderBattleEffects();
   const host=visualSprite(side);
   if(host){
     host.querySelectorAll('.stat-change-arrows').forEach(node=>node.remove());
@@ -246,10 +245,10 @@ async function playEvents(events){for(let i=0;i<events.length;i++){const ev=even
     arrows.setAttribute('aria-hidden','true');
     for(let n=0;n<3;n++){const arrow=document.createElement('span');arrow.className='stat-change-arrow';arrow.textContent=positive?'▲':'▼';arrows.append(arrow);}
     host.append(arrows);
-    await pause(850);
+    await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='fieldEffect'){renderBattleEffects();await pause(220);}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -1295,20 +1294,22 @@ function renderInventory(){
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
+let battleEffectDisplay=null;
+function snapshotBattleEffects(){return {player:{stages:{...battle.player.stages}},enemy:{stages:{...(animatingEnemy??battle.enemies[battle.enemyIndex])?.stages}},shields:{...battle.shields},rings:{...battle.rings}};}
 function renderBattleEffects(){
  if(!battle)return;
  for(const side of ['player','enemy']){
   const container=$(side==='player'?'playerBattleEffects':'enemyBattleEffects');if(!container)continue;
   container.replaceChildren();
   const fighter=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));
-  if(fighter?.stages)for(const [stat,rank] of Object.entries(fighter.stages)){
+  const visible=battleEffectDisplay?.[side]||fighter;if(visible?.stages)for(const [stat,rank] of Object.entries(visible.stages)){
    if(!rank)continue;
    const chip=document.createElement('span');chip.className='battle-effect-chip '+(rank>0?'positive':'negative');
    chip.textContent=(rank>0?'▲ ':'▼ ')+(BATTLE_RANK_LABELS[stat]||stat)+' '+(rank>0?'+':'')+rank;
    container.append(chip);
   }
-  if(battle.shields?.[side]>0){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='✨ 빛의장막 '+battle.shields[side]+'턴';container.append(chip);}
-  if(battle.rings?.[side]){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='💧 아쿠아링';container.append(chip);}
+  if((battleEffectDisplay?.shields||battle.shields)?.[side]>0){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='✨ 빛의장막 '+(battleEffectDisplay?.shields||battle.shields)[side]+'턴';container.append(chip);}
+  if((battleEffectDisplay?.rings||battle.rings)?.[side]){const chip=document.createElement('span');chip.className='battle-effect-chip field';chip.textContent='💧 아쿠아링';container.append(chip);}
  }
 }
 function renderPowerStatus(){
@@ -1698,7 +1699,7 @@ async function act(a){
    found.hp=hp;
    appendAdventureLog('💊 '+target.name+' HP '+before+' → '+hp);
   }
-  takeTurn(battle,a);
+  battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a);
   if(a.type==='switch')updateBattlePlayerHeader();
   battleRoster.set(activeBattleKey,battle.player);
   
@@ -1727,7 +1728,7 @@ async function act(a){
    defeatedEnemies++;
   }}
  }
- shownHp={...previousHp};render();await playEvents(events);
+ shownHp={...previousHp};render();await playEvents(events);battleEffectDisplay=null;renderBattleEffects();
  animatingEnemy=null; // Only now may the next trainer Pokémon's max HP appear.
  if(needsReplacement){const playerSprite=document.querySelector('#battleScreen .sprite.player');if(playerSprite){playerSprite.classList.add('party-fainted');await pause(500);}}
  if(battleKind!=='wild'&&events.some(ev=>ev.type==='knockout'&&ev.side==='enemy')&&!battle.ended){
@@ -1775,7 +1776,7 @@ async function act(a){
   }
  }catch(err){alert(err.message);console.error(err);}
  finally{
-  animatingEnemy=null;
+  battleEffectDisplay=null;animatingEnemy=null;
   if(battle&&!battle.ended){setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();}
   animating=false;
   render();
