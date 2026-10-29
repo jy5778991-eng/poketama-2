@@ -1,6 +1,6 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-party-status119';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261029-party-status119';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-party-status119';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-move-vfx130';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-party-status119';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261029-animated-trainers127';
@@ -232,7 +232,47 @@ function renderStatPanel(){
 
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/battleSpeed));
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));displayHpBar(side,hp,f);shownHp[side]=hp;}
-async function playEvents(events){for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statChange'){
+// Battle-only decorative effects; damage and status outcomes remain authoritative in the engine.
+function moveEffectType(id=''){
+ const m=String(id).toLowerCase();
+ if(/fire|flame|ember|blaze|burn|willow|sunny/.test(m))return 'fire';
+ if(/thunder|volt|electric|spark|zap|shock/.test(m))return 'electric';
+ if(/water|aqua|hydro|surf|bubble|rain|scald/.test(m))return 'water';
+ if(/leaf|vine|seed|solar|energyball|giga|absorb|synthesis|petal/.test(m))return 'leaf';
+ if(/dragon|outrage|draco/.test(m))return 'dragon';
+ if(/shadow|ghost|nightshade|curse|hypnosis|dreameater|lick|confuse/.test(m))return 'ghost';
+ if(/poison|toxic|sludge|acid|venom/.test(m))return 'poison';
+ if(/ice|freeze|blizzard|snow|cold|icicle/.test(m))return 'ice';
+ if(/psychic|psy|mind|future|extrasensory/.test(m))return 'psychic';
+ if(/dark|bite|crunch|snarl|sucker/.test(m))return 'dark';
+ return 'physical';
+}
+const MOVE_EFFECT_GLYPHS={fire:['🔥','✦','🔥'],electric:['⚡','✧','⚡'],water:['💧','◌','💦'],leaf:['🍃','✦','🍃'],dragon:['✧','◈','✧'],ghost:['◈','✧','◈'],poison:['☣','◌','☣'],ice:['❄','✦','❄'],psychic:['✧','◉','✧'],dark:['◈','✦','◈'],physical:['✦','✧','✦']};
+async function playMoveImpact(side,moveId,critical=false){
+ const arena=document.querySelector('#battleScreen .arena'),host=visualSprite(side);
+ if(!arena||!host)return;
+ const field=arena.getBoundingClientRect(),target=host.getBoundingClientRect();
+ const fx=document.createElement('div');const type=moveEffectType(moveId);
+ fx.className='move-impact-fx fx-'+type+(critical?' fx-critical':'');
+ fx.style.left=(target.left-field.left+target.width/2)+'px';
+ fx.style.top=(target.top-field.top+target.height*.48)+'px';
+ fx.setAttribute('aria-hidden','true');
+ for(const [i,glyph] of MOVE_EFFECT_GLYPHS[type].entries()){
+  const part=document.createElement('span');part.textContent=glyph;part.style.setProperty('--fx-index',String(i));fx.append(part);
+ }
+ arena.append(fx);
+ await pause(420);
+ fx.remove();
+}
+async function shakeHit(side,critical=false){
+ const host=visualSprite(side);if(!host)return;
+ host.classList.remove('impact-shake','impact-shake-heavy');void host.offsetWidth;
+ host.classList.add(critical?'impact-shake-heavy':'impact-shake');
+ await pause(430);
+ host.classList.remove('impact-shake','impact-shake-heavy');
+}
+async function playEvents(events){let currentMove=null;for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.recoil; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statusApplied'){if(currentMove&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}}else if(ev.type==='statChange'){
+  if(currentMove?.isStatus&&currentMove.side!==ev.side&&ev.change<0){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}
   // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
   // Display one three-arrow animation for the whole group.
   const side=ev.side,positive=ev.change>0;
