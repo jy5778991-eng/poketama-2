@@ -1,13 +1,13 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-statarrows112';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-statarrows112';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-statarrows112';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-moveinfo113';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-moveinfo113';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-moveinfo113';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-statarrows112';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-moveinfo113';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
-import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-statarrows112';
+import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-moveinfo113';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -1430,16 +1430,34 @@ function showPartyManager(selectedKey=null,replacement=false){
   cell.onclick=()=>{
    const power=move.power?'위력 '+move.power:'위력 --';
    const accuracy='명중률 '+Math.round((move.accuracy??1)*100)+'%';
-   let effect='';
-   if(!move.power){
-    const effects=[];
-    if(move.boosts){const names={attack:'공격',defense:'방어',speed:'스피드'};for(const [stat,level] of Object.entries(move.boosts))effects.push((move.target==='self'?'자신의 ':'상대의 ')+(names[stat]||stat)+' '+(level>0?'+':'')+level+'랭크');}
-    if(move.inflict)effects.push(({poison:'독',paralysis:'마비',sleep:'잠듦'})[move.inflict]||move.inflict);
-    if(move.healMaxHp)effects.push('최대 HP의 '+Math.round(move.healMaxHp*100)+'% 회복');
-    if(move.target==='self'&&move.boosts?.defense&&move.name==='빛의장막')effects.push('방어 강화');
-    effect=effects.join(' · ')||'특수 효과';
-   }
-   partyOverlay(move.name,power+' · '+accuracy+(effect?'\n효과: '+effect:''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
+   const effects=[];
+   const names={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
+   const status={poison:'독',paralysis:'마비',sleep:'수면',freeze:'얼음',burn:'화상'};
+   const boosts=(entries,who)=>{for(const [stat,n] of Object.entries(entries||{}))effects.push(who+(names[stat]||stat)+' '+(n>0?'+':'')+n+'랭크');};
+   if(move.boosts)boosts(move.boosts,'자신 ');
+   if(move.boostsOnHit)boosts(move.boostsOnHit,'자신 ');
+   if(move.boostOnHit)effects.push('명중 시 '+Math.round((move.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
+   if(move.boostOnKnockout)effects.push('상대 기절 시 능력치 상승');
+   if(move.critMultiplier&&move.critMultiplier!==1)effects.push('급소 확률 '+move.critMultiplier+'배');
+   if(move.inflict)effects.push((status[move.inflict]||move.inflict)+' '+Math.round((move.inflictChance??1)*100)+'% 확률');
+   if(move.confuseTarget)effects.push('상대를 혼란 상태로');
+   if(move.healMaxHp)effects.push('최대 HP의 '+Math.round(move.healMaxHp*100)+'% 회복');
+   if(move.shieldTurns)effects.push('빛의장막 '+move.shieldTurns+'턴');
+   if(move.aquaRing)effects.push('매 턴 HP 회복');
+   if(move.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사 (교체 시 해제)');
+   if(move.lowerTargetDefense)effects.push('상대 방어 -'+move.lowerTargetDefense+'랭크');
+   if(move.lowerTargetAttackChance)effects.push('상대 공격 하락 '+Math.round(move.lowerTargetAttackChance*100)+'%');
+   if(move.lowerTargetDefenseChance)effects.push('상대 방어 하락 '+Math.round(move.lowerTargetDefenseChance*100)+'%');
+   if(move.lowerTargetSpeedChance)effects.push('상대 스피드 하락 '+Math.round(move.lowerTargetSpeedChance*100)+'%');
+   if(move.lowerTargetAccuracy)effects.push('상대 명중률 하락');
+   if(move.drain)effects.push('준 피해의 '+Math.round(move.drain*100)+'% HP 흡수');
+   if(move.recoilMaxHp)effects.push('사용 후 최대 HP의 '+Math.round(move.recoilMaxHp*100)+'% 반동 피해');
+   if(move.multiHit)effects.push(move.multiHit.min+'~'+move.multiHit.max+'회 연속 공격');
+   if(move.priority>0)effects.push('선공 기술');
+   if(move.recharge)effects.push('사용 후 다음 턴 행동 불가');
+   if(move.hpScale)effects.push('현재 HP에 따라 위력 변동');
+   if(move.description)effects.push(move.description);
+   partyOverlay(move.name,power+'\\n'+accuracy+'\\n효과: '+(effects.join(' · ')||'추가 효과 없음'),[{text:'확인',action:()=>showPartyManager(m.key)}]);
   };
   moves.append(cell);
  }
