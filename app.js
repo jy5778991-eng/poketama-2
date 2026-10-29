@@ -1,11 +1,11 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-lenses107';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-lenses107';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-lenses107';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-thickclub108';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-thickclub108';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-thickclub108';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-lenses107';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-thickclub108';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
@@ -59,7 +59,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
   rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
-  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[])],
+  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[])],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
  };
  return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
@@ -844,6 +844,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 내 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 모든 아군 포켓몬 기술 명중률 영구 +5%p (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 광각렌즈A 필요 · 모든 아군 포켓몬 기술 명중률 추가 영구 +5%p (중요 아이템)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
@@ -1304,7 +1305,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.d
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=1+0.2*boostCount('attack');player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1);player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
  activeBattleKey=m.key;
@@ -1578,7 +1579,7 @@ async function act(a){
   animating=true;
   // Consume one item only after the engine accepts the player's turn.
   // Each completed battle turn consumes one boost turn, including capture/item turns.
-  battle.player.attackBuffMultiplier=1+0.2*boostCount('attack');
+  battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));
   battle.player.critBuff=0.15*boostCount('critical');
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
