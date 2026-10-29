@@ -1,13 +1,13 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-battleui111';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261029-battleui111';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-battleui111';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261029-statarrows112';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261029-statarrows112';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261029-statarrows112';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261029-pikachu-stone68';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261024-adventure1';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261024-road2';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-battleui111';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261029-statarrows112';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
-import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-battleui111';
+import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-statarrows112';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261023-14';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
@@ -232,7 +232,24 @@ function renderStatPanel(){
 
 const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/battleSpeed));
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));displayHpBar(side,hp,f);shownHp[side]=hp;}
-async function playEvents(events){for(const ev of events){if(ev.type==='move'){if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statChange'||ev.type==='fieldEffect'){renderBattleEffects();await pause(220);}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+async function playEvents(events){for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(460);displayHp(ev.side,ev.hp);await pause(460);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statChange'){
+  // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
+  // Display one three-arrow animation for the whole group.
+  const side=ev.side,positive=ev.change>0;
+  while(i+1<events.length&&events[i+1].type==='statChange'&&events[i+1].side===side&&Math.sign(events[i+1].change)===Math.sign(ev.change))i++;
+  renderBattleEffects();
+  const host=visualSprite(side);
+  if(host){
+    host.querySelectorAll('.stat-change-arrows').forEach(node=>node.remove());
+    const arrows=document.createElement('div');
+    arrows.className='stat-change-arrows '+(positive?'stat-arrows-up':'stat-arrows-down');
+    arrows.setAttribute('aria-hidden','true');
+    for(let n=0;n<3;n++){const arrow=document.createElement('span');arrow.className='stat-change-arrow';arrow.textContent=positive?'▲':'▼';arrows.append(arrow);}
+    host.append(arrows);
+    await pause(850);
+    arrows.remove();
+  }else await pause(220);
+}else if(ev.type==='fieldEffect'){renderBattleEffects();await pause(220);}else if(ev.type==='heal'){popup(ev.side,ev.amount,false,true);await pause(300);displayHp(ev.side,ev.hp);await pause(350);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
