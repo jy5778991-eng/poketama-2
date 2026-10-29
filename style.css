@@ -14,3 +14,12 @@
 /* Red second ending */
 .red-ending-overlay{position:fixed;inset:0;z-index:4000;display:grid;place-items:center;overflow:auto;padding:20px;background:radial-gradient(circle at 50% 35%,#4a3658 0%,#111827 58%,#080c15 100%);color:#fdf5de}
 .red-ending-overlay[hidden]{display:none}.red-ending-panel{width:min(100%,480px);text-align:center;border:2px solid #e3b75f;border-radius:18px;background:linear-gradient(160deg,#172235,#2e2742 65%,#211c2f);padding:26px 18px;box-shadow:0 0 60px #e9bd6640, inset 0 0 28px #ffe0a017;display:flex;flex-direction:column;align-items:center;gap:12px}.red-ending-eyebrow{letter-spacing:.22em;font-size:11px;color:#f5d28a}.red-ending-sparks{font-size:28px;letter-spacing:1em;color:#f6d789;animation:redGlow 2s ease-in-out infinite alternate}.red-ending-portrait{height:130px;display:grid;place-items:center}.red-ending-portrait img{max-height:128px;max-width:145px;image-rendering:pixelated;filter:drop-shadow(0 0 12px #ffde8d65)}.red-ending-crown{font-size:32px;color:#ffdb8e}.red-ending-panel h2{font-size:clamp(22px,6vw,32px);color:#ffdd91;margin:0}.red-ending-panel p{white-space:pre-line;line-height:1.75;margin:0}.red-ending-detail{font-size:13px;color:#e5c991}.red-ending-panel button{width:100%;margin-top:8px}.red-ending-overlay[data-page="2"] .red-ending-panel{border-color:#fff1ae;box-shadow:0 0 75px #ffdc79a0}.league-record-grand{border:2px solid #e4bc6c!important;background:linear-gradient(115deg,#503c22,#302943);color:#fff0bf}.league-record-grand strong{color:#ffdf8c}@keyframes redGlow{from{opacity:.45;transform:scale(.96)}to{opacity:1;transform:scale(1.04)}}@media(prefers-reduced-motion:reduce){.red-ending-sparks{animation:none}}
+
+/* Persistent battle stat ranks: player above doping, opponent upper-right. */
+#battleScreen .battle-effect-status{position:absolute;z-index:18;display:flex;flex-wrap:wrap;gap:4px;max-width:47%;pointer-events:none;align-content:flex-start}
+#battleScreen .player-effect-status{left:12px;bottom:76px;justify-content:flex-start}
+#battleScreen .enemy-effect-status{right:12px;top:12px;justify-content:flex-end}
+#battleScreen .battle-effect-chip{font-size:11px;line-height:1.35;font-weight:800;padding:3px 6px;border-radius:7px;background:#f9fbffeb;border:1px solid #62718a;color:#28354a;box-shadow:0 1px 3px #0003;white-space:nowrap}
+#battleScreen .battle-effect-chip.positive{color:#137344;border-color:#58b98a}
+#battleScreen .battle-effect-chip.negative{color:#b02d37;border-color:#e19b9b}
+#battleScreen .battle-effect-chip.field{color:#61409e;border-color:#a88bde}
