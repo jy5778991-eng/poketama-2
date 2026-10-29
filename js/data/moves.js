@@ -76,7 +76,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, inflict:"paralysis", inflictChance:0.3},
   outrage: {name:'역린',accuracy:1,priority:0,power:120,lockedTurns:true},
   vineWhip: {name:"덩굴채찍", accuracy:1.0, priority:0, power:45},
-  razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, critMultiplier:3},
+  razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, critMultiplier:2},
   synthesis: {name:"광합성", accuracy:1.0, priority:0, healMaxHp:0.5, target:"self"},
   scratch: {name:"할퀴기", accuracy:1.0, priority:0, power:30},
   ember: {name:"불꽃세례", accuracy:1.0, priority:0, power:45},
