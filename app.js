@@ -389,7 +389,7 @@ function addPartyExperience(amount,enemyName,cap=null){
   const memberCap=cap===null?wildRewardLevelCap():cap;
   if(memberCap!==null&&member.level>=memberCap)continue;
   const gained=Math.floor(amount*(participate?1:0.7));
-  const oldLevel=member.level;
+  const oldLevel=member.level,beforeMax=memberMaxHp(member),beforeHp=memberHp(member);
   if(member.starter){
    if(memberCap!==null&&progress.level>=memberCap)continue;
    progress.exp+=gained;
@@ -409,6 +409,7 @@ function addPartyExperience(amount,enemyName,cap=null){
    }
    if(found.level===100)found.exp=0;
    if(found.level>oldLevel){
+    if(member.key!==activeBattleKey)preserveLevelUpHp(member,beforeMax,beforeHp);
     pendingPartyGrowth.push({key:member.key,name:found.name,before:oldLevel,after:found.level,starter:false,family:found.family});
    }
   }
