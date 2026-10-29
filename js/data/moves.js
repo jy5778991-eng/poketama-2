@@ -1,5 +1,13 @@
 // Move definitions shared by player, wild Pokemon, and trainers.
 export const MOVES = Object.freeze({
+  tackle40:{name:'몸통박치기',power:40,accuracy:1,priority:0},
+  hornAttack50:{name:'뿔찌르기',power:50,accuracy:1,priority:0},
+  poisonSting15:{name:'독침',power:15,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
+  hornDrill:{name:'뿔드릴',accuracy:0.3,priority:0,oneHitKo:true},
+  sheerCold:{name:'절대영도',accuracy:0.3,priority:0,oneHitKo:true},
+  hurricane:{name:'폭풍',power:110,accuracy:0.7,priority:0,confuseChance:0.3},
+  leer:{name:'째려보기',accuracy:1,priority:0,lowerTargetDefense:1},
+
   transform:{name:'변신',accuracy:1,priority:0,transform:true},
   ancientPower:{name:'원시의힘',power:60,accuracy:1,priority:0,boostChance:0.2,boostOnHit:{attack:1,defense:1,speed:1}},
   psystrike:{name:'사이코브레이크',power:100,accuracy:1,priority:0},
