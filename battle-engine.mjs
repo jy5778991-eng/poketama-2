@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261029-icicle98';
+import {MOVES} from './js/data/moves.js?v=20261029-party99';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-icicle98';
 export {MOVES};
 
@@ -98,7 +98,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
       const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);
-      say(b,`${user.name}의 ${stat} 랭크: ${before} → ${user.stages[stat]}`);
+      say(b,`${user.name}의 ${stat} 랭크: ${before} → ${user.stages[stat]}`);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});
     }
   }
   if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);emit(b,{type:'heal',side:sideOf(b,user),amount:gain,hp:user.hp});}
@@ -123,7 +123,9 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
     }
   }
-  if(move.boostsOnHit){for(const [stat,n] of Object.entries(move.boostsOnHit)){user.stages[stat]=clamp(user.stages[stat]+n,-RULES.stageLimit,RULES.stageLimit);say(b,`${user.name}의 ${stat} 랭크가 올랐다!`);}}
+  if(move.boostsOnHit){for(const [stat,n] of Object.entries(move.boostsOnHit)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);say(b,`${user.name}의 ${stat} 랭크가 올랐다!`);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
+  if(move.lowerTargetDefense&&isAlive(target)){const before=target.stages.defense;target.stages.defense=clamp(before-move.lowerTargetDefense,-RULES.stageLimit,RULES.stageLimit);if(before!==target.stages.defense)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-before});}
+  if(move.boostOnKnockout&&!isAlive(target)){for(const [stat,n] of Object.entries(move.boostOnKnockout)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
   if(move.lowerTargetAccuracy&&isAlive(target)){target.stages.accuracy=clamp((target.stages.accuracy||0)-move.lowerTargetAccuracy,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 명중률 랭크가 내려갔다!`);}
   if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
   if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
