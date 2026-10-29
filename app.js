@@ -1053,8 +1053,8 @@ function choosePermanentTarget(choice,autoMember=null){
    if(after>before)pendingPartyGrowth.push({key:m.key,name:m.name,before,after,starter:m.starter,family:m.family});
    appendAdventureLog('🍬 '+m.name+' 경험치 +'+choice.amount);
   }
-  pendingRewardChoice=null;saveProgress();renderHome();
   if(['rareCandy','expCandy','exp'].includes(choice.kind))preserveLevelUpHp(m,beforeMax,beforeHp);
+  pendingRewardChoice=null;saveProgress();renderHome();
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
  };
  if(autoMember){applyToMember(autoMember);return;}
