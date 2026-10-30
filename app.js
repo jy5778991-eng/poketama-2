@@ -1977,7 +1977,7 @@ function mapTravelProblem(key){
  const entry=mapRegion(key);
  if(!entry)return '이동할 수 없는 지역입니다.';
  if(MAP_POSTGAME_AREAS.has(key)){
-  if(!hallOfFame.length)return '리그를 격파하지 않았습니다.';
+  if(!hallOfFame.length)return '리그를 제패하지 않았습니다.';
   if(key==='rocketBase'&&!inventory.secretSwitch)return "'비밀 스위치' 아이템이 없습니다.";
   if(key==='farawayIsland'&&!inventory.oldSeaMap)return "'오래된해도' 아이템이 없습니다.";
   return '';
