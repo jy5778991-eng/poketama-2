@@ -1687,7 +1687,7 @@ function renderHome(){
  $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
  if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=hallOfFame.length>0?'지도에서 지역 이동':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 이동 버튼에서 선택':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
@@ -1972,17 +1972,32 @@ function renderLeague(){
  $('leagueNext').disabled=!livingMembers().length||!!pendingRewardChoice;
 }
 let selectedMapDestination=null;
+const MAP_POSTGAME_AREAS=new Set(['palletTown','rocketBase','farawayIsland','mountSilver']);
+function mapTravelProblem(key){
+ const entry=mapRegion(key);
+ if(!entry)return '이동할 수 없는 지역입니다.';
+ if(MAP_POSTGAME_AREAS.has(key)){
+  if(!hallOfFame.length)return '리그를 격파하지 않았습니다.';
+  if(key==='rocketBase'&&!inventory.secretSwitch)return "'비밀 스위치' 아이템이 없습니다.";
+  if(key==='farawayIsland'&&!inventory.oldSeaMap)return "'오래된해도' 아이템이 없습니다.";
+  return '';
+ }
+ if(!entry[2]())return '아직 해금되지 않은 지역입니다.';
+ // The furthest story region remains accessible without the optional map item.
+ if(key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
+ return '';
+}
 function showMap(){
- if(!inventory.map){alert("'지도' 아이템이 없습니다.");return;}
  if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||leagueCeremonyPending||redCeremonyPending)return;
  selectedMapDestination=area;
  $('mapLocationText').textContent='현재 위치: '+(mapRegion(area)?.[1]||area);
  const list=$('mapDestinations');list.replaceChildren();
- for(const [key,name,check] of MAP_REGIONS){
-  const unlocked=!!check(),label=document.createElement('label'),input=document.createElement('input'),caption=document.createElement('span');
-  input.type='radio';input.name='mapDestination';input.value=key;input.disabled=!unlocked;input.checked=selectedMapDestination===key;
-  label.className=unlocked?'':'locked';if(input.checked)label.classList.add('chosen');
-  caption.textContent=name+(key===area?' · 현재 위치':unlocked?'':' · 잠김');
+ for(const [key,name] of MAP_REGIONS){
+  const problem=mapTravelProblem(key),locked=!!problem,label=document.createElement('label'),input=document.createElement('input'),caption=document.createElement('span');
+  input.type='radio';input.name='mapDestination';input.value=key;input.disabled=locked;input.checked=selectedMapDestination===key;
+  label.className=locked?'locked':'';if(input.checked)label.classList.add('chosen');
+  if(locked){label.title=problem;label.setAttribute('aria-label',name+' · '+problem);label.onclick=e=>{e.preventDefault();alert(problem);};}
+  caption.textContent=name+(key===area?' · 현재 위치':locked?' · 잠김':'');
   input.onchange=()=>{selectedMapDestination=key;for(const row of list.querySelectorAll('label'))row.classList.toggle('chosen',row.querySelector('input').checked);$('mapSelectionText').textContent=name+'(으)로 이동할까요?';$('mapConfirm').disabled=key===area;};
   label.append(input,caption);list.append(label);
  }
@@ -1990,8 +2005,10 @@ function showMap(){
  $('mapConfirm').disabled=true;$('mapOverlay').hidden=false;
 }
 function confirmMapTravel(){
- const dest=selectedMapDestination,entry=mapRegion(dest);
- if(!inventory.map||screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||!entry||!entry[2]()||dest===area)return;
+ const dest=selectedMapDestination;
+ if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||leagueCeremonyPending||redCeremonyPending||dest===area)return;
+ const problem=mapTravelProblem(dest);
+ if(problem){alert(problem);return;}
  area=dest;saveProgress();$('mapOverlay').hidden=true;renderHome();showScreen('home');
 }
 function showRedEnding(){
