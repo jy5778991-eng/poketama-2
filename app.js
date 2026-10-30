@@ -183,6 +183,39 @@ let capturedPokemon=Array.isArray(saved?.captures)?saved.captures.filter(validCa
 let caughtSpecies=new Set([...(Array.isArray(saved?.caughtSpecies)?saved.caughtSpecies:[]),...capturedPokemon.map(p=>p.dex)].filter(dex=>Number.isInteger(dex)&&dex>0&&dex<=1025));
 let seenPokemon=new Set([...(Array.isArray(saved?.seenPokemon)?saved.seenPokemon:[]),...capturedPokemon.map(p=>p.dex)].filter(id=>Number.isInteger(id)&&id>0&&id<=1025));
 function registerEncounter(dex){if(!Number.isInteger(dex)||seenPokemon.has(dex))return;seenPokemon.add(dex);saveProgress();}
+function starterOwnedDexes(id,level,formName=null,gengar=false,raichu=false){
+ const starter=STARTERS.find(p=>p.id===id);
+ if(!starter)return [];
+ const stages=EVOLUTIONS[id]||[];
+ const result=stages.filter(p=>p.level<=level&&p.level<101).map(p=>p.dex);
+ if(!result.length)result.push(starter.baby);
+ if(id==='eevee'&&formName&&EEVEE_FORMS[formName])result.push(EEVEE_FORMS[formName].dex);
+ if(id==='gengar'&&gengar)result.push(94);
+ if(id==='raichu'&&raichu)result.push(26);
+ return [...new Set(result)];
+}
+function registerOwnedStarter(id=chosen,level=progress.level,formName=getEeveeForm(),gengar=getGengarEvolved(),raichu=getRaichuEvolved()){
+ let changed=false;
+ for(const dex of starterOwnedDexes(id,level,formName,gengar,raichu)){
+  if(!caughtSpecies.has(dex)||!seenPokemon.has(dex))changed=true;
+  caughtSpecies.add(dex);seenPokemon.add(dex);
+ }
+ return changed;
+}
+function recoverLastStarterFromResetBackup(){
+ // Last pre-reset save is an emergency snapshot; recover only confirmed owned starter forms.
+ try{
+  const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
+  if(!old?.id)return false;
+  let changed=false;
+  for(const dex of starterOwnedDexes(old.id,Number(old.level)||1,old.eeveeForm,old.gengarEvolved===true,old.raichuEvolved===true)){
+   if(!caughtSpecies.has(dex)||!seenPokemon.has(dex))changed=true;
+   caughtSpecies.add(dex);seenPokemon.add(dex);
+  }
+  return changed;
+ }catch{return false;}
+}
+
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];return [i.id,i.category==='key'?Math.min(1,value):value];}));
 // Slot B only makes sense when slot A has been unlocked.
@@ -2072,6 +2105,7 @@ function resetUsage(){
  try{const v=JSON.parse(localStorage.getItem(RESET_USAGE_KEY)||'null');return v?.day===todayKST()?Math.min(RESET_LIMIT,Math.max(0,Number(v.count)||0)):0;}catch{return 0;}
 }
 function permanentSnapshot(){
+ registerOwnedStarter();
  return {captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],
  hallOfFame,redHallOfFame,achievements:{
  blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared
@@ -2112,6 +2146,7 @@ function beginNewAdventure(id,fixedIV){
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
  inventory={...START_INVENTORY};progress={level:1,exp:0,money:500};
+ registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
  saveProgress();reset();showScreen('home');
@@ -2139,6 +2174,7 @@ function requestAdventureReset(){
  ]);
 }
 function setup(){
+ if(!needsStarterSelection&&!saveReadFailed){const currentChanged=registerOwnedStarter();const backupChanged=recoverLastStarterFromResetBackup();if(currentChanged||backupChanged)saveProgress();}
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
