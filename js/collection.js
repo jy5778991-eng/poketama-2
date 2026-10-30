@@ -18,7 +18,6 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
  if(collectionTab==='dex'){
   const count=dexRoster.filter(p=>seenPokemon.has(p.dex)).length;
   $('collectionSummary').textContent='발견 '+count+'종 · 포획 '+captured.size+'종 / 현재 도감 '+dexRoster.length+'종';
-  const hint=document.createElement('p');hint.className='dex-note';hint.textContent='표시 포획률은 HP 100% · 몬스터볼 기준. 실제 포획률은 남은 HP와 사용하는 볼에 따라 달라져.';list.append(hint);
   for(const p of dexRoster){
    const seen=seenPokemon.has(p.dex),caught=captured.has(p.dex);
    const row=document.createElement('div');row.className='dex-entry'+(seen?'':' dex-unknown');
@@ -30,15 +29,7 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
    const detail=document.createElement('small');detail.textContent=seen?(caught?'포획 완료':'발견 · 미포획'):'미발견';
    if(caught){const ball=document.createElement('img');ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';ball.alt='포획 완료';ball.className='dex-caught-ball';title.append(' ',ball);}
    info.append(title,detail);
-   const right=document.createElement('div');right.className='dex-right';
-   if(seen){
-    const rate=document.createElement('small');rate.className='dex-rate';
-    const chance=pokemonCatchChance(1,pokemonCatchMultiplier(p.dex,!!p.rare));
-    rate.textContent=(chance*100).toFixed(1)+'%';
-    rate.title='HP 100% · 몬스터볼 기준 포획률';
-    right.append(rate);
-   }
-   row.append(num,img,info,right);list.append(row);
+   row.append(num,img,info);list.append(row);
   }
  }else if(collectionTab==='achievements'){
   $('collectionSummary').textContent='현재 진행도 기반 업적';
