@@ -103,3 +103,7 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .battle-fast #battleScreen .sprite.impact-shake,.battle-fast #battleScreen .sprite.impact-shake-heavy{animation-duration:.215s!important}
 .battle-fast #battleScreen .move-impact-fx span{animation-duration:.215s}
 @media(prefers-reduced-motion:reduce){#battleScreen .sprite.impact-shake,#battleScreen .sprite.impact-shake-heavy{animation:none!important}#battleScreen .move-impact-fx span{animation-duration:.01ms}}
+
+/* Important items: owned buttons stay crisp; only missing-status buttons are dim. */
+#inventoryItems .shop-buy:disabled{opacity:1;color:#244c79;background:#e9f2ff;border-color:#8ba9d1;cursor:default}
+#inventoryItems .shop-buy.item-missing:disabled{opacity:.44;filter:grayscale(1)}
