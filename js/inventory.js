@@ -28,7 +28,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   const info=document.createElement('div');info.className='shop-item-info';
   const name=document.createElement('strong');name.textContent=item.icon+' '+item.name;
   const description=document.createElement('small');
-  description.textContent=item.description+' · '+(item.category==='key'?(inventory[item.id]?'보유':'미보유'):(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]));
+  description.textContent=item.category==='key'?item.description:item.description+' · '+(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]);
   info.append(name,description);row.append(info);
   if(inventoryMode==='shop'){
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
@@ -44,7 +44,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    row.append(buy);
   }else if(item.category==='key'){
    if(item.id==='map'&&inventoryMode==='bag'&&inventory.map){const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';use.onclick=()=>onMapUse?.();row.append(use);}
-   const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;row.append(status);
+   const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
   }else if(item.category==='heal'){
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
    use.textContent='대상 선택';
@@ -55,3 +55,5 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   list.append(row);
  }
 }
+
+// Key-item ownership is shown by the status button, without repeating the status in descriptions.
