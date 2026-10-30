@@ -60,7 +60,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
   rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
-  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[])],
+  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[]),...(inventory.map!==1?[{kind:'item',id:'map',quantity:1,icon:'🗺️'}]:[])],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
  };
  return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
@@ -583,11 +583,25 @@ function finishTrainerBattle(){
  return {messages:battle.result==='victory'?(['+'+gained+' EXP 획득!'].concat(battleKind==='red'?['전설의 트레이너 레드에게 승리했어!','2차 엔딩 달성!']:battleKind.startsWith('league')?[LEAGUE_NAMES[Number(battleKind.slice(6))]+'에게 승리했어!',Number(battleKind.slice(6))===4?'명예의 전당에 등록됐어!':'다음 리그 대기실로 이동!']:battleKind==='misty'?['이슬이에게 승리! 블루배지를 획득했어!','호수공원 지역이 열렸어!']:battleKind==='greenReturn'?['라이벌 그린에게 승리했어!']:battleKind==='surge'?['마티즈에게 승리! 오렌지배지를 획득했어!','공동묘지 지역이 열렸어!']:battleKind==='greenFifth'?['라이벌 그린에게 승리했어!','챔피언로드 2로 이동했어!']:battleKind==='greenFourth'?['라이벌 그린에게 승리했어!','노랑시티에서 계속 모험해!']:battleKind==='greenThird'?['라이벌 그린에게 승리했어!','무지개시티 지역이 열렸어!']:battleKind==='erika'?['민화에게 승리! 레인보우배지를 획득했어!','자전거도로 지역이 열렸어!']:battleKind==='koga'?['독수에게 승리! 핑크배지를 획득했어!','대무지개시티 지역이 열렸어!']:battleKind==='giovanni'?['비주기에게 승리! 그린배지를 획득했어!','챔피언로드가 열렸어!']:battleKind==='blaine'?['강연에게 승리! 크림슨배지를 획득했어!','이상한 숲 지역이 열렸어!']:battleKind==='sabrina'?['초련에게 승리! 골드배지를 획득했어!','바다 지역이 열렸어!']:['트레이너 승리!','새로운 지역이 열렸어!'])):['부상을 입었어. 치료가 필요해.','경험치 +0'],evolutions,learnQueue,badgeEarned,previousLevel:old,newLevel:progress.level};
 }
 const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','greenFourth','sabrina','blaine','giovanni','greenFifth'];
+const MAP_REGIONS=[
+ ['grass','🌿 초원',()=>true,11],['forest','🌳 상록숲',()=>blueCleared,16],['cave','🪨 달맞이동굴',()=>brockCleared,18],['lake','💧 호수공원',()=>mistyCleared,26],
+ ['cemetery','🪦 공동묘지',()=>surgeCleared,30],['town','🏘️ 무지개시티',()=>greenThirdCleared,35],['road','🛣️ 자전거도로',()=>erikaCleared,39],
+ ['city','🏙️ 노랑시티',()=>kogaCleared,48],['sea','🌊 바다',()=>sabrinaCleared,48],['volcano','🌋 화산',()=>sabrinaCleared,54],
+ ['strangeForest','🌲 이상한 숲',()=>blaineCleared,61],['championRoad','🏔️ 챔피언로드 1',()=>giovanniCleared,74],
+ ['championRoad2','🏛️ 챔피언로드 2',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
+ ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,95],
+ ['farawayIsland','🏝️ 환상의 섬',()=>hallOfFame.length>0&&inventory.oldSeaMap>0,90],
+ ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,100]
+];
+const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
+const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?'volcano':kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
- if(area==='championRoad2'&&hallOfFame.length===0)return 88;
+ const regionCap=mapRegion(area)?.[3]??null;
+ // Previously visited regions retain their own ceiling even after later gyms are cleared.
  const current=nextTrainerKind();
  const index=CHALLENGE_ORDER.indexOf(current);
- return index>=0&&index<CHALLENGE_ORDER.length-1?TRAINERS[CHALLENGE_ORDER[index+1]].level-1:null;
+ const progressCap=area===latestMapRegion()&&index>=0&&index<CHALLENGE_ORDER.length-1?TRAINERS[CHALLENGE_ORDER[index+1]].level-1:null;
+ return progressCap===null?regionCap:regionCap===null?progressCap:Math.min(regionCap,progressCap);
 }
 function wildRewardCapped(member=leaderMember()){const cap=wildRewardLevelCap();return cap!==null&&member.level>=cap;}
 function refreshLevelCapIndicator(){
@@ -618,10 +632,10 @@ function showChallengeUnlockNotice(){
 }
 
 function challengeTrainer(){
- if(hallOfFame.length>0){showAdventure();return;}
+ if(hallOfFame.length>0){showMap();return;}
  const kind=nextTrainerKind();
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
- if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
+ if(!kind||area!==latestMapRegion()||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
@@ -928,6 +942,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='sacredAshReward')return '✨ 성스러운 분말 · 모든 포켓몬 HP 100% 부활 및 회복 (즉시 사용)';
  if(choice.kind==='item'&&choice.id==='partySlotA')return '👥 포켓몬 추가 슬롯A · 동료 슬롯 2번째 해금';
  if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
+ if(choice.kind==='item'&&choice.id==='map')return '🗺️ 지도 · 이미 해금된 지역으로 이동 (중요 아이템 · 영구 보유)';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 내 탕구리·텅구리 공격력 2배 (중요 아이템)';
@@ -952,7 +967,7 @@ function rewardImageName(choice){
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
- if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
@@ -1337,7 +1352,7 @@ function chooseRecoveryTarget(item){
  }})),{text:'취소',action:()=>{}}]);
 }
 function renderInventory(){
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -1658,21 +1673,21 @@ function renderHome(){
  const targetLevel=trainerKind?TRAINERS[trainerKind].level:0;
  const unlocked=teamMembers().some(m=>m.level>=targetLevel);
  const currentRegionKinds=REGION_TRAINERS[area]||[];
- const regionHasChallenge=currentRegionKinds.includes(trainerKind);
+ const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&area===latestMapRegion();
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  $('trainerChallenge').disabled=hallOfFame.length>0?false:challengeDisabled;
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
  redButton.disabled=progress.level<92||!livingMembers().length||!!pendingRewardChoice||animating;
  $('redChallengeNote').textContent=progress.level<92?'Lv.92에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
- $('trainerButtonTitle').textContent=hallOfFame.length?'🧭 모험':'도전';
+ $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2';
  $('leagueEnter').disabled=area!=='championRoad2'||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
  $('leagueRecords').hidden=hallOfFame.length===0&&redHallOfFame.length===0;
  $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
  if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 선택 · 언제든 이동':!regionHasChallenge?'현재 지역에서 가능한 도전 없음':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ $('trainerButtonNote').textContent=hallOfFame.length>0?'지도에서 지역 이동':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
@@ -1956,22 +1971,28 @@ function renderLeague(){
  $('leagueNext').textContent=LEAGUE_NAMES[leagueStage]+'에게 도전';
  $('leagueNext').disabled=!livingMembers().length||!!pendingRewardChoice;
 }
-function showAdventure(){
- if(!hallOfFame.length||leagueStage!==null||pendingRewardChoice)return;
- for(const button of document.querySelectorAll('[data-adventure-area]')){
-  const destination=button.dataset.adventureArea;
-  const unlocked=destination==='palletTown'||destination==='mountSilver'||destination==='rocketBase'&&(inventory.secretSwitch||0)>0||destination==='farawayIsland'&&(inventory.oldSeaMap||0)>0;
-  button.disabled=!unlocked;
-  const requirement=destination==='rocketBase'?'비밀 스위치 필요':destination==='farawayIsland'?'오래된해도 필요':'';
-  button.title=unlocked?'이동 가능':requirement;
+let selectedMapDestination=null;
+function showMap(){
+ if(!inventory.map){alert("'지도' 아이템이 없습니다.");return;}
+ if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||leagueCeremonyPending||redCeremonyPending)return;
+ selectedMapDestination=area;
+ $('mapLocationText').textContent='현재 위치: '+(mapRegion(area)?.[1]||area);
+ const list=$('mapDestinations');list.replaceChildren();
+ for(const [key,name,check] of MAP_REGIONS){
+  const unlocked=!!check(),label=document.createElement('label'),input=document.createElement('input'),caption=document.createElement('span');
+  input.type='radio';input.name='mapDestination';input.value=key;input.disabled=!unlocked;input.checked=selectedMapDestination===key;
+  label.className=unlocked?'':'locked';if(input.checked)label.classList.add('chosen');
+  caption.textContent=name+(key===area?' · 현재 위치':unlocked?'':' · 잠김');
+  input.onchange=()=>{selectedMapDestination=key;for(const row of list.querySelectorAll('label'))row.classList.toggle('chosen',row.querySelector('input').checked);$('mapSelectionText').textContent=name+'(으)로 이동할까요?';$('mapConfirm').disabled=key===area;};
+  label.append(input,caption);list.append(label);
  }
- $('adventureOverlay').hidden=false;
+ $('mapSelectionText').textContent='목적지를 선택한 후 이동 확인을 눌러주세요.';
+ $('mapConfirm').disabled=true;$('mapOverlay').hidden=false;
 }
-function travelTo(destination){
- if(!hallOfFame.length||leagueStage!==null||pendingRewardChoice)return;
- if(!['palletTown','rocketBase','farawayIsland','mountSilver'].includes(destination))return;
- if(destination==='rocketBase'&&!(inventory.secretSwitch>0)||destination==='farawayIsland'&&!(inventory.oldSeaMap>0))return;
- area=destination;saveProgress();$('adventureOverlay').hidden=true;renderHome();showScreen('home');
+function confirmMapTravel(){
+ const dest=selectedMapDestination,entry=mapRegion(dest);
+ if(!inventory.map||screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||!entry||!entry[2]()||dest===area)return;
+ area=dest;saveProgress();$('mapOverlay').hidden=true;renderHome();showScreen('home');
 }
 function showRedEnding(){
  if(!redCeremonyPending)return;
@@ -2105,8 +2126,9 @@ function setup(){
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
  $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<92||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;battlePlayerLevelStart=progress.level;reset('red');showScreen('battle')});
- $('adventureClose').addEventListener('click',()=>{$('adventureOverlay').hidden=true});
- for(const button of document.querySelectorAll('[data-adventure-area]'))button.addEventListener('click',()=>travelTo(button.dataset.adventureArea));
+ $('openMap').addEventListener('click',showMap);
+ $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
+ $('mapConfirm').addEventListener('click',confirmMapTravel);
  $('leagueEnter').addEventListener('click',()=>{if(!greenFifthCleared||progress.level<67||!livingMembers().length||pendingRewardChoice)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
  $('leagueNext').addEventListener('click',()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle')});
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
