@@ -1,5 +1,5 @@
 // Extracted from the original app.js; save data and game rules stay compatible.
-// Each area's encounter weights total 100. Rare species use a 0.25x catch multiplier.
+// Each area's encounter weights total 100. Catch multipliers use species tiers.
 export const ENCOUNTERS={
  grass: [{"name":"구구","dex":16,"weight":41,"rare":false,"base":{"hp":40,"attack":45,"defense":38,"speed":56}},{"name":"꼬렛","dex":19,"weight":30,"rare":false,"base":{"hp":30,"attack":56,"defense":35,"speed":72}},{"name":"깨비참","dex":21,"weight":10,"rare":false,"base":{"hp":40,"attack":60,"defense":31,"speed":70}},{"name":"망키","dex":56,"weight":10,"rare":false,"base":{"hp":40,"attack":80,"defense":40,"speed":70}},{"name":"니드런♀","dex":29,"weight":4,"rare":false,"base":{"hp":55,"attack":47,"defense":46,"speed":41}},{"name":"니드런♂","dex":32,"weight":4,"rare":false,"base":{"hp":46,"attack":57,"defense":40,"speed":50}},{"name":"파오리","dex":83,"weight":1,"rare":true,"base":{"hp":52,"attack":65,"defense":55,"speed":60}}],
  forest: [{"name":"깨비참","dex":21,"weight":18,"rare":false,"base":{"hp":40,"attack":60,"defense":31,"speed":70}},{"name":"뿔충이","dex":13,"weight":28,"rare":false,"base":{"hp":40,"attack":35,"defense":25,"speed":50}},{"name":"딱충이","dex":14,"weight":14,"rare":false,"base":{"hp":45,"attack":25,"defense":38,"speed":35}},{"name":"뚜벅쵸","dex":43,"weight":7,"rare":false,"base":{"hp":45,"attack":75,"defense":60,"speed":30}},{"name":"모다피","dex":69,"weight":6,"rare":false,"base":{"hp":50,"attack":75,"defense":33,"speed":40}},{"name":"파라스","dex":46,"weight":6,"rare":false,"base":{"hp":35,"attack":70,"defense":55,"speed":25}},{"name":"독침붕","dex":15,"weight":1,"rare":false,"base":{"hp":65,"attack":90,"defense":60,"speed":75}},{"name":"구구","dex":16,"weight":10,"rare":false,"base":{"hp":40,"attack":45,"defense":38,"speed":56}},{"name":"꼬렛","dex":19,"weight":10,"rare":false,"base":{"hp":30,"attack":56,"defense":35,"speed":72}}],
@@ -23,10 +23,13 @@ export const DEX_EXTRA=[{name:'꼬마돌',dex:74},{name:'롱스톤',dex:95},{nam
 export const DEX_CATALOG=[...new Map([...Object.values(ENCOUNTERS).flat(),...DEX_EXTRA].map(p=>[p.dex,p])).values()].sort((x,y)=>x.dex-y.dex);
 export const EVOLVED_DEX=new Set([14,15,20,22,30,31,33,34,44,45,47,70,71,73,75,76,78,80,85,93,95,105,117,121]);
 export const LEGENDARY_DEX=new Set([144,145,146,150,151]);
+// New Hyper capture tier: the currently available non-legendary 0.5%-encounter species.
+export const HYPER_DEX=new Set([65,68,71]);
 export function pokemonCatchMultiplier(dex,rare=false){
- if(LEGENDARY_DEX.has(dex))return 0.1;
- if(rare)return 0.25;
- return EVOLVED_DEX.has(dex)?0.5:1;
+ if(LEGENDARY_DEX.has(dex))return 0.05;
+ if(HYPER_DEX.has(dex))return 0.1;
+ if(rare)return 0.2;
+ return EVOLVED_DEX.has(dex)?0.35:0.8;
 }
 export function pokemonCatchChance(hpFraction,pokemonMultiplier,ballMultiplier=1){
  return Math.max(0,Math.min(1,((300-200*Math.max(0,Math.min(1,hpFraction)))/300)*pokemonMultiplier*ballMultiplier));
