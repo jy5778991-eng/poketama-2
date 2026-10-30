@@ -9,7 +9,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {renderCollectionView} from './js/collection.js?v=20261030-starter-dex139';
+import {renderCollectionView} from './js/collection.js?v=20261030-inventory-lightball141';
 import {renderInventoryView} from './js/inventory.js?v=20261025-six-features38';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
@@ -61,7 +61,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
   rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
   hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[]),...(inventory.map!==1?[{kind:'item',id:'map',quantity:1,icon:'🗺️'}]:[])],
-  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
+  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.lightBall!==1&&teamMembers().some(m=>[172,25,26].includes(m.dex))?[{kind:'item',id:'lightBall',quantity:1,icon:'⚡'}]:[]),...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
  };
  return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
 }
@@ -975,12 +975,13 @@ function rewardChoiceText(choice){
  if(choice.kind==='sacredAshReward')return '✨ 성스러운 분말 · 모든 포켓몬 HP 100% 부활 및 회복 (즉시 사용)';
  if(choice.kind==='item'&&choice.id==='partySlotA')return '👥 포켓몬 추가 슬롯A · 동료 슬롯 2번째 해금';
  if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
- if(choice.kind==='item'&&choice.id==='map')return '🗺️ 지도 · 이미 해금된 지역으로 이동 (중요 아이템 · 영구 보유)';
+ if(choice.kind==='item'&&choice.id==='map')return '🗺️ 지도 · 이미 해금된 지역으로 이동 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 내 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 내 탕구리·텅구리 공격력 2배 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 모든 아군 포켓몬 기술 명중률 영구 +5%p (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 광각렌즈A 필요 · 모든 아군 포켓몬 기술 명중률 추가 영구 +5%p (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 내 포켓몬 기술 명중률 +5%p (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 광각렌즈A 필요 · 내 포켓몬 기술 명중률 추가 +5%p (중요 아이템)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
@@ -1000,7 +1001,7 @@ function rewardImageName(choice){
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
- if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
@@ -1450,7 +1451,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.d
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1);player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1);player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
  activeBattleKey=m.key;
@@ -1777,7 +1778,7 @@ async function act(a){
   animating=true;
   // Consume one item only after the engine accepts the player's turn.
   // Each completed battle turn consumes one boost turn, including capture/item turns.
-  battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1);
+  battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));
   battle.player.critBuff=0.15*boostCount('critical');
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
