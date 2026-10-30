@@ -147,3 +147,6 @@
 .home-map-link:hover{background:#d9e9ff}
 .home-status-row .home-wallet{margin-left:auto;flex:1 1 auto;min-width:0}
 .map-room{max-width:480px;max-height:90vh;overflow:auto}.map-destinations{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;text-align:left}.map-destinations label{display:flex;gap:6px;align-items:center;padding:9px 7px;background:#e9eff9;color:#283c59;border:1px solid #9baed2;border-radius:8px;font-size:12px;cursor:pointer}.map-destinations label.locked{opacity:.5;cursor:pointer}.map-destinations label.chosen{background:#d4e7fc;border-color:#3268a6;font-weight:900}.map-destinations input{flex-shrink:0}.map-confirm-buttons{display:flex;gap:8px}.map-confirm-buttons button{flex:1}
+
+/* The scenery HUD intentionally ignores clicks except its actual controls. */
+.home-sprite-wrap>.home-status-row #openMap{pointer-events:auto;position:relative;z-index:7;touch-action:manipulation}
