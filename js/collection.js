@@ -1,6 +1,6 @@
 import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261023-07';
 import {RIVAL_POOL} from './data/trainers.js?v=20261023-06';
-import {getForm} from './data/pokemon.js';
+import {getForm,STARTERS,EVOLUTIONS,EEVEE_FORMS} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
 // Collection screen renderer. Game state is provided on each render, never cached.
@@ -8,7 +8,13 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
  const captured=caughtSpecies||new Set(capturedPokemon.map(p=>p.dex));
- const dexRoster=[...new Map([...DEX_CATALOG,...RIVAL_POOL.map(p=>getForm(p.id,7)).filter(Boolean)].map(p=>[p.dex,p])).values()].sort((p,q)=>p.dex-q.dex);
+ const starterForms=[
+  ...STARTERS.map(p=>({dex:p.baby,name:p.name})),
+  ...Object.values(EVOLUTIONS).flat().map(p=>({dex:p.dex,name:p.name})),
+  ...Object.values(EEVEE_FORMS).map(p=>({dex:p.dex,name:p.name}))
+ ];
+ const knownDex=[...new Set([...seenPokemon,...captured])].map(dex=>({dex,name:starterForms.find(s=>s.dex===dex)?.name||DEX_CATALOG.find(s=>s.dex===dex)?.name||'포켓몬 '+dex}));
+ const dexRoster=[...new Map([...DEX_CATALOG,...RIVAL_POOL.map(p=>getForm(p.id,7)).filter(Boolean),...starterForms,...knownDex].map(p=>[p.dex,p])).values()].sort((p,q)=>p.dex-q.dex);
  if(collectionTab==='dex'){
   const count=dexRoster.filter(p=>seenPokemon.has(p.dex)).length;
   $('collectionSummary').textContent='발견 '+count+'종 · 포획 '+captured.size+'종 / 현재 도감 '+dexRoster.length+'종';
