@@ -122,7 +122,7 @@
 /* User-selected custom maps: Saffron City, Twin Islands Sea, Indigo Plateau (Champion Road 2). */
 .home-sprite-wrap.area-city,#battleScreen .arena.area-city{
  background-color:#8aa5c1;
- background-image:url('../assets/noirang-city.webp?v=20261030-135');
+ background-image:url('../assets/city.jpg?v=20261030-upload');
  background-position:center;background-size:cover;background-repeat:no-repeat;
 }
 .home-sprite-wrap.area-sea,#battleScreen .arena.area-sea{
@@ -138,3 +138,5 @@
 
 /* Preserve uploaded artwork sharpness; avoid forced pixelation of full-resolution scenery. */
 .home-sprite-wrap.area-sea,#battleScreen .arena.area-sea,.home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{image-rendering:auto}
+
+.home-sprite-wrap.area-city,#battleScreen .arena.area-city{image-rendering:auto}
