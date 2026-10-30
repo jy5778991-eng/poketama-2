@@ -3,7 +3,7 @@ import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
-export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget}){
+export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onMapUse}){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
@@ -43,6 +43,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    };
    row.append(buy);
   }else if(item.category==='key'){
+   if(item.id==='map'&&inventoryMode==='bag'&&inventory.map){const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';use.onclick=()=>onMapUse?.();row.append(use);}
    const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;row.append(status);
   }else if(item.category==='heal'){
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
