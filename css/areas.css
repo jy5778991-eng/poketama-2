@@ -127,11 +127,14 @@
 }
 .home-sprite-wrap.area-sea,#battleScreen .arena.area-sea{
  background-color:#349dce;
- background-image:url('../assets/twin-islands-sea.webp?v=20261030-135');
+ background-image:url('../assets/sea.png?v=20261030-upload');
  background-position:center;background-size:cover;background-repeat:no-repeat;
 }
 .home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{
  background-color:#699b6d;
- background-image:url('../assets/indigo-plateau.webp?v=20261030-135');
+ background-image:url('../assets/champion-road-b.png?v=20261030-upload');
  background-position:center;background-size:cover;background-repeat:no-repeat;
 }
+
+/* Preserve uploaded artwork sharpness; avoid forced pixelation of full-resolution scenery. */
+.home-sprite-wrap.area-sea,#battleScreen .arena.area-sea,.home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{image-rendering:auto}
