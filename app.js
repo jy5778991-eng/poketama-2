@@ -5,12 +5,12 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261030-catchtiers140';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261029-animated-trainers127';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261030-lightball142';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261031-memorymushroom147';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261030-inventory-lightball141';
-import {renderInventoryView} from './js/inventory.js?v=20261030-lightball142';
+import {renderInventoryView} from './js/inventory.js?v=20261031-memorymushroom147';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 
@@ -59,7 +59,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
  const pool={
   normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
-  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
   hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[]),...(inventory.map!==1?[{kind:'item',id:'map',quantity:1,icon:'🗺️'}]:[])],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.lightBall!==1&&teamMembers().some(m=>[172,25,26].includes(m.dex))?[{kind:'item',id:'lightBall',quantity:1,icon:'⚡'}]:[]),...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
  };
@@ -849,19 +849,27 @@ function updateBattleMoves(){
  saveProgress();renderHome();
  // The current battle has already ended when learning happens.
 }
-function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null}={}){
+function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null,confirmRecall=false}={}){
  return new Promise(resolve=>{
   const layer=$('learnMoveOverlay'),choices=$('learnMoveChoices');
   choices.replaceChildren();$('learnMoveTitle').textContent=(member?.name||getForm(chosen,progress.level).name)+'은(는) '+MOVES[newId].name+'를 배우고 싶어!';
   $('learnMoveInfo').textContent=moveInfo(newId);
-  $('learnMoveHelp').textContent='기술이 4개야. 잊을 기술을 하나 선택해줘.';
+  $('learnMoveHelp').textContent=confirmRecall?'잊을 기존 기술을 선택해줘. 기억버섯 1개가 필요해.':'기술이 4개야. 잊을 기술을 하나 선택해줘.';
   function finish(oldId){layer.hidden=true;resolve(oldId);}
   for(const oldId of (member?.moves||playerMoves)){
    const btn=document.createElement('button');btn.type='button';btn.className='learn-replace-button';
    btn.textContent='잊기: '+moveInfo(oldId);
-   btn.onclick=()=>finish(oldId);choices.append(btn);
+   btn.onclick=()=>{
+    if(!confirmRecall){finish(oldId);return;}
+    if((inventory.memoryMushroom||0)<1){alert('기억버섯이 없습니다');return;}
+    partyOverlay('기술 교체 확인','기억버섯이 소모됩니다. 정말로 교체하시겠습니까?',[
+     {text:'예',action:()=>finish(oldId)},
+     {text:'아니요',action:()=>{}}
+    ]);
+   };choices.append(btn);
   }
   const skip=$('learnMoveSkip');skip.hidden=!allowSkip;
+  skip.textContent=confirmRecall?'교체 취소':'새 기술을 배우지 않는다';
   skip.onclick=()=>finish(null);
   layer.hidden=false;
  });
@@ -895,13 +903,25 @@ function recallLearnable(member){return member.starter?availableMoves(chosen,pro
 async function recallTeach(member,id){
  const moves=recallMemberMoves(member);
  if(!recallLearnable(member).some(x=>x.id===id)||moves.includes(id))return;
- if(moves.length<4){moves.push(id);}
- else{
-  const old=await resolveMoveChoice(id,{member:{name:member.name,moves}});
+ if((inventory.memoryMushroom||0)<1){alert('기억버섯이 없습니다');return;}
+ if(moves.length<4){
+  // A new slot also counts as a technique-management equip action.
+  const approved=await new Promise(resolve=>partyOverlay(
+   '기술 장착 확인','기억버섯이 소모됩니다. 정말로 장착하시겠습니까?',[
+    {text:'예',action:()=>resolve(true)},{text:'아니요',action:()=>resolve(false)}
+   ]
+  ));
+  if(!approved)return;
+  if((inventory.memoryMushroom||0)<1){alert('기억버섯이 없습니다');return;}
+  moves.push(id);
+ }else{
+  const old=await resolveMoveChoice(id,{member:{name:member.name,moves},confirmRecall:true});
   if(old===null)return;
-  const at=moves.indexOf(old);if(at<0)return;
+  const at=moves.indexOf(old);if(at<0||moves.includes(id))return;
+  if((inventory.memoryMushroom||0)<1){alert('기억버섯이 없습니다');return;}
   moves.splice(at,1,id);
  }
+ inventory.memoryMushroom--;
  saveProgress();renderHome();
 }
 function openRecall(){
@@ -1002,7 +1022,7 @@ function rewardImageName(choice){
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
- if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',memoryMushroom:'tiny-mushroom',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
