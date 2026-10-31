@@ -26,10 +26,10 @@ export const LEGENDARY_DEX=new Set([144,145,146,150,151]);
 // New Hyper capture tier: the currently available non-legendary 0.5%-encounter species.
 export const HYPER_DEX=new Set([65,68,71]);
 export function pokemonCatchMultiplier(dex,rare=false){
- if(LEGENDARY_DEX.has(dex))return 0.05;
- if(HYPER_DEX.has(dex))return 0.1;
+ if(LEGENDARY_DEX.has(dex))return 0.04;
+ if(HYPER_DEX.has(dex))return 0.08;
  if(rare)return 0.2;
- return EVOLVED_DEX.has(dex)?0.35:0.8;
+ return EVOLVED_DEX.has(dex)?0.32:0.8;
 }
 export function pokemonCatchChance(hpFraction,pokemonMultiplier,ballMultiplier=1){
  return Math.max(0,Math.min(1,((300-200*Math.max(0,Math.min(1,hpFraction)))/300)*pokemonMultiplier*ballMultiplier));
