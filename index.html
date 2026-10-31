@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261031-developer-clear-boost10-164"></head>
+<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261031-map-buttons-battle-speed170"></head>
 <body><script>
 (function(){
   const savedKey='poketama-2-progress-v2';
@@ -73,7 +73,7 @@
  <div id="inventoryItems" role="tabpanel" aria-live="polite"></div>
  <p id="inventoryFootnote" class="shop-footnote">아이템별 최대 99개 · 보유 아이템은 자동 저장</p></div>
 </section>
-<section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
+<section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button></div>
 <div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong><span id="turn" class="battle-turn-counter">TURN 01</span></div>
 <div id="trainerSummonMessage" class="trainer-summon-message" hidden role="status" aria-live="polite"></div>
 <section class="arena" aria-label="포켓몬 배틀"><div id="battlePlusPower" class="plus-power-indicator" hidden aria-label="활성 강화 효과"></div><div id="playerBattleEffects" class="battle-effect-status player-effect-status" aria-label="내 포켓몬 능력치 변화"></div><div id="enemyBattleEffects" class="battle-effect-status enemy-effect-status" aria-label="상대 포켓몬 능력치 변화"></div>
@@ -123,7 +123,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261031-icefang-waterfall169');
+ await import('./app.js?v=20261031-map-buttons-battle-speed170');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
