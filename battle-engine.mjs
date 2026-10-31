@@ -91,7 +91,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.rest){if(user.status){say(b,'실패했다!');return;}user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'heal',side:sideOf(b,user),amount:0,hp:user.hp});return;}
   if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false,selfCost:true});return;}
   say(b,`${user.name}의 ${move.name}!`);
-  if(!accuracySuccess(move,b,user,target)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  // Self-targeted, non-damaging status moves ignore the opponent's evasion and accuracy checks.
+  if(!(move.target==='self'&&!move.power&&!move.oneHitKo)&&!accuracySuccess(move,b,user,target)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
