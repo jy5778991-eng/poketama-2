@@ -833,7 +833,8 @@ function showMenu(page='main'){
  menuPage=page;
  $('battleCommands').hidden=page!=='main';$('battleSubmenu').hidden=page==='main';
  $('moves').hidden=page!=='fight';$('ballOptions').hidden=page!=='ball';$('healOptions').hidden=page!=='heal';
- $('submenuTitle').textContent=page==='fight'?'사용할 기술 선택':page==='ball'?'몬스터볼 선택':'회복 아이템 선택';
+ $('battleSubmenuHeading').hidden=page==='fight';
+ $('submenuTitle').textContent=page==='ball'?'몬스터볼 선택':'회복 아이템 선택';
 }
 function playHomeLevelUp(previousLevel,newLevel){
  const effect=$('homeLevelUp');
