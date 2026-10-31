@@ -2,7 +2,7 @@ import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_
 import {recentWildMoves} from './js/data/learnsets.js?v=20261031-starter-moves146';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261031-starter-moves146';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261031-starter-moves146';
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261031-pallet-encounters153';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261031-catch-rates154';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261029-animated-trainers127';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261031-memorymushroom147';
