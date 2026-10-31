@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261030-lightball142"></head>
+<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261031-league-waitroom149"></head>
 <body><script>
 (function(){
   const savedKey='poketama-2-progress-v2';
@@ -57,7 +57,7 @@
 <section id="collectionScreen" class="screen" hidden aria-label="수집 메뉴"><div class="shop-shell"><div class="shop-head"><button type="button" id="closeCollection" class="secondary">← 메인으로</button><strong>📚 수집</strong></div><div class="collection-tabs" role="tablist" aria-label="수집 항목"><button type="button" data-collection-tab="dex" role="tab" aria-selected="true">도감</button><button type="button" data-collection-tab="achievements" role="tab" aria-selected="false">업적</button><button type="button" data-collection-tab="trainers" role="tab" aria-selected="false">트레이너</button></div><p id="collectionSummary" class="collection-summary"></p><div id="collectionContent" role="tabpanel"></div></div></section>
 <div id="mapOverlay" class="league-record-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="mapDialogTitle"><div class="league-room map-room"><h2 id="mapDialogTitle">🗺️ 지역 이동</h2><p id="mapLocationText"></p><div id="mapDestinations" class="map-destinations"></div><p id="mapSelectionText" aria-live="polite"></p><div class="map-confirm-buttons"><button type="button" id="mapConfirm" class="home-action primary-action">이동 확인</button><button type="button" id="mapCancel" class="home-action">취소</button></div></div></div>
 <div id="adventureOverlay" class="league-record-overlay" hidden><div class="league-room"><h2>🧭 모험 지역 선택</h2><p>명예의 전당 이후 새로운 모험</p><button class="home-action" data-adventure-area="palletTown">🏠 태초마을 · 구구</button><button class="home-action" data-adventure-area="rocketBase">🚀 로켓단 비밀기지 · 뮤츠 (비밀 스위치)</button><button class="home-action" data-adventure-area="farawayIsland">🏝️ 환상의 섬 · 뮤 (오래된해도)</button><button class="home-action" data-adventure-area="mountSilver">🏔️ 은빛산 · 골뱃</button><button class="home-action" id="adventureClose">닫기</button></div></div>
-<section id="leagueScreen" class="screen" hidden><div class="league-room"><h2>🏆 포켓몬 리그 대기실</h2><p id="leagueProgress">리그 1 / 5</p><p>다음 상대</p><h2 id="leagueOpponent">칸나</h2><p>상대 레벨과 멤버는 비공개</p><p id="leagueHp"></p><button id="leagueBag" class="home-action">🎒 가방 · 회복과 보유 아이템 사용</button><button id="leagueNext" class="home-action primary-action">다음 상대에게 도전</button><p>상점 이용 불가 · 패배 시 챔피언로드 2로 복귀</p></div></section>
+<section id="leagueScreen" class="screen" hidden><div class="league-room"><h2>🏆 포켓몬 리그 대기실</h2><p class="league-next-label">다음 상대</p><h2 id="leagueOpponent">칸나</h2><div class="league-trainer-portrait"><img id="leagueTrainerImage" src="./assets/league/lorelei.webp" alt="칸나 트레이너" /></div><div class="league-actions"><button id="leagueBag" type="button" class="home-action">🎒 가방</button><button id="leagueNext" type="button" class="home-action primary-action">칸나에게 도전</button></div></div></section>
 <div id="redEndingOverlay" class="red-ending-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="redEndingTitle"><div class="red-ending-panel"><div class="red-ending-sparks" aria-hidden="true">✦ ✧ ✦</div><div class="red-ending-eyebrow">THE FINAL CHALLENGE</div><div class="red-ending-portrait"><img id="redEndingPokemon" alt="2차 엔딩 포켓몬" /></div><div class="red-ending-crown">♛</div><h2 id="redEndingTitle">전설을 넘어선 자</h2><p id="redEndingMessage">전설의 트레이너 레드를 쓰러뜨렸다.</p><p id="redEndingDetail" class="red-ending-detail"></p><button id="redEndingNext" class="home-action primary-action" type="button">계속하기 →</button></div></div>
 <div id="leagueRecordOverlay" class="league-record-overlay" hidden><div class="league-room"><h2>🏅 명예의 전당</h2><div id="leagueRecordTabs" class="hall-tabs" role="tablist"><button type="button" role="tab" data-hall-tab="first" aria-selected="true">🏆 1차 엔딩</button><button type="button" role="tab" data-hall-tab="second" aria-selected="false">👑 2차 엔딩</button></div><div id="leagueRecordList"></div><button id="leagueRecordClose" class="home-action">닫기</button></div></div>
 <section id="shopScreen" class="screen" hidden aria-label="가방 또는 프렌들리숍">
@@ -123,7 +123,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261031-mushroom-count148');
+ await import('./app.js?v=20261031-league-waitroom149');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
