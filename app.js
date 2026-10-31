@@ -1,6 +1,6 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261030-encounters134';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261030-encounters134';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261030-catchtiers140';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261031-selfstatus145';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261030-encounters134';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261030-catchtiers140';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261029-animated-trainers127';
@@ -843,7 +843,8 @@ function playHomeLevelUp(previousLevel,newLevel){
 }
 
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
-function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+Math.round((m.accuracy??1)*100)+'%'+(m.description?' · '+m.description:'');}
+function moveAccuracyText(move){return move.target==='self'&&!move.power&&!move.oneHitKo?'--':moveAccuracyText(move);}
+function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+moveAccuracyText(m)+(m.description?' · '+m.description:'');}
 function updateBattleMoves(){
  saveProgress();renderHome();
  // The current battle has already ended when learning happens.
@@ -935,7 +936,7 @@ function openRecall(){
   if(m.priority>0)effects.push('선공 기술');
   if(m.hpScale)effects.push('HP에 따라 위력 변동');
   if(m.description)effects.push(m.description);
-  return '위력: '+(m.power??'—')+'  |  명중률: '+Math.round((m.accuracy??1)*100)+'%'+(effects.length?'\n효과: '+effects.join(' · '):'');
+  return '위력: '+(m.power??'—')+'  |  명중률: '+moveAccuracyText(m)+(effects.length?'\n효과: '+effects.join(' · '):'');
  };
  const appendMove=(id,level,isOwned)=>{
   const move=MOVES[id];if(!move)return;
@@ -1576,7 +1577,7 @@ function showPartyManager(selectedKey=null,replacement=false){
   cell.textContent=move?.name||'—';cell.disabled=!move;
   cell.onclick=()=>{
    const power=move.power?'위력 '+move.power:'위력 --';
-   const accuracy='명중률 '+Math.round((move.accuracy??1)*100)+'%';
+   const accuracy='명중률 '+moveAccuracyText(move);
    const effects=[];
    const names={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
    const status={poison:'독',paralysis:'마비',sleep:'수면',freeze:'얼음',burn:'화상'};
