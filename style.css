@@ -133,3 +133,13 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 #battleScreen .battle-submenu-top[hidden]{display:none!important}
 #battleScreen .battle-submenu-back{display:block;margin:12px auto 0;min-width:120px;min-height:42px;text-align:center}
 @media(max-width:520px){#battleScreen .trainer-label{padding-right:86px;padding-left:86px;gap:5px}#battleScreen .trainer-label #trainerName{font-size:13px;text-align:center}#battleScreen .trainer-label img{max-width:45px;max-height:48px}}
+
+/* Developer clear flags: scrollable grid for explicit progression overrides. */
+.developer-box{max-height:calc(100dvh - 32px);overflow-y:auto}
+.developer-clear-fieldset{margin:10px 0;border:2px solid #b7c7dd;border-radius:9px;padding:12px;background:#f3f7fe;min-width:0}
+.developer-clear-fieldset legend{font-weight:900;color:#304a70;padding:0 7px}
+.developer-clear-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.developer-clear-row{display:flex!important;align-items:center;gap:8px;background:#fff;border:1px solid #c5d2e5;border-radius:7px;padding:8px!important;cursor:pointer;font-size:13px!important}
+.developer-clear-row input[type=checkbox]{width:18px!important;height:18px!important;min-height:0!important;flex-shrink:0;accent-color:#426ca8;margin:0;padding:0}
+.developer-clear-row span{min-width:0}
+.developer-clear-fieldset small{display:block;margin-top:10px;line-height:1.5;color:#526986}
