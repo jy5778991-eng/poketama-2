@@ -1935,12 +1935,29 @@ function unlockDeveloper(e){
  }
  $('developerError').textContent='';
  $('developerLogin').hidden=true;$('developerEditor').hidden=false;
- $('developerLevel').value=String(progress.level);
+ updateDeveloperPokemonOptions();
  $('developerMoney').value=String(progress.money);
  $('developerArea').value=area;
  $('developerHallChoice').value='keep';
  updateDeveloperHallControls();
  $('developerLevel').focus();
+}
+function updateDeveloperPokemonOptions(){
+ const picker=$('developerPokemon'),members=teamMembers();
+ const previous=picker.value;
+ picker.replaceChildren();
+ for(const m of members){
+  const option=document.createElement('option');
+  option.value=m.key;
+  option.textContent=m.name+' · Lv.'+m.level+(m.starter?' (스타팅)':'');
+  picker.append(option);
+ }
+ picker.value=members.some(m=>m.key===previous)?previous:'starter';
+ updateDeveloperSelectedLevel();
+}
+function updateDeveloperSelectedLevel(){
+ const selected=teamMembers().find(m=>m.key===$('developerPokemon').value);
+ if(selected)$('developerLevel').value=String(selected.level);
 }
 function updateDeveloperHallControls(){
  $('developerHallOptions').hidden=$('developerArea').value!=='palletTown';
@@ -1976,6 +1993,11 @@ function deleteDeveloperHallRecord(kind,index){
 function applyDeveloperChanges(e){
  e.preventDefault();
  if(animating||learningBusy)return;
+ const selectedPokemon=teamMembers().find(m=>m.key===$('developerPokemon').value);
+ if(!selectedPokemon){
+  $('developerSaveError').textContent='레벨을 변경할 포켓몬을 선택해줘.';
+  return;
+ }
  const requestedLevel=Number($('developerLevel').value),money=Number($('developerMoney').value),targetArea=$('developerArea').value;
  const warp=resolveDeveloperWarp({requestedLevel,money,targetArea});
  // Editing only the level in the current area must not force a minimum-level warp.
@@ -1985,7 +2007,7 @@ function applyDeveloperChanges(e){
   return;
  }
  const {targetLevel}=warp;
- const levelChanged=progress.level!==targetLevel;
+ const levelChanged=selectedPokemon.level!==targetLevel;
  area=warp.area;
  if(targetArea==='palletTown'&&$('developerHallChoice').value==='register'){
   const lead=leaderMember(),iv=lead.starter?playerIVs:lead.ivs,ev=lead.starter?playerEVs:lead.evs||{};
@@ -2007,12 +2029,24 @@ function applyDeveloperChanges(e){
  sabrinaCleared=sabrinaCleared||warp.sabrinaCleared;
  blaineCleared=blaineCleared||warp.blaineCleared;
  giovanniCleared=giovanniCleared||warp.giovanniCleared;
- progress.level=targetLevel;
  progress.money=warp.money;
  if(levelChanged){
-  storedHp=null;
-  progress.exp=0;
-  playerMoves=migrateMoves(chosen,targetLevel);
+  if(selectedPokemon.starter){
+   progress.level=targetLevel;
+   progress.exp=0;
+   storedHp=null;
+   playerMoves=migrateMoves(chosen,targetLevel);
+  }else{
+   const companion=companions.find(c=>'companion-'+c.family===selectedPokemon.key);
+   if(!companion){
+    $('developerSaveError').textContent='선택한 포켓몬을 찾을 수 없어.';
+    return;
+   }
+   companion.level=targetLevel;
+   companion.exp=0;
+   companion.hp=null;
+   companion.moves=recentWildMoves(companion.dex,targetLevel);
+  }
  }
  pendingTrainerIntro=null;
  saveProgress();
@@ -2277,6 +2311,6 @@ function setup(){
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
  egg.onclick=()=>beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);
  box.append(egg);
- $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
