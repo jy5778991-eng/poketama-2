@@ -862,7 +862,7 @@ function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null,conf
    btn.onclick=()=>{
     if(!confirmRecall){finish(oldId);return;}
     if((inventory.memoryMushroom||0)<1){alert('기억버섯이 없습니다');return;}
-    partyOverlay('기술 교체 확인','기억버섯이 소모됩니다. 정말로 교체하시겠습니까?',[
+    partyOverlay('기술 교체 확인','기억버섯 보유: '+(inventory.memoryMushroom||0)+'개\n기억버섯이 1개 소모됩니다. 정말로 교체하시겠습니까?',[
      {text:'예',action:()=>finish(oldId)},
      {text:'아니요',action:()=>{}}
     ]);
@@ -907,7 +907,7 @@ async function recallTeach(member,id){
  if(moves.length<4){
   // A new slot also counts as a technique-management equip action.
   const approved=await new Promise(resolve=>partyOverlay(
-   '기술 장착 확인','기억버섯이 소모됩니다. 정말로 장착하시겠습니까?',[
+   '기술 장착 확인','기억버섯 보유: '+(inventory.memoryMushroom||0)+'개\n기억버섯이 1개 소모됩니다. 정말로 장착하시겠습니까?',[
     {text:'예',action:()=>resolve(true)},{text:'아니요',action:()=>resolve(false)}
    ]
   ));
