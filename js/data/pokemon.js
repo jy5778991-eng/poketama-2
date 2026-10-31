@@ -1,4 +1,4 @@
-import {MOVES} from './moves.js?v=20261030-encounters134';
+import {MOVES} from './moves.js?v=20261031-starter-moves146';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:50,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
@@ -54,8 +54,8 @@ let gengarEvolved=false;
 export const setGengarEvolved=value=>{gengarEvolved=!!value;};
 export const getGengarEvolved=()=>gengarEvolved;
 export const getForm=(id,level)=>id==='eevee'&&eeveeForm?EEVEE_FORMS[eeveeForm]:id==='gengar'&&gengarEvolved?EVOLUTIONS.gengar.at(-1):id==='raichu'&&raichuEvolved?EVOLUTIONS.raichu.at(-1):[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
-export {MOVE_LEARNSETS} from './learnsets.js';
-import {MOVE_LEARNSETS} from './learnsets.js';
+export {MOVE_LEARNSETS} from './learnsets.js?v=20261031-starter-moves146';
+import {MOVE_LEARNSETS} from './learnsets.js?v=20261031-starter-moves146';
 export const availableMoves=(id,level)=>(id==='eevee'&&eeveeForm?[...MOVE_LEARNSETS.eevee,...MOVE_LEARNSETS[eeveeForm]]:MOVE_LEARNSETS[id]).filter(m=>m.level<=level);
 export const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
 // Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
