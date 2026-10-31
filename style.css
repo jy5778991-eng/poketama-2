@@ -2,7 +2,7 @@
 @import url('./css/home.css?v=20261025-center-party-exp43');
 @import url('./css/battle-ui.css?v=20261025-faint-party-selection41');
 @import url('./css/menus.css?v=20261026-hall-selectdelete51');
-@import url('./css/areas.css?v=20261030-mapclick138');
+@import url('./css/areas.css?v=20261031-map-buttons170');
 @import url('./css/collection.css');
 
 /* Wild-reward level gate: entire level label turns red on both screens. */
@@ -143,3 +143,6 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .developer-clear-row input[type=checkbox]{width:18px!important;height:18px!important;min-height:0!important;flex-shrink:0;accent-color:#426ca8;margin:0;padding:0}
 .developer-clear-row span{min-width:0}
 .developer-clear-fieldset small{display:block;margin-top:10px;line-height:1.5;color:#526986}
+
+/* Battle controls: only the persistent speed toggle remains in the top row. */
+#battleScreen .battle-top{display:flex;align-items:center;justify-content:flex-end;min-height:36px;margin-bottom:5px}
