@@ -503,7 +503,9 @@ function awardExperience(){
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
  progress.money+=baseMoney;
  appendAdventureLog('💰 야생 배틀 보상 '+baseMoney+'원 획득');
- pendingRewardChoice=capped?null:{choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
+ // Pallet Town remains a wild-battle training area, but offers no random reward rolls.
+ // Rocket Base, Faraway Island, and other areas keep their regular reward rules.
+ pendingRewardChoice=(capped||area==='palletTown')?null:{choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
  if(capped)messages.push('도전 단계 성장 상한 도달! 야생 경험치와 랜덤 보상은 지급되지 않아.');
  const evolutions=[];
  const learnQueue=[];
