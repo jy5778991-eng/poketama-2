@@ -1,4 +1,4 @@
-import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261030-catchtiers140';
+import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261031-rarity-tiers155';
 import {RIVAL_POOL} from './data/trainers.js?v=20261023-06';
 import {getForm,STARTERS,EVOLUTIONS,EEVEE_FORMS} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
