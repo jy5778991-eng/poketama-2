@@ -2020,11 +2020,19 @@ function applyDeveloperChanges(e){
  reset();
  renderHome();
 }
+const LEAGUE_TRAINER_IMAGES=[
+ './assets/league/lorelei.webp',
+ './assets/league/bruno.webp',
+ './assets/league/agatha.webp',
+ './assets/league/lance.webp',
+ 'https://play.pokemonshowdown.com/sprites/trainers/blue.png'
+];
 function renderLeague(){
  if(leagueStage===null)return;
- $('leagueProgress').textContent='리그 '+(leagueStage+1)+' / 5';
  $('leagueOpponent').textContent=LEAGUE_NAMES[leagueStage];
- $('leagueHp').textContent='현재 HP: '+(storedHp===null?'최대':storedHp);
+ const trainerImage=$('leagueTrainerImage');
+ trainerImage.src=LEAGUE_TRAINER_IMAGES[leagueStage]||LEAGUE_TRAINER_IMAGES[4];
+ trainerImage.alt=LEAGUE_NAMES[leagueStage]+' 트레이너';
  $('leagueNext').textContent=LEAGUE_NAMES[leagueStage]+'에게 도전';
  $('leagueNext').disabled=!livingMembers().length||!!pendingRewardChoice;
 }
