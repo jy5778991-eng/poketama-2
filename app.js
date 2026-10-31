@@ -304,7 +304,7 @@ async function shakeHit(side,critical=false){
  await pause(430);
  host.classList.remove('impact-shake','impact-shake-heavy');
 }
-async function playEvents(events){let currentMove=null;for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statusApplied'){if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}}else if(ev.type==='statChange'){
+async function playEvents(events){let currentMove=null;let lastTitle='';let lastDetail='';const tell=(title,detail='')=>{lastTitle=title;lastDetail=detail;showBattleActionMessage(title,detail);};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell((ev.side==='enemy'?'상대 ':'내 ')+(ev.side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');tell(lastTitle,(ev.side==='player'?'내 포켓몬':'상대 포켓몬')+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statusApplied'){tell(lastTitle,(ev.side==='player'?'내 포켓몬':'상대 포켓몬')+'에게 '+({sleep:'수면',paralysis:'마비',poison:'독',burn:'화상',freeze:'얼음'}[ev.status]||ev.status||'상태이상')+' 발생!');if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}}else if(ev.type==='statChange'){
   if(currentMove?.isStatus&&currentMove.side!==ev.side&&ev.change<0){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}
   // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
   // Display one three-arrow animation for the whole group.
@@ -321,7 +321,7 @@ async function playEvents(events){let currentMove=null;for(let i=0;i<events.leng
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){await playCaptureSequence(ev.success);}else if(ev.type==='miss'){await pause(270);}}}
+}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){tell(ev.item?'회복 아이템 사용!':(lastTitle||'HP 회복!'),(ev.side==='player'?'내 포켓몬':'상대 포켓몬')+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!',ev.success?'포획 성공!':'포켓몬이 볼에서 빠져나왔다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){tell(lastTitle,'공격이 빗나갔다!');await pause(270);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -814,8 +814,9 @@ function reset(kind='wild'){
  const first=enemies[0];
  const opponentName=kind==='red'?'레드':kind.startsWith('league')?LEAGUE_NAMES[Number(kind.slice(6))]:TRAINERS[kind]?.name||'트레이너';
  battle.log.push(kind==='wild'?'⚔️ 야생 '+wild.name+'이(가) 나타났다!':opponentName+'의 도전!');
+ showBattleActionMessage(battle.log.at(-1),'공격·교체·도구를 선택할 수 있어.');
  shownHp={player:player.hp,enemy:first.hp};
- $('playerName').textContent=player.name;$('promptName').textContent=player.name;
+ $('playerName').textContent=player.name;
  $('enemyName').textContent=first.name;$('enemyCaughtMark').hidden=kind!=='wild'||!caughtSpecies.has(wild.dex);$('enemyLevel').textContent='LV '+first.level;$('playerLevel').textContent='LV '+player.level;refreshLevelCapIndicator();
  $('playerSprite').style.filter='';sprite('playerSprite',leader.dex,true,leader.starter?s.emoji:'⚔️');sprite('enemySprite',kind==='wild'?wild.dex:Number(first.id?.replace('trainer-',''))||100,false,kind==='wild'?'🐾':'⚔️');
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':opponentName;
@@ -1483,7 +1484,7 @@ function chooseActiveMember(m){
 }
 function updateBattlePlayerHeader(){
  const m=activeMember();
- $('playerName').textContent=battle.player.name;$('promptName').textContent=battle.player.name;
+ $('playerName').textContent=battle.player.name;
  $('playerLevel').textContent='LV '+battle.player.level;
  const cap=wildRewardLevelCap();$('playerLevel').classList.toggle('level-capped',cap!==null&&m.level>=cap);
  $('playerSprite').style.filter='';sprite('playerSprite',m.dex,true,m.starter?STARTERS.find(x=>x.id===chosen).emoji:'⚔️');
@@ -1776,6 +1777,12 @@ function renderHome(){
  img.onload=()=>{img.hidden=false;fallback.hidden=true};
  img.src=sources[0];
  renderStatPanel();
+}
+function showBattleActionMessage(title,detail=''){
+ const titleNode=$('battleActionTitle'),detailNode=$('battleActionDetail');
+ if(!titleNode||!detailNode)return;
+ titleNode.textContent=title;
+ detailNode.textContent=detail;
 }
 function render(){renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
