@@ -130,7 +130,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   sleepPowder: {name:'수면가루', accuracy:0.75, priority:0, inflict:'sleep'},
   poisonPowder: {name:'독가루', accuracy:1, priority:0, inflict:'poison'},
   dragonDance: {name:'용의춤', accuracy:1, priority:0, boosts:{attack:1,speed:1}, target:'self'},
-  recover: {name:'회복', accuracy:1, priority:0, healMaxHp:0.5, target:'self',pp:8},
+  recover: {name:'HP회복', accuracy:1, priority:0, healMaxHp:0.5, target:'self',pp:8},
   swift: {name:'스피드스타', power:65, accuracy:1, priority:0},
   boneClub:{name:'뼈다귀치기',power:65,accuracy:0.85,priority:0},
   iceBeam:{name:'냉동빔',power:90,accuracy:1,priority:0,inflict:'freeze',inflictChance:0.1},
