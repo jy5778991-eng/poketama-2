@@ -1,4 +1,4 @@
-import {MOVES} from './moves.js?v=20261031-starter-moves146';
+import {MOVES} from './moves.js?v=20261031-recover-name157';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:50,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
