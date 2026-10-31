@@ -6,8 +6,8 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261031-starter-moves146';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-icicle98';
+import {MOVES} from './js/data/moves.js?v=20261031-battle-pp156';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261031-battle-pp156';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
@@ -36,6 +36,7 @@ export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
   for(const m of moveIds) if(!MOVES[m]) throw new Error('Unknown move: '+m);
   return {id,name,level,stats:{...stats},hp:stats.hp,friendship:clamp(friendship,0,100),
     moveIds:[...moveIds],
+    pp:Object.fromEntries(moveIds.filter(id=>MOVES[id].pp).map(id=>[id,MOVES[id].pp])),
     stages:{attack:0,defense:0,speed:0,evasion:0},status:null,confusionTurns:0,lockedMove:null};
 }
 export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math.random}={}) {
@@ -79,7 +80,7 @@ function canAct(p,b){
   if(p.confusionTurns>0){p.confusionTurns--;if(roll(b.rng)<0.33){const {damage}=damageRoll(p,p,{power:40},{rng:b.rng});p.hp=Math.max(0,p.hp-damage);say(b,`${p.name}은(는) 혼란으로 자신을 공격했다!`);emit(b,{type:'damage',side:sideOf(b,p),amount:damage,hp:p.hp,critical:false});if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);return false;}if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);}
   return true;
 }
-function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
+function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
 function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
   const struggle=moveId==='struggle';
@@ -87,6 +88,13 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!move)throw new Error('Invalid move');
   if(!struggle&&!user.moveIds.includes(moveId))throw new Error('Move not available');
   if(!fromSleepTalk&&!canAct(user,b))return;
+  // Restricted PP is fighter-local for the entire battle, including switches.
+  if(!struggle&&move.pp){
+    user.pp??={};
+    const remaining=user.pp[moveId]??move.pp;
+    if(remaining<=0){say(b,`${move.name}의 PP가 부족하다!`);return;}
+    user.pp[moveId]=remaining-1;
+  }
   if(move.sleepTalk){if(user.status?.type!=='sleep'){say(b,'실패했다!');return;}const eligible=user.moveIds.filter(id=>MOVES[id]);if(!eligible.length){say(b,'실패했다!');return;}const selected=eligible[Math.floor(roll(b.rng)*eligible.length)];say(b,`${user.name}의 잠꼬대!`);if(selected==='sleepTalk'){say(b,'실패했다!');return;}executeMove(b,user,target,selected,true);return;}
   if(move.rest){if(user.status){say(b,'실패했다!');return;}user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'heal',side:sideOf(b,user),amount:0,hp:user.hp});return;}
   if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false,selfCost:true});return;}
@@ -96,7 +104,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
-  if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
+  if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],pp:{...user.pp},stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.pp=Object.fromEntries(user.moveIds.filter(id=>MOVES[id].pp).map(id=>[id,MOVES[id].pp]));user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
   if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
   if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
   if(move.boosts) {
@@ -154,6 +162,8 @@ function pickAction(p,requested){
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
   if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
   const id=p.lockedMove?.id||requested?.moveId;
+  if(id==='struggle'&&p.moveIds.every(move=>!!MOVES[move].pp&&(p.pp?.[move]??MOVES[move].pp)<=0))
+    return {type:'move',moveId:'struggle',priority:0};
   if(id&&p.moveIds.includes(id))return {type:'move',moveId:id,priority:MOVES[id].priority??0};
   throw new Error('Illegal move selection');
 }
