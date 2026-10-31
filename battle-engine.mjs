@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261030-encounters134';
+import {MOVES} from './js/data/moves.js?v=20261031-starter-moves146';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261029-icicle98';
 export {MOVES};
 
