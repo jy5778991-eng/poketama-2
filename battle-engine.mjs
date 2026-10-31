@@ -6,8 +6,8 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261031-battle-pp156';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261031-battle-pp156';
+import {MOVES} from './js/data/moves.js?v=20261031-recover-name157';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261031-recover-name157';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
