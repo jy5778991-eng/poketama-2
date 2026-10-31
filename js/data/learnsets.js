@@ -1,18 +1,18 @@
 // One learnset per evolution family. Starter learnsets retain their existing levels.
 export const STARTER_LEARNSETS={
- eevee:[{level:1,id:'tackle'},{level:8,id:'quickAttack'},{level:15,id:'bite'},{level:25,id:'swift'}],
+ eevee:[{level:1,id:'tackle'},{level:8,id:'quickAttack'},{level:16,id:'bite'},{level:25,id:'swift'}],
  jolteon:[{level:32,id:'thunderWave'},{level:38,id:'thunderbolt'},{level:45,id:'doubleTeam'},{level:54,id:'thunder'},{level:62,id:'zapCannon'}],
  flareon:[{level:34,id:'fireFang'},{level:44,id:'flamethrower'},{level:55,id:'fireBlast'},{level:58,id:'willOWisp'},{level:70,id:'flareBlitz'}],
  vaporeon:[{level:32,id:'iceBeam'},{level:48,id:'aquaRing'},{level:56,id:'acidArmor'},{level:64,id:'hydroPump'}],
  espeon:[{level:25,id:'confusion'},{level:30,id:'psybeam'},{level:44,id:'calmMind'},{level:52,id:'lightScreen'},{level:55,id:'psychic'},{level:70,id:'morningSun'}],
  umbreon:[{level:25,id:'bite'},{level:32,id:'snarl'},{level:34,id:'confuseRay'},{level:40,id:'toxic'},{level:44,id:'darkPulse'},{level:55,id:'moonlight'}],
- snorlax: [{level:1,id:'tackle'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:65,id:'bellyDrum'}],
+ snorlax: [{level:1,id:'tackle'}, {level:9,id:'defenseCurl'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:68,id:'bellyDrum'}],
  gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}, {level:76,id:'thrash'}],
  gengar: [{level:1,id:'lick'}, {level:20,id:'nightShade'}, {level:28,id:'hypnosis'}, {level:38,id:'shadowBall'}, {level:48,id:'sludgeBomb'}, {level:55,id:'dreamEater'}, {level:66,id:'confuseRay'}],
- dragonite: [{level:1,id:'tackle'}, {level:18,id:'slam'}, {level:29,id:'dragonBreath'}, {level:36,id:'thunderWave'}, {level:51,id:'dragonPulse'}, {level:60,id:'outrage'}, {level:70,id:'extremeSpeed'}, {level:82,id:'roost'}],
+ dragonite: [{level:1,id:'tackle'}, {level:11,id:'wrap'}, {level:29,id:'dragonBreath'}, {level:36,id:'thunderWave'}, {level:51,id:'dragonPulse'}, {level:60,id:'outrage'}, {level:70,id:'extremeSpeed'}, {level:82,id:'roost'}],
  venusaur: [{level:1,id:'tackle'}, {level:8,id:'vineWhip'}, {level:18,id:'poisonPowder'}, {level:25,id:'razorLeaf'}, {level:34,id:'energyBall'}, {level:49,id:'synthesis'}, {level:56,id:'sleepPowder'}, {level:68,id:'solarBeam'}],
- charizard: [{level:1,id:'scratch'}, {level:11,id:'ember'}, {level:24,id:'fireFang'}, {level:34,id:'flamethrower'}, {level:52,id:'flareBlitz'}, {level:58,id:'fireBlast'}, {level:66,id:'dragonDance'}],
- blastoise: [{level:1,id:'tackle'}, {level:9,id:'waterGun'}, {level:14,id:'harden'}, {level:22,id:'bubbleBeam'}, {level:38,id:'surf'}, {level:48,id:'hydroPump'}, {level:55,id:'shellSmash'}, {level:71,id:'waterSpout'}],
+ charizard: [{level:1,id:'scratch'}, {level:9,id:'leer'}, {level:11,id:'ember'}, {level:24,id:'fireFang'}, {level:34,id:'flamethrower'}, {level:52,id:'flareBlitz'}, {level:58,id:'fireBlast'}, {level:66,id:'dragonDance'}],
+ blastoise: [{level:1,id:'tackle'}, {level:9,id:'waterGun'}, {level:14,id:'defenseCurl'}, {level:22,id:'bubbleBeam'}, {level:38,id:'surf'}, {level:48,id:'hydroPump'}, {level:55,id:'shellSmash'}, {level:71,id:'waterSpout'}],
  raichu: [{level:1,id:'tackle'}, {level:5,id:'thunderShock'}, {level:12,id:'quickAttack'}, {level:16,id:'thunderWave'}, {level:25,id:'thunderbolt'}, {level:32,id:'doubleTeam'}, {level:40,id:'thunder'}, {level:50,id:'voltTackle'}],
  butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:16,id:'sleepPowder'}, {level:20,id:'psybeam'}, {level:30,id:'bugBuzz'}, {level:36,id:'gigaDrain'}, {level:44,id:'quiverDance'}],
 };
