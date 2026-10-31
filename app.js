@@ -58,7 +58,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
  const pool={
-  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:5,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
   rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
   hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[]),...(inventory.map!==1?[{kind:'item',id:'map',quantity:1,icon:'🗺️'}]:[])],
   legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.lightBall!==1&&teamMembers().some(m=>[172,25,26].includes(m.dex))?[{kind:'item',id:'lightBall',quantity:1,icon:'⚡'}]:[]),...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
@@ -69,7 +69,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
 const LEAGUE_TEAMS=[
@@ -108,7 +108,10 @@ let blueCleared=!!saved?.blueCleared,brockCleared=!!saved?.brockCleared,mistyCle
 let greenReturnCleared=!!saved?.greenReturnCleared,surgeCleared=!!saved?.surgeCleared;
 let greenThirdCleared=!!saved?.greenThirdCleared,greenFourthCleared=!!saved?.greenFourthCleared,greenFifthCleared=!!saved?.greenFifthCleared,erikaCleared=!!saved?.erikaCleared;
 let kogaCleared=!!saved?.kogaCleared,sabrinaCleared=!!saved?.sabrinaCleared,blaineCleared=!!saved?.blaineCleared,giovanniCleared=!!saved?.giovanniCleared;
-// Preserve the saved/current location independently of completed trainer flags.
+// Existing saves are normalized only until the developer explicitly edits completion flags.
+// Manual overrides remain independent of developer region movement and survive reloads.
+let developerFlagsManual=!!saved?.developerFlagsManual;
+if(!developerFlagsManual){
 if(giovanniCleared)blaineCleared=true;
 if(blaineCleared)sabrinaCleared=true;
 if(sabrinaCleared){greenFourthCleared=true;kogaCleared=true;}
@@ -119,6 +122,7 @@ if(surgeCleared)greenReturnCleared=true;
 if(greenReturnCleared)mistyCleared=true;
 if(mistyCleared)brockCleared=true;
 if(brockCleared)blueCleared=true;
+}
 let blueChoice=RIVAL_POOL.some(s=>s.id===saved?.blueChoice)?saved.blueChoice:null;
 let battleKind='wild',battleOpponent=null,defeatedEnemies=0,trainerExpEarned=0;
 let injured=!!saved?.injured;
@@ -222,7 +226,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{const value=Number.isInteger
 if(inventory.partySlotB)inventory.partySlotA=1;
 if(inventory.wideLensB)inventory.wideLensA=1;
 const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defend'}};
-const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=5).slice(0,100)]));
+const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=10).slice(0,100)]));
 const boostCount=key=>activeBoosts[key].length;
 function tickBoosts(){for(const key of Object.keys(activeBoosts))activeBoosts[key]=activeBoosts[key].map(n=>n-1).filter(n=>n>0);}
 let storedHp=Number.isInteger(saved?.storedHp)&&saved.storedHp>=0?saved.storedHp:null;
@@ -1014,7 +1018,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
- if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 5턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%p',critical:'급소 확률 +15%p',defense:'방어력 +20%'}[choice.effect||'attack']);
+ if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 10턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%p',critical:'급소 확률 +15%p',defense:'방어력 +20%'}[choice.effect||'attack']);
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
  if(choice.kind==='heal')return choice.full?'❤️ 즉시 HP 100% 회복':(choice.icon||'🧪')+' 즉시 HP '+choice.amount+' 회복';
  const item=SHOP_ITEMS.find(x=>x.id===choice.id);
@@ -1314,7 +1318,7 @@ function claimRewardChoice(index){
   playerMoves=migrateMoves(chosen,progress.level);
   storedHp=null===storedHp?null:Math.min(calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp,storedHp);
  }else if(choice.kind==='power'){
-  activeBoosts[BOOST_INFO[choice.effect]?choice.effect:'attack'].push(5);
+  activeBoosts[BOOST_INFO[choice.effect]?choice.effect:'attack'].push(10);
  }else if(choice.kind==='cash'){
   progress.money+=choice.amount;
   if(lastBattleReward)lastBattleReward.money+=choice.amount;
@@ -1941,6 +1945,31 @@ function openDeveloper(){
  $('developerError').textContent='';$('developerSaveError').textContent='';
  $('developerPassword').value='';$('developerPassword').focus();
 }
+const DEVELOPER_CLEAR_FLAGS=[
+ ['blue','그린 1차'],['brock','웅'],['misty','이슬이'],['greenReturn','그린 2차'],
+ ['surge','마티즈'],['greenThird','그린 3차'],['erika','민화'],['koga','독수'],
+ ['greenFourth','그린 4차'],['sabrina','초련'],['blaine','강연'],['giovanni','비주기'],['greenFifth','그린 5차']
+];
+function developerClearValues(){
+ return {blue:blueCleared,brock:brockCleared,misty:mistyCleared,greenReturn:greenReturnCleared,
+  surge:surgeCleared,greenThird:greenThirdCleared,erika:erikaCleared,koga:kogaCleared,
+  greenFourth:greenFourthCleared,sabrina:sabrinaCleared,blaine:blaineCleared,
+  giovanni:giovanniCleared,greenFifth:greenFifthCleared};
+}
+function renderDeveloperClearFlags(){
+ const list=$('developerClearFlags');
+ list.replaceChildren();
+ const current=developerClearValues();
+ for(const [key,label] of DEVELOPER_CLEAR_FLAGS){
+  const row=document.createElement('label');
+  row.className='developer-clear-row';
+  const checkbox=document.createElement('input');
+  checkbox.type='checkbox';checkbox.value=key;checkbox.checked=current[key];
+  checkbox.setAttribute('aria-label',label+' 클리어');
+  const description=document.createElement('span');description.textContent=label;
+  row.append(checkbox,description);list.append(row);
+ }
+}
 function unlockDeveloper(e){
  e.preventDefault();
  if($('developerPassword').value!=='1646'){
@@ -1952,6 +1981,7 @@ function unlockDeveloper(e){
  updateDeveloperPokemonOptions();
  $('developerMoney').value=String(progress.money);
  $('developerArea').value=area;
+ renderDeveloperClearFlags();
  $('developerHallChoice').value='keep';
  updateDeveloperHallControls();
  $('developerLevel').focus();
@@ -2029,20 +2059,25 @@ function applyDeveloperChanges(e){
   hallOfFame=hallOfFame.slice(-100);
   leagueStage=null;leagueCeremonyPending=false;
  }
- // Developer warps may unlock prerequisites, but never erase past victories.
- blueCleared=blueCleared||warp.blueCleared;
- brockCleared=brockCleared||warp.brockCleared;
- mistyCleared=mistyCleared||warp.mistyCleared;
- greenReturnCleared=greenReturnCleared||warp.greenReturnCleared;
- surgeCleared=surgeCleared||warp.surgeCleared;
- greenThirdCleared=greenThirdCleared||warp.greenThirdCleared;
- greenFourthCleared=greenFourthCleared||warp.greenFourthCleared;
- greenFifthCleared=greenFifthCleared||warp.greenFifthCleared;
- erikaCleared=erikaCleared||warp.erikaCleared;
- kogaCleared=kogaCleared||warp.kogaCleared;
- sabrinaCleared=sabrinaCleared||warp.sabrinaCleared;
- blaineCleared=blaineCleared||warp.blaineCleared;
- giovanniCleared=giovanniCleared||warp.giovanniCleared;
+ // Developer region selection never completes trainers; explicit checkboxes are authoritative.
+ const clearSelections=Object.fromEntries([...$('developerClearFlags').querySelectorAll('input[type="checkbox"]')].map(el=>[el.value,el.checked]));
+ if(DEVELOPER_CLEAR_FLAGS.some(([key])=>typeof clearSelections[key]!=='boolean')){
+  $('developerSaveError').textContent='클리어 체크박스를 불러올 수 없어. 다시 열어줘.';return;
+ }
+ blueCleared=clearSelections.blue;
+ brockCleared=clearSelections.brock;
+ mistyCleared=clearSelections.misty;
+ greenReturnCleared=clearSelections.greenReturn;
+ surgeCleared=clearSelections.surge;
+ greenThirdCleared=clearSelections.greenThird;
+ erikaCleared=clearSelections.erika;
+ kogaCleared=clearSelections.koga;
+ greenFourthCleared=clearSelections.greenFourth;
+ sabrinaCleared=clearSelections.sabrina;
+ blaineCleared=clearSelections.blaine;
+ giovanniCleared=clearSelections.giovanni;
+ greenFifthCleared=clearSelections.greenFifth;
+ developerFlagsManual=true;
  progress.money=warp.money;
  if(levelChanged){
   if(selectedPokemon.starter){
