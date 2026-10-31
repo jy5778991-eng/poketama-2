@@ -126,3 +126,10 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 #battleScreen .battle-action-message span{font-size:13px;color:#dcecff;overflow-wrap:anywhere}
 #battleScreen .battle-action-message span:empty{display:none}
 @media(max-width:520px){#battleScreen .battle-action-message{min-height:56px;margin-bottom:10px;padding:8px 10px}#battleScreen .battle-action-message strong{font-size:14px}#battleScreen .battle-action-message span{font-size:12px}}
+
+/* Center battle opponent heading independently of the turn indicator. */
+#battleScreen .trainer-label{position:relative;justify-content:center;padding-right:94px;padding-left:94px}
+#battleScreen .trainer-label .battle-turn-counter{position:absolute;right:8px;top:50%;transform:translateY(-50%);margin-left:0}
+#battleScreen .battle-submenu-top[hidden]{display:none!important}
+#battleScreen .battle-submenu-back{display:block;margin:12px auto 0;min-width:120px;min-height:42px;text-align:center}
+@media(max-width:520px){#battleScreen .trainer-label{padding-right:86px;padding-left:86px;gap:5px}#battleScreen .trainer-label #trainerName{font-size:13px;text-align:center}#battleScreen .trainer-label img{max-width:45px;max-height:48px}}
