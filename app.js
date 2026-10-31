@@ -54,18 +54,57 @@ function eligibleEvolutionTargets(choice){
  });
 }
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
+// Rewards roll a fixed tier first (74/20/5/1), then use weights within that tier.
+// Every reward has a base weight of 4. Unmet eligibility conditions set it to 0.
+function rewardWeight(choice,context){
+ const {needsHealing,hasFainted,members}=context;
+ if(choice.kind==='heal')return needsHealing?4:0;
+ if(choice.kind==='maxReviveReward'||choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?4:0;
+ if(choice.kind==='candyBundle')return members.length>=2?4:0;
+ if(choice.kind==='evolution')return eligibleEvolutionTargets(choice).length>0?4:0;
+ if(choice.kind==='item'){
+  const id=choice.id;
+  if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
+  if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?4:0;
+  if(id==='wideLensA')return inventory.wideLensA!==1?4:0;
+  if(id==='wideLensB')return inventory.wideLensA===1&&inventory.wideLensB!==1?4:0;
+  if(id==='thickClub'||id==='map'||id==='secretSwitch'||id==='oldSeaMap')return inventory[id]!==1?4:0;
+  if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
+  // Other unique key items also cannot be drawn once owned.
+  if(SHOP_ITEMS.some(item=>item.id===id&&item.category==='key')&&inventory[id]===1)return 0;
+ }
+ return 4;
+}
+function pickWeightedReward(candidates,context){
+ const weighted=candidates.map(choice=>({choice,weight:rewardWeight(choice,context)}));
+ const total=weighted.reduce((sum,entry)=>sum+entry.weight,0);
+ if(total<=0)return null;
+ let roll=Math.random()*total;
+ for(const entry of weighted){
+  if(entry.weight<=0)continue;
+  if(roll<entry.weight)return entry.choice;
+  roll-=entry.weight;
+ }
+ return weighted.findLast(entry=>entry.weight>0)?.choice||null;
+}
 function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
+ const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m));
+ const hasFainted=members.some(m=>memberHp(m)===0);
  const heal=lv<=10?{amount:20,icon:'🧪'}:lv<=34?{amount:60,icon:'💊'}:{amount:120,icon:'💉'};
- // Do not roll instant HP recovery when every party member is already at full HP.
- const needsHealing=teamMembers().some(member=>memberHp(member)<memberMaxHp(member));
  const pool={
-  normal:[{kind:'cash',amount:base,icon:'💰'},...(needsHealing?[{kind:'heal',...heal}]:[]),{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
-  rare:[{kind:'cash',amount:base*3,icon:'💰'},...(needsHealing?[{kind:'heal',amount:120,icon:'💉'}]:[]),...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'maxReviveReward',icon:'🌟'}]:[]),{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},...(inventory.partySlotA!==1?[{kind:'item',id:'partySlotA',quantity:1,icon:'👥'}]:[]),...(teamMembers().some(m=>m.level>=30&&TRADE_EVOLUTIONS[m.dex])?[{kind:'evolution',id:'linkCord',icon:'🔗'}]:[]),...EVOLUTION_REWARD_ITEMS.filter(item=>eligibleEvolutionTargets({id:item.id}).length>0).map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
-  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},...(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0)?[{kind:'sacredAshReward',icon:'✨'}]:[]),...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),...(inventory.partySlotA===1&&inventory.partySlotB!==1?[{kind:'item',id:'partySlotB',quantity:1,icon:'👥'}]:[]),...(inventory.wideLensA!==1?[{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'}]:[]),...(inventory.thickClub!==1?[{kind:'item',id:'thickClub',quantity:1,icon:'🦴'}]:[]),...(inventory.map!==1?[{kind:'item',id:'map',quantity:1,icon:'🗺️'}]:[])],
-  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},...(teamMembers().length>=2?[{kind:'candyBundle',icon:'🍬'}]:[]),...(needsHealing?[{kind:'heal',full:true,icon:'❤️'}]:[]),{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},...(inventory.lightBall!==1&&teamMembers().some(m=>[172,25,26].includes(m.dex))?[{kind:'item',id:'lightBall',quantity:1,icon:'⚡'}]:[]),...(inventory.wideLensA===1&&inventory.wideLensB!==1?[{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]:[])]
+  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',...heal},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',size:'S',multiplier:7,icon:'🍬'},{kind:'expCandy',size:'M',multiplier:11,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',amount:120,icon:'💉'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'ultraBall',quantity:3,icon:'🟡'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',size:'L',multiplier:20,icon:'🍬'},{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
+  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'rareCandy',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'candyBundle',icon:'🍬'},{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'ultraBall',quantity:10,icon:'🟡'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]
  };
- return Array.from({length:count},()=>{const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';return {tier,...pool[tier][Math.floor(Math.random()*pool[tier].length)]};});
+ const context={members,needsHealing,hasFainted};
+ return Array.from({length:count},()=>{
+  const roll=Math.random()*100,tier=roll<74?'normal':roll<94?'rare':roll<99?'hyper':'legendary';
+  const choice=pickWeightedReward(pool[tier],context);
+  if(!choice)throw new Error('해당 등급에 선택 가능한 보상이 없습니다: '+tier);
+  return {tier,...choice};
+ });
 }
 function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
