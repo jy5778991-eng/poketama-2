@@ -1,4 +1,4 @@
-import {MOVES} from './data/moves.js?v=20261031-battle-pp156';
+import {MOVES} from './data/moves.js?v=20261031-recover-name157';
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
