@@ -843,7 +843,7 @@ function playHomeLevelUp(previousLevel,newLevel){
 }
 
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
-function moveAccuracyText(move){return move.target==='self'&&!move.power&&!move.oneHitKo?'--':moveAccuracyText(move);}
+function moveAccuracyText(move){return move.target==='self'&&!move.power&&!move.oneHitKo?'--':Math.round((move.accuracy??1)*100)+'%';}
 function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+moveAccuracyText(m)+(m.description?' · '+m.description:'');}
 function updateBattleMoves(){
  saveProgress();renderHome();
