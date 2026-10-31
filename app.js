@@ -310,9 +310,10 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
   // Display one three-arrow animation for the whole group.
   const side=ev.side,positive=ev.change>0;
   const rankEvents=[ev];while(i+1<events.length&&events[i+1].type==='statChange'&&events[i+1].side===side&&Math.sign(events[i+1].change)===Math.sign(ev.change))rankEvents.push(events[++i]);if(battleEffectDisplay){for(const re of rankEvents){const stages=battleEffectDisplay[side].stages;stages[re.stat]=(stages[re.stat]||0)+re.change;}}renderBattleEffects();
-  // Show each rank change in event order while preserving the shared arrows animation.
+  // Reveal the complete compound boost together on a new line after its move name.
   const statLabels={attack:'공격',defense:'방어',speed:'스피드',evasion:'회피율',accuracy:'명중률'};
   const rankText=re=>pokemonName(re.side)+'의 '+(statLabels[re.stat]||re.stat)+' '+Math.abs(re.change)+'랭크 '+(re.change>0?'상승':'하락');
+  addDetail(rankEvents.map(rankText).join(', '));
   const host=visualSprite(side);
   if(host){
     host.querySelectorAll('.stat-change-arrows').forEach(node=>node.remove());
@@ -321,12 +322,9 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     arrows.setAttribute('aria-hidden','true');
     for(let n=0;n<3;n++){const arrow=document.createElement('span');arrow.className='stat-change-arrow';arrow.textContent=positive?'▲':'▼';arrows.append(arrow);}
     host.append(arrows);
-    for(const [rankIndex,re] of rankEvents.entries()){
-      addDetail(rankText(re));
-      await pause(rankIndex===rankEvents.length-1?Math.max(360,1500-rankIndex*450):450);
-    }
+    await pause(1500);
     arrows.remove();
-  }else{for(const re of rankEvents){addDetail(rankText(re));await pause(220);}}
+  }else await pause(220);
 }else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!',ev.success?'포획 성공!':'포켓몬이 볼에서 빠져나왔다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail('공격이 빗나갔다!');await pause(270);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
@@ -2098,12 +2096,8 @@ function mapTravelProblem(key){
   return '';
  }
  if(!entry[2]())return '아직 해금되지 않은 지역입니다.';
- // Allow normal backtracking between neighboring unlocked story regions.
- // The map item still permits distant jumps; the newest region stays freely accessible.
- const currentIndex=MAP_REGIONS.findIndex(r=>r[0]===area);
- const targetIndex=MAP_REGIONS.findIndex(r=>r[0]===key);
- const adjacent= currentIndex>=0&&targetIndex>=0&&Math.abs(currentIndex-targetIndex)===1;
- if(key!==latestMapRegion()&&key!==area&&!adjacent&&!inventory.map)return "'지도' 아이템이 없습니다. 인접한 지역은 지도 없이 이동할 수 있어요.";
+ // The furthest story region remains accessible without the optional map item.
+ if(key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
  return '';
 }
 function showMap(){
