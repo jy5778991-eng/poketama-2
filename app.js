@@ -220,7 +220,13 @@ function healInjury(){
  actions.append(confirm,cancel);panel.append(title,cards,description,actions);overlay.append(panel);document.body.append(overlay);cancel.focus();
 }
 let pendingLevelUp=null;
-let battleSpeed=1;
+const BATTLE_SPEED_KEY='poketama-2-battle-speed-v1';
+let battleSpeed=(()=>{try{return localStorage.getItem(BATTLE_SPEED_KEY)==='2'?2:1;}catch(e){return 1;}})();
+function updateBattleSpeedControl(){
+ document.body.classList.toggle('battle-fast',battleSpeed===2);
+ $('speedToggle').setAttribute('aria-pressed',String(battleSpeed===2));
+ $('speedToggle').textContent='⏩ 2배속 '+(battleSpeed===2?'ON':'OFF');
+}
 let lastBattleReward=saved?.lastBattleReward&&Number.isSafeInteger(saved.lastBattleReward.exp)&&Number.isSafeInteger(saved.lastBattleReward.money)?saved.lastBattleReward:null;
 let lastPartyExp=saved?.lastPartyExp&&typeof saved.lastPartyExp==='object'?saved.lastPartyExp:{};
 let battleExpEarned={};
@@ -1846,7 +1852,6 @@ function render(){renderPowerStatus();renderBattleEffects();const switchButton=$
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
 
- $('backHome').disabled=battleKind!=='wild';
  if(battle.ended)showMenu('main');for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);$(prefix+'Status').textContent=f.status?.type==='paralysis'?'⚡ 마비':f.status?.type==='sleep'?'💤 수면':f.status?.type==='poison'?'☠ 독':f.status?.type==='burn'?'🔥 화상':f.status?.type==='freeze'?'❄️ 얼음':'';if(f.confusionTurns>0){const b=document.createElement('span');b.textContent=' 🌀 혼란';b.style.cssText='color:#bf581c;background:#ffdfc8;border-radius:6px;padding:2px 5px;margin-left:5px';$(prefix+'Status').append(b);}$(prefix+'Status').style.color=f.status?.type==='burn'?'#c75e32':f.status?.type==='freeze'?'#278ac9':f.status?.type==='poison'?'#985ac0':f.status?.type==='sleep'?'#438fe1':f.status?.type==='paralysis'?'#b98906':'';}
 $('turn').textContent=battle.ended?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
 $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.createElement('button');const remaining=m.pp?(p.pp?.[id]??m.pp):null;b.disabled=animating||battle.ended||(remaining!==null&&remaining<=0);const baseDescription=m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기';const hitRate=m.target==='self'||!Number.isFinite(m.accuracy)?'':' · 명중 '+Math.round(m.accuracy*100)+'%';const description=baseDescription+hitRate;b.innerHTML='<span class="move-name">'+m.name+'</span><span class="move-pp">'+description+(remaining===null?'':' · PP '+remaining+'/'+m.pp)+'</span>';b.addEventListener('click',()=>act({moveId:id}));return b;}),...(p.moveIds.every(id=>MOVES[id].pp&&(p.pp?.[id]??MOVES[id].pp)<=0)?[(()=>{const b=document.createElement('button');b.disabled=animating||battle.ended;b.textContent='발버둥 · PP 없음';b.addEventListener('click',()=>act({moveId:'struggle'}));return b;})()]:[]));$('log').replaceChildren(...battle.log.slice(-15).reverse().map(line=>{const t=document.createElement('p');t.textContent=line;return t;}));renderStatPanel();}
@@ -2349,11 +2354,11 @@ function setup(){
  $('healButton').addEventListener('click',healInjury);
  $('openMoveRecall').addEventListener('click',openRecall);
  $('closeMoveRecall').addEventListener('click',()=>{$('moveRecallOverlay').hidden=true});
+ updateBattleSpeedControl();
  $('speedToggle').addEventListener('click',()=>{
   battleSpeed=battleSpeed===1?2:1;
-  document.body.classList.toggle('battle-fast',battleSpeed===2);
-  $('speedToggle').setAttribute('aria-pressed',String(battleSpeed===2));
-  $('speedToggle').textContent='⏩ 2배속 '+(battleSpeed===2?'ON':'OFF');
+  try{localStorage.setItem(BATTLE_SPEED_KEY,String(battleSpeed));}catch(e){console.warn('배틀 속도 설정을 저장하지 못했습니다.',e);}
+  updateBattleSpeedControl();
  });
  $('commandSwitch')?.addEventListener('click',requestBattleSwitch);
  $('commandFight').addEventListener('click',()=>showMenu('fight'));
@@ -2401,6 +2406,6 @@ function setup(){
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
  egg.onclick=()=>beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);
  box.append(egg);
- $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('backHome').addEventListener('click',()=>{if(animating||battleKind!=='wild')return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();renderHome();showScreen('home')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
