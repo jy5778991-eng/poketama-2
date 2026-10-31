@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261031-league-waitroom150"></head>
+<title>pota2</title><link rel="stylesheet" href="./style.css?v=20261031-battle-message158"></head>
 <body><script>
 (function(){
   const savedKey='poketama-2-progress-v2';
@@ -74,7 +74,7 @@
  <p id="inventoryFootnote" class="shop-footnote">아이템별 최대 99개 · 보유 아이템은 자동 저장</p></div>
 </section>
 <section id="battleScreen" class="screen" hidden aria-label="포케타마 전투 화면"><div class="battle-top"><button id="backHome" class="secondary">← 메인으로</button><button type="button" id="speedToggle" class="battle-speed-toggle" aria-pressed="false" title="배틀 연출 속도 전환">⏩ 2배속 OFF</button><span>BW BATTLE PLAYTEST</span></div>
-<div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong></div>
+<div class="trainer-label"><img id="trainerPortrait" alt="트레이너 이미지" hidden/><strong id="trainerName">야생 포켓몬</strong><span id="turn" class="battle-turn-counter">TURN 01</span></div>
 <div id="trainerSummonMessage" class="trainer-summon-message" hidden role="status" aria-live="polite"></div>
 <section class="arena" aria-label="포켓몬 배틀"><div id="battlePlusPower" class="plus-power-indicator" hidden aria-label="활성 강화 효과"></div><div id="playerBattleEffects" class="battle-effect-status player-effect-status" aria-label="내 포켓몬 능력치 변화"></div><div id="enemyBattleEffects" class="battle-effect-status enemy-effect-status" aria-label="상대 포켓몬 능력치 변화"></div>
 <div id="captureBall" class="capture-ball" aria-hidden="true" hidden><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
@@ -86,7 +86,7 @@
 <div class="battle-info player-info"><div class="name"><strong class="battle-name-line"><span id="playerName">피츄</span><span id="playerLevel">LV 5</span><span id="playerStatus" class="status" style="font:inherit;color:inherit"></span></strong></div><div class="hp"><div id="playerBar"></div></div><div id="playerHp" class="number"></div></div>
 </section>
 <div id="captureSuccessNotice" class="capture-success-notice" role="dialog" aria-modal="true" aria-labelledby="captureSuccessText" hidden><div class="capture-success-dialog"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt=""/><strong id="captureSuccessText">포켓몬을 잡았다!</strong><button id="captureSuccessConfirm" type="button">확인</button></div></div>
-<section class="panel"><div class="panel-head"><b><span id="promptName">라이츄</span>는 무엇을 할까?</b><span id="turn">TURN 01</span></div>
+<section class="panel battle-control-panel"><div id="battleActionMessage" class="battle-action-message" role="status" aria-live="polite" aria-atomic="true"><strong id="battleActionTitle">배틀 준비!</strong><span id="battleActionDetail">기술을 선택해줘.</span></div>
 <div id="battleCommands" class="battle-commands"><button id="commandFight" type="button">⚔ 공격</button><button id="commandSwitch" type="button">🔄 교체</button><button id="commandBall" type="button">🔴 몬스터볼</button><button id="commandHeal" type="button">💊 회복</button><button id="commandRun" type="button">🏃 도망</button></div><div id="battleSubmenu" class="battle-submenu" hidden><div class="battle-submenu-top"><strong id="submenuTitle">기술 선택</strong><button type="button" id="submenuBack" class="secondary">← 뒤로</button></div><div id="moves" class="moves" hidden></div><div id="ballOptions" class="item-options" hidden><button type="button" id="battleItem-pokeBall" class="item-option">🔴 몬스터볼 <span class="item-count">×0</span><small>기본 포획률 · 소모품</small></button><button type="button" id="battleItem-greatBall" class="item-option">🔵 슈퍼볼 <span class="item-count">×0</span><small>포획률 ×1.5 · 소모품</small></button><button type="button" id="battleItem-ultraBall" class="item-option">🟡 하이퍼볼 <span class="item-count">×0</span><small>포획률 ×2 · 소모품</small></button><button type="button" id="battleItem-masterBall" class="item-option">🟣 마스터볼 <span class="item-count">×0</span><small>포획 성공률 100% · 소모품</small></button></div><div id="healOptions" class="item-options" hidden><button type="button" id="battleItem-revive" class="item-option">💎 기력의조각 <span class="item-count">×0</span><small>기절한 동료 HP 50% 부활 · 턴 소모</small></button><button type="button" id="battleItem-potion" class="item-option">🧪 상처약 <span class="item-count">×0</span><small>HP 20 회복 · 사용 시 턴 소모</small></button><button type="button" id="battleItem-superPotion" class="item-option">💊 좋은상처약 <span class="item-count">×0</span><small>HP 60 회복 · 사용 시 턴 소모</small></button><button type="button" id="battleItem-hyperPotion" class="item-option">💉 고급상처약 <span class="item-count">×0</span><small>HP 200 회복 · 사용 시 턴 소모</small></button></div></div></section>
 <div id="badgeAwardOverlay" class="badge-award-overlay" role="dialog" aria-modal="true" aria-labelledby="badgeAwardName" hidden><div class="badge-award-dialog"><div class="badge-award-eyebrow">GYM BADGE GET!</div><div class="badge-award-shine"><img id="badgeAwardImage" alt="획득한 체육관 배지" /><span id="badgeAwardFallback" hidden>🏅</span></div><strong id="badgeAwardName">배지 획득!</strong><p>체육관 관장을 이겼다!</p><button type="button" id="badgeAwardConfirm">확인</button></div></div>
 <div id="battleResult" class="battle-result" hidden aria-live="polite"><strong id="resultTitle"></strong><div id="resultDetail"></div><button id="resultHome" class="secondary">메인으로 돌아가기</button></div>
@@ -123,7 +123,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261031-recover-name157');
+ await import('./app.js?v=20261031-battle-message158');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
