@@ -21,3 +21,13 @@
 .developer-box select{width:100%;min-height:46px;border:2px solid #94a8cb;border-radius:7px;background:#fff;color:#21314c;font-size:15px;padding:11px}
 .developer-box select:focus{outline:3px solid #c4d9ff;border-color:#527fbc}
 .developer-box{max-height:90vh;overflow:auto}
+
+/* Achievement titles remain concealed until earned; descriptions are opt-in for now. */
+.achievement-entry{padding:12px 10px}
+.achievement-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:30px}
+.achievement-name{font-size:13px;min-width:0;overflow-wrap:anywhere}
+.achievement-entry.is-locked .achievement-name{color:#8c96a7;letter-spacing:1px}
+.achievement-description-button{flex-shrink:0;padding:7px 11px;border:1px solid #8ba4c8;border-radius:7px;background:#f1f5fc;color:#385884;font-size:12px;font-weight:800;cursor:pointer}
+.achievement-description-button:focus-visible{outline:3px solid #aec7f6;outline-offset:2px}
+.achievement-description{margin:9px 0 0;font-size:12px;line-height:1.55;font-weight:500;color:#61738e}
+.achievement-description[hidden]{display:none}
