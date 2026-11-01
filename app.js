@@ -74,7 +74,8 @@ function rewardWeight(choice,context){
  if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?2:0;
  if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?4:0;
  if(choice.kind==='candyBundle')return members.length>=2?4:0;
- if(choice.kind==='evolution')return eligibleEvolutionTargets(choice).length>0?4:0;
+ if(choice.kind==='ev')return 3;
+ if(choice.kind==='evolution')return eligibleEvolutionTargets(choice).length>0?9:0;
  if(choice.kind==='item'){
   const id=choice.id;
   if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
@@ -107,8 +108,8 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
- rare:[{kind:'cash',amount:base*4,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
- hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+ rare:[{kind:'cash',amount:base*4,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
+ hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]
  };
  const context={members,needsHealing,hasFainted,lv};
@@ -1095,7 +1096,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
- if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
+ if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
  if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 10턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%p',critical:'급소 확률 +15%p',defense:'방어력 +20%'}[choice.effect||'attack']);
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
