@@ -39,7 +39,7 @@ const EVOLUTION_REWARD_ITEMS=[
 ];
 const STONE_WILD_EVOLUTIONS={
  moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
- leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'}},
+ leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'},102:{dex:103,name:'나시'}},
  waterStone:{61:{dex:62,name:'강챙이'}},
  metalCoat:{95:{dex:208,name:'강철톤'},123:{dex:212,name:'핫삼'}},
  fireStone:{58:{dex:59,name:'윈디'}}
@@ -51,7 +51,7 @@ function eligibleEvolutionTargets(choice){
   if(choice.id==='metalCoat')return (member.dex===95&&member.level>=34)||(member.dex===123&&member.level>=40);
   if(choice.id==='fireStone'&&member.dex===58&&member.level>=36)return true;
   if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
-  if(choice.id==='leafStone')return [44,70].includes(member.dex)&&member.level>=30;
+  if(choice.id==='leafStone')return ([44,70].includes(member.dex)&&member.level>=30)||(member.dex===102&&member.level>=40);
   if(choice.id==='waterStone'&&member.dex===61&&member.level>=30)return true;
   return member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm());
  });
