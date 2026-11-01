@@ -81,6 +81,15 @@ function canAct(p,b){
   return true;
 }
 function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
+function applyAttackDamage(b,target,damage){
+ const hp=target.hp;
+ if(hp>0&&damage>=hp&&target===b.player&&b.focusSashEnabled&&!b.focusSashUsed&&roll(b.rng)<0.5){
+  b.focusSashUsed=true;target.hp=1;
+  say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
+  emit(b,{type:'focusSash',side:'player'});
+ }else target.hp=Math.max(0,hp-damage);
+ return hp-target.hp;
+}
 function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
   const struggle=moveId==='struggle';
@@ -121,7 +130,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       const hits=move.multiHit.min+Math.floor(roll(b.rng)*(move.multiHit.max-move.multiHit.min+1));let landed=0;
       for(let i=0;i<hits&&isAlive(target);i++){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-        const actual=Math.min(target.hp,damage);target.hp=Math.max(0,target.hp-damage);landed++;
+        const actual=applyAttackDamage(b,target,damage);landed++;
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
         emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
@@ -129,8 +138,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       say(b,`총 ${landed}회 명중!`);
     }else{
       const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-    target.hp=Math.max(0,target.hp-damage);
-    emit(b,{type:'damage',side:sideOf(b,target),amount:damage,hp:target.hp,critical});
+    const actual=applyAttackDamage(b,target,damage);
+    emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
     }
