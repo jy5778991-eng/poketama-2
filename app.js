@@ -5,16 +5,16 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261031-rarity-tiers155';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-held-items178';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-item-tabs180';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261101-achievements175';
-import {renderInventoryView} from './js/inventory.js?v=20261102-held-items178';
+import {renderInventoryView} from './js/inventory.js?v=20261102-item-tabs180';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
-const HELD_ITEMS=['wideLensA','wideLensB','focusSash','lightBall','thickClub'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,lightBall:1,thickClub:1};
+const HELD_ITEMS=['wideLensA','wideLensB','focusSash'];
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2};
 const isLens=id=>id==='wideLensA'||id==='wideLensB';
 
 // Reward choices scale by stage when a stage system is added later.
@@ -1064,6 +1064,7 @@ function openRecall(){
 function openRecallList(){openRecall();}
 
 function rewardChoiceText(choice){
+ if(choice.kind==='item'&&choice.id==='memoryMushroom')return '기술관리에 필요하다.';
  if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
   if(choice.kind==='expCandy')return '선택한 포켓몬의 레벨 × 10 경험치를 획득한다.';
  if(choice.kind==='candyBundle')return '내 파티의 포켓몬이 모두 레벨업을 하는 이상한 사탕 보따리';
@@ -1078,8 +1079,8 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 장착 포켓몬이 기절할 공격을 받을 때 50% 확률로 HP 1 생존, 배틀당 1회';
- if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 장착한 피츄·피카츄·라이츄 공격력 1.5배';
- if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 장착한 탕구리·텅구리 공격력 2배';
+ if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
@@ -1572,7 +1573,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.d
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(hasHeld('thickClub',m.key)&&[104,105].includes(m.dex)?2:1)*(hasHeld('lightBall',m.key)&&[172,25,26].includes(m.dex)?1.5:1);
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
 player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
