@@ -3,7 +3,7 @@ import {recentWildMoves} from './js/data/learnsets.js?v=20261031-starter-moves14
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261031-icefang-waterfall169';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261031-recover-name157';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261031-rarity-tiers155';
-import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261029-animated-trainers127';
+import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261031-memorymushroom147';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
@@ -674,10 +674,10 @@ function finishTrainerBattle(){
 }
 const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird','erika','koga','greenFourth','sabrina','blaine','giovanni','greenFifth'];
 const MAP_REGIONS=[
- ['grass','🌿 초원',()=>true,11],['forest','🌳 상록숲',()=>blueCleared,16],['cave','🪨 달맞이동굴',()=>brockCleared,18],['lake','💧 호수공원',()=>mistyCleared,26],
- ['cemetery','🪦 공동묘지',()=>surgeCleared,30],['town','🏘️ 무지개시티',()=>greenThirdCleared,35],['road','🛣️ 자전거도로',()=>erikaCleared,39],
+ ['grass','🌿 초원',()=>true,8],['forest','🌳 상록숲',()=>blueCleared,14],['cave','🪨 달맞이동굴',()=>brockCleared,18],['lake','💧 호수공원',()=>mistyCleared,26],
+ ['cemetery','🪦 공동묘지',()=>surgeCleared,29],['town','🏘️ 무지개시티',()=>greenThirdCleared,34],['road','🛣️ 자전거도로',()=>erikaCleared,39],
  ['city','🏙️ 노랑시티',()=>kogaCleared,48],['sea','🌊 바다',()=>sabrinaCleared,54],['volcano','🌋 화산',()=>sabrinaCleared,54],
- ['strangeForest','🌲 이상한 숲',()=>blaineCleared,61],['championRoad','🏔️ 챔피언로드 1',()=>giovanniCleared,74],
+ ['strangeForest','🌲 이상한 숲',()=>blaineCleared,60],['championRoad','🏔️ 챔피언로드 1',()=>giovanniCleared,66],
  ['championRoad2','🏛️ 챔피언로드 2',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
  ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,95],
  ['farawayIsland','🏝️ 환상의 섬',()=>hallOfFame.length>0&&inventory.oldSeaMap>0,90],
@@ -686,12 +686,10 @@ const MAP_REGIONS=[
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
 const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?'sea':kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
- const regionCap=mapRegion(area)?.[3]??null;
- // Previously visited regions retain their own ceiling even after later gyms are cleared.
- const current=nextTrainerKind();
- const index=CHALLENGE_ORDER.indexOf(current);
- const progressCap=area===latestMapRegion()&&index>=0&&index<CHALLENGE_ORDER.length-1?TRAINERS[CHALLENGE_ORDER[index+1]].level-1:null;
- return progressCap===null?regionCap:regionCap===null?progressCap:Math.min(regionCap,progressCap);
+ // Fixed absolute cap per region. The lake and city change only after their corresponding rival wins.
+ if(area==='lake'&&!greenReturnCleared)return 22;
+ if(area==='city'&&!greenFourthCleared)return 43;
+ return mapRegion(area)?.[3]??null;
 }
 function wildRewardCapped(member=leaderMember()){const cap=wildRewardLevelCap();return cap!==null&&member.level>=cap;}
 function refreshLevelCapIndicator(){
@@ -1794,8 +1792,8 @@ function renderHome(){
  $('trainerChallenge').disabled=area==='championRoad2'||(hallOfFame.length>0?false:challengeDisabled);
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
- redButton.disabled=progress.level<92||!livingMembers().length||!!pendingRewardChoice||animating;
- $('redChallengeNote').textContent=progress.level<92?'Lv.92에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
+ redButton.disabled=progress.level<90||!livingMembers().length||!!pendingRewardChoice||animating;
+ $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
  $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2';
  $('leagueEnter').disabled=area!=='championRoad2'||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
@@ -2339,7 +2337,7 @@ function setup(){
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
- $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<92||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;battlePlayerLevelStart=progress.level;reset('red');showScreen('battle')});
+ $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;battlePlayerLevelStart=progress.level;reset('red');showScreen('battle')});
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
