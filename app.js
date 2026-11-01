@@ -1670,7 +1670,9 @@ function requestBattleSwitch(){
   if(animating||battle.ended)return;
   animating=true;
   try{
-   setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);
+   setActiveHp(battle.player.hp);
+   if(battle.player.stages)for(const stat of Object.keys(battle.player.stages))battle.player.stages[stat]=0;
+   battleRoster.set(activeBattleKey,battle.player);
    await playSwitchBallAnimation(()=>{
     if(!chooseActiveMember(m))return;
     const newFighter=battleRoster.get(m.key)||makeMemberFighter(m);
