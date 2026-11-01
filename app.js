@@ -10,7 +10,7 @@ import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.j
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261101-achievements175';
-import {renderInventoryView} from './js/inventory.js?v=20261031-memorymushroom147';
+import {renderInventoryView} from './js/inventory.js?v=20261102-rewards177';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 
