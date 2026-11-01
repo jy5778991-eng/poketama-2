@@ -374,7 +374,13 @@ async function shakeHit(side,critical=false){
  await pause(430);
  host.classList.remove('impact-shake','impact-shake-heavy');
 }
-async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statusApplied'){addDetail(pokemonName(ev.side)+' '+({sleep:'수면',paralysis:'마비',poison:'독',burn:'화상',freeze:'얼음',confusion:'혼란'}[ev.status]||ev.status||'상태이상')+' 상태!');if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}}else if(ev.type==='statChange'){
+async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}await pause(420);}else if(ev.type==='statusApplied'){
+ if(battleEffectDisplay?.[ev.side]){
+  if(ev.status==='confusion')battleEffectDisplay[ev.side].confused=true;
+  else battleEffectDisplay[ev.side].status=ev.status;
+  renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));
+ }
+ addDetail(pokemonName(ev.side)+' '+({sleep:'수면',paralysis:'마비',poison:'독',burn:'화상',freeze:'얼음',confusion:'혼란'}[ev.status]||ev.status||'상태이상')+' 상태!');if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}await pause(250);}else if(ev.type==='statChange'){
   if(currentMove?.isStatus&&currentMove.side!==ev.side&&ev.change<0){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}
   // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
   // Display one three-arrow animation for the whole group.
@@ -1515,7 +1521,7 @@ function renderInventory(){
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
 let battleEffectDisplay=null;
-function snapshotBattleEffects(){return {player:{stages:{...battle.player.stages}},enemy:{stages:{...(animatingEnemy??battle.enemies[battle.enemyIndex])?.stages}},shields:{...battle.shields},rings:{...battle.rings}};}
+function snapshotBattleEffects(){const enemy=animatingEnemy??battle.enemies[battle.enemyIndex];return {player:{stages:{...battle.player.stages},status:battle.player.status?.type||null,confused:battle.player.confusionTurns>0},enemy:{stages:{...enemy?.stages},status:enemy?.status?.type||null,confused:!!enemy?.confusionTurns},shields:{...battle.shields},rings:{...battle.rings}};}
 function renderBattleEffects(){
  if(!battle)return;
  for(const side of ['player','enemy']){
@@ -1974,6 +1980,22 @@ function showBattleActionMessage(title,detail=''){
  titleNode.textContent=title;
  detailNode.textContent=detail;
 }
+function renderBattleStatus(side,fighter){
+ const statusElement=$(side+'Status');
+ if(!statusElement||!fighter)return;
+ // During event playback the battle engine has already simulated the entire turn.
+ // Show the pre-turn snapshot until a matching event is animated.
+ const visible=battleEffectDisplay?.[side];
+ const status=visible?visible.status:fighter.status?.type;
+ const confused=visible?visible.confused:fighter.confusionTurns>0;
+ statusElement.textContent=status==='paralysis'?'⚡ 마비':status==='sleep'?'💤 수면':status==='poison'?'☠ 독':status==='burn'?'🔥 화상':status==='freeze'?'❄️ 얼음':'';
+ if(confused){
+  const chip=document.createElement('span');chip.textContent=' 🌀 혼란';
+  chip.style.cssText='color:#bf581c;background:#ffdfc8;border-radius:6px;padding:2px 5px;margin-left:5px';
+  statusElement.append(chip);
+ }
+ statusElement.style.color=status==='burn'?'#c75e32':status==='freeze'?'#278ac9':status==='poison'?'#985ac0':status==='sleep'?'#438fe1':status==='paralysis'?'#b98906':'';
+}
 function render(){renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
@@ -1986,7 +2008,7 @@ function render(){renderPowerStatus();renderBattleEffects();const switchButton=$
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
 
- if(battle.ended)showMenu('main');for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);$(prefix+'Status').textContent=f.status?.type==='paralysis'?'⚡ 마비':f.status?.type==='sleep'?'💤 수면':f.status?.type==='poison'?'☠ 독':f.status?.type==='burn'?'🔥 화상':f.status?.type==='freeze'?'❄️ 얼음':'';if(f.confusionTurns>0){const b=document.createElement('span');b.textContent=' 🌀 혼란';b.style.cssText='color:#bf581c;background:#ffdfc8;border-radius:6px;padding:2px 5px;margin-left:5px';$(prefix+'Status').append(b);}$(prefix+'Status').style.color=f.status?.type==='burn'?'#c75e32':f.status?.type==='freeze'?'#278ac9':f.status?.type==='poison'?'#985ac0':f.status?.type==='sleep'?'#438fe1':f.status?.type==='paralysis'?'#b98906':'';}
+ if(battle.ended)showMenu('main');for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);renderBattleStatus(prefix,f);}
 $('turn').textContent=battle.ended?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
 $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.createElement('button');const remaining=m.pp?(p.pp?.[id]??m.pp):null;b.disabled=animating||battle.ended||(remaining!==null&&remaining<=0);const baseDescription=m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기';const hitRate=m.target==='self'||!Number.isFinite(m.accuracy)?'':' · 명중 '+Math.round(m.accuracy*100)+'%';const description=baseDescription+hitRate;b.innerHTML='<span class="move-name">'+m.name+'</span><span class="move-pp">'+description+(remaining===null?'':' · PP '+remaining+'/'+m.pp)+'</span>';b.addEventListener('click',()=>act({moveId:id}));return b;}),...(p.moveIds.every(id=>MOVES[id].pp&&(p.pp?.[id]??MOVES[id].pp)<=0)?[(()=>{const b=document.createElement('button');b.disabled=animating||battle.ended;b.textContent='발버둥 · PP 없음';b.addEventListener('click',()=>act({moveId:'struggle'}));return b;})()]:[]));$('log').replaceChildren(...battle.log.slice(-15).reverse().map(line=>{const t=document.createElement('p');t.textContent=line;return t;}));renderStatPanel();}
 async function act(a){
