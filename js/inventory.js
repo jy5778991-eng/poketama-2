@@ -1,9 +1,9 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-rewards176';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-held-items178';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
-export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onMapUse}){
+export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,onMapUse}){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
@@ -39,12 +39,19 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    buy.onclick=()=>{
     if((unique?inventory[item.id]>=1:inventory[item.id]>=99)||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<item.price)return;
     progress.money-=item.price;inventory[item.id]=unique?1:inventory[item.id]+1;
-    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget});
+    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect});
    };
    row.append(buy);
   }else if(item.category==='key'){
    if(item.id==='map'&&inventoryMode==='bag'&&inventory.map){const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';use.onclick=()=>onMapUse?.();row.append(use);}
    const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
+  }else if(heldItems.includes(item.id)){
+   const equipped=(battleItemHolders[item.id]||[]).length;
+   description.textContent=item.description+' · 보유 '+inventory[item.id]+'개 · 장착 '+equipped+'개';
+   const pick=document.createElement('button');pick.type='button';pick.className='shop-buy';
+   pick.textContent='선택';pick.disabled=!inventory[item.id];
+   pick.onclick=()=>onHeldSelect?.(item.id);
+   row.append(pick);
   }else if(item.category==='heal'){
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
    use.textContent='대상 선택';
