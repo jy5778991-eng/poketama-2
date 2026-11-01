@@ -1,18 +1,21 @@
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261031-starter-moves146';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261031-starter-moves146';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-focus-sash176';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-held-items178';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261031-recover-name157';
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter} from './js/data/areas.js?v=20261031-rarity-tiers155';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-rewards176';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-held-items178';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {renderCollectionView} from './js/collection.js?v=20261101-achievements175';
-import {renderInventoryView} from './js/inventory.js?v=20261102-rewards177';
+import {renderInventoryView} from './js/inventory.js?v=20261102-held-items178';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
+const HELD_ITEMS=['wideLensA','wideLensB','focusSash','lightBall','thickClub'];
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,lightBall:1,thickClub:1};
+const isLens=id=>id==='wideLensA'||id==='wideLensB';
 
 // Reward choices scale by stage when a stage system is added later.
 const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
@@ -76,9 +79,10 @@ function rewardWeight(choice,context){
   const id=choice.id;
   if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
   if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?4:0;
-  if(id==='wideLensA')return inventory.wideLensA!==1?4:0;
-  if(id==='wideLensB')return inventory.wideLensA===1&&inventory.wideLensB!==1?4:0;
-  if(['thickClub','map','secretSwitch','oldSeaMap','focusSash'].includes(id))return inventory[id]!==1?4:0;
+  if(id==='wideLensA')return inventory.wideLensA>=2?0:inventory.wideLensA===1?2:4;
+  if(id==='wideLensB')return inventory.wideLensB>=1?0:4;
+  if(id==='focusSash')return inventory.focusSash>=2?0:inventory.focusSash===1?2:4;
+  if(['thickClub','map','secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
   if(SHOP_ITEMS.some(item=>item.id===id&&item.category==='key')&&inventory[id]===1)return 0;
  }
@@ -117,7 +121,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
 const LEAGUE_TEAMS=[
@@ -275,10 +279,17 @@ function recoverLastStarterFromResetBackup(){
 }
 
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
-let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];return [i.id,i.category==='key'?Math.min(1,value):value];}));
+let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
+ const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.category==='key'?Math.min(1,value):value];
+}));
+let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
+ const recorded=saved?.battleItemHolders?.[id];
+ return [id,Array.isArray(recorded)?recorded.filter(x=>typeof x==='string').slice(0,inventory[id]):Array(inventory[id]).fill('starter')];
+}));
 // Slot B only makes sense when slot A has been unlocked.
 if(inventory.partySlotB)inventory.partySlotA=1;
-if(inventory.wideLensB)inventory.wideLensA=1;
+// Lens B is independent of Lens A.
 const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defend'}};
 const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=10).slice(0,100)]));
 const boostCount=key=>activeBoosts[key].length;
@@ -868,7 +879,7 @@ function reset(kind='wild'){
  }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
- battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});battle.focusSashEnabled=inventory.focusSash===1;battle.focusSashUsed=false;rewardClaimed=false;menuPage='main';
+ battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});// Held Focus Sash effects live on each Pokémon's fighter.rewardClaimed=false;menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(rivalForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
@@ -1066,11 +1077,11 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='map')return '🗺️ 지도 · 이미 해금된 지역으로 이동 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 중요아이템 · 치명타가 아닌 일반 공격 포함 기절할 공격을 받을 때 50% 확률로 HP 1 생존, 배틀당 1회';
- if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 내 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 내 탕구리·텅구리 공격력 2배 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 내 포켓몬 기술 명중률 +5%p (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 광각렌즈A 필요 · 내 포켓몬 기술 명중률 추가 +5%p (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 장착 포켓몬이 기절할 공격을 받을 때 50% 확률로 HP 1 생존, 배틀당 1회';
+ if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 장착한 피츄·피카츄·라이츄 공격력 1.5배';
+ if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 장착한 탕구리·텅구리 공격력 2배';
+ if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
+ if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return '💊 '+({hp:'맥스업 · HP',attack:'타우린 · ATK',defense:'사포닌 · DEF',speed:'알칼로이드 · SPD'}[choice.stat]||'노력치')+' +'+(choice.amount||2)+' 즉시 적용';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
@@ -1127,7 +1138,8 @@ function showRewardChoices(){
   const card=document.createElement('div');
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1 || choice.id==='wideLensB'&&inventory.wideLensA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -1258,6 +1270,23 @@ function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
+ if(choice.kind==='item'&&HELD_ITEMS.includes(choice.id)){
+  if(inventory[choice.id]>=HELD_MAX[choice.id]){alert('최대 보유 수량에 도달했어.');showRewardChoices();return;}
+  const item=SHOP_ITEMS.find(i=>i.id===choice.id);
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:hasHeld(choice.id,m.key),action:()=>{
+    if(!pendingRewardChoice)return;
+    inventory[choice.id]++;
+    if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
+    appendAdventureLog('🎁 '+m.name+'에게 '+item.name+' 장착');
+    pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
+    if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showHallOfFame();}
+    renderHome();showChallengeUnlockNotice();
+   }})),
+   {text:'취소',action:showRewardChoices}
+  ]);return;
+ }
  if(choice.kind==='evolution'){
   const targets=eligibleEvolutionTargets(choice);
   if(!targets.length){alert('현재 이 아이템으로 진화할 수 있는 포켓몬이 없어.');showRewardChoices();return;}
@@ -1477,7 +1506,8 @@ function chooseRecoveryTarget(item){
  }})),{text:'취소',action:()=>{}}]);
 }
 function renderInventory(){
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ normalizeHeldItems();
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -1542,7 +1572,56 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.d
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1);player.accuracyBuff=0.1*boostCount('accuracy')+0.05*((inventory.wideLensA||0)+(inventory.wideLensB||0));player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(hasHeld('thickClub',m.key)&&[104,105].includes(m.dex)?2:1)*(hasHeld('lightBall',m.key)&&[172,25,26].includes(m.dex)?1.5:1);
+player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
+player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+function normalizeHeldItems(){
+ const keys=new Set(teamMembers().map(m=>m.key));
+ for(const id of HELD_ITEMS){
+  const seen=new Set();
+  battleItemHolders[id]=(battleItemHolders[id]||[]).filter(k=>{
+   if(!keys.has(k)||seen.has(k))return false;
+   seen.add(k);return true;
+  }).slice(0,inventory[id]||0);
+ }
+ const bOwners=new Set(battleItemHolders.wideLensB);
+ battleItemHolders.wideLensA=battleItemHolders.wideLensA.filter(k=>!bOwners.has(k));
+}
+function hasHeld(id,key){return (battleItemHolders[id]||[]).includes(key);}
+function equipHeld(id,key){
+ normalizeHeldItems();
+ if(!HELD_ITEMS.includes(id)||!teamMembers().some(m=>m.key===key))return false;
+ if(hasHeld(id,key))return true;
+ if(battleItemHolders[id].length>=inventory[id])return false;
+ if(isLens(id)){
+  const other=id==='wideLensA'?'wideLensB':'wideLensA';
+  battleItemHolders[other]=battleItemHolders[other].filter(k=>k!==key);
+ }
+ battleItemHolders[id].push(key);
+ saveProgress();return true;
+}
+function selectHeldItemTarget(id,finish=null){
+ normalizeHeldItems();
+ const item=SHOP_ITEMS.find(i=>i.id===id);
+ partyOverlay(item.icon+' '+item.name,'아이템을 장착할 포켓몬을 선택해.',[
+  ...teamMembers().map(m=>({
+   text:m.name+' Lv.'+m.level+(isLens(id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),
+   disabled:hasHeld(id,m.key),
+   action:()=>{if(!equipHeld(id,m.key)){partyOverlay('장착 불가','미장착 수량이 없어. 먼저 장착 해제해.',[{text:'확인'}]);return;}appendAdventureLog('🎒 '+m.name+'에게 '+item.name+' 장착');renderInventory();finish?.(m);}
+  })),
+  {text:'취소',action:()=>finish?.(null)}
+ ]);
+}
+function manageHeldItem(id){
+ normalizeHeldItems();
+ const item=SHOP_ITEMS.find(i=>i.id===id),holders=battleItemHolders[id];
+ partyOverlay(item.icon+' '+item.name,'보유 '+inventory[id]+'개 · 장착 '+holders.length+'개',[
+  {text:'장착 대상 선택',disabled:holders.length>=inventory[id],action:()=>selectHeldItemTarget(id)},
+  ...holders.map(key=>({text:(teamMembers().find(m=>m.key===key)?.name||key)+' · 장착 해제',action:()=>{battleItemHolders[id]=battleItemHolders[id].filter(k=>k!==key);saveProgress();renderInventory();manageHeldItem(id);}})),
+  {text:'닫기'}
+ ]);
+}
+
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
  activeBattleKey=m.key;
@@ -1766,10 +1845,18 @@ function offerCapturedCompanion(){
  const duplicateMessage='같은 포켓몬 종류를 2마리 이상 데리고 다닐 수 없습니다!\n도감 기록은 유지됩니다.';
  const recruit=replaceIndex=>{
   const member={family,name:wildEnemy.name,dex:wildEnemy.dex,level:wildEnemy.level,exp:0,ivs:randomIVs(),evs:{hp:0,attack:0,defense:0,speed:0},moves:recentWildMoves(wildEnemy.dex,wildEnemy.level),hp:null};
-  if(replaceIndex===null)companions.push(member);else companions.splice(replaceIndex,1,member);
-  partyOrder=teamMembers().map(m=>m.key);
+  let inherited=null;
+  if(replaceIndex===null)companions.push(member);
+  else{
+   const old=companions[replaceIndex],oldKey='companion-'+old.family,newKey='companion-'+member.family;
+   const ids=HELD_ITEMS.filter(id=>hasHeld(id,oldKey));
+   for(const id of ids)battleItemHolders[id]=battleItemHolders[id].map(k=>k===oldKey?newKey:k);
+   if(ids.length)inherited=member.name+'이(가) '+old.name+'의 '+ids.map(id=>SHOP_ITEMS.find(i=>i.id===id).name).join(', ')+'을(를) 이어받았다!';
+   companions.splice(replaceIndex,1,member);
+  }
+  partyOrder=teamMembers().map(m=>m.key);normalizeHeldItems();
   saveProgress();renderHome();
-  partyOverlay('동료 합류!',member.name+' Lv.'+member.level+'이(가) 동료가 됐어!',[{text:'확인',action:()=>{}}]);
+  partyOverlay(inherited?'아이템 승계':'동료 합류!',inherited||member.name+' Lv.'+member.level+'이(가) 동료가 됐어!',[{text:'확인'}]);
  };
  const chooseReplacement=()=>{
   partyOverlay('동료 교체','교체하면 기존 동료는 영구 삭제돼.',[
@@ -2334,7 +2421,7 @@ function beginNewAdventure(id,fixedIV){
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
- inventory={...START_INVENTORY};progress={level:1,exp:0,money:500};
+ inventory={...START_INVENTORY};battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
