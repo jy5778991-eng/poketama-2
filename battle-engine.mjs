@@ -83,7 +83,7 @@ function canAct(p,b){
 function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
 function applyAttackDamage(b,target,damage){
  const hp=target.hp;
- if(hp>0&&damage>=hp&&target===b.player&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<0.5){
+ if(hp>0&&damage>=hp&&target===b.player&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<0.3){
   target.focusSashUsed=true;target.hp=1;
   say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
   emit(b,{type:'focusSash',side:'player'});
