@@ -154,3 +154,11 @@
 /* Compact, vertically centered map confirmation buttons. */
 .map-room .map-confirm-buttons{align-items:stretch;gap:8px}
 .map-room .map-confirm-buttons button{display:flex;align-items:center;justify-content:center;text-align:center;box-sizing:border-box;height:42px;min-height:42px;max-height:42px;min-width:0;padding:6px 10px;line-height:1.2;flex:1 1 0}
+
+.recovery-target-option{display:flex;align-items:center;gap:11px;text-align:left!important;padding:8px 10px!important}
+.recovery-target-sprite{width:45px;height:45px;object-fit:contain;image-rendering:pixelated;flex:0 0 45px}
+.recovery-target-details{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0;font-size:13px}
+.recovery-target-gauge{display:block;height:8px;background:#dbe5d9;border-radius:999px;overflow:hidden;border:1px solid #b0c5ad}
+.recovery-target-gauge-fill{display:block;height:100%;background:#3dbd67;border-radius:999px}
+.recovery-target-count{font-size:12px;color:#4b617b;font-variant-numeric:tabular-nums}
+.recovery-target-fainted{font-weight:900;color:#bd3449}
