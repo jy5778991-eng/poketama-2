@@ -1600,28 +1600,42 @@ function equipHeld(id,key){
  battleItemHolders[id].push(key);
  saveProgress();return true;
 }
-function selectHeldItemTarget(id,finish=null){
+function selectHeldItemTarget(id){
  normalizeHeldItems();
  const item=SHOP_ITEMS.find(i=>i.id===id);
- partyOverlay(item.icon+' '+item.name,'아이템을 장착할 포켓몬을 선택해.',[
+ partyOverlay(item.icon+' '+item.name,'장착할 포켓몬을 선택해. 미장착 수량이 없으면 기존 착용자로부터 옮길 수 있어.',[
   ...teamMembers().map(m=>({
-   text:m.name+' Lv.'+m.level+(isLens(id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),
+   text:m.name+' Lv.'+m.level+(hasHeld(id,m.key)?' · 장착 중':isLens(id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),
    disabled:hasHeld(id,m.key),
-   action:()=>{if(!equipHeld(id,m.key)){partyOverlay('장착 불가','미장착 수량이 없어. 먼저 장착 해제해.',[{text:'확인'}]);return;}appendAdventureLog('🎒 '+m.name+'에게 '+item.name+' 장착');renderInventory();finish?.(m);}
+   action:()=>{
+    if(battleItemHolders[id].length<inventory[id]){
+     if(equipHeld(id,m.key)){appendAdventureLog('🎒 '+m.name+'에게 '+item.name+' 장착');renderInventory();}
+     return;
+    }
+    const originals=battleItemHolders[id].map(key=>teamMembers().find(x=>x.key===key)).filter(Boolean);
+    partyOverlay(item.icon+' 옮기기',m.name+'에게 줄 '+item.name+'을(를) 누구에게서 옮길까?',[
+     ...originals.map(source=>({text:source.name+' → '+m.name,action:()=>{
+      battleItemHolders[id]=battleItemHolders[id].filter(k=>k!==source.key);
+      if(!equipHeld(id,m.key)){battleItemHolders[id].push(source.key);saveProgress();return;}
+      appendAdventureLog('🎒 '+source.name+'의 '+item.name+'을(를) '+m.name+'에게 옮겼다.');
+      renderInventory();
+     }})),
+     {text:'취소',action:()=>manageHeldItem(id)}
+    ]);
+   }
   })),
-  {text:'취소',action:()=>finish?.(null)}
+  {text:'취소'}
  ]);
 }
 function manageHeldItem(id){
  normalizeHeldItems();
  const item=SHOP_ITEMS.find(i=>i.id===id),holders=battleItemHolders[id];
- partyOverlay(item.icon+' '+item.name,'보유 '+inventory[id]+'개 · 장착 '+holders.length+'개',[
-  {text:'장착 대상 선택',disabled:holders.length>=inventory[id],action:()=>selectHeldItemTarget(id)},
+ partyOverlay(item.icon+' '+item.name,'보유 '+inventory[id]+'개 · 장착 '+holders.length+'개. 한 포켓몬은 여러 종류를 착용할 수 있지만 광각렌즈끼리는 중복할 수 없어.',[
+  {text:'장착 대상 선택',action:()=>selectHeldItemTarget(id)},
   ...holders.map(key=>({text:(teamMembers().find(m=>m.key===key)?.name||key)+' · 장착 해제',action:()=>{battleItemHolders[id]=battleItemHolders[id].filter(k=>k!==key);saveProgress();renderInventory();manageHeldItem(id);}})),
   {text:'닫기'}
  ]);
 }
-
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
  activeBattleKey=m.key;
