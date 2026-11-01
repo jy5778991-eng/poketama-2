@@ -83,7 +83,8 @@ function rewardWeight(choice,context){
   if(id==='wideLensB')return inventory.wideLensB>=1?0:4;
   if(id==='focusSash')return inventory.focusSash>=2?0:inventory.focusSash===1?1:2;
   if(id==='hardClaw')return inventory.hardClaw>=1?0:1;
-  if(['thickClub','map','secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
+  if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
+  if(['map','secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
   if(SHOP_ITEMS.some(item=>item.id===id&&item.category==='key')&&inventory[id]===1)return 0;
  }
