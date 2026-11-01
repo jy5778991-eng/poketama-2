@@ -656,7 +656,6 @@ function finishTrainerBattle(){
   // One EXP reward on full trainer victory, based on final Pokemon only.
   gained=trainerExpEarned;
   // Experience for each defeated trainer Pokemon is awarded on knockout.
-  if(sabrinaCleared&&!blaineCleared&&progress.level>=48)area='volcano';
   progress.money+=baseCashForWin(level);
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
@@ -1772,6 +1771,13 @@ function offerCapturedCompanion(){
  ]);
 }
 function renderHome(){
+ // Sea has no trainer challenge: advance after reaching Lv.48 through any level-up source.
+ // Finish selecting an earned reward first so the transition cannot discard it.
+ if(area==='sea'&&sabrinaCleared&&!blaineCleared&&progress.level>=48&&!pendingRewardChoice){
+  area='volcano';
+  appendAdventureLog('🌋 Lv.48 달성! 바다에서 화산으로 이동했어.');
+  saveProgress();
+ }
  normalizeLivingLead();
  renderAdventureLog();
  if(leagueStage!==null){renderLeague();return;}
