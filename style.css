@@ -3,7 +3,7 @@
 @import url('./css/battle-ui.css?v=20261025-faint-party-selection41');
 @import url('./css/menus.css?v=20261026-hall-selectdelete51');
 @import url('./css/areas.css?v=20261031-map-buttons170');
-@import url('./css/collection.css');
+@import url('./css/collection.css?v=20261101-achievements175');
 
 /* Wild-reward level gate: entire level label turns red on both screens. */
 #homeLevel.level-capped,#playerLevel.level-capped{color:#dc182b!important;-webkit-text-fill-color:#dc182b!important;text-shadow:0 1px 2px #ffffffb0}
