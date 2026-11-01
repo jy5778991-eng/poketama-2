@@ -623,6 +623,7 @@ function showBadgeAward(kind){
 }
 function finishTrainerBattle(){
  const activeWasCapped=wildRewardCapped(activeMember());
+ const rewardLevelCap=wildRewardLevelCap();
  const old=progress.level;
  const evolutions=[];
  const learnQueue=[];
@@ -653,9 +654,11 @@ function finishTrainerBattle(){
   const money=battleKind==='red'?5000:leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
-  // One EXP reward on full trainer victory, based on final Pokemon only.
-  gained=trainerExpEarned;
-  // Experience for each defeated trainer Pokemon is awarded on knockout.
+  // Award trainer EXP exactly once, on victory, based on the final opposing Pokemon.
+  // Keep the pre-victory region cap even if this victory advances to the next area.
+  gained=activeWasCapped?0:12+level*6;
+  trainerExpEarned=gained;
+  if(gained>0)addPartyExperience(gained,finalEnemy?.name||'마지막 포켓몬',rewardLevelCap);
   progress.money+=baseCashForWin(level);
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
@@ -1905,9 +1908,7 @@ async function act(a){
   if(battleKind!=='wild')for(const event of events)if(event.type==='knockout'&&event.side==='enemy'){
    const knocked=battle.enemies[event.enemyIndex];
    appendAdventureLog('⚔️ '+knocked.name+'을(를) 쓰러뜨렸다!');
-   const expForKo=wildRewardCapped(activeMember())?0:12+knocked.level*6;
-   trainerExpEarned+=expForKo;
-   addPartyExperience(expForKo,knocked.name);
+   // Intermediate knockouts give no EXP. Only the last Pokemon awards EXP on victory.
    battleParticipants=new Set([activeBattleKey]);
   }
  if(battleKind!=='wild'){
