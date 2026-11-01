@@ -886,7 +886,9 @@ function reset(kind='wild'){
  }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
- battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'});// Held Focus Sash effects live on each Pokémon's fighter.rewardClaimed=false;menuPage='main';
+ battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'}); // Held Focus Sash effects live on each Pokémon's fighter.
+ rewardClaimed=false;
+ menuPage='main';
  if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(rivalForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
