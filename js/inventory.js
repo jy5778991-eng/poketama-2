@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-held-items178';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-item-tabs180';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs';
 
@@ -26,9 +26,9 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  for(const item of items){
   const row=document.createElement('div');row.className='shop-item-row';
   const info=document.createElement('div');info.className='shop-item-info';
-  const name=document.createElement('strong');name.textContent=item.icon+' '+item.name;
+  const name=document.createElement('strong');name.textContent=item.icon+' '+item.name+(inventoryMode==='bag'?' ×'+(inventory[item.id]||0):'');
   const description=document.createElement('small');
-  description.textContent=item.category==='key'?item.description:item.description+' · '+(inventoryMode==='shop'?'보유 '+inventory[item.id]+'개':'×'+inventory[item.id]);
+  description.textContent=inventoryMode==='shop'?item.description+' · 보유 '+(inventory[item.id]||0)+'개':item.description;
   info.append(name,description);row.append(info);
   if(inventoryMode==='shop'){
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
@@ -47,9 +47,9 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
   }else if(heldItems.includes(item.id)){
    const equipped=(battleItemHolders[item.id]||[]).length;
-   description.textContent=item.description+' · 보유 '+inventory[item.id]+'개 · 장착 '+equipped+'개';
+   description.textContent=item.description+' · 장착 '+equipped+'개';
    const pick=document.createElement('button');pick.type='button';pick.className='shop-buy';
-   pick.textContent='선택';pick.disabled=!inventory[item.id];
+   pick.textContent=inventory[item.id]?'선택':'미보유';pick.disabled=!inventory[item.id];pick.classList.toggle('item-missing',!inventory[item.id]);
    pick.onclick=()=>onHeldSelect?.(item.id);
    row.append(pick);
   }else if(item.category==='heal'){
