@@ -883,16 +883,16 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=[trainerFighter('별가사리',120,15,{hp:30,attack:70,defense:63,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,17,{hp:60,attack:100,defense:83,speed:115},['waterPulse','swift'])];
   battleOpponent='misty';
  }else if(kind==='greenReturn'){
-  const rivalForm=rivalForm(blueChoice,19);
+  const rivalPokemon=rivalForm(blueChoice,19);
   const rivalMoves=availableMoves(blueChoice,19).slice(-4).map(move=>move.id);
-  enemies=[trainerFighter('피죤',17,17,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('레트라',20,16,{hp:55,attack:81,defense:60,speed:97},['tackle','quickAttack']),trainerFighter(rivalForm.name,rivalForm.dex,19,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
+  enemies=[trainerFighter('피죤',17,17,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('레트라',20,16,{hp:55,attack:81,defense:60,speed:97},['tackle','quickAttack']),trainerFighter(rivalPokemon.name,rivalPokemon.dex,19,rivalPokemon.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenReturn';
  }else if(kind==='surge'){
   enemies=[trainerFighter('찌리리공',100,22,{hp:40,attack:55,defense:60,speed:100},['tackle','thunderWave']),trainerFighter('코일',81,21,{hp:25,attack:95,defense:63,speed:45},['tackle','thunderbolt']),trainerFighter('라이츄',26,24,{hp:60,attack:90,defense:68,speed:110},['quickAttack','thunderbolt'])];
   battleOpponent='surge';
  }else if(kind==='greenThird'){
-  const rivalForm=rivalForm(blueChoice,27),rivalMoves=availableMoves(blueChoice,27).slice(-4).map(m=>m.id);
-  enemies=[trainerFighter('피죤',17,25,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('캐이시',63,15,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('갸라도스',130,20,{hp:95,attack:125,defense:90,speed:81},['tackle','bite']),trainerFighter(rivalForm.name,rivalForm.dex,27,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
+  const rivalPokemon=rivalForm(blueChoice,27),rivalMoves=availableMoves(blueChoice,27).slice(-4).map(m=>m.id);
+  enemies=[trainerFighter('피죤',17,25,{hp:63,attack:60,defense:55,speed:71},['quickAttack','swift']),trainerFighter('캐이시',63,15,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('갸라도스',130,20,{hp:95,attack:125,defense:90,speed:81},['tackle','bite']),trainerFighter(rivalPokemon.name,rivalPokemon.dex,27,rivalPokemon.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenThird';
  }else if(kind==='red'){
   enemies=[
@@ -909,11 +909,11 @@ function reset(kind='wild',recordDiscovery=true){
   if(n===4){const rival=rivalForm(blueChoice,75);enemies.push(trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id)))}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
-  const rivalForm=rivalForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
-  enemies=[trainerFighter('피죤투',18,60,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('아라리',102,59,{hp:60,attack:40,defense:65,speed:40},['confusion','tackle']),trainerFighter('스라크',123,61,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윈디',59,56,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite']),trainerFighter(rivalForm.name,rivalForm.dex,62,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
+  const rivalPokemon=rivalForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
+  enemies=[trainerFighter('피죤투',18,60,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('아라리',102,59,{hp:60,attack:40,defense:65,speed:40},['confusion','tackle']),trainerFighter('스라크',123,61,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윈디',59,56,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite']),trainerFighter(rivalPokemon.name,rivalPokemon.dex,62,rivalPokemon.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenFifth';
  }else if(kind==='greenFourth'){
-  const rivalForm=rivalForm(blueChoice,40),rivalMoves=availableMoves(blueChoice,40).slice(-4).map(m=>m.id);
+  const rivalPokemon=rivalForm(blueChoice,40),rivalMoves=availableMoves(blueChoice,40).slice(-4).map(m=>m.id);
   enemies=[trainerFighter('피죤투',18,36,{hp:83,attack:80,defense:75,speed:101},['quickAttack','swift']),trainerFighter('스라크',123,39,{hp:70,attack:110,defense:80,speed:105},['quickAttack','tackle']),trainerFighter('윤겔라',64,35,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter(rivalForm.name,rivalForm.dex,40,rivalForm.base,rivalMoves.length?rivalMoves:['tackle'])];
   battleOpponent='greenFourth';
  }else if(kind==='erika'){
