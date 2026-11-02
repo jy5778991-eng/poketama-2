@@ -168,10 +168,15 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "mewtwo": [{"level":1,"id":"confusion"},{"level":16,"id":"ancientPower"},{"level":24,"id":"swift"},{"level":32,"id":"psychic"},{"level":56,"id":"recover"},{"level":64,"id":"calmMind"},{"level":72,"id":"psystrike"}],
  "mew": [{"level":1,"id":"confusion"},{"level":10,"id":"swift"},{"level":20,"id":"lightScreen"},{"level":30,"id":"ancientPower"},{"level":40,"id":"calmMind"},{"level":50,"id":"psychic"},{"level":60,"id":"recover"},{"level":70,"id":"transform"},{"level":80,"id":"doubleTeam"},{"level":90,"id":"hyperBeam"}]
 };
+export const ROCKET_ISLAND_LEARNSETS={
+ porygon:[{level:1,id:'tackle'},{level:11,id:'thunderShock'},{level:28,id:'psybeam'},{level:33,id:'triAttack'},{level:45,id:'hpRecover'},{level:60,id:'hyperBeam'}],
+ chansey:[{level:1,id:'tackle'},{level:20,id:'hpRecover'},{level:26,id:'megaPunch'},{level:35,id:'minimize'},{level:42,id:'toxic'}]
+};
+export const ROCKET_ISLAND_FAMILY_BY_DEX={132:'ditto',137:'porygon',113:'chansey'};
 export const ADDITIONAL_FAMILY_BY_DEX={"200":"misdreavus","13":"weedle","14":"weedle","15":"weedle","21":"spearow","22":"spearow","27":"sandshrew","28":"sandshrew","29":"nidoranF","30":"nidoranF","31":"nidoranF","35":"clefairy","36":"clefairy","46":"paras","47":"paras","54":"psyduck","55":"psyduck","60":"poliwag","61":"poliwag","62":"poliwag","72":"tentacool","73":"tentacool","84":"doduo","85":"doduo","96":"drowzee","97":"drowzee","104":"cubone","105":"cubone","116":"horsea","117":"horsea","118":"goldeen","119":"goldeen","133":"eevee","134":"eevee","135":"eevee","136":"eevee","144":"articuno","145":"zapdos","146":"moltres","150":"mewtwo","151":"mew"};
 export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
-export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||null;}
+export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||null;}
 export function recentWildMoves(dex,level){
  const list=learnsetForDex(dex);
  if(!list)return ['tackle'];
