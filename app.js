@@ -5,11 +5,11 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261102-tm01-island201';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-shell-scope-exp191';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-shopprices202';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {renderCollectionView} from './js/collection.js?v=20261101-achievements175';
+import {renderCollectionView} from './js/collection.js?v=20261102-achievements50-202';
 import {renderInventoryView} from './js/inventory.js?v=20261102-shell-scope-exp191';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
@@ -1521,7 +1521,7 @@ function renderCollection(){
  blueCleared:blueCleared||a.blueCleared,brockCleared:brockCleared||a.brockCleared,
  mistyCleared:mistyCleared||a.mistyCleared,greenReturnCleared:greenReturnCleared||a.greenReturnCleared,
  surgeCleared:surgeCleared||a.surgeCleared,greenThirdCleared:greenThirdCleared||a.greenThirdCleared,
- erikaCleared:erikaCleared||a.erikaCleared,kogaCleared,sabrinaCleared});
+ erikaCleared:erikaCleared||a.erikaCleared,kogaCleared,sabrinaCleared,achievements:ACHIEVEMENTS,earnedAchievementIds:achievementData.earned});
 }
 function renderCaptures(){
  if(!$('captureCount'))return;
