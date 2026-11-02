@@ -142,7 +142,9 @@ let achievementData=(()=>{try{const v=JSON.parse(localStorage.getItem(ACHIEVEMEN
 const achievementQueue=[];let achievementOpen=false;
 function saveAchievements(){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(achievementData));}
 function showNextAchievement(){
- if(achievementOpen||!achievementQueue.length||!document.getElementById('starterSelectionOverlay')?.hidden)return;
+ if(achievementOpen||!achievementQueue.length)return;
+ const starterOverlay=document.getElementById('starterSelectionOverlay');
+ if(starterOverlay&&!starterOverlay.hidden)return;
  const entry=ACHIEVEMENTS.find(x=>x[0]===achievementQueue.shift());if(!entry)return;
  achievementOpen=true;const layer=document.createElement('div');layer.className='party-summary-overlay';layer.style.zIndex='99999';
  const panel=document.createElement('section');panel.className='party-summary-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
