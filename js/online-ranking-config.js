@@ -1,0 +1,1 @@
+// Set these to the project's Supabase URL and publishable (anon) key to activate online rankings.\n// NEVER put a Supabase service_role key here.\nexport const SUPABASE_URL='';\nexport const SUPABASE_ANON_KEY='';\n
