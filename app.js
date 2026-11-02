@@ -13,8 +13,8 @@ import {renderCollectionView} from './js/collection.js?v=20261101-achievements17
 import {renderInventoryView} from './js/inventory.js?v=20261102-hyper-items181';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
-const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:1};
+const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','scopeLens'];
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:1,shellBell:1,scopeLens:2};
 const isLens=id=>id==='wideLensA'||id==='wideLensB';
 
 // Reward choices scale by stage when a stage system is added later.
@@ -84,6 +84,10 @@ function rewardWeight(choice,context){
   if(id==='wideLensB')return inventory.wideLensB>=1?0:4;
   if(id==='focusSash')return inventory.focusSash>=2?0:inventory.focusSash===1?1:2;
   if(id==='hardClaw')return inventory.hardClaw>=1?0:1;
+   if(id==='shellBell')return inventory.shellBell>=1?0:1;
+   if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?2:4;
+   if(id==='expShare')return inventory.expShare>=1?0:4;
+   if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
   if(['map','secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
@@ -110,7 +114,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'cash',amount:base*4,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'}]
+ legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -124,7 +128,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -309,6 +313,7 @@ function recoverLastStarterFromResetBackup(){
 }
 
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
+let expShareActive=saved?.expShareActive===true;
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
  return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.category==='key'?Math.min(1,value):value];
@@ -570,7 +575,7 @@ function addPartyExperience(amount,enemyName,cap=null){
   const participate=battleParticipants.has(member.key);
   const memberCap=cap===null?wildRewardLevelCap():cap;
   if(memberCap!==null&&member.level>=memberCap)continue;
-  const gained=Math.floor(amount*(participate?1:0.7));
+  const gained=Math.floor(amount*(participate?1:0.7)*(inventory.expShare&&expShareActive?2:1));
   const oldLevel=member.level,beforeMax=memberMaxHp(member),beforeHp=memberHp(member);
   if(member.starter){
    if(memberCap!==null&&progress.level>=memberCap)continue;
@@ -1180,7 +1185,7 @@ function showRewardChoices(){
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
   const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -1231,7 +1236,7 @@ function showSilverCapStatChoice(member=leaderMember()){
   b.disabled=!targetIVs||targetIVs[stat]===16;
   b.onclick=()=>{
    if(!targetIVs)return;
-   targetIVs[stat]=16;
+   targetIVs[stat]=16;checkIVAchievement(targetIVs);
    appendAdventureLog('🥈 '+member.name+'의 '+STAT_LABELS[stat]+' 개체값 최대 강화!');
    layer.hidden=true;
    pendingRewardChoice=null;
@@ -1461,7 +1466,7 @@ function claimRewardChoice(index){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
-  }else inventory[choice.id]=Math.min(99,inventory[choice.id]+choice.quantity);
+  }else inventory[choice.id]=Math.min(choice.id==='masterBall'?2:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
  }else return;
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
@@ -1548,7 +1553,7 @@ function chooseRecoveryTarget(item){
 }
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';window.scrollTo({top:0,behavior:'instant'});if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -1615,7 +1620,7 @@ function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?store
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical');player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+player.shellBell=hasHeld('shellBell',m.key);player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
@@ -2058,7 +2063,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-  battle.player.critBuff=0.15*boostCount('critical');
+  battle.player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);battle.player.shellBell=hasHeld('shellBell',m.key);
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
@@ -2496,7 +2501,7 @@ function beginNewAdventure(id,fixedIV){
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
- inventory={...START_INVENTORY};battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
+ inventory={...START_INVENTORY};expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
