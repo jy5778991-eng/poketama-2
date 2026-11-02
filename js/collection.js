@@ -4,7 +4,7 @@ import {getForm,STARTERS,EVOLUTIONS,EEVEE_FORMS} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
 // Collection screen renderer. Game state is provided on each render, never cached.
-export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared}){
+export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,achievements=[],earnedAchievementIds=[]}){
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
  const captured=caughtSpecies||new Set(capturedPokemon.map(p=>p.dex));
@@ -32,31 +32,20 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
    row.append(num,img,info);list.append(row);
   }
  }else if(collectionTab==='achievements'){
-  // Completion follows the very same species roster shown on the Pokédex tab.
-  const dexComplete=dexRoster.length>0&&dexRoster.every(p=>captured.has(p.dex));
-  const badges=[
-   ['첫 만남',seenPokemon.size>=1,'야생 또는 트레이너 포켓몬 1종 발견'],
-   ['첫 포획',capturedPokemon.length>=1||captured.size>=1,'야생 포켓몬 1마리 포획'],
-   ['수집가',captured.size>=5,'포켓몬 5종 포획'],
-   ['그린 격파',blueCleared,'라이벌 그린 승리'],
-   ['암석배지',brockCleared,'체육관 관장 웅 승리'],
-   ['블루배지',mistyCleared,'체육관 관장 이슬이 승리'],
-   ['그린 재도전 승리',greenReturnCleared,'그린에게 승리'],
-   ['오렌지배지',surgeCleared,'체육관 관장 마티즈 승리'],
-   ['그린 승리',greenThirdCleared,'라이벌 그린에게 승리'],
-   ['레인보우배지',erikaCleared,'체육관 관장 민화 승리'],
-   ['포켓몬 도감 완성',dexComplete,'포켓몬 도감 완성.']
-  ];
-  const achieved=badges.filter(([,earned])=>earned).length;
-  $('collectionSummary').textContent=achieved+'/'+badges.length+' · 달성률 '+(achieved/badges.length*100).toFixed(1)+'%';
-  for(const [name,earned,detail] of badges){
+  const entries=achievements||[];
+  const earnedSet=new Set(earnedAchievementIds||[]);
+  const achieved=entries.filter(([id])=>earnedSet.has(id)).length;
+  $('collectionSummary').textContent=achieved+'/'+entries.length+' · 달성률 '+(entries.length?(achieved/entries.length*100).toFixed(1):'0.0')+'%';
+  for(const [id,name,detail] of entries){
+   const earned=earnedSet.has(id);
    const row=document.createElement('div');row.className='collection-progress achievement-entry'+(earned?' is-earned':' is-locked');
    const heading=document.createElement('div');heading.className='achievement-heading';
    const title=document.createElement('strong');title.className='achievement-name';title.textContent=earned?name:'???';
-   const button=document.createElement('button');button.type='button';button.className='achievement-description-button';button.textContent='설명';
-   button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',(earned?name:'미달성 업적')+' 설명 보기');
-   const description=document.createElement('p');description.className='achievement-description';description.textContent=detail;description.hidden=true;
-   button.addEventListener('click',()=>{description.hidden=!description.hidden;button.setAttribute('aria-expanded',String(!description.hidden));button.textContent=description.hidden?'설명':'닫기';});
+   const button=document.createElement('button');button.type='button';button.className='achievement-description-button';button.textContent='설명';button.disabled=!earned;
+   button.setAttribute('aria-expanded','false');
+   button.setAttribute('aria-label',earned?name+' 설명 보기':'미획득 업적 설명 잠김');
+   const description=document.createElement('p');description.className='achievement-description';description.textContent=earned?detail:'';description.hidden=true;
+   if(earned)button.addEventListener('click',()=>{description.hidden=!description.hidden;button.setAttribute('aria-expanded',String(!description.hidden));button.textContent=description.hidden?'설명':'닫기';});
    heading.append(title,button);row.append(heading,description);list.append(row);
   }
  }else{
