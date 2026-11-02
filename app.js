@@ -2182,9 +2182,9 @@ async function act(a){
    const target=teamMembers().find(m=>m.key===a.targetKey);
    if(!target||target.key===activeBattleKey||memberHp(target)<=0||memberHp(target)>=memberMaxHp(target)||inventory[a.itemId]<1)return;
    const before=memberHp(target),hp=Math.min(memberMaxHp(target),before+a.power);
-   const found=companions.find(x=>x.family===target.family);
-   if(!found)return;
-   found.hp=hp;
+   // Inactive starter HP lives in storedHp, not companions.
+   // Use the common setter so healing either party member advances the turn.
+   setMemberHp(target,hp);
    appendAdventureLog('💊 '+target.name+' HP '+before+' → '+hp);
   }
   if(a.type==='ball')lastCaptureBall=a.itemId;battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a);
