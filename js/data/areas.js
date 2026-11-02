@@ -27,7 +27,11 @@ export const EVOLVED_DEX=new Set([2,3,5,6,8,9,11,12,14,15,17,18,20,22,24,25,26,2
 export const RARE_DEX=new Set([137,15,18,22,24,35,39,44,49,51,53,55,58,63,64,73,78,80,82,83,85,87,90,95,97,105,106,107,108,112,113,114,115,122,127,132,200]);
 export const HYPER_DEX=new Set([139,141,142,38,45,62,65,68,71,76,91,103,121,123,124,125,126,128,131,138,140,169,208]);
 export const LEGENDARY_DEX=new Set([144,145,146,150,151]);
-export function pokemonCatchMultiplier(dex,_legacyRare=false){
+export function pokemonCatchMultiplier(dex,_legacyRare=false,encounterTier=null){
+ if(encounterTier==='legendary')return 0.04;
+ if(encounterTier==='hyper')return 0.08;
+ if(encounterTier==='rare')return 0.2;
+ if(encounterTier==='normal')return EVOLVED_DEX.has(dex)?0.32:0.8;
  if(LEGENDARY_DEX.has(dex))return 0.04;
  if(HYPER_DEX.has(dex))return 0.08;
  if(RARE_DEX.has(dex))return 0.2;
