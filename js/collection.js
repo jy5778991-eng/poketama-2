@@ -4,7 +4,7 @@ import {getForm,STARTERS,EVOLUTIONS,EEVEE_FORMS} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
 
 // Collection screen renderer. Game state is provided on each render, never cached.
-export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,achievements=[],earnedAchievementIds=[]}){
+export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,erikaCleared,trainerRecords={},achievements=[],earnedAchievementIds=[]}){
  document.querySelectorAll('[data-collection-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.collectionTab===collectionTab)));
  const list=$('collectionContent');list.replaceChildren();
  const captured=caughtSpecies||new Set(capturedPokemon.map(p=>p.dex));
@@ -41,17 +41,34 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
    const row=document.createElement('div');row.className='collection-progress achievement-entry'+(earned?' is-earned':' is-locked');
    const heading=document.createElement('div');heading.className='achievement-heading';
    const title=document.createElement('strong');title.className='achievement-name';title.textContent=earned?name:'???';
-   const button=document.createElement('button');button.type='button';button.className='achievement-description-button';button.textContent='설명';button.disabled=!earned;
-   button.setAttribute('aria-expanded','false');
-   button.setAttribute('aria-label',earned?name+' 설명 보기':'미획득 업적 설명 잠김');
-   const description=document.createElement('p');description.className='achievement-description';description.textContent=earned?detail:'';description.hidden=true;
-   if(earned)button.addEventListener('click',()=>{description.hidden=!description.hidden;button.setAttribute('aria-expanded',String(!description.hidden));button.textContent=description.hidden?'설명':'닫기';});
-   heading.append(title,button);row.append(heading,description);list.append(row);
+   heading.append(title);
+   if(earned){
+    const button=document.createElement('button');button.type='button';button.className='achievement-description-button';button.textContent='설명';
+    button.setAttribute('aria-expanded','false');button.setAttribute('aria-label',name+' 설명 보기');
+    const description=document.createElement('p');description.className='achievement-description';description.textContent=detail;description.hidden=true;
+    button.addEventListener('click',()=>{description.hidden=!description.hidden;button.setAttribute('aria-expanded',String(!description.hidden));button.textContent=description.hidden?'설명':'닫기';});
+    heading.append(button);row.append(heading,description);
+   }
+   else row.append(heading);
+   list.append(row);
   }
  }else{
   $('collectionSummary').textContent='트레이너 도전 기록';
-  for(const [name,done,desc] of [['라이벌 그린',blueCleared,'Lv.5 · 숲 개방'],['체육관 관장 웅',brockCleared,'Lv.12 · 암석배지'],['체육관 관장 이슬이',mistyCleared,'Lv.17 · 블루배지'],['라이벌 그린',greenReturnCleared,'Lv.19 · 호수'],['체육관 관장 마티즈',surgeCleared,'Lv.24 · 오렌지배지'],['라이벌 그린',greenThirdCleared,'Lv.27 · 호수 유지'],['체육관 관장 민화',erikaCleared,'Lv.30 · 레인보우배지 · 도로']]){
-   const row=document.createElement('div');row.className='collection-progress';row.textContent=(done?'✅ ':'⚔️ ')+name+' · '+(done?'클리어':'미클리어')+' · '+desc;list.append(row);
+  const trainers=[
+   ['라이벌 그린 1차전','blue'],['체육관 관장 웅','brock'],['체육관 관장 이슬이','misty'],
+   ['라이벌 그린 2차전','greenReturn'],['체육관 관장 마티즈','surge'],
+   ['라이벌 그린 3차전','greenThird'],['체육관 관장 민화','erika'],
+   ['체육관 관장 독수','koga'],['라이벌 그린 4차전','greenFourth'],
+   ['체육관 관장 초련','sabrina'],['체육관 관장 강연','blaine'],
+   ['체육관 관장 비주기','giovanni'],['라이벌 그린 5차전','greenFifth'],
+   ['사천왕 칸나','league0'],['사천왕 시바','league1'],['사천왕 국화','league2'],
+   ['사천왕 목호','league3'],['챔피언 그린','league4'],['레드','red']
+  ];
+  for(const [name,key] of trainers){
+   const done=!!trainerRecords[key];
+   const row=document.createElement('div');row.className='collection-progress';
+   row.textContent=done?'✅ '+name:'???';
+   list.append(row);
   }
  }
 }
