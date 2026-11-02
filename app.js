@@ -1,8 +1,8 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261031-starter-moves146';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261031-starter-moves146';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-shell-scope-exp191';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261102-tm01-island201';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261102-tm01-island201';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-tm01-island201';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261031-recover-name157';
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261031-rarity-tiers155';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261102-tm01-island201';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-shell-scope-exp191';
@@ -15,6 +15,9 @@ import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','scopeLens'];
 const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:1,shellBell:1,scopeLens:2};
+const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
+let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
+function tm01Targets(){return teamMembers().filter(m=>m.level>=19&&TM01_DEX.has(m.dex)&&!tm01Learned.includes(m.key));}
 const isLens=id=>id==='wideLensA'||id==='wideLensB';
 
 // Reward choices scale by stage when a stage system is added later.
@@ -61,6 +64,7 @@ function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 // Every reward has a base weight of 4. Unmet eligibility conditions set it to 0.
 function rewardWeight(choice,context){
  const {needsHealing,hasFainted,members,lv}=context;
+ if(choice.kind==='tm01')return tm01Targets().length?2:0;
  if(choice.kind==='cash')return ['normal','rare'].includes(choice.tier)?2:4;
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
@@ -111,7 +115,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
- normal:[{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+ normal:[{kind:'tm01',icon:'📀'},{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'cash',amount:base*4,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'heal',full:true,icon:'❤️'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
@@ -128,7 +132,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -1020,7 +1024,7 @@ async function processLearnQueue(queue){
 }
 let recallSelectedKey=null;
 function recallMemberMoves(member){return member.starter?playerMoves:(companions.find(c=>c.family===member.family)?.moves||[]);}
-function recallLearnable(member){return member.starter?availableMoves(chosen,progress.level):((learnsetForDex(member.dex)||[]).filter(x=>x.level<=member.level&&MOVES[x.id]));}
+function recallLearnable(member){const natural=member.starter?availableMoves(chosen,progress.level):((learnsetForDex(member.dex)||[]).filter(x=>x.level<=member.level&&MOVES[x.id]));return tm01Learned.includes(member.key)?[...natural.filter(x=>x.id!=='megaPunch'),{level:null,id:'megaPunch',tmLabel:'기술머신01.메가톤펀치'}]:natural;}
 async function recallTeach(member,id){
  const moves=recallMemberMoves(member);
  if(!recallLearnable(member).some(x=>x.id===id)||moves.includes(id))return;
@@ -1083,7 +1087,7 @@ function openRecall(){
   const move=MOVES[id];if(!move)return;
   const wrap=document.createElement('div');wrap.className='recall-move-entry';
   const header=document.createElement('button');header.type='button';header.className='learn-replace-button recall-move-toggle';
-  const label=(level===null?'': 'Lv.'+level+' · ')+move.name;
+  const label=(level===null?'': 'Lv.'+level+' · ')+(id==='megaPunch'&&tm01Learned.includes(member.key)?'기술머신01.메가톤펀치':move.name);
   const drawHeader=expanded=>{header.replaceChildren();const name=document.createElement('span');name.textContent=label;header.append(name);if(isOwned){const star=document.createElement('span');star.className='recall-equipped-star';star.textContent='★';star.setAttribute('aria-label','장착 중');header.append(star);}const arrow=document.createElement('span');arrow.className='recall-move-chevron';arrow.textContent=expanded?'▴':'▾';header.append(arrow);};
   drawHeader(false);
   header.setAttribute('aria-expanded','false');
@@ -1108,6 +1112,7 @@ function openRecall(){
 function openRecallList(){openRecall();}
 
 function rewardChoiceText(choice){
+ if(choice.kind==='tm01')return '기술머신01.메가톤펀치 · 위력 80 / 명중 80% · 즉시 사용 · Lv.19 이상 지정 포켓몬에게 가르친다.';
  if(choice.kind==='item'&&choice.id==='memoryMushroom')return '기술관리에 필요하다.';
  if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
   if(choice.kind==='expCandy')return '선택한 포켓몬의 레벨 × 10 경험치를 획득한다.';
@@ -1153,6 +1158,7 @@ function rewardImageName(choice){
  return null;
 }
 function rewardChoiceName(choice){
+ if(choice.kind==='tm01')return '기술머신01.메가톤펀치';
   if(choice.kind==='expCandy')return '경험사탕';
  if(choice.kind==='candyBundle')return '사탕 보따리';
  if(choice.kind==='rareCandy')return '이상한 사탕';
@@ -1316,6 +1322,31 @@ function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
+ if(choice.kind==='tm01'){
+  const targets=tm01Targets();
+  if(!targets.length){alert('기술머신01을 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('📀 기술머신01.메가톤펀치','기술을 가르칠 포켓몬을 선택해. 사용 즉시 소모돼.',[
+   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:async()=>{
+    if(!pendingRewardChoice||!tm01Targets().some(x=>x.key===m.key)){showRewardChoices();return;}
+    const moves=recallMemberMoves(m);
+    if(!moves.includes('megaPunch')){
+     if(moves.length<4)moves.push('megaPunch');
+     else{
+      const old=await resolveMoveChoice('megaPunch',{member:{name:m.name,moves},allowSkip:true});
+      if(old===null){showRewardChoices();return;}
+      const at=moves.indexOf(old);if(at<0){showRewardChoices();return;}
+      moves.splice(at,1,'megaPunch');
+     }
+    }
+    if(!tm01Learned.includes(m.key))tm01Learned.push(m.key);
+    if(m.starter)updateBattleMoves();
+    completeInstantRecoveryReward(choice,m.name+' 습득');
+   }})),
+   {text:'취소',action:showRewardChoices}
+  ]);
+  return;
+ }
  if(choice.kind==='item'&&HELD_ITEMS.includes(choice.id)){
   if(inventory[choice.id]>=HELD_MAX[choice.id]){alert('최대 보유 수량에 도달했어.');showRewardChoices();return;}
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
@@ -2501,7 +2532,7 @@ function beginNewAdventure(id,fixedIV){
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
- inventory={...START_INVENTORY};expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
+ inventory={...START_INVENTORY};tm01Learned=[];expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
