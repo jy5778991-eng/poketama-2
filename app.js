@@ -2610,7 +2610,7 @@ function setup(){
   });
  }
  $('openParty')?.addEventListener('click',()=>showPartyManager());
- $('badgeStatus')?.addEventListener('click',showBadgeCollection);const badgeButton=$('badgeStatus');if(badgeButton){const b=document.createElement('button');b.type='button';b.textContent='🏆 업적';b.className=badgeButton.className;b.addEventListener('click',showAchievements);badgeButton.insertAdjacentElement('afterend',b);}
+ $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
