@@ -1,6 +1,6 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-hyper-items181';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-shell-scope-exp191';
 import {getForm} from './data/pokemon.js';
-import {calculateStats} from '../battle-engine.mjs';
+import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
 export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,onMapUse,expShareActive=false,onExpShareToggle}){
