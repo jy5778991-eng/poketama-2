@@ -150,7 +150,7 @@ function showNextAchievement(){
  const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='확인';btn.onclick=()=>{layer.remove();achievementOpen=false;showNextAchievement();};
  panel.append(title,desc,btn);layer.append(panel);document.body.append(layer);btn.focus();
 }
-function earnAchievement(id){if(!ACHIEVEMENTS.some(x=>x[0]===id)||achievementData.earned.includes(id))return;achievementData.earned.push(id);saveAchievements();achievementQueue.push(id);showNextAchievement();}
+function earnAchievement(id){const entry=ACHIEVEMENTS.find(x=>x[0]===id);if(!entry||achievementData.earned.includes(id))return;achievementData.earned.push(id);saveAchievements();appendAdventureLog('🏆 업적 달성! \''+entry[1]+'\'');saveProgress();achievementQueue.push(id);showNextAchievement();}
 function checkLevelAchievement(){if(teamMembers().some(m=>m.level>=100))earnAchievement('level100');}
 function recordHealingItem(){achievementData.healing++;saveAchievements();if(achievementData.healing>=100)earnAchievement('healing100');}
 function recordEggHatch(){achievementData.eggs++;saveAchievements();if(achievementData.eggs>=20)earnAchievement('eggs20');if(achievementData.eggs>=100)earnAchievement('eggs100');}
