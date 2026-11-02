@@ -67,7 +67,7 @@ function rewardWeight(choice,context){
  // If any party member has reached the current area's red level cap, candy rewards become rarer.
  const cap=wildRewardLevelCap();
  const redLevelReached=cap!==null&&members.some(m=>m.level>=cap);
- if(['expCandy','rareCandy'].includes(choice.kind))return redLevelReached?1:4;
+ if(['expCandy','rareCandy'].includes(choice.kind))return redLevelReached?2:4;
  if(choice.kind==='tm01')return tm01Targets().length?2:0;
  if(choice.kind==='cash')return ['normal','rare'].includes(choice.tier)?2:4;
  if(choice.kind==='heal'){
@@ -81,7 +81,7 @@ function rewardWeight(choice,context){
  if(choice.kind==='reviveShardReward')return members.length>=2&&hasFainted?6:0;
  if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?2:0;
  if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?4:0;
- if(choice.kind==='candyBundle')return members.length>=2?(redLevelReached?1:4):0;
+ if(choice.kind==='candyBundle')return members.length>=2?(redLevelReached?2:4):0;
  if(choice.kind==='ev')return 3;
  if(choice.kind==='evolution')return eligibleEvolutionTargets(choice).length>0?9:0;
  if(choice.kind==='item'){
