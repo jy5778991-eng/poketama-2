@@ -24,8 +24,8 @@ const isLens=id=>id==='wideLensA'||id==='wideLensB';
 const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
 const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:4;
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
-const baseCashForWin=level=>10+level*5;
-const bonusCashForWin=()=>100+12*Math.max(...teamMembers().map(m=>m.level));
+const baseCashForWin=level=>20+level*5;
+const bonusCashForWin=()=>100+13*Math.max(...teamMembers().map(m=>m.level));
 // Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
 const REWARD_TIERS={normal:{label:'일반',weight:74},rare:{label:'레어',weight:20},hyper:{label:'하이퍼',weight:5},legendary:{label:'전설',weight:1}};
