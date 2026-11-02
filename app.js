@@ -126,6 +126,28 @@ function rewardRerollCost(count){
 }
 function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
+
+const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
+const ACHIEVEMENTS=[["champion","내가 챔피언","리그 최초 제패"],["badges","배지 수집가","배지 8종 수집"],["firstLoss","첫 패배","최초 패배"],["healing100","약물 중독","회복 아이템 100회"],["eggs20","리세마라","알 부화 20회"],["starter:raichu","주인공은 역시 피카츄","해당 스타팅으로 리그 제패"],["starter:eevee","이브이는 거꾸로 해도 이브이","해당 스타팅으로 리그 제패"],["starter:dragonite","드래곤 조련사","해당 스타팅으로 리그 제패"],["starter:butterfree","나비효과","해당 스타팅으로 리그 제패"],["starter:venusaur","씨앗부터 챔피언 까지","해당 스타팅으로 리그 제패"],["starter:charizard","불꽃은 꺼지지 않아","해당 스타팅으로 리그 제패"],["starter:blastoise","만렙거북이","해당 스타팅으로 리그 제패"],["starter:gyarados","튀어오르다 정상까지","해당 스타팅으로 리그 제패"],["starter:snorlax","먹고 자고 챔피언","해당 스타팅으로 리그 제패"],["starter:gengar","유령도 전당등록 되나요?","해당 스타팅으로 리그 제패"],["evo:3","이상한…꽃?","해당 포켓몬으로 진화"],["evo:12","4드론","해당 포켓몬으로 진화"],["evo:25","근본은 피카츄지","해당 포켓몬으로 진화"],["evo:130","등용문","해당 포켓몬으로 진화"],["evo:149","연애,신혼,지금","해당 포켓몬으로 진화"],["brock","관장 별거 없네","웅이 승리"],["misty","뉴비 절단기","이슬이 승리"],["level100","근성","Lv.100 달성"]];
+let achievementData=(()=>{try{const v=JSON.parse(localStorage.getItem(ACHIEVEMENT_KEY)||'{}');return {earned:Array.isArray(v.earned)?v.earned:[],healing:v.healing||0,eggs:v.eggs||0};}catch{return {earned:[],healing:0,eggs:0};}})();
+const achievementQueue=[];let achievementOpen=false;
+function saveAchievements(){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(achievementData));}
+function showNextAchievement(){
+ if(achievementOpen||!achievementQueue.length)return;
+ const entry=ACHIEVEMENTS.find(x=>x[0]===achievementQueue.shift());if(!entry)return;
+ achievementOpen=true;const layer=document.createElement('div');layer.className='party-summary-overlay';layer.style.zIndex='99999';
+ const panel=document.createElement('section');panel.className='party-summary-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
+ const title=document.createElement('h2');title.textContent="🏆 '"+entry[1]+"' 달성!";
+ const desc=document.createElement('p');desc.textContent=entry[2];
+ const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='확인';btn.onclick=()=>{layer.remove();achievementOpen=false;showNextAchievement();};
+ panel.append(title,desc,btn);layer.append(panel);document.body.append(layer);btn.focus();
+}
+function earnAchievement(id){if(!ACHIEVEMENTS.some(x=>x[0]===id)||achievementData.earned.includes(id))return;achievementData.earned.push(id);saveAchievements();achievementQueue.push(id);showNextAchievement();}
+function checkLevelAchievement(){if(teamMembers().some(m=>m.level>=100))earnAchievement('level100');}
+function recordHealingItem(){achievementData.healing++;saveAchievements();if(achievementData.healing>=100)earnAchievement('healing100');}
+function recordEggHatch(){achievementData.eggs++;saveAchievements();if(achievementData.eggs>=20)earnAchievement('eggs20');}
+function showAchievements(){const layer=document.createElement('div');layer.className='party-summary-overlay';const panel=document.createElement('section');panel.className='party-summary-panel';panel.style.maxHeight='80vh';panel.style.overflowY='auto';const h=document.createElement('h2');h.textContent='🏆 업적 '+achievementData.earned.length+'/'+ACHIEVEMENTS.length;panel.append(h);for(const [id,name,desc] of ACHIEVEMENTS){const p=document.createElement('p');p.textContent=(achievementData.earned.includes(id)?'✅ ':'🔒 ')+name+' — '+desc;panel.append(p);}const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='닫기';btn.onclick=()=>layer.remove();panel.append(btn);layer.append(panel);document.body.append(layer);}
+
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
 const LEAGUE_TEAMS=[
 [['쥬레곤',87,64,90,70,80,70],['파르셀',91,65,50,95,160,70],['야도란',80,65,95,100,110,30],['루주라',124,66,65,115,70,95],['라프라스',131,67,130,85,90,60]],
@@ -532,7 +554,7 @@ async function processPartyGrowth(events){
    }
    saveProgress();
   }
- }finally{learningBusy=false;renderHome();showChallengeUnlockNotice();}
+ }finally{checkLevelAchievement();learningBusy=false;renderHome();showChallengeUnlockNotice();}
 }
 let pendingPartyGrowth=[];
 function addPartyExperience(amount,enemyName,cap=null){
@@ -610,7 +632,7 @@ async function showEvolutions(evolutions){
   await pause(2600);layer.hidden=true;
   // A Pokémon obtained by evolving a caught/owned Pokémon counts as caught in the Pokédex.
   if(Number.isInteger(evolution.after.dex)&&evolution.after.dex>0&&evolution.after.dex<=1025){
-   caughtSpecies.add(evolution.after.dex);
+   earnAchievement('evo:'+evolution.after.dex);caughtSpecies.add(evolution.after.dex);
    seenPokemon.add(evolution.after.dex);
    saveProgress();
   }
@@ -659,7 +681,7 @@ function finishTrainerBattle(){
  if(battle.result==='victory'){
   const rewardCountBeforeVictory=rewardChoiceCount();
   if(GYM_BADGES[battleKind]&&!({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[battleKind])badgeEarned=battleKind;
-  if(battleKind==='blue'&&!blueCleared){blueCleared=true;area='forest';}
+  if(battleKind==='brock')earnAchievement('brock');if(battleKind==='misty')earnAchievement('misty');if(battleKind==='blue'&&!blueCleared){blueCleared=true;area='forest';}
   if(battleKind==='brock'&&!brockCleared){brockCleared=true;area='cave';}
   if(battleKind==='misty'&&!mistyCleared){mistyCleared=true;area='lake';}
   if(battleKind==='greenReturn'&&!greenReturnCleared){greenReturnCleared=true;}
@@ -677,7 +699,7 @@ function finishTrainerBattle(){
    const f=getForm(chosen,progress.level);
    redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;
   }
-  if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
+  if(leagueIndex===4){earnAchievement('champion');earnAchievement('starter:'+chosen);}if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
   const money=battleKind==='red'?5000:leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
@@ -690,9 +712,9 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
   lastBattleReward={exp:gained,money:baseCashForWin(level)};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;
+  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
  }else{
-  if(battleKind.startsWith('league'))leagueStage=null;
+  if(battle.result==='defeat')earnAchievement('firstLoss');if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
   lastBattleReward={exp:0,money:0};
   lastPartyExp={};
@@ -1259,7 +1281,7 @@ function choosePermanentTarget(choice,autoMember=null){
    if(after>before)pendingPartyGrowth.push({key:m.key,name:m.name,before,after,starter:m.starter,family:m.family});
    appendAdventureLog('🍬 '+m.name+' 경험치 +'+choice.amount);
   }
-  if(['rareCandy','expCandy','exp'].includes(choice.kind))preserveLevelUpHp(m,beforeMax,beforeHp);
+  if(['rareCandy','expCandy','exp'].includes(choice.kind))preserveLevelUpHp(m,beforeMax,beforeHp);checkLevelAchievement();
   pendingRewardChoice=null;saveProgress();renderHome();
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
  };
@@ -2545,7 +2567,7 @@ function setup(){
   });
  }
  $('openParty')?.addEventListener('click',()=>showPartyManager());
- $('badgeStatus')?.addEventListener('click',showBadgeCollection);
+ $('badgeStatus')?.addEventListener('click',showBadgeCollection);const badgeButton=$('badgeStatus');if(badgeButton){const b=document.createElement('button');b.type='button';b.textContent='🏆 업적';b.className=badgeButton.className;b.addEventListener('click',showAchievements);badgeButton.insertAdjacentElement('afterend',b);}
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
@@ -2565,7 +2587,7 @@ function setup(){
  }
  const egg=document.createElement('button');egg.type='button';egg.className='starter starter-egg';egg.dataset.id='egg';
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
- egg.onclick=()=>beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);
+ egg.onclick=()=>{beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);if(!needsStarterSelection)recordEggHatch();};
  box.append(egg);
  $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
