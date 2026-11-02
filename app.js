@@ -2,7 +2,7 @@ import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_
 import {recentWildMoves} from './js/data/learnsets.js?v=20261102-tm01-island201';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-tm01-island201';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261031-recover-name157';
-import {openOnlineRanking} from './js/online-ranking.js?v=20261102-supabase-connected223';
+
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261102-encounters221';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
@@ -2711,7 +2711,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- $('openCommunication').addEventListener('click',()=>openOnlineRanking(()=>{
+ $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261102-ranking-fix224');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
@@ -2726,7 +2726,7 @@ function setup(){
    if(!current||sum<current.sum)best.set(r.starter,{starter:r.starter,party,sum});
   }
   return {dexCount:caught.size,achievementCount:achievementData.earned.length,hall:[...best.values()].map(({starter,party})=>({starter,party}))};
- }));
+ });}catch(e){alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));}});
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-collection-tab]').forEach(button=>button.addEventListener('click',()=>{collectionTab=button.dataset.collectionTab;renderCollection();}));
