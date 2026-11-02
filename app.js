@@ -506,7 +506,7 @@ const TRAINER_STAT_CONFIG={
  blue:[8,10],greenReturn:[8,10],greenThird:[8,20],greenFourth:[8,20],greenFifth:[8,50],
  brock:[8,0],misty:[8,10],surge:[8,10],erika:[8,20],koga:[8,30],
  sabrina:[8,40],blaine:[8,40],giovanni:[8,50],
- league0:[14,50],league1:[14,50],league2:[14,50],league3:[14,50],league4:[16,50],red:[16,50]
+ league0:[14,54],league1:[14,54],league2:[14,54],league3:[14,54],league4:[16,54],red:[16,54]
 };
 function trainerFighter(name,dex,level,base,moveIds=['tackle']){
  // Temporary trainer rule: use the four most recently learned moves at this level.
@@ -519,7 +519,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
  return createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
-  const evs={hp:ev+(ev===50&&['league0','league1','league2','league3','league4','red'].includes(battleKind)?16:0),attack:ev,defense:ev,speed:ev};
+  const evs={hp:ev,attack:ev,defense:ev,speed:ev};
   return calculateStats(base,level,ivs,evs);
  })(),moveIds:selected});
 }
