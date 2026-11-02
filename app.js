@@ -170,6 +170,7 @@ function recordCatchAchievement(dex,ball){if(dex===145)earnAchievement('zapdos')
 function showAchievements(){const layer=document.createElement('div');layer.className='party-summary-overlay';const panel=document.createElement('section');panel.className='party-summary-panel';panel.style.maxHeight='80vh';panel.style.overflowY='auto';const h=document.createElement('h2');h.textContent='🏆 업적 '+achievementData.earned.length+'/'+ACHIEVEMENTS.length;panel.append(h);for(const [id,name,desc] of ACHIEVEMENTS){const p=document.createElement('p');p.textContent=(achievementData.earned.includes(id)?'✅ ':'🔒 ')+name+' — '+desc;panel.append(p);}const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='닫기';btn.onclick=()=>layer.remove();panel.append(btn);layer.append(panel);document.body.append(layer);}
 
 const LEAGUE_NAMES=['칸나','시바','국화','목호','챔피언 그린'];
+const ROCKET_TEAMS={"rocketApollo":[{"name":"또도가스","dex":110,"level":80,"base":{"hp":65,"attack":90,"defense":105,"speed":60}},{"name":"질뻐기","dex":89,"level":76,"base":{"hp":105,"attack":105,"defense":88,"speed":50}},{"name":"팬텀","dex":94,"level":78,"base":{"hp":60,"attack":130,"defense":68,"speed":110}},{"name":"라플레시아","dex":45,"level":80,"base":{"hp":75,"attack":110,"defense":88,"speed":50}},{"name":"크로뱃","dex":169,"level":82,"base":{"hp":85,"attack":90,"defense":80,"speed":130}}],"rocketAthena":[{"name":"붐볼","dex":101,"level":82,"base":{"hp":60,"attack":80,"defense":75,"speed":150}},{"name":"레어코일","dex":82,"level":78,"base":{"hp":50,"attack":120,"defense":83,"speed":70}},{"name":"쥬피썬더","dex":135,"level":78,"base":{"hp":65,"attack":110,"defense":78,"speed":130}},{"name":"아보크","dex":24,"level":80,"base":{"hp":60,"attack":95,"defense":74,"speed":80}},{"name":"에레브","dex":125,"level":82,"base":{"hp":65,"attack":95,"defense":71,"speed":105}}],"rocketGiovanni":[{"name":"코뿌리","dex":112,"level":84,"base":{"hp":105,"attack":130,"defense":93,"speed":40}},{"name":"니드킹","dex":34,"level":82,"base":{"hp":81,"attack":102,"defense":76,"speed":85}},{"name":"니드퀸","dex":31,"level":82,"base":{"hp":90,"attack":92,"defense":86,"speed":76}},{"name":"독침붕","dex":15,"level":84,"base":{"hp":65,"attack":90,"defense":60,"speed":75}},{"name":"강철톤","dex":208,"level":86,"base":{"hp":75,"attack":85,"defense":153,"speed":30}},{"name":"뮤츠","dex":150,"level":88,"base":{"hp":106,"attack":154,"defense":90,"speed":130}}]};
 const LEAGUE_TEAMS=[
 [['쥬레곤',87,64,90,70,88,70],['파르셀',91,65,50,95,133,70],['야도란',80,65,95,100,95,30],['루주라',124,66,65,115,75,95],['라프라스',131,67,130,85,88,60]],
 [['롱스톤',95,65,35,45,123,70],['홍수몬',107,67,50,105,95,76],['시라소몬',106,67,50,120,92,87],['롱스톤',95,68,35,45,123,70],['괴력몬',68,69,90,130,83,55]],
@@ -805,15 +806,19 @@ function showChallengeUnlockNotice(){
  $('challengeUnlockOverlay').hidden=false;
 }
 
+function nextRocketTrainerKind(){return !trainerClears.rocketApollo?'rocketApollo':!trainerClears.rocketAthena?'rocketAthena':!trainerClears.rocketGiovanni?'rocketGiovanni':null;}
 function challengeTrainer(){
- if(hallOfFame.length>0){showMap();return;}
- const kind=nextTrainerKind();
+ const rocketChallenge=area==='rocketBase'&&hallOfFame.length>0;
+ if(hallOfFame.length>0&&!rocketChallenge){showMap();return;}
+ const kind=rocketChallenge?nextRocketTrainerKind():nextTrainerKind();
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
- if(!kind||area!==latestMapRegion()||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
+ if(!kind)return;
+ if(rocketChallenge){if(!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;}
+ else if(area!==latestMapRegion()||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
- $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'||kind==='greenThird'||kind==='greenFourth'||kind==='greenFifth'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':kind==='erika'?'풀 체육관 관장 민화가 승부를 걸어왔다!':kind==='koga'?'독 체육관 관장 독수가 승부를 걸어왔다!':kind==='sabrina'?'에스퍼 체육관 관장 초련이 승부를 걸어왔다!':kind==='giovanni'?'마지막 체육관 관장 비주기가 승부를 걸어왔다!':kind==='blaine'?'불꽃 체육관 관장 강연이 승부를 걸어왔다!':'전기 체육관 관장 마티즈가 승부를 걸어왔다!';
+ $('trainerIntroText').textContent=kind==='blue'||kind==='greenReturn'||kind==='greenThird'||kind==='greenFourth'||kind==='greenFifth'?'라이벌 그린이 배틀을 신청했다!':kind==='brock'?'바위 체육관 관장 웅이 승부를 걸어왔다!':kind==='misty'?'물 체육관 관장 이슬이가 승부를 걸어왔다!':kind==='erika'?'풀 체육관 관장 민화가 승부를 걸어왔다!':kind==='koga'?'독 체육관 관장 독수가 승부를 걸어왔다!':kind==='sabrina'?'에스퍼 체육관 관장 초련이 승부를 걸어왔다!':kind==='rocketApollo'?'로켓단 간부 아폴로가 승부를 걸어왔다!':kind==='rocketAthena'?'로켓단 간부 아테나가 승부를 걸어왔다!':kind==='rocketGiovanni'?'로켓단 보스 비주기가 승부를 걸어왔다!':kind==='giovanni'?'마지막 체육관 관장 비주기가 승부를 걸어왔다!':kind==='blaine'?'불꽃 체육관 관장 강연이 승부를 걸어왔다!':'전기 체육관 관장 마티즈가 승부를 걸어왔다!';
  $('trainerIntroImage').hidden=false;
  // Use the uploaded animated WebP directly to preserve its original frames.
  $('trainerIntroImage').onerror=()=>{$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/blue-gen3.png';$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};};
@@ -870,7 +875,7 @@ function reset(kind='wild',recordDiscovery=true){
  battleRoster=new Map();
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
- const wild=kind==='wild'?pickEncounter(area):null;
+ const wild=kind==='wild'?pickEncounter(area,!!trainerClears.rocketGiovanni):null;
  const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?90:area==='farawayIsland'?90:area==='mountSilver'?100:46;
  const level=Math.max(1,Math.min(cap,leaderMember().level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
@@ -878,7 +883,10 @@ function reset(kind='wild',recordDiscovery=true){
  const player=makeMemberFighter(leader);
  const zeroIV={hp:0,attack:0,defense:0,speed:0};
  let enemies;
- if(kind==='blue'){
+ if(ROCKET_TEAMS[kind]){
+  enemies=ROCKET_TEAMS[kind].map(p=>trainerFighter(p.name,p.dex,p.level,p.base));
+  battleOpponent=kind;
+ }else if(kind==='blue'){
   if(!blueChoice){blueChoice=chooseRivalStarter(chosen);saveProgress();}
   const other=rivalForm(blueChoice,5);
   enemies=[trainerFighter(other.name,other.dex,5,other.base,initialMoves(blueChoice))];
@@ -2101,6 +2109,17 @@ function renderHome(){
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
  if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
  $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 이동 버튼에서 선택':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'챔피언로드 2 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 챔피언로드 2 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ if(area==='rocketBase'&&hallOfFame.length>0){
+  const rocketKind=nextRocketTrainerKind();
+  const rocketTrainer=rocketKind?TRAINERS[rocketKind]:null;
+  const rocketLevelReady=!!rocketTrainer&&teamMembers().some(m=>m.level>=rocketTrainer.level);
+  $('trainerChallenge').hidden=false;
+  $('trainerChallenge').disabled=!rocketTrainer||!rocketLevelReady||!livingMembers().length||!!pendingRewardChoice||animating||learningBusy;
+  $('trainerButtonTitle').textContent=rocketTrainer?'⚔ '+rocketTrainer.name+'에게 도전':'🏆 로켓단 보스 격파 완료';
+  $('trainerButtonNote').textContent=!rocketTrainer?'비밀기지 보스 모두 클리어 · 뮤츠 출현 4%':!rocketLevelReady?'Lv.'+rocketTrainer.level+' 이상일 때 도전 가능':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'승리해도 현재 지역 유지';
+  $('trainerChallenge').classList.toggle('adventure-ready',!!rocketTrainer&&rocketLevelReady);
+  $('trainerChallenge').classList.toggle('adventure-locked',!rocketTrainer||!rocketLevelReady);
+ }
  $('injuryStatus').hidden=!!livingMembers().length;
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
