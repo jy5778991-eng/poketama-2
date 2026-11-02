@@ -46,7 +46,7 @@ export const pickEncounter=(area,rocketBossCleared=false)=>{
  let total=0;
  return entries.find(e=>{
   let weight=e.weight;
-  if(area==='rocketBase'&&rocketBossCleared){if(e.dex===150)weight=4;else if(e.dex===132)weight=8.5;}
+  if(area==='rocketBase'&&rocketBossCleared){if(e.dex===150)weight=10;else if(e.dex===132)weight=2.5;}
   total+=weight;
   return total>roll;
  })||entries.at(-1);
