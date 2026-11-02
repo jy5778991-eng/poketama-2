@@ -1445,7 +1445,7 @@ function claimRewardChoice(index){
   return;
  }
  if(choice.kind==='heal'){
-  const targets=teamMembers().filter(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m));
+  const targets=battleHealingTargets();
   if(!targets.length){alert('HP 회복이 필요한 포켓몬이 없어. 다른 보상을 골라줘.');return;}
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('❤️ '+rewardChoiceName(choice),'즉시 회복할 포켓몬을 선택해.',[
@@ -1714,6 +1714,12 @@ function activeMember(){return teamMembers().find(m=>m.key===activeBattleKey)||l
 function setMemberHp(m,hp){if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}}
 function setActiveHp(hp){setMemberHp(activeMember(),hp);}
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
+function battleHealingTargets(){
+ return teamMembers().filter(m=>{
+  const hp=m.key===activeBattleKey&&battle&&!battle.ended?battle.player.hp:memberHp(m);
+  return hp>0&&hp<memberMaxHp(m);
+ });
+}
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
 function leaderMember(){return teamMembers()[0];}
@@ -2146,7 +2152,7 @@ function render(){renderPowerStatus();renderBattleEffects();const switchButton=$
  for(const item of SHOP_ITEMS){
   const el=$('battleItem-'+item.id);
   if(!el)continue; // Key items don't have battle buttons.
-  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&item.id!=='revive'&&!teamMembers().some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m)))||(item.id==='revive'&&!teamMembers().some(m=>m.key!==activeBattleKey&&memberHp(m)===0))||(item.category==='ball'&&!battle.wild);
+  el.disabled=animating||battle.ended||inventory[item.id]<1||(item.category==='heal'&&item.id!=='revive'&&!battleHealingTargets().length)||(item.id==='revive'&&!teamMembers().some(m=>m.key!==activeBattleKey&&memberHp(m)===0))||(item.category==='ball'&&!battle.wild);
   const counter=el.querySelector('.item-count');if(counter)counter.textContent='×'+inventory[item.id];
  }
 
