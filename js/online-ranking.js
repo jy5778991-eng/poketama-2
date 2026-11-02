@@ -49,7 +49,7 @@ async function refresh(snapshot){
  if(!configured()){board.replaceChildren(el('p','online-ranking-empty','랭킹 화면 준비 완료 · 서버 설정 후 온라인 순위가 표시돼.'));notice('아직 서버 연결 정보가 등록되지 않았어.',true);return;}
  try{
   const db=await client();let response;
-  if(tab==='hall')response=await db.from('ranking_hall').select('user_id,nickname,starter,level_sum,recorded_at').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  if(tab==='hall')response=await db.from('ranking_hall_board').select('user_id,nickname,starter,level_sum,recorded_at').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
   else response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order('updated_at',{ascending:true}).limit(100);
   if(response.error)throw response.error;
   if(!overlay)return;
