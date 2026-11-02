@@ -1514,7 +1514,51 @@ function showCollection(tab='dex'){
  showScreen('home');$('homeScreen').hidden=true;$('collectionScreen').hidden=false;
  renderCollection();window.scrollTo({top:0,behavior:'instant'});
 }
+function restoreHistoricalAchievements(){
+ // Additive migration: never replace existing earned IDs or fabricate event-only awards.
+ let permanent={};
+ try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
+ const a=permanent.achievements||{};
+ const historicCaught=new Set([...caughtSpecies,...(Array.isArray(permanent.caughtSpecies)?permanent.caughtSpecies:[])].map(Number));
+ const historicSeen=new Set([...seenPokemon,...(Array.isArray(permanent.seenPokemon)?permanent.seenPokemon:[])].map(Number));
+ const recovered=new Set(achievementData.earned);
+ const mark=(id,condition)=>{if(condition)recovered.add(id);};
+ mark('brock',brockCleared||a.brockCleared);
+ mark('misty',mistyCleared||a.mistyCleared);
+ mark('rival',blueCleared||a.blueCleared||greenReturnCleared||a.greenReturnCleared||greenThirdCleared||a.greenThirdCleared);
+ mark('badges',giovanniCleared);
+ mark('champion',hallOfFame.length>0||(Array.isArray(permanent.hallOfFame)&&permanent.hallOfFame.length>0));
+ mark('level100',teamMembers().some(m=>m.level>=100));
+ mark('healing100',achievementData.healing>=100);
+ mark('eggs20',achievementData.eggs>=20);
+ mark('eggs100',achievementData.eggs>=100);
+ mark('wild1000',achievementData.wildWins>=1000);
+ mark('trainer100',achievementData.trainerWins>=100);
+ mark('center200',achievementData.centerUses>=200);
+ mark('run100',achievementData.runs>=100);
+ mark('money999999',progress.money>=999999);
+ mark('birds',[144,145,146].every(d=>historicCaught.has(d)));
+ mark('eevees',[133,134,135,136].every(d=>historicCaught.has(d)));
+ mark('dna',[150,151].every(d=>historicCaught.has(d)));
+ mark('zapdos',historicCaught.has(145));
+ mark('moltres',historicCaught.has(146));
+ mark('articuno',historicCaught.has(144));
+ mark('mewtwo',historicCaught.has(150));
+ mark('mew',historicCaught.has(151));
+ mark('dexSeenAll',DEX_CATALOG.length>0&&DEX_CATALOG.every(p=>historicSeen.has(p.dex)));
+ for(const [id] of ACHIEVEMENTS){
+  if(!id.startsWith('evo:'))continue;
+  const dex=Number(id.slice(4));
+  // A captured evolved species alone does not prove the player evolved it.
+  if(adventureLog.some(line=>line.includes('진화')&&line.includes((DEX_CATALOG.find(p=>p.dex===dex)||{}).name||'___NO_MATCH___')))mark(id,true);
+ }
+ if(recovered.size!==achievementData.earned.length){
+  achievementData.earned=[...recovered];
+  saveAchievements();
+ }
+}
 function renderCollection(){
+ restoreHistoricalAchievements();
  let old={};try{old=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
  const a=old.achievements||{};
  return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,
