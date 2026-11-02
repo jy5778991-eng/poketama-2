@@ -765,7 +765,7 @@ const MAP_REGIONS=[
  ['city','🏙️ 노랑시티',()=>kogaCleared,47],['sea','🌊 바다',()=>sabrinaCleared,54],['volcano','🌋 화산',()=>sabrinaCleared,54],
  ['strangeForest','🌲 이상한 숲',()=>blaineCleared,60],['championRoad','🏔️ 챔피언로드 1',()=>giovanniCleared,66],
  ['championRoad2','🏛️ 챔피언로드 2',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
- ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,95],
+ ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,90],
  ['farawayIsland','🏝️ 환상의 섬',()=>hallOfFame.length>0&&inventory.oldSeaMap>0,90],
  ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,100]
 ];
@@ -871,7 +871,7 @@ function reset(kind='wild',recordDiscovery=true){
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
  const wild=kind==='wild'?pickEncounter(area):null;
- const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?95:area==='farawayIsland'?90:area==='mountSilver'?100:46;
+ const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?90:area==='farawayIsland'?90:area==='mountSilver'?100:46;
  const level=Math.max(1,Math.min(cap,leaderMember().level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
  const leader=leaderMember();
