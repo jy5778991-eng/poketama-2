@@ -79,3 +79,10 @@ revoke all on function public.upload_ranking(text,integer,integer,jsonb) from pu
 grant execute on function public.upload_ranking(text,integer,integer,jsonb) to authenticated;
 
 -- Ranking reads are public; the ranking UI never sends an adventure save file.
+
+-- Read-only public view adds nickname to each best Hall of Fame entry.
+create or replace view public.ranking_hall_board with (security_invoker=true) as
+ select h.user_id,p.nickname,h.starter,h.level_sum,h.recorded_at
+ from public.ranking_hall as h
+ join public.ranking_profiles as p on p.user_id=h.user_id;
+grant select on public.ranking_hall_board to anon,authenticated;
