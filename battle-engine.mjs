@@ -114,7 +114,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
   emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
   if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],pp:{...user.pp},stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.pp=Object.fromEntries(user.moveIds.filter(id=>MOVES[id].pp).map(id=>[id,MOVES[id].pp]));user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
-  if(move.shieldTurns){b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
+  if(move.shieldTurns){if(b.shields[sideOf(b,user)]>0){say(b,'하지만 실패했다!');return;}b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
   if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
   if(move.boosts) {
     for(const [stat,n] of Object.entries(move.boosts)){
@@ -130,7 +130,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       const hits=move.multiHit.min+Math.floor(roll(b.rng)*(move.multiHit.max-move.multiHit.min+1));let landed=0;
       for(let i=0;i<hits&&isAlive(target);i++){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-        const actual=applyAttackDamage(b,target,damage);landed++;
+        const actual=applyAttackDamage(b,target,damage);landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual/8)));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
         emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
@@ -140,8 +140,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     const actual=applyAttackDamage(b,target,damage);
     emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
-    if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(damage*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
-    say(b,`${target.name}에게 ${damage} 피해${critical?' (급소!)':''}`);
+    if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
+    if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual/8)));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
     }
   }
   if(move.boostOnHit&&roll(b.rng)<(move.boostChance??1)){for(const [stat,n] of Object.entries(move.boostOnHit)){const before=user.stages[stat]||0;user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}say(b,`${user.name}의 능력치가 상승했다!`);}
