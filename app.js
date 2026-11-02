@@ -153,9 +153,9 @@ function showNextAchievement(){
  achievementOpen=true;const layer=document.createElement('div');layer.className='party-summary-overlay';layer.style.zIndex='99999';
  const panel=document.createElement('section');panel.className='party-summary-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
  const title=document.createElement('h2');title.textContent="🏆 '"+entry[1]+"' 달성!";
- const desc=document.createElement('p');desc.textContent=entry[2];
+
  const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='확인';btn.onclick=()=>{layer.remove();achievementOpen=false;showNextAchievement();};
- panel.append(title,desc,btn);layer.append(panel);document.body.append(layer);btn.focus();
+ panel.append(title,btn);layer.append(panel);document.body.append(layer);btn.focus();
 }
 function earnAchievement(id){const entry=ACHIEVEMENTS.find(x=>x[0]===id);if(!entry||achievementData.earned.includes(id))return;achievementData.earned.push(id);saveAchievements();appendAdventureLog('🏆 업적 달성! \''+entry[1]+'\'');saveProgress();achievementQueue.push(id);showNextAchievement();}
 function checkLevelAchievement(){if(teamMembers().some(m=>m.level>=100))earnAchievement('level100');}
