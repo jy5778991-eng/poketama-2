@@ -141,7 +141,7 @@ let achievementData=(()=>{try{const v=JSON.parse(localStorage.getItem(ACHIEVEMEN
 const achievementQueue=[];let achievementOpen=false;
 function saveAchievements(){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(achievementData));}
 function showNextAchievement(){
- if(achievementOpen||!achievementQueue.length)return;
+ if(achievementOpen||!achievementQueue.length||!document.getElementById('starterSelectionOverlay')?.hidden)return;
  const entry=ACHIEVEMENTS.find(x=>x[0]===achievementQueue.shift());if(!entry)return;
  achievementOpen=true;const layer=document.createElement('div');layer.className='party-summary-overlay';layer.style.zIndex='99999';
  const panel=document.createElement('section');panel.className='party-summary-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
@@ -835,7 +835,7 @@ async function confirmTrainerIntro(){
  }
 }
 let lastCaptureBall=null;
-function reset(kind='wild'){
+function reset(kind='wild',recordDiscovery=true){
  if(animating||learningBusy||!livingMembers().length)return;
  normalizeLivingLead();
  // Use the current location's scenery for wild and trainer battles alike.
@@ -928,7 +928,7 @@ function reset(kind='wild'){
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'}); // Held Focus Sash effects live on each Pokémon's fighter.
  rewardClaimed=false;
  menuPage='main';
- if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(rivalForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
+ if(!recordDiscovery){}else if(wild)registerEncounter(wild.dex);else if(kind==='blue')registerEncounter(rivalForm(blueChoice,7).dex);else if(kind==='brock')registerEncounter(74);else if(kind==='misty')registerEncounter(120);else if(kind==='greenReturn')registerEncounter(17);else if(kind==='surge')registerEncounter(100);else if(kind==='greenThird')registerEncounter(17);else if(kind==='greenFourth')registerEncounter(18);else if(kind==='greenFifth')registerEncounter(18);else if(kind==='erika')registerEncounter(71);else if(kind==='koga')registerEncounter(89);else if(kind==='sabrina')registerEncounter(63);else if(kind==='blaine')registerEncounter(38);else if(kind==='giovanni')registerEncounter(51);
  visualSprite('enemy').classList.remove('enemy-captured','capture-absorbing','capture-escaping');
  $('captureBall').className='capture-ball';$('captureBall').hidden=true;$('captureBall').removeAttribute('style');
  $('captureFlash').className='capture-flash';$('captureFlash').hidden=true;$('captureSuccessNotice').hidden=true;
@@ -2580,7 +2580,7 @@ function beginNewAdventure(id,fixedIV){
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
- saveProgress();reset();showScreen('home');
+ saveProgress();reset('wild',false);showScreen('home');showNextAchievement();
 }
 function requestAdventureReset(){
  if(needsStarterSelection||animating||learningBusy)return;
@@ -2676,6 +2676,6 @@ function setup(){
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
  egg.onclick=()=>{beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);if(!needsStarterSelection)recordEggHatch();};
  box.append(egg);
- $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset();else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
