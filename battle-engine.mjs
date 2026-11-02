@@ -6,7 +6,7 @@ export const RULES = Object.freeze({
   poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
-import {MOVES} from './js/data/moves.js?v=20261031-icefang-waterfall169';
+import {MOVES} from './js/data/moves.js?v=20261102-tm01-island201';
 import {chooseEnemyMove} from './js/battle-ai.js?v=20261031-recover-name157';
 export {MOVES};
 
@@ -155,6 +155,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.confuseTarget)applyConfusion(target,b);
   if(move.confuseChance&&isAlive(target)&&target.confusionTurns<=0&&roll(b.rng)<move.confuseChance)applyConfusion(target,b);
   if(move.selfKo){user.hp=0;say(b,`${user.name}은(는) 모든 힘을 다 썼다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:user.stats.hp,hp:0,critical:false,recoil:true});}
+  if(move.triStatus&&isAlive(target)&&!target.status){const r=roll(b.rng);if(r<0.1)afflict(target,'burn',b);else if(r<0.2)afflict(target,'paralysis',b);else if(r<0.3)afflict(target,'freeze',b);}
   if(move.inflict&&isAlive(target)&&!target.status&&roll(b.rng)<(move.inflictChance??1))afflict(target,move.inflict,b);
   if(move.recharge&&user.hp>0)user.recharge=true;
   if(move.lockedTurns&&!user.lockedMove)user.lockedMove={id:moveId,remaining:2+Math.floor(roll(b.rng)*2)};
