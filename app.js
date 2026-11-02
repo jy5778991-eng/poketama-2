@@ -2079,6 +2079,7 @@ async function act(a){
   tickBoosts();saveProgress();renderPowerStatus();
   if(a.type==='item'||a.type==='ball'||a.type==='revive'||a.type==='healAlly'){
    inventory[a.itemId]--;
+   if(a.type==='revive'||a.type==='healAlly'||(a.type==='item'&&SHOP_ITEMS.some(i=>i.id===a.itemId&&i.category==='heal')))recordHealingItem();
    saveProgress();
   }
 
