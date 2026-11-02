@@ -3,8 +3,8 @@ import {recentWildMoves} from './js/data/learnsets.js?v=20261102-tm01-island201'
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261102-tm01-island201';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261103-raichu-butterfree-buff229';
 
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261103-stat-rebalance226';
-import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261101-trainer-levels171';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261103-rocket-base231';
+import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261103-rocket-boss231';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js/data/items.js?v=20261102-revival-seed212';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
@@ -950,7 +950,7 @@ function reset(kind='wild',recordDiscovery=true){
   const wildStats=calculateStats(wild.base,level,zeroIV,{});
   const openingPenalty=leader.level<=3?0.7:leader.level<=7?0.85:1;
   if(openingPenalty<1)for(const stat of ['attack','defense','speed'])wildStats[stat]=Math.max(1,Math.floor(wildStats[stat]*openingPenalty));
-  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare);enemies=[enemy];
+  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
  }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
