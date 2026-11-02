@@ -1,7 +1,7 @@
 import {MOVES} from './moves.js?v=20261031-recover-name157';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
-{id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:50,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
+{id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:58,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
 {id:'snorlax',name:'먹고자',form:'잠만보',dex:143,baby:446,base:{hp:160,attack:110,defense:88,speed:30},moves:['bodySlam','flail','rest','swift'],emoji:'💤'},
 {id:'dragonite',name:'미뇽',form:'망나뇽',dex:149,baby:147,base:{hp:91,attack:134,defense:98,speed:80},moves:['dragonPulse','extremeSpeed','quickAttack','swift'],emoji:'🐉'},
 {id:'venusaur',name:'이상해씨',form:'이상해꽃',dex:3,baby:1,base:{hp:80,attack:100,defense:92,speed:80},moves:['energyBall','solarBeam','recover','swift'],emoji:'🌿'},
@@ -13,7 +13,7 @@ export const STARTERS=[
 {id:'gyarados',name:'잉어킹',form:'갸라도스',dex:130,baby:129,base:{hp:95,attack:125,defense:90,speed:81},moves:['surf','dragonDance','bodySlam','swift'],emoji:'🐟'}
 ];
 export const START_BASES={
- eevee:{hp:55,attack:55,defense:50,speed:55},
+ eevee:{hp:55,attack:55,defense:58,speed:55},
  snorlax:{hp:135,attack:85,defense:63,speed:5},
  dragonite:{hp:41,attack:64,defense:48,speed:50},
  venusaur:{hp:45,attack:65,defense:57,speed:45},
@@ -22,7 +22,7 @@ export const START_BASES={
  raichu:{hp:20,attack:40,defense:25,speed:60},
  butterfree:{hp:45,attack:30,defense:28,speed:45},
  gengar:{hp:30,attack:100,defense:33,speed:80},
- gyarados:{hp:20,attack:10,defense:38,speed:80}
+ gyarados:{hp:20,attack:15,defense:38,speed:80}
 };
 /* Each threshold produces an immediate, unskippable evolution. IV/EV, EXP and level persist. */
 export const EVOLUTIONS={
@@ -38,11 +38,11 @@ export const EVOLUTIONS={
  gyarados:[{level:1,name:'잉어킹',dex:129,base:START_BASES.gyarados},{level:20,name:'갸라도스',dex:130,base:{hp:95,attack:125,defense:90,speed:81}}]
 };
 export const EEVEE_FORMS={
- jolteon:{level:22,name:'쥬피썬더',dex:135,base:{hp:65,attack:110,defense:72,speed:130}},
- flareon:{level:22,name:'부스터',dex:136,base:{hp:65,attack:130,defense:92,speed:65}},
- vaporeon:{level:22,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:77,speed:65}},
- espeon:{level:22,name:'에브이',dex:196,base:{hp:65,attack:130,defense:67,speed:110}},
- umbreon:{level:22,name:'블래키',dex:197,base:{hp:95,attack:65,defense:117,speed:65}}
+ jolteon:{level:22,name:'쥬피썬더',dex:135,base:{hp:65,attack:110,defense:78,speed:130}},
+ flareon:{level:22,name:'부스터',dex:136,base:{hp:65,attack:130,defense:95,speed:65}},
+ vaporeon:{level:22,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:78,speed:65}},
+ espeon:{level:22,name:'에브이',dex:196,base:{hp:65,attack:130,defense:78,speed:110}},
+ umbreon:{level:22,name:'블래키',dex:197,base:{hp:95,attack:65,defense:120,speed:65}}
 };
 let eeveeForm=null;
 export const setEeveeForm=id=>{eeveeForm=EEVEE_FORMS[id]?id:null;};
