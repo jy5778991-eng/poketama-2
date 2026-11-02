@@ -22,7 +22,7 @@ function openModal(snapshot){
  const panel=el('section','online-ranking-panel');
  const head=el('div','online-ranking-head');head.append(el('h2','','📡 통신 · 랭킹'));
  const close=el('button','online-ranking-close','✕');close.type='button';close.setAttribute('aria-label','닫기');close.onclick=()=>{overlay.remove();overlay=null;};head.append(close);panel.append(head);
- panel.append(el('p','online-ranking-intro','게임은 평소처럼 싱글플레이야. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송돼.'));
+ panel.append(el('p','online-ranking-intro','한번 정한 닉네임은 변경할 수 없습니다. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송됩니다.'));
  const tabs=el('div','online-ranking-tabs');
  for(const [key,label] of [['dex','도감'],['achievements','업적'],['hall','명예의 전당']]){
   const b=el('button','',label);b.type='button';b.onclick=()=>{tab=key;refresh(snapshot);};b.dataset.tab=key;tabs.append(b);
