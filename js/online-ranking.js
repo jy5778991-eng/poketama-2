@@ -1,6 +1,6 @@
 // Online ranking is deliberately isolated from the offline single-player game.
 // The Supabase client loads only when a player opens the ranking and connects.
-import {SUPABASE_URL,SUPABASE_ANON_KEY} from './online-ranking-config.js';
+import {SUPABASE_URL,SUPABASE_ANON_KEY} from './online-ranking-config.js?v=20261102-supabase-connected223';
 
 const STARTERS=[['eevee','이브이'],['snorlax','먹고자'],['dragonite','미뇽'],['venusaur','이상해씨'],['charizard','파이리'],['blastoise','꼬부기'],['raichu','피츄'],['butterfree','캐터피'],['gengar','고오스'],['gyarados','잉어킹']];
 const NAME_KEY='poketama-2-ranking-nickname-v1';
