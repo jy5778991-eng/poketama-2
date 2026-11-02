@@ -9,7 +9,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory} from './js
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {renderCollectionView} from './js/collection.js?v=20261102-achievements50-202';
+import {renderCollectionView} from './js/collection.js?v=20261102-trainerrecords206';
 import {renderInventoryView} from './js/inventory.js?v=20261102-shell-scope-exp191';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
@@ -132,7 +132,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*20+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -190,6 +190,7 @@ let wildEnemy=null, rewardClaimed=false, menuPage='main';
 let leagueStage=Number.isInteger(saved?.leagueStage)&&saved.leagueStage>=0&&saved.leagueStage<5?saved.leagueStage:null;
 let hallOfFame=Array.isArray(saved?.hallOfFame)?saved.hallOfFame.slice(-100):[];
 let redHallOfFame=Array.isArray(saved?.redHallOfFame)?saved.redHallOfFame.slice(-100):[];
+let trainerClears={...(saved?.trainerClears&&typeof saved.trainerClears==='object'?saved.trainerClears:{})};
 let leagueCeremonyPending=!!saved?.leagueCeremonyPending;
 let redCeremonyPending=!!saved?.redCeremonyPending;
 let redEndingPage=0;
@@ -709,6 +710,7 @@ function finishTrainerBattle(){
    if(battleKind==='giovanni'&&!giovanniCleared){giovanniCleared=true;area='championRoad';}
    if(battleKind==='greenFifth'&&!greenFifthCleared){greenFifthCleared=true;area='championRoad2';}
   const leagueIndex=battleKind.startsWith('league')?Number(battleKind.slice(6)):-1;
+  if(battleKind!=='wild')trainerClears[battleKind]=true;
   if(battleKind==='red'){
    const f=getForm(chosen,progress.level);
    redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;
@@ -1561,7 +1563,22 @@ function renderCollection(){
  restoreHistoricalAchievements();
  let old={};try{old=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
  const a=old.achievements||{};
- return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,
+ const permanentHall=Array.isArray(old.hallOfFame)?old.hallOfFame:[];
+ const permanentRed=Array.isArray(old.redHallOfFame)?old.redHallOfFame:[];
+ const completedLeague=hallOfFame.length>0||permanentHall.length>0;
+ const completedRed=redHallOfFame.length>0||permanentRed.length>0;
+ const leagueProgress=leagueStage===null?0:leagueStage;
+ const trainerRecords={
+  ...trainerClears,
+  blue:blueCleared||a.blueCleared,brock:brockCleared||a.brockCleared,
+  misty:mistyCleared||a.mistyCleared,greenReturn:greenReturnCleared||a.greenReturnCleared,
+  surge:surgeCleared||a.surgeCleared,greenThird:greenThirdCleared||a.greenThirdCleared,
+  erika:erikaCleared||a.erikaCleared,koga:kogaCleared,greenFourth:greenFourthCleared,
+  sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared,greenFifth:greenFifthCleared,
+  red:completedRed
+ };
+ for(let i=0;i<5;i++)trainerRecords['league'+i]=!!(trainerClears['league'+i]||completedLeague||leagueProgress>i);
+ return renderCollectionView({$,collectionTab,capturedPokemon,caughtSpecies,seenPokemon,trainerRecords,
  blueCleared:blueCleared||a.blueCleared,brockCleared:brockCleared||a.brockCleared,
  mistyCleared:mistyCleared||a.mistyCleared,greenReturnCleared:greenReturnCleared||a.greenReturnCleared,
  surgeCleared:surgeCleared||a.surgeCleared,greenThirdCleared:greenThirdCleared||a.greenThirdCleared,
