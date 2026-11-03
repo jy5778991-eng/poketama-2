@@ -160,7 +160,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   fireBlast:{name:'불대문자',power:110,accuracy:0.85,priority:0},
   auroraBeam:{name:'오로라빔',power:65,accuracy:1,priority:0},
   machPunch:{name:'마하펀치',power:40,accuracy:1,priority:1},
-  closeCombat:{name:'인파이트',power:120,accuracy:1,priority:0,boosts:{defense:-1},target:'self'},
+  closeCombat:{name:'인파이트',power:120,accuracy:1,priority:0,boostsOnHit:{defense:-1}},
   doubleKick:{name:'두번차기',power:60,accuracy:1,priority:0},
   leechLife:{name:'흡혈',power:80,accuracy:1,priority:0,drain:0.5,pp:15},
   furySwipes:{name:'마구할퀴기',power:15,accuracy:0.95,priority:0,multiHit:{min:2,max:5}},
