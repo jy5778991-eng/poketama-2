@@ -200,3 +200,9 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 #partyActionButtons .exp-target-option .exp-target-gauge{background:#e1ebf3}
 #partyActionButtons .exp-target-option .exp-target-gauge .recovery-target-gauge-fill{background:#4c9fd7}
 #partyActionButtons .exp-target-option .recovery-target-count{font-variant-numeric:tabular-nums}
+
+/* Hall of Fame records open a read-only archived Pokémon summary. */
+.hall-entry-clickable{cursor:pointer;transition:border-color .15s ease,background .15s ease}
+.hall-entry-clickable:hover,.hall-entry-clickable:focus-visible{border-color:#e6ac53;background:#fffaf0}
+.hall-entry-clickable:focus-visible{outline:3px solid #e6ac53;outline-offset:2px}
+.hall-history-notice{display:block;margin:12px auto 4px;padding:8px 10px;color:#566784;background:#eef3f9;border-radius:6px;font-size:12px;line-height:1.5}
