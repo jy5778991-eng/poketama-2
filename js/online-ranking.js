@@ -16,6 +16,47 @@ async function client(){
 function notice(msg,error=false){if(!overlay)return;const n=overlay.querySelector('.online-ranking-notice');n.textContent=msg;n.classList.toggle('error',error);}
 function displayAverage(sum){return (sum/3).toFixed(2).replace(/\.00$/,'');}
 function row(index,name,value,highlight){const r=el('div','online-ranking-row');if(highlight)r.classList.add('mine');r.append(el('strong','',String(index)),el('span','',name),el('b','',value));return r;}
+
+function parseHallParty(value){
+ if(typeof value==='string'){try{value=JSON.parse(value);}catch{return null;}}
+ if(!Array.isArray(value)&&value&&typeof value==='object')value=value.party||value.members||null;
+ if(!Array.isArray(value)||value.length!==3)return null;
+ const members=value.map(p=>({name:String(p?.name||'포켓몬').slice(0,32),dex:Number(p?.dex),level:Number(p?.level)}));
+ return members.every(p=>Number.isInteger(p.dex)&&p.dex>0&&p.dex<=1025&&Number.isInteger(p.level)&&p.level>=1&&p.level<=100)?members:null;
+}
+function hallPartyFromRow(item){
+ for(const key of ['party','pokemon_party','party_data','members','hall_party','pokemon']){
+  const found=parseHallParty(item?.[key]);
+  if(found)return found;
+ }
+ return null;
+}
+function showHallParty(item){
+ if(!overlay)return;
+ overlay.querySelector('.online-ranking-party-overlay')?.remove();
+ const backdrop=el('div','online-ranking-party-overlay');backdrop.setAttribute('role','dialog');
+ backdrop.setAttribute('aria-modal','true');backdrop.setAttribute('aria-label','명예의전당 파티');
+ const panel=el('section','online-ranking-party-panel');
+ panel.append(el('h3','','🏅 '+item.nickname+'의 명예의전당'));
+ const intro=el('p','online-ranking-party-subtitle','평균 레벨 '+displayAverage(item.level_sum)+' Lv.');
+ panel.append(intro);
+ const members=hallPartyFromRow(item);
+ if(members){
+  const grid=el('div','online-ranking-party-members');
+  for(const m of members){
+   const cell=el('div','online-ranking-party-member');
+   const img=el('img');img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';img.alt=m.name;
+   img.loading='lazy';img.onerror=()=>{img.hidden=true;};
+   cell.append(img,el('strong','',m.name),el('span','','LV '+m.level));
+   grid.append(cell);
+  }
+  panel.append(grid);
+ }else panel.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 3마리 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
+ const close=el('button','online-ranking-party-close','닫기');close.type='button';
+ close.onclick=()=>backdrop.remove();panel.append(close);
+ backdrop.append(panel);overlay.append(backdrop);close.focus();
+}
+
 function openModal(snapshot){
  if(overlay){overlay.remove();overlay=null;}
  overlay=el('div','online-ranking-overlay');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','온라인 랭킹');
@@ -50,14 +91,24 @@ async function refresh(snapshot){
  if(!configured()){board.replaceChildren(el('p','online-ranking-empty','랭킹 화면 준비 완료 · 서버 설정 후 온라인 순위가 표시돼.'));notice('아직 서버 연결 정보가 등록되지 않았어.',true);return;}
  try{
   const db=await client();let response;
-  if(tab==='hall')response=await db.from('ranking_hall_board').select('user_id,nickname,starter,level_sum,recorded_at').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
   else response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order('updated_at',{ascending:true}).limit(100);
   if(response.error)throw response.error;
   if(!overlay)return;
   board.replaceChildren();const entries=response.data||[];
   if(!entries.length){board.append(el('p','online-ranking-empty','아직 등록된 기록이 없어. 첫 번째 트레이너가 되어봐!'));return;}
   const {data:{user}}=await db.auth.getUser();
-  entries.forEach((item,i)=>board.append(row(i+1,item.nickname,tab==='hall'?displayAverage(item.level_sum)+' Lv.':tab==='dex'?item.dex_count+'종':item.achievement_count+'개',user?.id===item.user_id)));
+  entries.forEach((item,i)=>{
+   const entry=row(i+1,item.nickname,tab==='hall'?displayAverage(item.level_sum)+' Lv.':tab==='dex'?item.dex_count+'종':item.achievement_count+'개',user?.id===item.user_id);
+   if(tab==='hall'){
+    entry.classList.add('online-ranking-hall-row');
+    const action=el('button','online-ranking-party-button','파티');action.type='button';
+    action.setAttribute('aria-label',item.nickname+' 명예의전당 파티 보기');
+    action.onclick=()=>showHallParty(item);
+    entry.append(action);
+   }
+   board.append(entry);
+  });
  }catch(e){if(!overlay)return;board.replaceChildren(el('p','online-ranking-empty','순위를 불러오지 못했어.'));notice(e.message||'네트워크 오류',true);}
 }
 async function upload(getSnapshot,button){
