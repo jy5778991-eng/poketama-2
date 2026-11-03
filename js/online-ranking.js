@@ -5,7 +5,7 @@ const SUPABASE_ANON_KEY='sb_publishable_dWR64-bHjZSEd07xYu8ahQ_Tztby2fQ';
 
 const STARTERS=[['eevee','이브이'],['snorlax','먹고자'],['dragonite','미뇽'],['venusaur','이상해씨'],['charizard','파이리'],['blastoise','꼬부기'],['raichu','피츄'],['butterfree','캐터피'],['gengar','고오스'],['gyarados','잉어킹']];
 const NAME_KEY='poketama-2-ranking-nickname-v1';
-let clientPromise=null,overlay=null,tab='dex',selectedStarter='eevee';
+let clientPromise=null,overlay=null,tab='dex',selectedStarter='eevee',rankingRequestId=0;
 const el=(tag,cls,text)=>{const node=document.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;};
 const configured=()=>/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(SUPABASE_URL)&&SUPABASE_ANON_KEY.length>20;
 async function client(){
@@ -92,10 +92,14 @@ function openModal(snapshot){
  }
  panel.append(tabs);
  const control=el('div','online-ranking-starter');control.id='onlineRankingStarter';
- const title=el('label','','스타팅별 기록: ');title.htmlFor='onlineRankingStarterSelect';
- const select=el('select');select.id='onlineRankingStarterSelect';
- for(const [id,name] of STARTERS){const op=el('option','',name);op.value=id;select.append(op);}
- select.value=selectedStarter;select.onchange=()=>{selectedStarter=select.value;refresh(snapshot);};control.append(title,select);panel.append(control);
+ control.setAttribute('role','group');control.setAttribute('aria-label','스타팅 포켓몬 선택');
+ for(const [id,name] of STARTERS){
+  const button=el('button','online-ranking-starter-button',name);
+  button.type='button';button.dataset.starter=id;
+  button.onclick=()=>{if(selectedStarter===id)return;selectedStarter=id;refresh(snapshot);};
+  control.append(button);
+ }
+ panel.append(control);
  const board=el('div','online-ranking-board');board.id='onlineRankingBoard';panel.append(board);
  const form=el('div','online-ranking-upload');
  form.append(el('h3','','내 정보 업데이트하기'));
@@ -109,6 +113,12 @@ async function refresh(snapshot){
  if(!overlay)return;
  overlay.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
  overlay.querySelector('#onlineRankingStarter').hidden=tab!=='hall';
+ overlay.querySelectorAll('[data-starter]').forEach(b=>{
+  const active=b.dataset.starter===selectedStarter;
+  b.classList.toggle('active',active);
+  b.setAttribute('aria-pressed',String(active));
+ });
+ const requestId=++rankingRequestId;
  const board=overlay.querySelector('#onlineRankingBoard');board.replaceChildren(el('p','online-ranking-loading','랭킹을 불러오는 중...'));
  if(!configured()){board.replaceChildren(el('p','online-ranking-empty','랭킹 화면 준비 완료 · 서버 설정 후 온라인 순위가 표시돼.'));notice('아직 서버 연결 정보가 등록되지 않았어.',true);return;}
  try{
@@ -116,7 +126,7 @@ async function refresh(snapshot){
   if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
   else response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order('updated_at',{ascending:true}).limit(100);
   if(response.error)throw response.error;
-  if(!overlay)return;
+  if(!overlay||requestId!==rankingRequestId)return;
   board.replaceChildren();const entries=response.data||[];
   if(!entries.length){board.append(el('p','online-ranking-empty','아직 등록된 기록이 없어. 첫 번째 트레이너가 되어봐!'));return;}
   const {data:{user}}=await db.auth.getUser();
@@ -131,7 +141,7 @@ async function refresh(snapshot){
    }
    board.append(entry);
   });
- }catch(e){if(!overlay)return;board.replaceChildren(el('p','online-ranking-empty','순위를 불러오지 못했어.'));notice(e.message||'네트워크 오류',true);}
+ }catch(e){if(!overlay||requestId!==rankingRequestId)return;board.replaceChildren(el('p','online-ranking-empty','순위를 불러오지 못했어.'));notice(e.message||'네트워크 오류',true);}
 }
 async function upload(getSnapshot,button){
  const name=overlay?.querySelector('#onlineRankingName')?.value.trim()||'';
