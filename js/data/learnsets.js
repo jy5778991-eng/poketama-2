@@ -151,6 +151,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "mew": [{"level":1,"id":"confusion"},{"level":10,"id":"swift"},{"level":20,"id":"lightScreen"},{"level":30,"id":"ancientPower"},{"level":40,"id":"calmMind"},{"level":50,"id":"psychic"},{"level":60,"id":"recover"},{"level":70,"id":"transform"},{"level":80,"id":"doubleTeam"},{"level":90,"id":"hyperBeam"}]
 };
 export const ROCKET_ISLAND_LEARNSETS={
+ ditto:[{level:1,id:'transform'}],
  porygon:[{level:1,id:'tackle'},{level:11,id:'thunderShock'},{level:28,id:'psybeam'},{level:33,id:'triAttack'},{level:45,id:'hpRecover'},{level:60,id:'hyperBeam'}],
  chansey:[{level:1,id:'tackle'}, {level:20,id:'hpRecover'}, {level:26,id:'megaPunch'}, {level:35,id:'minimize'}, {level:42,id:'toxic'}, {level:52,id:'bodySlam'}]
 };
