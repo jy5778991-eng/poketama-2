@@ -18,7 +18,7 @@ export const TRAINERS={
  blaine:{name:'강연',level:51,money:2100,stageAfter:'strangeForest',image:'https://play.pokemonshowdown.com/sprites/trainers/blaine.png'},
  greenFifth:{name:'라이벌 그린',level:62,money:3000,stageAfter:'championRoad2',image:'./assets/trainers/green.webp'},
  giovanni:{name:'비주기',level:57,money:2600,stageAfter:'championRoad',image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'},
- rocketApollo:{name:'로켓단 간부 아폴로',level:80,money:3200,stageAfter:null,image:'./assets/trainers/apollo.svg'},
- rocketAthena:{name:'로켓단 간부 아테나',level:80,money:3400,stageAfter:null,image:'./assets/trainers/athena.svg'},
- rocketGiovanni:{name:'로켓단 보스 비주기',level:82,money:5000,stageAfter:null,image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
+ rocketApollo:{name:'로켓단 간부 아폴로',level:76,money:3200,stageAfter:null,image:'./assets/trainers/apollo.svg'},
+ rocketAthena:{name:'로켓단 간부 아테나',level:78,money:3400,stageAfter:null,image:'./assets/trainers/athena.svg'},
+ rocketGiovanni:{name:'로켓단 보스 비주기',level:80,money:5000,stageAfter:null,image:'https://play.pokemonshowdown.com/sprites/trainers/giovanni.png'}
 };
