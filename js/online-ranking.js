@@ -25,13 +25,13 @@ function parseHallParty(value){
  return members.every(p=>Number.isInteger(p.dex)&&p.dex>0&&p.dex<=1025&&Number.isInteger(p.level)&&p.level>=1&&p.level<=100)?members:null;
 }
 function hallPartyFromRow(item){
- for(const key of ['party','pokemon_party','party_data','members','hall_party','pokemon']){
+ for(const key of ['party','pokemon_party','party_data','members','hall_party','pokemon','team']){
   const found=parseHallParty(item?.[key]);
   if(found)return found;
  }
  return null;
 }
-function showHallParty(item){
+async function showHallParty(item){
  if(!overlay)return;
  overlay.querySelector('.online-ranking-party-overlay')?.remove();
  const backdrop=el('div','online-ranking-party-overlay');backdrop.setAttribute('role','dialog');
@@ -40,7 +40,25 @@ function showHallParty(item){
  panel.append(el('h3','','🏅 '+item.nickname+'의 명예의전당'));
  const intro=el('p','online-ranking-party-subtitle','평균 레벨 '+displayAverage(item.level_sum)+' Lv.');
  panel.append(intro);
- const members=hallPartyFromRow(item);
+ let members=hallPartyFromRow(item);
+ if(!members){
+  panel.append(el('p','online-ranking-party-loading','파티 기록을 확인하는 중...'));
+  backdrop.append(panel);overlay.append(backdrop);
+  try{
+   const db=await client();
+   // Some server versions expose the team on the public leaderboard itself,
+   // while others store it alongside the ranked Hall record.
+   for(const table of ['ranking_hall_records','ranking_hall']){
+    const response=await db.from(table).select('*').eq('user_id',item.user_id).eq('starter',item.starter).limit(20);
+    if(response.error)continue;
+    const matched=(response.data||[]).filter(r=>r.level_sum===item.level_sum||Array.isArray(r.party)&&r.party.reduce((sum,p)=>sum+Number(p?.level||0),0)===item.level_sum);
+    members=matched.map(hallPartyFromRow).find(Boolean)||null;
+    if(members)break;
+   }
+  }catch(e){console.warn('파티 조회 실패',e);}
+  if(!backdrop.isConnected)return;
+  panel.querySelector('.online-ranking-party-loading')?.remove();
+ }
  if(members){
   const grid=el('div','online-ranking-party-members');
   for(const m of members){
