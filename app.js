@@ -2120,7 +2120,7 @@ function renderHome(){
  $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2';
  $('leagueEnter').disabled=area!=='championRoad2'||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
- $('leagueRecords').hidden=hallOfFame.length===0&&redHallOfFame.length===0;
+ $('leagueRecords').hidden=!hasHallOfFameRecords();
  $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
  if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
@@ -2605,10 +2605,30 @@ function advanceRedEnding(){
 }
 function hallPartySnapshot(){return teamMembers().slice(0,3).map(m=>({name:m.name,dex:m.dex,level:m.level}));}
 let hallTab='first';
+// Also read the reset-proof backup so records remain accessible after a fresh adventure.
+function hallOfFameEntries(kind){
+ const current=kind==='second'?redHallOfFame:hallOfFame;
+ let permanent=[];
+ try{
+  const savedRecords=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}');
+  const key=kind==='second'?'redHallOfFame':'hallOfFame';
+  if(Array.isArray(savedRecords?.[key]))permanent=savedRecords[key];
+ }catch(e){console.warn('명예의전당 영구 기록을 읽지 못했습니다.',e);}
+ const unique=new Map();
+ for(const record of [...permanent,...current]){
+  if(!record||typeof record!=='object')continue;
+  const identity=JSON.stringify(record);
+  if(!unique.has(identity))unique.set(identity,record);
+ }
+ return [...unique.values()].slice(-100);
+}
+function hasHallOfFameRecords(){
+ return hallOfFameEntries('first').length>0||hallOfFameEntries('second').length>0;
+}
 function showHallOfFame(tab=hallTab){
  hallTab=tab==='second'?'second':'first';
  const tabs=$('leagueRecordTabs');tabs.querySelectorAll('button').forEach(button=>{const active=button.dataset.hallTab===hallTab;button.setAttribute('aria-selected',String(active));});
- const entries=hallTab==='first'?hallOfFame:redHallOfFame;
+ const entries=hallOfFameEntries(hallTab);
  const list=$('leagueRecordList');list.replaceChildren();
  if(!entries.length){const empty=document.createElement('p');empty.className='hall-empty';empty.textContent='아직 등록된 기록이 없어.';list.append(empty);}
  for(const record of [...entries].reverse()){
