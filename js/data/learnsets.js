@@ -83,6 +83,9 @@ export const FAMILY_LEARNSETS={
  "hitmonchan": [{"level":1,"id":"quickAttack"},{"level":20,"id":"machPunch"},{"level":30,"id":"thunderPunch"},{"level":31,"id":"firePunch"},{"level":32,"id":"icePunch"},{"level":40,"id":"bulkUp"},{"level":58,"id":"closeCombat"}],
  "hitmonlee": [{"level":1,"id":"quickAttack"},{"level":20,"id":"doubleKick"},{"level":40,"id":"bulkUp"},{"level":45,"id":"highJumpKick"},{"level":55,"id":"doubleTeam"}],
  "machop": [{level:1,id:'tackle'}, {level:12,id:'karateChop'}, {level:25,id:'vitalThrow'}, {level:35,id:'rockSlide'}, {level:40,id:'crossChop'}, {level:50,id:'dynamicPunch'}, {level:53,id:'lockOn'}],
+ "jigglypuff": [{level:1,id:'tackle'},{level:9,id:'sing'},{level:15,id:'defenseCurl'},{level:20,id:'megaPunch'},{level:25,id:'charm'},{level:32,id:'megaKick'},{level:42,id:'rest'},{level:50,id:'doubleEdge'}],
+ "farfetchd": [{level:1,id:'tackle'},{level:10,id:'quickAttack'},{level:18,id:'doubleTeam'},{level:25,id:'wingAttack'},{level:30,id:'airSlash'},{level:38,id:'slash'},{level:48,id:'agility'},{level:54,id:'braveBird'}],
+ "tauros": [{level:1,id:'tackle'},{level:10,id:'sandAttack'},{level:16,id:'hornAttack'},{level:25,id:'headbutt'},{level:34,id:'takeDown'},{level:42,id:'rest'},{level:50,id:'thrash'},{level:55,id:'doubleEdge'},{level:60,id:'gigaImpact'}],
  "zubat": [{level:1,id:'tackle'}, {level:8,id:'absorb'}, {level:16,id:'wingAttack'}, {level:30,id:'poisonJab'}, {level:34,id:'confuseRay'}, {level:50,id:'leechLife'}, {level:54,id:'doubleTeam'}],
  "ekans": [{level:1,id:'poisonSting'}, {level:15,id:'bite'}, {level:22,id:'screech'}, {level:30,id:'crunch'}, {level:38,id:'glare'}, {level:45,id:'sludgeBomb'}],
  "aerodactyl": [{"level":1,"id":"tackle"},{"level":20,"id":"wingAttack"},{"level":30,"id":"rockSlide"},{"level":33,"id":"ancientPower"},{"level":40,"id":"crunch"},{"level":45,"id":"stoneEdge"},{"level":64,"id":"hyperBeam"}]
@@ -146,8 +149,10 @@ export const ROCKET_ISLAND_LEARNSETS={
 export const ROCKET_ISLAND_FAMILY_BY_DEX={132:'ditto',137:'porygon',113:'chansey'};
 export const ADDITIONAL_FAMILY_BY_DEX={"200":"misdreavus","13":"weedle","14":"weedle","15":"weedle","21":"spearow","22":"spearow","27":"sandshrew","28":"sandshrew","29":"nidoranF","30":"nidoranF","31":"nidoranF","35":"clefairy","36":"clefairy","46":"paras","47":"paras","54":"psyduck","55":"psyduck","60":"poliwag","61":"poliwag","62":"poliwag","72":"tentacool","73":"tentacool","84":"doduo","85":"doduo","96":"drowzee","97":"drowzee","104":"cubone","105":"cubone","116":"horsea","117":"horsea","118":"goldeen","119":"goldeen","133":"eevee","134":"eevee","135":"eevee","136":"eevee","144":"articuno","145":"zapdos","146":"moltres","150":"mewtwo","151":"mew"};
 export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
+export const EXTRA_FAMILY_BY_DEX={39:'jigglypuff',40:'jigglypuff',83:'farfetchd',128:'tauros'};
+export const CROBAT_EXTRA_LEARNSET=[{level:60,id:'braveBird'}];
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
-export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||null;}
+export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
 export function recentWildMoves(dex,level){
  const list=learnsetForDex(dex);
  if(!list)return ['tackle'];
