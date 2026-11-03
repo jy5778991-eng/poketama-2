@@ -39,19 +39,22 @@ const EVOLUTION_REWARD_ITEMS=[
  {id:'duskStone',name:'어둠의돌',form:'umbreon',icon:'🌙'},
  {id:'moonStone',name:'달의돌',icon:'🌕'},
  {id:'leafStone',name:'리프의돌',icon:'🍃'},
- {id:'metalCoat',name:'금속코트',icon:'🔩'}
+ {id:'metalCoat',name:'금속코트',icon:'🔩'},
+ {id:'sootheBell',name:'평온의 방울',icon:'🔔'}
 ];
 const STONE_WILD_EVOLUTIONS={
  moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
  leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'},102:{dex:103,name:'나시'}},
  waterStone:{61:{dex:62,name:'강챙이'}},
  metalCoat:{95:{dex:208,name:'강철톤'},123:{dex:212,name:'핫삼'}},
+ sootheBell:{42:{dex:169,name:'크로뱃'}},
  fireStone:{58:{dex:59,name:'윈디'}}
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
   if(choice.id==='linkCord')return member.level>=30&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
+  if(choice.id==='sootheBell')return member.dex===42&&member.level>=36;
   if(choice.id==='metalCoat')return (member.dex===95&&member.level>=34)||(member.dex===123&&member.level>=40);
   if(choice.id==='fireStone'&&member.dex===58&&member.level>=36)return true;
   if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
@@ -348,7 +351,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','reviveShardReward','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&Number.isInteger(x.multiplier)&&[7,10,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone','metalCoat'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','reviveShardReward','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution'].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&Number.isInteger(x.multiplier)&&[7,10,11,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone','metalCoat','sootheBell'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+16*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c.kind==='expCandy'?{...c,tier:'normal',multiplier:10,size:undefined}:c.kind==='rareCandy'?{...c,tier:'rare'}:c.kind==='candyBundle'?{...c,tier:'hyper'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -449,7 +452,7 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!',ev.success?'포획 성공!':'포켓몬이 볼에서 빠져나왔다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
+}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
