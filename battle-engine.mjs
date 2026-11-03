@@ -52,7 +52,8 @@ export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
   const raw=Math.floor(levelFactor*move.power*atk*(attacker.attackBuffMultiplier||1)/Math.max(1,def)/50)+2;
   const critical=roll(rng)<Math.min(1,critRate(attacker)*(move.critMultiplier??1)+(attacker.critBuff||0));
   const variance=RULES.randomMin+(1-RULES.randomMin)*roll(rng);
-  return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance*(defender.sideShieldTurns>0?0.5:1))),critical};
+  // 화력보정: 최종 일반 공격 데미지에 1.1배 적용 (소수점 버림).
+  return {damage:Math.max(1,Math.floor(raw*(critical?RULES.criticalMultiplier:1)*variance*(defender.sideShieldTurns>0?0.5:1)*1.1)),critical};
 }
 function afflict(target,type,b){
   if(target.status) {say(b,`${target.name}에게는 이미 상태이상이 있다.`);return false;}
