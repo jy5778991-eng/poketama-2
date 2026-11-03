@@ -78,7 +78,7 @@ function canAct(p,b){
     if(n===2&&roll(b.rng)>=RULES.sleepThirdActionWakeChance){p.status.sleepBlockedActions=3;return sleepBlocked(`${p.name}은(는) 아직 자고 있다.`);}
     sleepWoke();
   }
-  if(p.status?.type==='paralysis'&&roll(b.rng)<RULES.paralysisSkipChance){say(b,`${p.name}은(는) 마비로 움직이지 못했다.`);return false;}
+  if(p.status?.type==='paralysis'&&roll(b.rng)<RULES.paralysisSkipChance){say(b,`${p.name}은(는) 마비로 움직이지 못했다.`);emit(b,{type:'paralysisBlocked',side:sideOf(b,p)});return false;}
   if(p.confusionTurns>0){p.confusionTurns--;if(roll(b.rng)<0.33){const {damage}=damageRoll(p,p,{power:40},{rng:b.rng});p.hp=Math.max(0,p.hp-damage);say(b,`${p.name}은(는) 혼란으로 자신을 공격했다!`);emit(b,{type:'confusionSelfHit',side:sideOf(b,p)});emit(b,{type:'damage',side:sideOf(b,p),amount:damage,hp:p.hp,critical:false,confusionSelfHit:true});if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);return false;}if(!p.confusionTurns)say(b,`${p.name}은(는) 혼란에서 벗어났다!`);}
   return true;
 }
