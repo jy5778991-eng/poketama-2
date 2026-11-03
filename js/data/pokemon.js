@@ -1,4 +1,4 @@
-import {MOVES} from './moves.js?v=20261103-learnsets-effects242';
+import {MOVES} from './moves.js?v=20261103-lastlearnsets243';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:58,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
