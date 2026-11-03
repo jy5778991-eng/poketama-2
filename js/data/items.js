@@ -9,3 +9,6 @@ export function itemCategory(item){
  if(item.category==='key'||item.category==='important')return 'key';
  return 'use';
 }
+
+export const ITEM_SPRITE_NAMES={"pokeBall":"poke-ball","greatBall":"great-ball","ultraBall":"ultra-ball","masterBall":"master-ball","hardClaw":"razor-claw","focusSash":"focus-sash","revivalSeed":"revive","lightBall":"light-ball","memoryMushroom":"tiny-mushroom","partySlotA":"upgrade","partySlotB":"upgrade","map":"town-map","secretSwitch":"secret-key","oldSeaMap":"old-sea-map","wideLensA":"wide-lens","wideLensB":"wide-lens","shellBell":"shell-bell","scopeLens":"scope-lens","thickClub":"thick-club","expShare":"exp-share","thunderStone":"thunder-stone","waterStone":"water-stone","fireStone":"fire-stone","moonStone":"moon-stone","leafStone":"leaf-stone","dawnStone":"dawn-stone","duskStone":"dusk-stone","linkCord":"linking-cord","potion":"potion","superPotion":"super-potion","hyperPotion":"hyper-potion","maxPotion":"max-potion","revive":"revive","maxRevive":"max-revive"};
+export function itemSpriteUrl(id){const name=ITEM_SPRITE_NAMES[id]||id.replace(/([a-z])([A-Z])/g,'$1-$2').toLowerCase();return 'https://play.pokemonshowdown.com/sprites/itemicons/'+name+'.png';}
