@@ -86,6 +86,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   hydroPump: {name:"하이드로펌프", accuracy:0.8, priority:0, power:110},
   suckerPunch: {name:"기습", accuracy:1.0, priority:1, power:70},
   sludgeBomb: {name:'오물폭탄',accuracy:1,priority:0,power:90,inflict:'poison',inflictChance:0.3},
+  supersonic:{name:'초음파',accuracy:0.6,priority:0,confuseTarget:true},
   wrap: {name:"김밥말이", accuracy:0.95, priority:0, power:10, multiHit:{min:2,max:5}},
   dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, inflict:"paralysis", inflictChance:0.3},
   outrage: {name:'역린',accuracy:1,priority:0,power:120,lockedTurns:true},
