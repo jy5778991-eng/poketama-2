@@ -17,6 +17,11 @@ export const STARTER_LEARNSETS={
  butterfree: [{level:1,id:'tackle'}, {level:7,id:'harden'}, {level:10,id:'confusion'}, {level:14,id:'poisonPowder'}, {level:16,id:'sleepPowder'}, {level:20,id:'psybeam'}, {level:30,id:'bugBuzz'}, {level:36,id:'gigaDrain'}, {level:44,id:'quiverDance'}],
 };
 export const FAMILY_LEARNSETS={
+ "mankey": [{level:1,id:'scratch'}, {level:13,id:'furySwipes'}, {level:18,id:'doubleSlap'}, {level:22,id:'vitalThrow'}, {level:30,id:'powerUpPunch'}, {level:38,id:'bulkUp'}, {level:44,id:'crossChop'}, {level:55,id:'dynamicPunch'}],
+ "krabby": [{level:1,id:'tackle40'}, {level:10,id:'mudSlap'}, {level:17,id:'waterGun'}, {level:24,id:'bubbleBeam'}, {level:34,id:'takeDown'}, {level:40,id:'surf'}, {level:44,id:'guillotine'}, {level:55,id:'hyperBeam'}],
+ "electabuzz": [{level:1,id:'tackle40'}, {level:10,id:'thunderShock'}, {level:19,id:'spark'}, {level:25,id:'thunderPunch'}, {level:30,id:'leer'}, {level:36,id:'thunderbolt'}, {level:44,id:'thunder'}, {level:52,id:'thunderWave'}],
+ "kabuto": [{level:1,id:'scratch'}, {level:10,id:'mudSlap'}, {level:20,id:'rockThrow'}, {level:25,id:'rockTomb'}, {level:35,id:'rockSlide'}, {level:41,id:'slash'}, {level:45,id:'surf'}, {level:50,id:'ancientPower'}, {level:54,id:'stoneEdge'}, {level:68,id:'hyperBeam'}],
+ "omanyte": [{level:1,id:'tackle40'}, {level:10,id:'waterGun'}, {level:20,id:'bubbleBeam'}, {level:25,id:'rockTomb'}, {level:41,id:'harden'}, {level:45,id:'surf'}, {level:50,id:'ancientPower'}, {level:54,id:'shellSmash'}, {level:68,id:'hydroPump'}],
  "pidgey": [
   {"level":1,"id":"tackle"},
   {"level":9,"id":"gust"},
@@ -149,7 +154,7 @@ export const ROCKET_ISLAND_LEARNSETS={
 export const ROCKET_ISLAND_FAMILY_BY_DEX={132:'ditto',137:'porygon',113:'chansey'};
 export const ADDITIONAL_FAMILY_BY_DEX={"200":"misdreavus","13":"weedle","14":"weedle","15":"weedle","21":"spearow","22":"spearow","27":"sandshrew","28":"sandshrew","29":"nidoranF","30":"nidoranF","31":"nidoranF","35":"clefairy","36":"clefairy","46":"paras","47":"paras","54":"psyduck","55":"psyduck","60":"poliwag","61":"poliwag","62":"poliwag","72":"tentacool","73":"tentacool","84":"doduo","85":"doduo","96":"drowzee","97":"drowzee","104":"cubone","105":"cubone","116":"horsea","117":"horsea","118":"goldeen","119":"goldeen","133":"eevee","134":"eevee","135":"eevee","136":"eevee","144":"articuno","145":"zapdos","146":"moltres","150":"mewtwo","151":"mew"};
 export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","2":"venusaur","3":"venusaur","4":"charizard","5":"charizard","6":"charizard","7":"blastoise","8":"blastoise","9":"blastoise","10":"butterfree","11":"butterfree","12":"butterfree","25":"raichu","26":"raichu","92":"gengar","93":"gengar","94":"gengar","129":"gyarados","130":"gyarados","143":"snorlax","147":"dragonite","148":"dragonite","149":"dragonite","172":"raichu","446":"snorlax"};
-export const EXTRA_FAMILY_BY_DEX={39:'jigglypuff',40:'jigglypuff',83:'farfetchd',128:'tauros'};
+export const EXTRA_FAMILY_BY_DEX={39:'jigglypuff',40:'jigglypuff',56:'mankey',57:'mankey',83:'farfetchd',98:'krabby',99:'krabby',125:'electabuzz',128:'tauros',138:'omanyte',139:'omanyte',140:'kabuto',141:'kabuto'};
 export const CROBAT_EXTRA_LEARNSET=[{level:60,id:'braveBird'}];
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
 export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
