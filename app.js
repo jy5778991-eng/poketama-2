@@ -1345,7 +1345,7 @@ function choosePermanentTarget(choice,autoMember=null){
  };
  if(autoMember){applyToMember(autoMember);return;}
  partyOverlay('🎁 보상 적용 대상','보상을 받을 포켓몬 한 마리를 선택해.',[
-  ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,action:()=>applyToMember(m)})),
+  ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,member:['rareCandy','expCandy','exp'].includes(choice.kind)?m:null,showExp:['rareCandy','expCandy','exp'].includes(choice.kind),disabled:['rareCandy','expCandy','exp'].includes(choice.kind)&&m.level>=100,reason:m.level>=100?'최대 레벨':'',action:()=>applyToMember(m)})),
   {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
  ]);
 }
@@ -1877,15 +1877,20 @@ function partyOverlay(title,description,choices){
   button.style.cssText='min-height:48px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold;font-size:16px;padding:8px';
   if(option.member){
    button.classList.add('recovery-target-option');
+   if(option.showExp)button.classList.add('exp-target-option');
    const m=option.member,hp=memberHp(m),max=memberMaxHp(m);
    const sprite=document.createElement('img');sprite.className='recovery-target-sprite';sprite.src=staticImage(m.dex,false);sprite.alt='';
    sprite.onerror=()=>{sprite.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';sprite.onerror=()=>{sprite.hidden=true;};};
    const details=document.createElement('span');details.className='recovery-target-details';
    const name=document.createElement('strong');name.textContent=m.name+' Lv.'+m.level;
    const gauge=document.createElement('span');gauge.className='recovery-target-gauge';
-   const fill=document.createElement('span');fill.className='recovery-target-gauge-fill';fill.style.width=(hp/max*100)+'%';gauge.append(fill);
-   const status=document.createElement('span');status.className='recovery-target-count';status.textContent='HP '+hp+'/'+max+(hp===0?' · 기절':'');
-   if(hp===0)status.classList.add('recovery-target-fainted');
+   const fill=document.createElement('span');fill.className='recovery-target-gauge-fill';
+   const exp=option.showExp,earned=m.starter?progress.exp:(m.exp||0),needed=m.level>=100?0:levelNeed(m.level);
+   fill.style.width=(exp?(needed?100*earned/needed:100):100*hp/max)+'%';gauge.append(fill);
+   if(exp)gauge.classList.add('exp-target-gauge');
+   const status=document.createElement('span');status.className='recovery-target-count';
+   status.textContent=exp?('EXP '+(m.level>=100?'MAX':earned+' / '+needed)):'HP '+hp+'/'+max+(hp===0?' · 기절':'');
+   if(!exp&&hp===0)status.classList.add('recovery-target-fainted');
    details.append(name,gauge,status);button.append(sprite,details);
   }else button.textContent=option.text;
   button.disabled=option.disabled===true;
@@ -2707,6 +2712,7 @@ function setup(){
  $('mapConfirm').addEventListener('click',confirmMapTravel);
  $('leagueEnter').addEventListener('click',()=>{if(!greenFifthCleared||progress.level<67||!livingMembers().length||pendingRewardChoice)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
  $('leagueNext').addEventListener('click',async()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle');await playTrainerSummon(kind);});
+ $('leagueParty').addEventListener('click',()=>showPartyManager());
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
  $('leagueRecords').addEventListener('click',showHallOfFame);
  $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});document.querySelectorAll('[data-hall-tab]').forEach(button=>button.addEventListener('click',()=>showHallOfFame(button.dataset.hallTab)));
