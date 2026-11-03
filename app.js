@@ -2645,13 +2645,19 @@ function archivedHallMember(record,m){
   const stats=base?calculateStats(base,m.level,ivs,evs):null;
   return {...m,ivs,evs,stats,moves:record.moves||[],source:'legacy-starter'};
  }
- // Compatibility for the current adventure only, not a historical claim.
- const live=record?.starter===chosen?teamMembers().find(x=>x.dex===m.dex&&x.level===m.level&&x.name===m.name):null;
+ // Older records only stored the names and levels of companions. If the
+ // current adventure still has the same species, show its CURRENT stats
+ // explicitly, even if it has leveled up since the Hall of Fame entry.
+ // Never claim those figures were captured at the time of victory.
+ const live=record?.starter===chosen
+  ?teamMembers().find(x=>x.dex===m.dex&&x.name===m.name)
+  :null;
  if(live){
   const ivs=live.starter?playerIVs:live.ivs,evs=live.starter?playerEVs:live.evs||{};
   return {...m,hp:memberHp(live),exp:live.starter?progress.exp:live.exp||0,
    ivs:{...ivs},evs:{...evs},moves:[...(live.starter?playerMoves:live.moves||[])],
-   stats:calculateStats(memberBase(live),live.level,ivs,evs),source:'current'};
+   stats:calculateStats(memberBase(live),live.level,ivs,evs),
+   currentLevel:live.level,source:'current'};
  }
  return {...m,source:'legacy'};
 }
@@ -2694,7 +2700,8 @@ function showArchivedHallParty(record,selectedIndex=0){
   button.onclick=()=>showArchivedHallParty(record,i);
   cards.append(button);
  });
- const heading=document.createElement('strong');heading.className='party-summary-detail-heading';heading.textContent=selected.name+'의 정보';
+ const heading=document.createElement('strong');heading.className='party-summary-detail-heading';
+ heading.textContent=selected.name+'의 정보'+(selected.source==='current'?' (현재 Lv.'+selected.currentLevel+')':'');
  details.append(heading);
  const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
  for(const stat of STAT_KEYS){
@@ -2723,8 +2730,8 @@ function showArchivedHallParty(record,selectedIndex=0){
  if(selected.source==='legacy'||selected.source==='current'){
   const notice=document.createElement('small');notice.className='hall-history-notice';
   notice.textContent=selected.source==='current'
-   ?'이전 기록에 상세 능력치가 없어 현재 파티의 같은 포켓몬 정보를 표시합니다.'
-   :'이전 명예의전당 기록에는 상세 능력치·경험치·기술이 저장되지 않았습니다.';
+   ?'이 명예의전당은 과거 기록이어서 당시 능력치는 저장되지 않았습니다. 현재 파티의 Lv.'+selected.currentLevel+' 정보로 대신 표시하며, 당시와 다를 수 있습니다.'
+   :'이전 명예의전당 기록에는 상세 능력치·경험치·기술이 저장되지 않았고, 현재 파티에도 동일한 포켓몬이 없어 복원할 수 없습니다.';
   details.append(notice);
  }
  panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
