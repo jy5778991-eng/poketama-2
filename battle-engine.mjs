@@ -108,11 +108,12 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.rest){if(user.status){say(b,'실패했다!');return;}user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'heal',side:sideOf(b,user),amount:0,hp:user.hp});return;}
   if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false,selfCost:true});return;}
   say(b,`${user.name}의 ${move.name}!`);
+  // Announce the attempted move before its accuracy result, including misses.
+  emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
   // Self-targeted, non-damaging status moves ignore the opponent's evasion and accuracy checks.
-  if(!(move.target==='self'&&!move.power&&!move.oneHitKo)&&!accuracySuccess(move,b,user,target)){say(b,'공격이 빗나갔다!');emit(b,{type:'miss',side:sideOf(b,target)});return;}
+  if(!(move.target==='self'&&!move.power&&!move.oneHitKo)&&!accuracySuccess(move,b,user,target)){say(b,`${user.name}의 공격이 빗나갔다!`);emit(b,{type:'miss',side:sideOf(b,user)});return;}
   if(move.inflict&&!move.power&&target.status){say(b,'실패했다!');return;}
   if(move.confuseTarget&&target.confusionTurns>0){say(b,'실패했다!');return;}
-  emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:!move.power});
   if(move.transform){if(user.transformOriginal){say(b,'이미 변신한 상태다!');return;}user.transformOriginal={stats:{...user.stats},moveIds:[...user.moveIds],pp:{...user.pp},stages:{...user.stages}};user.stats={...target.stats,hp:user.stats.hp};user.moveIds=[...target.moveIds];user.pp=Object.fromEntries(user.moveIds.filter(id=>MOVES[id].pp).map(id=>[id,MOVES[id].pp]));user.stages={...target.stages};user.transformDex=Number(String(target.id).match(/(?:wild-|trainer-|companion-)(\d+)/)?.[1])||target.dex||null;say(b,`${user.name}이(가) ${target.name}의 모습과 기술을 복사했다!`);emit(b,{type:'transform',side:sideOf(b,user),dex:user.transformDex});return;}
   if(move.shieldTurns){if(b.shields[sideOf(b,user)]>0){say(b,'하지만 실패했다!');return;}b.shields[sideOf(b,user)]=move.shieldTurns;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'lightScreen'});say(b,`${user.name}의 아군 진영에 빛의장막이 펼쳐졌다!`);}
   if(move.aquaRing){b.rings[sideOf(b,user)]=true;emit(b,{type:'fieldEffect',side:sideOf(b,user),effect:'aquaRing'});say(b,`${user.name}의 아군 진영에 아쿠아링이 생겼다!`);}
