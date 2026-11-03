@@ -2884,7 +2884,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261104-ranking-party254');openOnlineRanking(()=>{
+ $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261104-hall-layout256');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
