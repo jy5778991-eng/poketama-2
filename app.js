@@ -839,13 +839,16 @@ async function confirmTrainerIntro(){
  battlePlayerLevelStart=progress.level;
  reset(kind);
  showScreen('battle');
- const arena=$('battleScreen');
+ await playTrainerSummon(kind);
+}
+
+async function playTrainerSummon(kind){ const arena=$('battleScreen');
  arena.classList.add('trainer-summoning');
  const ball=$('trainerThrowBall');
  ball.classList.remove('trainer-ball-flying');
  void ball.offsetWidth;
  ball.classList.add('trainer-ball-flying');
- $('trainerSummonMessage').textContent=TRAINERS[kind].name+'이(가) 몬스터볼을 던졌다!';
+ $('trainerSummonMessage').textContent=(TRAINERS[kind]?.name||LEAGUE_NAMES[Number(kind.slice(6))]||'트레이너')+'이(가) 몬스터볼을 던졌다!';
  $('trainerSummonMessage').hidden=false;
  $('battleCommands').hidden=true;
  animating=true;
@@ -2702,7 +2705,7 @@ function setup(){
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
  $('leagueEnter').addEventListener('click',()=>{if(!greenFifthCleared||progress.level<67||!livingMembers().length||pendingRewardChoice)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
- $('leagueNext').addEventListener('click',()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle')});
+ $('leagueNext').addEventListener('click',async()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle');await playTrainerSummon(kind);});
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
  $('leagueRecords').addEventListener('click',showHallOfFame);
  $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});document.querySelectorAll('[data-hall-tab]').forEach(button=>button.addEventListener('click',()=>showHallOfFame(button.dataset.hallTab)));
