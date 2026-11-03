@@ -225,3 +225,57 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .online-ranking-party-close{width:100%;margin-top:16px;border:0;border-radius:8px;min-height:45px;background:#315fbd;color:white;font-weight:900;cursor:pointer}
 .online-ranking-party-unavailable{font-size:13px;line-height:1.6;color:#556987;padding:22px 10px;background:#eef3fc;border-radius:8px}
 @media(max-width:380px){.online-ranking-row.online-ranking-hall-row{gap:5px;font-size:12px}.online-ranking-party-button{padding:6px 7px}.online-ranking-party-member img{height:56px}}
+
+/* Mobile leaderboard: rank | name | right-aligned average | right-aligned party. */
+.online-ranking-board .online-ranking-row.online-ranking-hall-row{
+ display:grid;grid-template-columns:24px minmax(0,1fr) max-content 52px;
+ align-items:center;column-gap:7px;row-gap:0;width:100%;box-sizing:border-box;
+}
+.online-ranking-board .online-ranking-hall-row>strong{grid-column:1;white-space:nowrap}
+.online-ranking-board .online-ranking-hall-row>span{grid-column:2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.online-ranking-board .online-ranking-hall-row>b{grid-column:3;text-align:right;white-space:nowrap;font-size:13px;min-width:0}
+.online-ranking-board .online-ranking-hall-row>.online-ranking-party-button{
+ grid-column:4;justify-self:end;display:inline-flex;justify-content:center;align-items:center;
+ width:52px;min-width:52px;max-width:52px;min-height:34px;height:34px;
+ padding:3px 5px;box-sizing:border-box;white-space:nowrap;word-break:keep-all;
+ line-height:1;font-size:12px;font-weight:850;margin:0;
+}
+/* Full-screen layered dialog: same visual structure as the Hall of Fame, not in the ranking panel flow. */
+.online-ranking-party-overlay{
+ position:fixed;inset:0;z-index:120600;display:flex;align-items:center;justify-content:center;
+ box-sizing:border-box;overflow-y:auto;padding:18px;background:rgba(10,18,40,.82);
+ border-radius:0;
+}
+.online-ranking-party-panel{
+ box-sizing:border-box;width:min(100%,520px);max-width:520px;max-height:calc(100dvh - 36px);
+ overflow-y:auto;border:3px solid #b7a4db;border-radius:18px;
+ background:linear-gradient(160deg,#253859,#1a203b);color:#f6f0ff;
+ padding:23px 18px;box-shadow:0 16px 45px #0008;text-align:center;
+}
+.online-ranking-party-panel h2{font-size:22px;line-height:1.4;margin:0 0 15px;color:#fff}
+.online-ranking-party-panel .online-ranking-party-subtitle{font-size:14px;color:#d6dced;margin:0 0 18px}
+.online-ranking-party-record{
+ border:3px solid #a9b8ce;border-radius:13px;background:#f4f6fd;
+ padding:16px 9px;color:#273953;
+}
+.online-ranking-party-record-title{display:block;font-size:16px;margin-bottom:12px}
+.online-ranking-party-panel .online-ranking-party-members{
+ display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+ border:0;border-radius:0;background:transparent;padding:0;
+}
+.online-ranking-party-panel .online-ranking-party-member img{height:82px;width:100%;object-fit:contain}
+.online-ranking-party-panel .online-ranking-party-member strong,
+.online-ranking-party-panel .online-ranking-party-member span{font-size:13px;color:#273953}
+.online-ranking-party-panel .online-ranking-party-close{
+ display:block;width:100%;min-height:52px;margin-top:20px;
+ border:3px solid #8898ba;border-radius:10px;background:#f4f6fd;
+ color:#2b3e5d;font-size:16px;text-align:center;
+}
+.online-ranking-party-panel .online-ranking-party-unavailable{color:#344869}
+@media(max-width:420px){
+ .online-ranking-board .online-ranking-row.online-ranking-hall-row{grid-template-columns:20px minmax(0,1fr) max-content 46px;column-gap:5px;padding:9px 6px}
+ .online-ranking-board .online-ranking-hall-row>b{font-size:11px}
+ .online-ranking-board .online-ranking-hall-row>.online-ranking-party-button{width:46px;min-width:46px;max-width:46px;height:32px;min-height:32px;font-size:11px}
+ .online-ranking-party-panel{padding:17px 12px}
+ .online-ranking-party-panel .online-ranking-party-member img{height:65px}
+}
