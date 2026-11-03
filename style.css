@@ -279,3 +279,27 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
  .online-ranking-party-panel{padding:17px 12px}
  .online-ranking-party-panel .online-ranking-party-member img{height:65px}
 }
+
+/* Direct starter selection for Hall of Fame rankings (10 buttons, wrapped rows). */
+.online-ranking-starter{
+ display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;
+ margin-bottom:12px;align-items:stretch;
+}
+.online-ranking-starter[hidden]{display:none!important}
+.online-ranking-starter .online-ranking-starter-button{
+ display:flex;align-items:center;justify-content:center;box-sizing:border-box;
+ width:100%;min-width:0;min-height:38px;padding:7px 3px;
+ border:1px solid #b7c5d9;border-radius:8px;background:#edf1f8;
+ color:#304563;font-size:12px;font-weight:800;line-height:1.2;
+ white-space:nowrap;word-break:keep-all;cursor:pointer;
+}
+.online-ranking-starter .online-ranking-starter-button.active{
+ background:#2d61ae;color:white;border-color:#2d61ae;
+}
+.online-ranking-starter .online-ranking-starter-button:focus-visible{
+ outline:3px solid #e7b554;outline-offset:2px;
+}
+@media(max-width:390px){
+ .online-ranking-starter{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .online-ranking-starter .online-ranking-starter-button{font-size:11px;min-height:36px}
+}
