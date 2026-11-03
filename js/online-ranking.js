@@ -33,33 +33,40 @@ function hallPartyFromRow(item){
 }
 async function showHallParty(item){
  if(!overlay)return;
- overlay.querySelector('.online-ranking-party-overlay')?.remove();
- const backdrop=el('div','online-ranking-party-overlay');backdrop.setAttribute('role','dialog');
- backdrop.setAttribute('aria-modal','true');backdrop.setAttribute('aria-label','명예의전당 파티');
+ document.querySelector('.online-ranking-party-overlay')?.remove();
+ // Keep the ranking panel untouched: a separate fixed modal is needed on phones.
+ const backdrop=el('div','online-ranking-party-overlay');
+ backdrop.setAttribute('role','dialog');backdrop.setAttribute('aria-modal','true');
+ backdrop.setAttribute('aria-label',item.nickname+'의 명예의전당 파티');
  const panel=el('section','online-ranking-party-panel');
- panel.append(el('h3','','🏅 '+item.nickname+'의 명예의전당'));
- const intro=el('p','online-ranking-party-subtitle','평균 레벨 '+displayAverage(item.level_sum)+' Lv.');
- panel.append(intro);
+ panel.append(el('h2','','🏅 '+item.nickname+'의 명예의전당'));
+ panel.append(el('p','online-ranking-party-subtitle','평균 레벨 '+displayAverage(item.level_sum)+' Lv.'));
+ const content=el('div','online-ranking-party-content');
+ const close=el('button','online-ranking-party-close','닫기');close.type='button';
+ close.onclick=()=>backdrop.remove();
+ panel.append(content,close);backdrop.append(panel);document.body.append(backdrop);
+ close.focus();
  let members=hallPartyFromRow(item);
  if(!members){
-  panel.append(el('p','online-ranking-party-loading','파티 기록을 확인하는 중...'));
-  backdrop.append(panel);overlay.append(backdrop);
+  content.replaceChildren(el('p','online-ranking-party-loading','파티 기록을 확인하는 중...'));
   try{
    const db=await client();
-   // Some server versions expose the team on the public leaderboard itself,
-   // while others store it alongside the ranked Hall record.
+   // Older leaderboard views can omit party details. Try optional public records.
    for(const table of ['ranking_hall_records','ranking_hall']){
     const response=await db.from(table).select('*').eq('user_id',item.user_id).eq('starter',item.starter).limit(20);
     if(response.error)continue;
-    const matched=(response.data||[]).filter(r=>r.level_sum===item.level_sum||Array.isArray(r.party)&&r.party.reduce((sum,p)=>sum+Number(p?.level||0),0)===item.level_sum);
+    const matched=(response.data||[]).filter(r=>Number(r.level_sum)===Number(item.level_sum)
+      ||(Array.isArray(r.party)&&r.party.reduce((sum,p)=>sum+Number(p?.level||0),0)===Number(item.level_sum)));
     members=matched.map(hallPartyFromRow).find(Boolean)||null;
     if(members)break;
    }
   }catch(e){console.warn('파티 조회 실패',e);}
-  if(!backdrop.isConnected)return;
-  panel.querySelector('.online-ranking-party-loading')?.remove();
  }
+ if(!backdrop.isConnected)return;
+ content.replaceChildren();
  if(members){
+  const card=el('article','online-ranking-party-record');
+  const title=el('strong','online-ranking-party-record-title','명예의전당 등록 파티');
   const grid=el('div','online-ranking-party-members');
   for(const m of members){
    const cell=el('div','online-ranking-party-member');
@@ -68,11 +75,8 @@ async function showHallParty(item){
    cell.append(img,el('strong','',m.name),el('span','','LV '+m.level));
    grid.append(cell);
   }
-  panel.append(grid);
- }else panel.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 3마리 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
- const close=el('button','online-ranking-party-close','닫기');close.type='button';
- close.onclick=()=>backdrop.remove();panel.append(close);
- backdrop.append(panel);overlay.append(backdrop);close.focus();
+  card.append(title,grid);content.append(card);
+ }else content.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 3마리 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
 }
 
 function openModal(snapshot){
@@ -80,7 +84,7 @@ function openModal(snapshot){
  overlay=el('div','online-ranking-overlay');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','온라인 랭킹');
  const panel=el('section','online-ranking-panel');
  const head=el('div','online-ranking-head');head.append(el('h2','','📡 통신 · 랭킹'));
- const close=el('button','online-ranking-close','✕');close.type='button';close.setAttribute('aria-label','닫기');close.onclick=()=>{overlay.remove();overlay=null;};head.append(close);panel.append(head);
+ const close=el('button','online-ranking-close','✕');close.type='button';close.setAttribute('aria-label','닫기');close.onclick=()=>{document.querySelector('.online-ranking-party-overlay')?.remove();overlay.remove();overlay=null;};head.append(close);panel.append(head);
  panel.append(el('p','online-ranking-intro','한번 정한 닉네임은 변경할 수 없습니다. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송됩니다.'));
  const tabs=el('div','online-ranking-tabs');
  for(const [key,label] of [['dex','도감'],['achievements','업적'],['hall','명예의 전당']]){
