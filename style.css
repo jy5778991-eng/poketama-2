@@ -180,3 +180,9 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .online-ranking-submit:disabled{opacity:.55}
 .online-ranking-notice{font-size:13px;color:#236c3a;line-height:1.5;margin:10px 0 0}
 .online-ranking-notice.error{color:#a12a2a}
+
+#battleScreen .player-hp-bottom{display:flex;align-items:center;justify-content:space-between;gap:4px;min-width:0}
+#battleScreen .player-hp-bottom .number{margin-left:auto;text-align:right}
+#battleScreen .player-held-item-icons{display:inline-flex;align-items:center;gap:2px;min-height:16px;flex-shrink:0}
+#battleScreen .player-held-item-icons:empty{display:none}
+#battleScreen .player-held-item-icon{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;font-size:13px;line-height:16px;white-space:nowrap;flex-shrink:0}
