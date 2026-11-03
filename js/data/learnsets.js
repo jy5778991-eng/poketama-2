@@ -54,7 +54,8 @@ export const FAMILY_LEARNSETS={
   {"level":16,"id":"thunderWave"},
   {"level":22,"id":"swift"},
   {"level":40,"id":"thunderbolt"},
-  {"level":54,"id":"zapCannon"}
+  {"level":54,"id":"zapCannon"},
+  {"level":58,"id":"lockOn"}
  ],
  "abra": [{level:1,id:'tackle'}, {level:15,id:'confusion'}, {level:22,id:'psybeam'}, {level:36,id:'psychic'}, {level:40,id:'hpRecover'}, {level:50,id:'lightScreen'}, {level:54,id:'calmMind'}],
  "lapras": [{"level":1,"id":"tackle"},{"level":15,"id":"waterGun"},{"level":20,"id":"sing"},{"level":28,"id":"auroraBeam"},{"level":35,"id":"surf"},{"level":40,"id":"bodySlam"},{"level":45,"id":"iceBeam"},{"level":58,"id":"blizzard"},{"level":80,"id":"sheerCold"}],
