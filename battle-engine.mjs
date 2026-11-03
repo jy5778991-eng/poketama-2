@@ -150,6 +150,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.lowerTargetDefense&&isAlive(target)){const before=target.stages.defense;target.stages.defense=clamp(before-move.lowerTargetDefense,-RULES.stageLimit,RULES.stageLimit);if(before!==target.stages.defense)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-before});}
   if(move.boostOnKnockout&&!isAlive(target)){for(const [stat,n] of Object.entries(move.boostOnKnockout)){const before=user.stages[stat];user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}}
   if(move.lowerTargetAccuracy&&isAlive(target)){const oldStage=target.stages.accuracy||0;target.stages.accuracy=clamp((target.stages.accuracy||0)-move.lowerTargetAccuracy,-RULES.stageLimit,RULES.stageLimit);if(target.stages.accuracy!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'accuracy',change:target.stages.accuracy-oldStage});say(b,`${target.name}의 명중률 랭크가 내려갔다!`);}
+  if(move.lowerTargetAttack&&isAlive(target)){const before=target.stages.attack||0;target.stages.attack=clamp(before-move.lowerTargetAttack,-RULES.stageLimit,RULES.stageLimit);if(target.stages.attack!==before)emit(b,{type:'statChange',side:sideOf(b,target),stat:'attack',change:target.stages.attack-before});say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
   if(move.lowerTargetAttackChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetAttackChance){const oldStage=target.stages.attack||0;target.stages.attack=clamp(target.stages.attack-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.attack!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'attack',change:target.stages.attack-oldStage});say(b,`${target.name}의 공격 랭크가 내려갔다!`);}
   if(move.lowerTargetDefenseChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetDefenseChance){const oldStage=target.stages.defense||0;target.stages.defense=clamp(target.stages.defense-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.defense!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'defense',change:target.stages.defense-oldStage});say(b,`${target.name}의 방어 랭크가 내려갔다!`);}
   if(move.lowerTargetSpeedChance&&isAlive(target)&&roll(b.rng)<move.lowerTargetSpeedChance){const oldStage=target.stages.speed||0;target.stages.speed=clamp(target.stages.speed-1,-RULES.stageLimit,RULES.stageLimit);if(target.stages.speed!==oldStage)emit(b,{type:'statChange',side:sideOf(b,target),stat:'speed',change:target.stages.speed-oldStage});say(b,`${target.name}의 스피드 랭크가 내려갔다!`);}
@@ -225,9 +226,9 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
-        b.ended=true;b.result='capture';say(b,e.name+' 포획 성공!');
+        b.ended=true;b.result='capture';
         emit(b,{type:'capture',side:'enemy',success:true});
-      }else{say(b,'앗! 포켓몬이 몬스터볼에서 빠져나왔다!');emit(b,{type:'capture',side:'enemy',success:false});}
+      }else{emit(b,{type:'capture',side:'enemy',success:false});}
     } else if(a.action.type==='item'){
       if(!canAct(a.fighter,b))continue;
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,a.action.power);
