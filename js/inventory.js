@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory} from './data/items.js?v=20261102-revival-seed212';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261102-revival-seed212';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
@@ -26,7 +26,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  for(const item of items){
   const row=document.createElement('div');row.className='shop-item-row';
   const info=document.createElement('div');info.className='shop-item-info';
-  const name=document.createElement('strong');name.textContent=item.icon+' '+item.name+(inventoryMode==='bag'?' ×'+(inventory[item.id]||0):'');
+  const name=document.createElement('strong');const icon=document.createElement('img');icon.className='shop-item-sprite';icon.src=itemSpriteUrl(item.id);icon.alt='';icon.loading='lazy';icon.onerror=()=>{const fallback=document.createElement('span');fallback.textContent=item.icon||'🎁';icon.replaceWith(fallback);};name.append(icon,document.createTextNode(' '+item.name+(inventoryMode==='bag'?' ×'+(inventory[item.id]||0):'')));
   const description=document.createElement('small');
   description.textContent=inventoryMode==='shop'?item.description+' · 보유 '+(inventory[item.id]||0)+'개':item.description;
   info.append(name,description);row.append(info);
