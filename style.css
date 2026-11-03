@@ -190,3 +190,13 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .shop-item-info strong{display:flex;align-items:center;gap:5px;min-width:0}
 .shop-item-sprite{width:20px;height:20px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
 #battleScreen .player-held-item-icon img{display:block;width:16px;height:16px;object-fit:contain;image-rendering:pixelated}
+
+/* League waiting room: party + bag side by side, challenge across the bottom. */
+.league-room .league-actions #leagueNext{grid-column:1/-1}
+.league-room .league-actions #leagueParty,
+.league-room .league-actions #leagueBag{min-height:64px}
+.league-room .league-actions #leagueNext{min-height:72px}
+/* Candy rewards reuse the healing target cards, with a blue EXP progress bar. */
+#partyActionButtons .exp-target-option .exp-target-gauge{background:#e1ebf3}
+#partyActionButtons .exp-target-option .exp-target-gauge .recovery-target-gauge-fill{background:#4c9fd7}
+#partyActionButtons .exp-target-option .recovery-target-count{font-variant-numeric:tabular-nums}
