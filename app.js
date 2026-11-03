@@ -2603,7 +2603,15 @@ function advanceRedEnding(){
  $('redEndingOverlay').hidden=true;
  redCeremonyPending=false;saveProgress();showHallOfFame();
 }
-function hallPartySnapshot(){return teamMembers().slice(0,3).map(m=>({name:m.name,dex:m.dex,level:m.level}));}
+function hallPartySnapshot(){
+ return teamMembers().slice(0,3).map(m=>{
+  const ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
+  return {name:m.name,dex:m.dex,level:m.level,
+   hp:memberHp(m),exp:m.starter?progress.exp:m.exp||0,
+   ivs:{...ivs},evs:{...evs},moves:[...(m.starter?playerMoves:m.moves||[])],
+   stats:calculateStats(memberBase(m),m.level,ivs,evs)};
+ });
+}
 let hallTab='first';
 // Also read the reset-proof backup so records remain accessible after a fresh adventure.
 function hallOfFameEntries(kind){
@@ -2625,6 +2633,102 @@ function hallOfFameEntries(kind){
 function hasHallOfFameRecords(){
  return hallOfFameEntries('first').length>0||hallOfFameEntries('second').length>0;
 }
+// Archived Hall of Fame information is read-only. Recent records contain all
+// four stats and moves; older records only stored species/level and starter IVs.
+function archivedHallMember(record,m){
+ if(m?.stats&&m?.ivs&&m?.evs)return {...m,source:'archive'};
+ const isStarter=record?.dex===m.dex&&record?.pokemon===m.name;
+ if(isStarter&&record?.ivs){
+  const base=Object.values(EVOLUTIONS).flat().find(f=>f.dex===m.dex)?.base
+   ||DEX_CATALOG.find(f=>f.dex===m.dex)?.base;
+  const evs=record.evs||{},ivs=record.ivs;
+  const stats=base?calculateStats(base,m.level,ivs,evs):null;
+  return {...m,ivs,evs,stats,moves:record.moves||[],source:'legacy-starter'};
+ }
+ // Compatibility for the current adventure only, not a historical claim.
+ const live=record?.starter===chosen?teamMembers().find(x=>x.dex===m.dex&&x.level===m.level&&x.name===m.name):null;
+ if(live){
+  const ivs=live.starter?playerIVs:live.ivs,evs=live.starter?playerEVs:live.evs||{};
+  return {...m,hp:memberHp(live),exp:live.starter?progress.exp:live.exp||0,
+   ivs:{...ivs},evs:{...evs},moves:[...(live.starter?playerMoves:live.moves||[])],
+   stats:calculateStats(memberBase(live),live.level,ivs,evs),source:'current'};
+ }
+ return {...m,source:'legacy'};
+}
+function showArchivedHallParty(record,selectedIndex=0){
+ const members=(Array.isArray(record.party)&&record.party.length?record.party.slice(0,3):
+  [{name:record.pokemon||'포켓몬',dex:record.dex,level:record.level}]).map(m=>archivedHallMember(record,m));
+ if(!members.length)return;
+ document.getElementById('partySummaryOverlay')?.remove();
+ const overlay=document.createElement('div');overlay.id='partySummaryOverlay';
+ overlay.className='party-summary-overlay';overlay.setAttribute('role','dialog');
+ overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','명예의전당 포켓몬 정보');
+ const panel=document.createElement('section');panel.className='party-summary-panel';
+ const title=document.createElement('header');title.className='party-summary-title';
+ title.textContent=(record.round||1)+'회 명예의전당';
+ const cards=document.createElement('div');cards.className='party-summary-cards';
+ const details=document.createElement('div');details.className='party-summary-details';
+ const footer=document.createElement('button');footer.type='button';footer.className='party-summary-close';footer.textContent='닫기';
+ footer.onclick=()=>overlay.remove();
+ const selected=members[Math.max(0,Math.min(members.length-1,selectedIndex))];
+ const meter=(label,current,total,type)=>{
+  const row=document.createElement('div');row.className='party-summary-meter';
+  const tag=document.createElement('b');tag.textContent=label;
+  const track=document.createElement('div');track.className='party-summary-track '+type;
+  const fill=document.createElement('div');fill.className='party-summary-fill';
+  fill.style.width=Number.isFinite(current)&&Number.isFinite(total)&&total>0?Math.max(0,Math.min(100,100*current/total))+'%':'0%';
+  track.append(fill);
+  const count=document.createElement('span');count.className='party-summary-meter-count';
+  count.textContent=Number.isFinite(current)&&Number.isFinite(total)?(type==='exp'&&total===0?'MAX':current+' / '+total):'기록 없음';
+  row.append(tag,track,count);return row;
+ };
+ members.forEach((m,i)=>{
+  const button=document.createElement('button');button.type='button';button.className='party-summary-card'+(i===selectedIndex?' selected':'');
+  const pic=document.createElement('img');pic.className='party-summary-sprite';pic.alt='';
+  pic.src=staticImage(m.dex,false);
+  pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>{pic.style.visibility='hidden';};};
+  const data=document.createElement('div');data.className='party-summary-info';
+  const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+(m.level||'?');
+  data.append(name,meter('HP',m.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
+  button.append(pic,data);
+  button.onclick=()=>showArchivedHallParty(record,i);
+  cards.append(button);
+ });
+ const heading=document.createElement('strong');heading.className='party-summary-detail-heading';heading.textContent=selected.name+'의 정보';
+ details.append(heading);
+ const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
+ for(const stat of STAT_KEYS){
+  const tile=document.createElement('div');tile.className='party-summary-stat';
+  const head=document.createElement('div');head.className='party-summary-stat-head';
+  const label=document.createElement('b');label.textContent=STAT_LABELS[stat];
+  head.append(label);
+  if(Number.isInteger(selected.ivs?.[stat])){
+   const iv=document.createElement('span');iv.className='iv-star iv-'+ivTier(selected.ivs[stat]);
+   iv.textContent='★';iv.title='개체값 '+selected.ivs[stat];head.append(iv);
+  }
+  const value=document.createElement('strong');value.className='party-summary-stat-value';
+  value.textContent=Number.isFinite(selected.stats?.[stat])?String(selected.stats[stat]):'—';
+  const ev=document.createElement('small');ev.textContent=Number.isInteger(selected.evs?.[stat])?'EV: '+selected.evs[stat]:'EV: —';
+  tile.append(head,value,ev);infoGrid.append(tile);
+ }
+ details.append(infoGrid);
+ const moveHeading=document.createElement('strong');moveHeading.textContent='기술';details.append(moveHeading);
+ const moves=document.createElement('div');moves.className='party-summary-moves';
+ for(let i=0;i<4;i++){
+  const id=selected.moves?.[i],move=id?MOVES[id]:null;
+  const cell=document.createElement('button');cell.type='button';cell.className='party-summary-move';
+  cell.textContent=move?.name||'—';cell.disabled=true;moves.append(cell);
+ }
+ details.append(moves);
+ if(selected.source==='legacy'||selected.source==='current'){
+  const notice=document.createElement('small');notice.className='hall-history-notice';
+  notice.textContent=selected.source==='current'
+   ?'이전 기록에 상세 능력치가 없어 현재 파티의 같은 포켓몬 정보를 표시합니다.'
+   :'이전 명예의전당 기록에는 상세 능력치·경험치·기술이 저장되지 않았습니다.';
+  details.append(notice);
+ }
+ panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
+}
 function showHallOfFame(tab=hallTab){
  hallTab=tab==='second'?'second':'first';
  const tabs=$('leagueRecordTabs');tabs.querySelectorAll('button').forEach(button=>{const active=button.dataset.hallTab===hallTab;button.setAttribute('aria-selected',String(active));});
@@ -2641,7 +2745,13 @@ function showHallOfFame(tab=hallTab){
   const members=Array.isArray(record.party)&&record.party.length?record.party.slice(0,3):[{name:record.pokemon||'포켓몬',dex:record.dex,level:record.level}];
   for(const m of members){const item=document.createElement('div');item.className='hall-pokemon';const img=document.createElement('img');img.alt=m.name||'포켓몬';img.loading='lazy';if(Number.isInteger(m.dex)&&m.dex>0){img.src=staticImage(m.dex);img.onerror=()=>{img.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';img.onerror=()=>{img.hidden=true;};};}else img.hidden=true;
    const name=document.createElement('strong');name.textContent=m.name||'포켓몬';const level=document.createElement('span');level.textContent='LV '+(m.level??'?');item.append(img,name,level);party.append(item);}
-  wrap.append(head,party);list.append(wrap);
+  wrap.append(head,party);
+  wrap.classList.add('hall-entry-clickable');
+  wrap.setAttribute('role','button');wrap.setAttribute('tabindex','0');
+  wrap.setAttribute('aria-label',(record.round||1)+'회 명예의전당 포켓몬 정보 보기');
+  wrap.onclick=()=>showArchivedHallParty(record);
+  wrap.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();showArchivedHallParty(record);}};
+  list.append(wrap);
  }
  $('leagueRecordOverlay').hidden=false;
 }
