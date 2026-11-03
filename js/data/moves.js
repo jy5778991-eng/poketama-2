@@ -3,6 +3,8 @@ export const MOVES = Object.freeze({
   megaPunch:{name:'메가톤펀치',power:80,accuracy:0.8,priority:0},
   triAttack:{name:'트라이어택',power:70,accuracy:1,priority:0,triStatus:true},
   sing:{name:'노래하기',accuracy:0.6,priority:0,inflict:'sleep'},
+  charm:{name:'애교부리기',accuracy:1,priority:0,lowerTargetAttack:2},
+  takeDown:{name:'돌진',power:90,accuracy:0.85,priority:0,recoilMaxHp:0.10},
   megaKick:{name:'메가톤킥',power:120,accuracy:0.75,priority:0},
   tackle40:{name:'몸통박치기',power:40,accuracy:1,priority:0},
   hornAttack50:{name:'뿔찌르기',power:50,accuracy:1,priority:0},
