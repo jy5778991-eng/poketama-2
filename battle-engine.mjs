@@ -184,12 +184,14 @@ export function poisonTick(b,p){
 }
 function settle(b){
   const p=b.player,e=activeEnemy(b);
-  if(!isAlive(p)){b.ended=true;b.result='defeat';say(b,'패배했다.');return;}
+  // Resolve the enemy knockout before checking the active player's HP.
+  // The app decides whether a fainted player has a surviving party member.
   if(!isAlive(e)){
     emit(b,{type:'knockout',side:'enemy',enemyIndex:b.enemyIndex});
     if(b.enemyIndex===b.enemies.length-1){b.ended=true;b.result='victory';say(b,'승리했다!');}
     else {b.enemyIndex++;say(b,`${activeEnemy(b).name} 등장!`);}
   }
+  if(!b.ended&&!isAlive(p)){b.ended=true;b.result='defeat';say(b,'패배했다.');}
 }
 /** Advance exactly one turn; returns new log entries, and mutates battle state. */
 export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(activeEnemy(b),{wild:b.wild,rng:b.rng,opponent:b.player})){
