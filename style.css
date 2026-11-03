@@ -206,3 +206,22 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .hall-entry-clickable:hover,.hall-entry-clickable:focus-visible{border-color:#e6ac53;background:#fffaf0}
 .hall-entry-clickable:focus-visible{outline:3px solid #e6ac53;outline-offset:2px}
 .hall-history-notice{display:block;margin:12px auto 4px;padding:8px 10px;color:#566784;background:#eef3f9;border-radius:6px;font-size:12px;line-height:1.5}
+
+/* Hall rankings: add a party action aligned with the average-level value. */
+.online-ranking-row.online-ranking-hall-row{grid-template-columns:28px minmax(0,1fr) auto auto;gap:8px}
+.online-ranking-hall-row>span{min-width:0;overflow-wrap:anywhere}
+.online-ranking-party-button{border:1px solid #8eabd1;background:#edf3fd;color:#294b80;border-radius:7px;padding:7px 10px;font-size:12px;font-weight:850;cursor:pointer;white-space:nowrap}
+.online-ranking-party-button:focus-visible{outline:2px solid #2c65ad;outline-offset:2px}
+.online-ranking-party-overlay{position:absolute;inset:0;z-index:3;background:#15233fbd;display:flex;align-items:center;justify-content:center;padding:14px;border-radius:18px}
+.online-ranking-panel{position:relative}
+.online-ranking-party-panel{box-sizing:border-box;background:#f7f8fd;border:3px solid #a0afd0;border-radius:15px;width:100%;max-width:430px;padding:18px 14px;color:#263a5b;text-align:center;box-shadow:0 12px 34px #0004}
+.online-ranking-party-panel h3{font-size:19px;margin:6px 0 8px}
+.online-ranking-party-subtitle{font-size:13px;margin:0 0 14px;color:#5b6c87}
+.online-ranking-party-members{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:#eef3fc;border:2px solid #cad5e6;border-radius:9px;padding:14px 6px}
+.online-ranking-party-member{display:flex;flex-direction:column;align-items:center;gap:5px;min-width:0}
+.online-ranking-party-member img{height:72px;width:100%;object-fit:contain;image-rendering:pixelated}
+.online-ranking-party-member strong{font-size:12px;overflow-wrap:anywhere}
+.online-ranking-party-member span{font-size:12px;font-weight:900}
+.online-ranking-party-close{width:100%;margin-top:16px;border:0;border-radius:8px;min-height:45px;background:#315fbd;color:white;font-weight:900;cursor:pointer}
+.online-ranking-party-unavailable{font-size:13px;line-height:1.6;color:#556987;padding:22px 10px;background:#eef3fc;border-radius:8px}
+@media(max-width:380px){.online-ranking-row.online-ranking-hall-row{gap:5px;font-size:12px}.online-ranking-party-button{padding:6px 7px}.online-ranking-party-member img{height:56px}}
