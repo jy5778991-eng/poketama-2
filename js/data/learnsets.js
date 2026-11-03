@@ -152,7 +152,7 @@ export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","
 export const EXTRA_FAMILY_BY_DEX={39:'jigglypuff',40:'jigglypuff',83:'farfetchd',128:'tauros'};
 export const CROBAT_EXTRA_LEARNSET=[{level:60,id:'braveBird'}];
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
-export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
+export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
 export function recentWildMoves(dex,level){
  const list=learnsetForDex(dex);
  if(!list)return ['tackle'];
