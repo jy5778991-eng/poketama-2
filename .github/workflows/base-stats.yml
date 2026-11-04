@@ -12,4 +12,4 @@ jobs:
         with:
           node-version: '22'
       - name: Verify species, exceptions, IV and EV rules
-        run: node --experimental-default-type=module --test tests/base-stats.test.mjs
+        run: node --experimental-default-type=module --test tests/*.test.mjs
