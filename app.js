@@ -2923,6 +2923,23 @@ function setup(){
  for(const item of SHOP_ITEMS){
   const button=$('battleItem-'+item.id);
   if(!button)continue; // Key items do not have battle action buttons.
+  // Battle item labels and sprites come from the same item data as the shop and bag.
+  const count=button.querySelector('.item-count');
+  const note=button.querySelector('small');
+  const image=document.createElement('img');
+  image.className='shop-item-sprite';
+  image.src=itemSpriteUrl(item.id);
+  image.alt='';
+  image.loading='lazy';
+  image.onerror=()=>{image.replaceWith(document.createTextNode(item.icon||'🎁'));};
+  button.replaceChildren(image,document.createTextNode(' '+item.name+' '));
+  if(count)button.append(count);
+  if(note){
+   note.textContent=item.category==='ball'
+    ?(item.guaranteedCatch?'포획 성공률 100%':item.multiplier===1?'기본 포획률':'포획률 ×'+item.multiplier)+' · 소모품'
+    :item.description+' · 턴 소모';
+   button.append(note);
+  }
   if(item.id==='revive'){button.addEventListener('click',requestBattleRevive);continue;}
   button.addEventListener('click',()=>{
    if(item.category==='heal'){
