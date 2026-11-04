@@ -105,7 +105,8 @@
 
 /* Post-champion regions */
 .home-sprite-wrap.area-palletTown,#battleScreen .arena.area-palletTown{background-color:#9ccd9e;background-image:linear-gradient(180deg,#9edaf1aa,#68b96c40),url('https://play.pokemonshowdown.com/fx/bg-city.png');background-position:center;background-size:cover;background-repeat:no-repeat}
-.home-sprite-wrap.area-rocketBase,#battleScreen .arena.area-rocketBase{background-color:#313246;background-image:linear-gradient(150deg,#121524bf,#51506399),url('https://play.pokemonshowdown.com/fx/bg-warehouse.png');background-position:center;background-size:cover;background-repeat:no-repeat}
+/* User-selected Rocket Base art: centered on both desktop and mobile; crop equally from the sides. The warehouse backdrop remains until the PNG is uploaded. */
+.home-sprite-wrap.area-rocketBase,#battleScreen .arena.area-rocketBase{background-color:#313246;background-image:url('../assets/rocket-base.png?v=20261104-rocket301'),url('https://play.pokemonshowdown.com/fx/bg-warehouse.png');background-position:center center,center center;background-size:cover,cover;background-repeat:no-repeat,no-repeat;image-rendering:auto}
 .home-sprite-wrap.area-farawayIsland,#battleScreen .arena.area-farawayIsland{background-color:#4aaf86;background-image:linear-gradient(180deg,#8cdecc55,#18462c60),url('https://play.pokemonshowdown.com/fx/bg-forest.png');background-position:center;background-size:cover;background-repeat:no-repeat}
 .home-sprite-wrap.area-mountSilver,#battleScreen .arena.area-mountSilver{background-color:#758a9a;background-image:linear-gradient(180deg,#bfd8f488,#334b67b0),url('https://play.pokemonshowdown.com/fx/bg-earthycave.png');background-position:center;background-size:cover;background-repeat:no-repeat}
 
