@@ -166,7 +166,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*16+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -835,6 +835,7 @@ const MAP_REGIONS=[
  ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,100]
 ];
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
+let volcanoAutoVisited=!!(saved?.volcanoAutoVisited||area==='volcano'||(sabrinaCleared&&progress.level>=48));
 const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?(area==='volcano'||(progress.level>=48&&!blaineCleared)?'volcano':'sea'):kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
  // Fixed absolute cap per region. The lake and city change only after their corresponding rival wins.
@@ -2176,8 +2177,9 @@ function renderHome(){
  showNextAchievement();
  // Sea has no trainer challenge: advance after reaching Lv.48 through any level-up source.
  // Finish selecting an earned reward first so the transition cannot discard it.
- if(area==='sea'&&sabrinaCleared&&!blaineCleared&&progress.level>=48&&!pendingRewardChoice){
+ if(area==='sea'&&sabrinaCleared&&!blaineCleared&&progress.level>=48&&!pendingRewardChoice&&!volcanoAutoVisited){
   area='volcano';
+  volcanoAutoVisited=true;
   appendAdventureLog('🌋 Lv.48 달성! 바다에서 화산으로 이동했어.');
   saveProgress();
  }
