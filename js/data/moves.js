@@ -64,7 +64,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
  moonlight:{name:'달빛',accuracy:1,priority:0,healMaxHp:0.5,target:'self',pp:8},
  darkPulse:{name:'악의파동',power:80,accuracy:1,priority:0},
  snarl:{name:'바크아웃',power:55,accuracy:1,priority:0,lowerTargetAttackChance:1},
- toxic:{name:'맹독',accuracy:1,priority:0,inflict:'poison'},
+ toxic:{name:'맹독',accuracy:0.9,priority:0,inflict:'poison'},
   lick: {name:'핥기',accuracy:1,priority:0,power:40,inflict:'paralysis',inflictChance:0.1},
   crunch: {name:"깨물어부수기", accuracy:1.0, priority:0, power:80},
   gigaImpact: {name:"기가임팩트", accuracy:0.9, priority:0, power:140, recharge:true},
