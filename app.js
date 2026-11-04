@@ -2936,7 +2936,7 @@ function setup(){
   if(count)button.append(count);
   if(note){
    note.textContent=item.category==='ball'
-    ?(item.guaranteedCatch?'포획 성공률 100%':item.multiplier===1?'기본 포획률':'포획률 ×'+item.multiplier)+' · 소모품'
+    ?(item.description||'포획용 아이템')+' · 소모품'
     :item.description+' · 턴 소모';
    button.append(note);
   }
