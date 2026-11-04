@@ -86,7 +86,7 @@ function evolutionRewardWeight(choice){
  const targets=eligibleEvolutionTargets(choice);
  if(!targets.length)return 0;
  const maxExtra=Math.max(...targets.map(member=>member.level-(thresholds[member.dex]??22)));
- return maxExtra>=10?10:maxExtra>=5?6:4;
+ return maxExtra>=10?10:maxExtra>=6?6:maxExtra>=4?4:2;
 }
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 // Rewards roll a fixed tier first (74/20/5/1), then use weights within that tier.
