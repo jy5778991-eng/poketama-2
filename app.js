@@ -1,5 +1,5 @@
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-eevee-unify290';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261104-eevee-unify290';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261104-firefang279';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261104-eevee-unify290';
 
