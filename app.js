@@ -287,7 +287,7 @@ const todayKST=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'
 let healingDay=typeof saved?.healingDay==='string'?saved.healingDay:todayKST();
 let freeHealsUsed=Number.isInteger(saved?.freeHealsUsed)?Math.max(0,Math.min(10,saved.freeHealsUsed)):0;
 function refreshHealingDay(){const now=todayKST();if(healingDay!==now){healingDay=now;freeHealsUsed=0;saveProgress();}}
-const pokemonCenterFee=members=>pokemonCenterFee(members);
+const pokemonCenterFee=members=>Math.round(5.2*Math.sqrt(Math.max(...members.map(m=>m.level))))*100;
 function healInjury(){
  if(animating||learningBusy||pendingRewardChoice)return;
  refreshHealingDay();
