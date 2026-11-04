@@ -35,7 +35,8 @@ const EXTRA_TM_CONFIG={
  tm07:{number:'07',name:'냉동펀치',moveId:'icePunch',minLevel:22,dex:[124,107,66,67,68,56,57,34,31,115,143,112,150,151,7,8,9]},
  tm08:{number:'08',name:'진흙뿌리기',moveId:'mudSlap',minLevel:10,tier:'rare',dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,27,28,29,30,31,32,33,34,50,51,52,53,54,55,60,61,62,74,75,76,79,80,83,84,85,95,98,99,104,105,115,133,134,135,136,196,197,150,151]},
  tm09:{number:'09',name:'그로우펀치',moveId:'powerUpPunch',minLevel:15,maxLevelExclusive:70,tier:'rare',dex:[4,5,6,7,8,9,173,35,36,174,39,40,54,55,56,57,66,67,68,74,75,76,88,89,96,97,106,107,108,115,113,122,124,125,126,446,143,149,150,151],
- tm10:{number:'10',name:'돌진',moveId:'takeDown',minLevel:20,maxLevelExclusive:60,tier:'rare',dex:[1,2,3,19,20,58,59,21,22,77,78,111,112,115,120,121,133,134,135,136,196,197,147,148,149]}
+ tm10:{number:'10',name:'돌진',moveId:'takeDown',minLevel:20,maxLevelExclusive:60,tier:'rare',dex:[1,2,3,19,20,58,59,21,22,77,78,111,112,115,120,121,133,134,135,136,196,197,147,148,149]},
+ tm11:{number:'11',name:'날개쉬기',moveId:'roost',minLevel:40,maxLevelExclusive:100,tier:'legendary',weight:1,dex:[6,12,15,16,17,18,21,22,41,42,169,49,83,84,85,123,142,144,145,146,149,151]}
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
 let extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,Array.isArray(readSave()?.extraTmLearned?.[key])?readSave().extraTmLearned[key].filter(v=>typeof v==='string'):[]]));
@@ -121,7 +122,7 @@ function rewardWeight(choice,context){
  if(['expCandy','rareCandy'].includes(choice.kind))return redLevelReached?2:4;
  if(choice.kind==='tm01')return lv<50&&tm01Targets().length?1:0;
  if(choice.kind==='tm02')return lv<50&&tm02Targets().length?1:0;
- if(EXTRA_TM_CONFIG[choice.kind])return lv<(EXTRA_TM_CONFIG[choice.kind].maxLevelExclusive??50)&&extraTmTargets(choice.kind).length?1:0;
+ if(EXTRA_TM_CONFIG[choice.kind])return lv<(EXTRA_TM_CONFIG[choice.kind].maxLevelExclusive??50)&&extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].weight??1):0;
  if(choice.kind==='cash')return choice.tier==='normal'?3:choice.tier==='rare'?2:4;
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
@@ -173,10 +174,10 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
- normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>EXTRA_TM_CONFIG[kind].tier!=='rare').map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+ normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm08',icon:'📀'},{kind:'tm09',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ legendary:[{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
