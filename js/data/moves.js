@@ -202,6 +202,7 @@ export function moveDescription(id){
  if(m.multiHit)effects.push(m.multiHit.min+'~'+m.multiHit.max+'회 연속 공격');
  if(m.priority>0)effects.push('선공 기술');
  if(m.recharge)effects.push('사용 후 다음 턴 행동 불가');
+ if(m.lockedTurns)effects.push('2~3턴 연속 공격 · 공격 중 다른 기술 선택 불가 · 종료 후 자신이 혼란');
  if(m.hpScale)effects.push('HP에 따라 위력 변동');
  if(m.oneHitKo)effects.push('일격 필살');
  if(m.description)effects.push(m.description);
