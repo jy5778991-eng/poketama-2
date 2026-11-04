@@ -27,7 +27,7 @@ export function calculateStats(base,level,iv={},ev={}) {
     const baseValue=2*base[stat]+i+Math.floor(e/4);
     stats[stat]=Math.floor(baseValue*level/100)+(stat==='hp'?level+10:5);
   }
-  if(Object.values(ev).reduce((a,b)=>a+b,0)>216) throw new Error('EV total exceeds 216');
+  if(Object.values(ev).reduce((a,b)=>a+b,0)>240) throw new Error('EV total exceeds 240');
   return stats;
 }
 export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
