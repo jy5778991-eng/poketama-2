@@ -44,7 +44,7 @@ export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math
   return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng,shields:{player:0,enemy:0},rings:{player:false,enemy:false}};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
-function accuracySuccess(move,b,user,target){const evasion=target?.stages?.evasion||0;const accuracy=user?.stages?.accuracy||0;const net=evasion-accuracy;const factor=net>=0?3/(3+net):(3-net)/3;return roll(b.rng)<Math.min(1,((move.accuracy??1)+(user.accuracyBuff||0))*factor);}
+function accuracySuccess(move,b,user,target){const effectiveAccuracy=move.oneHitKo&&user.level<=target.level-10?0.2:(move.accuracy??1);const evasion=target?.stages?.evasion||0;const accuracy=user?.stages?.accuracy||0;const net=evasion-accuracy;const factor=net>=0?3/(3+net):(3-net)/3;return roll(b.rng)<Math.min(1,(effectiveAccuracy+(user.accuracyBuff||0))*factor);}
 function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at friendship 100
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
   const atk=effectiveStat(attacker,'attack')*(attacker.status?.type==='burn'?0.5:1), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
@@ -128,13 +128,14 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   }
   if(move.healMaxHp){const gain=Math.min(user.stats.hp-user.hp,Math.floor(user.stats.hp*move.healMaxHp));user.hp+=gain;say(b,`${user.name} HP +${gain}`);emit(b,{type:'heal',side:sideOf(b,user),amount:gain,hp:user.hp});}
   if(move.requiresTargetSleep && target.status?.type!=='sleep'){say(b,'상대가 잠들어 있지 않아 실패했다!');return;}
+  let damageDealt=0;
   if(move.power||move.currentHpFraction||move.oneHitKo){
     const scaledPower=move.hpScale==='currentRatio'?150*user.hp/user.stats.hp:move.hpScale==='high'?85+50*user.hp/user.stats.hp:move.hpScale==='low'?85+50*(1-user.hp/user.stats.hp):move.power;
     if(move.multiHit){
       const hits=move.multiHit.min+Math.floor(roll(b.rng)*(move.multiHit.max-move.multiHit.min+1));let landed=0;
       for(let i=0;i<hits&&isAlive(target);i++){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-        const actual=applyAttackDamage(b,target,damage);landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual/8)));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
+        const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual/8)));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
         emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
@@ -142,7 +143,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       say(b,`총 ${landed}회 명중!`);
     }else{
       const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-    const actual=applyAttackDamage(b,target,damage);
+    const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;
     emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual/8)));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
@@ -165,8 +166,8 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(move.recharge&&user.hp>0)user.recharge=true;
   if(move.lockedTurns&&!user.lockedMove)user.lockedMove={id:moveId,remaining:2+Math.floor(roll(b.rng)*2)};
   if(move.lockedTurns&&user.lockedMove){user.lockedMove.remaining--;if(user.lockedMove.remaining<=0){user.lockedMove=null;applyConfusion(user,b,1+Math.floor(roll(b.rng)*2));}}
-  if(move.recoilMaxHp||struggle){
-    const recoil=Math.max(1,Math.floor(user.stats.hp*(struggle?RULES.struggleRecoil:move.recoilMaxHp)));
+  if((move.recoilDamageFraction&&damageDealt>0)||struggle){
+    const recoil=struggle?Math.max(1,Math.floor(user.stats.hp*RULES.struggleRecoil)):Math.max(1,Math.floor(damageDealt*move.recoilDamageFraction));
     user.hp=Math.max(0,user.hp-recoil);say(b,`${user.name} 반동 피해 ${recoil}`);emit(b,{type:'damage',side:sideOf(b,user),amount:recoil,hp:user.hp,critical:false,recoil:true});
   }
 }
@@ -204,7 +205,6 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   let p=b.player;const e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
   if(pAction.type==='switch'){
-    restoreTransform(b.player);
     if(!pAction.fighter||pAction.fighter.hp<=0)throw new Error('Cannot switch to fainted Pokemon');
     p=pAction.fighter;b.player=p;
   }
