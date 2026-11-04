@@ -54,7 +54,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
   }else if(heldItems.includes(item.id)){
    const equipped=(battleItemHolders[item.id]||[]).length;
-   description.textContent=item.description+' · 장착 '+equipped+'개';
+   description.textContent=item.description;
    const pick=document.createElement('button');pick.type='button';pick.className='shop-buy';
    pick.textContent=inventory[item.id]?'선택':'미보유';pick.disabled=!inventory[item.id];pick.classList.toggle('item-missing',!inventory[item.id]);
    pick.onclick=()=>onHeldSelect?.(item.id);
