@@ -832,7 +832,7 @@ const MAP_REGIONS=[
  ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,100]
 ];
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
-const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?'sea':kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
+const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?(area==='volcano'||(progress.level>=48&&!blaineCleared)?'volcano':'sea'):kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
  // Fixed absolute cap per region. The lake and city change only after their corresponding rival wins.
  if(area==='lake'&&!greenReturnCleared)return 22;
