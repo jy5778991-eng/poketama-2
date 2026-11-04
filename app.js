@@ -828,7 +828,7 @@ function challengeTrainer(){
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
  if(!kind)return;
  if(rocketChallenge){if(!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;}
- else if(area!==latestMapRegion()||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
+ else if((area!==latestMapRegion()&&!(area==='city'&&kind==='greenFourth'))||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level))return;
  pendingTrainerIntro=kind;
  const trainer=TRAINERS[kind];
  $('trainerIntroName').textContent=trainer.name;
@@ -2131,7 +2131,7 @@ function renderHome(){
  const targetLevel=trainerKind?TRAINERS[trainerKind].level:0;
  const unlocked=teamMembers().some(m=>m.level>=targetLevel);
  const currentRegionKinds=REGION_TRAINERS[area]||[];
- const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&area===latestMapRegion();
+ const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&(area===latestMapRegion()||(area==='city'&&trainerKind==='greenFourth'));
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  // Champion Road 2 has the Pokémon League instead of a trainer/gym challenge.
  $('trainerChallenge').hidden=area==='championRoad2';
