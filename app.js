@@ -1652,8 +1652,13 @@ function restoreHistoricalAchievements(){
   if(adventureLog.some(line=>line.includes('진화')&&line.includes((DEX_CATALOG.find(p=>p.dex===dex)||{}).name||'___NO_MATCH___')))mark(id,true);
  }
  if(recovered.size!==achievementData.earned.length){
+  const newlyRecovered=[...recovered].filter(id=>!achievementData.earned.includes(id));
   achievementData.earned=[...recovered];
   saveAchievements();
+  // Historical reconciliation previously added earned badges silently.
+  // Queue a visible notification for every newly restored achievement.
+  for(const id of newlyRecovered)achievementQueue.push(id);
+  showNextAchievement();
  }
 }
 function renderCollection(){
