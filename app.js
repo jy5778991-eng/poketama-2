@@ -521,7 +521,7 @@ async function playCaptureSequence(success){
 }
 
 const TRAINER_STAT_CONFIG={
- blue:[8,10],greenReturn:[8,10],greenThird:[8,20],greenFourth:[8,20],greenFifth:[8,40],
+ blue:[8,0],greenReturn:[8,10],greenThird:[8,20],greenFourth:[8,20],greenFifth:[8,40],
  brock:[8,0],misty:[8,10],surge:[8,10],erika:[8,20],koga:[8,30],
  sabrina:[8,40],blaine:[8,40],giovanni:[8,40],
  rocketApollo:[12,20],rocketAthena:[12,20],rocketGiovanni:[16,54],
