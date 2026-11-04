@@ -132,10 +132,10 @@
 }
 .home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{
  background-color:#426b55;
- background-image:url('../assets/champion-road-b.png?v=20261030-upload'),url('../assets/champion-road-b.png?v=20261030-upload');
- background-position:center,center;
- background-size:contain,cover;
- background-repeat:no-repeat,no-repeat;
+ background-image:url('../indigo-plateau.png');
+ background-position:center;
+ background-size:100% 100%;
+ background-repeat:no-repeat;
 }
 
 /* Preserve uploaded artwork sharpness; avoid forced pixelation of full-resolution scenery. */
