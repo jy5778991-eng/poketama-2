@@ -539,13 +539,13 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
   const evs={hp:ev,attack:ev,defense:ev,speed:ev};
-  return calculateStats(base,level,ivs,evs);
+  return calculateStats(BASE_STATS[dex],level,ivs,evs);
  })(),moveIds:selected});
  trainer.dex=dex;
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
- return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
+ return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(BASE_STATS[s.dex],level,ivs,playerEVs),moveIds});
 }
 const WILD_EVOLUTIONS={
  10:[11,7,'단데기'],11:[12,10,'버터플'],13:[14,7,'딱충이'],14:[15,10,'독침붕'],
@@ -964,7 +964,7 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=[trainerFighter('캐이시',63,44,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,44,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,44,{hp:55,attack:135,defense:80,speed:120},['psybeam','recover'])];
   battleOpponent='sabrina';
  }else{
-  const wildStats=calculateStats(wild.base,level,zeroIV,{});
+  const wildStats=calculateStats(BASE_STATS[wild.dex],level,zeroIV,{});
   const openingPenalty=leader.level<=3?0.7:leader.level<=7?0.85:1;
   if(openingPenalty<1)for(const stat of ['attack','defense','speed'])wildStats[stat]=Math.max(1,Math.floor(wildStats[stat]*openingPenalty));
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.dex=wild.dex;enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
@@ -1521,7 +1521,7 @@ function claimRewardChoice(index){
   playerEVs[stat]+=gain;checkEVAchievement(playerEVs);
   // Preserve HP lost as maximum HP increases; never auto-heal via EV rewards.
   if(storedHp!==null){
-   const newMax=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
+   const newMax=calculateStats(BASE_STATS[getForm(chosen,progress.level).dex],progress.level,playerIVs,playerEVs).hp;
    storedHp=Math.min(newMax,storedHp);
   }
  }else if(choice.kind==='exp'){
@@ -1531,14 +1531,14 @@ function claimRewardChoice(index){
   }
   if(progress.level===100)progress.exp=0;
   playerMoves=migrateMoves(chosen,progress.level);
-  storedHp=null===storedHp?null:Math.min(calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp,storedHp);
+  storedHp=null===storedHp?null:Math.min(calculateStats(BASE_STATS[getForm(chosen,progress.level).dex],progress.level,playerIVs,playerEVs).hp,storedHp);
  }else if(choice.kind==='power'){
   activeBoosts[BOOST_INFO[choice.effect]?choice.effect:'attack'].push(10);
  }else if(choice.kind==='cash'){
   progress.money+=choice.amount;checkMoneyAchievement();
   if(lastBattleReward)lastBattleReward.money+=choice.amount;
  }else if(choice.kind==='heal'){
-  const maxHp=calculateStats(getForm(chosen,progress.level).base,progress.level,playerIVs,playerEVs).hp;
+  const maxHp=calculateStats(BASE_STATS[getForm(chosen,progress.level).dex],progress.level,playerIVs,playerEVs).hp;
   const currentHp=storedHp===null?maxHp:Math.max(0,Math.min(maxHp,storedHp));
   storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
@@ -1762,20 +1762,14 @@ function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
 function leaderMember(){return teamMembers()[0];}
 function memberBase(m){
- if(m.starter)return getForm(chosen,progress.level).base;
- // Preserve hand-balanced species from the Poketama roster; use complete
- // canonical four-stat data for species that were previously missing.
- const balanced=m.dex===208?{hp:75,attack:85,defense:153,speed:30}
-  :m.dex===212?{hp:70,attack:130,defense:90,speed:65}
-  :DEX_CATALOG.find(p=>p.dex===m.dex)?.base;
- const base=balanced||BASE_STATS[m.dex];
+ const base=BASE_STATS[m.dex];
  if(!base)throw new Error('포켓몬 #'+m.dex+'의 종족값이 등록되지 않았습니다.');
  return base;
 }
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
 player.shellBell=hasHeld('shellBell',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
