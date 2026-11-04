@@ -58,7 +58,7 @@ const STONE_WILD_EVOLUTIONS={
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
-  if(choice.id==='linkCord')return member.level>=30&&!!TRADE_EVOLUTIONS[member.dex];
+  if(choice.id==='linkCord')return member.level>=(member.dex===93?26:30)&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
   if(choice.id==='sootheBell')return member.dex===42&&member.level>=36;
   if(choice.id==='metalCoat')return (member.dex===95&&member.level>=34)||(member.dex===123&&member.level>=40);
@@ -71,7 +71,7 @@ function eligibleEvolutionTargets(choice){
 }
 // Minimum level required for each evolution reward and species.
 const EVOLUTION_REWARD_LEVELS={
- linkCord:{93:30,64:30,67:30,75:30},
+ linkCord:{93:26,64:30,67:30,75:30},
  thunderStone:{25:24,133:22},
  sootheBell:{42:36},
  metalCoat:{95:34,123:40},
