@@ -2240,7 +2240,7 @@ function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.
  }
 
  if(battle.ended&&!animating)showMenu('main');for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);renderBattleStatus(prefix,f);}
-$('turn').textContent=battle.ended?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
+$('turn').textContent=battle.ended&&!animating?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
 $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.createElement('button');const remaining=m.pp?(p.pp?.[id]??m.pp):null;b.disabled=animating||battle.ended||(remaining!==null&&remaining<=0);const baseDescription=m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기';const hitRate=m.target==='self'||!Number.isFinite(m.accuracy)?'':' · 명중 '+Math.round(m.accuracy*100)+'%';const description=baseDescription+hitRate;b.innerHTML='<span class="move-name">'+m.name+'</span><span class="move-pp">'+description+(remaining===null?'':' · PP '+remaining+'/'+m.pp)+'</span>';b.addEventListener('click',()=>act({moveId:id}));return b;}),...(p.moveIds.every(id=>MOVES[id].pp&&(p.pp?.[id]??MOVES[id].pp)<=0)?[(()=>{const b=document.createElement('button');b.disabled=animating||battle.ended;b.textContent='발버둥 · PP 없음';b.addEventListener('click',()=>act({moveId:'struggle'}));return b;})()]:[]));$('log').replaceChildren(...battle.log.slice(-15).reverse().map(line=>{const t=document.createElement('p');t.textContent=line;return t;}));renderStatPanel();}
 async function act(a){
  if(animating||battle.ended||learningBusy)return;
