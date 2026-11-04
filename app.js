@@ -1,3 +1,4 @@
+import {moveDescription} from './js/data/moves.js?v=20261104-unified-move298';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261104-firefang279';
@@ -286,6 +287,7 @@ const todayKST=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'
 let healingDay=typeof saved?.healingDay==='string'?saved.healingDay:todayKST();
 let freeHealsUsed=Number.isInteger(saved?.freeHealsUsed)?Math.max(0,Math.min(10,saved.freeHealsUsed)):0;
 function refreshHealingDay(){const now=todayKST();if(healingDay!==now){healingDay=now;freeHealsUsed=0;saveProgress();}}
+const pokemonCenterFee=members=>pokemonCenterFee(members);
 function healInjury(){
  if(animating||learningBusy||pendingRewardChoice)return;
  refreshHealingDay();
@@ -324,7 +326,7 @@ function healInjury(){
  confirm.onclick=()=>{
   if(teamMembers().every(m=>memberHp(m)>=memberMaxHp(m))){overlay.remove();alert('이미 포켓몬이 최고 컨디션이다');return;}
   refreshHealingDay();
-  const actualFee=freeHealsUsed<10?0:Math.round(5.2*Math.sqrt(Math.max(...teamMembers().map(m=>m.level))))*100;
+  const actualFee=freeHealsUsed<10?0:pokemonCenterFee(teamMembers());
   if(progress.money<actualFee){alert('포켓몬 센터 이용료가 부족해!');return;}
   if(actualFee)progress.money-=actualFee;else freeHealsUsed++;achievementData.centerUses++;saveAchievements();if(actualFee)earnAchievement('paidHeal');if(freeHealsUsed===10)earnAchievement('free10');if(achievementData.centerUses>=200)earnAchievement('center200');
   injured=false;storedHp=null;
@@ -1065,8 +1067,7 @@ function playHomeLevelUp(previousLevel,newLevel){
 }
 
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
-function moveAccuracyText(move){return move.target==='self'&&!move.power&&!move.oneHitKo?'--':Math.round((move.accuracy??1)*100)+'%';}
-function moveInfo(id){const m=MOVES[id];const effects=[];if(m.description)effects.push(m.description);if(m.confuseChance)effects.push('혼란 '+Math.round(m.confuseChance*100)+'% 확률');if(m.lowerTargetEvasion)effects.push('상대 회피율 '+m.lowerTargetEvasion+'랭크 감소');if(m.lowerTargetAccuracy)effects.push('상대 명중률 '+m.lowerTargetAccuracy+'랭크 감소');if(m.inflict)effects.push(({paralysis:'마비',burn:'화상',poison:'독',sleep:'수면',freeze:'얼음'})[m.inflict]||m.inflict)+(m.inflictChance!=null?' '+Math.round(m.inflictChance*100)+'% 확률':'');if(m.healFraction)effects.push('HP 회복');if(m.recoilFraction)effects.push('반동 피해');return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+moveAccuracyText(m)+(effects.length?' · '+[...new Set(effects)].join(' · '):'');}
+function moveInfo(id){const m=MOVES[id];return m?m.name+'\n'+moveDescription(id):'기술 정보 없음';}
 function updateBattleMoves(){
  saveProgress();renderHome();
  // The current battle has already ended when learning happens.
@@ -1161,29 +1162,7 @@ function openRecall(){
  $('recallSelectedName').textContent=member.name+' · Lv.'+member.level;
 
  const list=$('recallMoveList');list.replaceChildren();
- const detailText=id=>{
-  const m=MOVES[id];if(!m)return '기술 정보 없음';
-  const effects=[],statNames={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
-  const addBoosts=(boosts,prefix)=>{for(const [stat,value] of Object.entries(boosts||{}))effects.push(prefix+(statNames[stat]||stat)+' '+(value>0?'+':'')+value+'랭크');};
-  addBoosts(m.boosts,'자신 ');
-  if(m.boostOnHit)effects.push('명중 시 '+Math.round((m.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
-  if(m.boostsOnHit)addBoosts(m.boostsOnHit,'자신 ');
-  if(m.critMultiplier>1)effects.push('급소 확률 '+m.critMultiplier+'배');
-  if(m.inflict)effects.push((({poison:'독',sleep:'수면',paralysis:'마비',burn:'화상',freeze:'얼음'})[m.inflict]||m.inflict)+' '+Math.round((m.inflictChance??1)*100)+'% 확률');
-  if(m.healMaxHp)effects.push('최대 HP의 '+Math.round(m.healMaxHp*100)+'% 회복');
-  if(m.shieldTurns)effects.push('빛의장막 '+m.shieldTurns+'턴');
-  if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사');
-  if(m.recoilMaxHp)effects.push('최대 HP의 '+Math.round(m.recoilMaxHp*100)+'% 반동 피해');
-  if(m.drain)effects.push('피해량의 '+Math.round(m.drain*100)+'% 회복');
-  if(m.priority>0)effects.push('선공 기술');
-  if(m.hpScale)effects.push('HP에 따라 위력 변동');
-  if(m.confuseChance)effects.push('혼란 '+Math.round(m.confuseChance*100)+'% 확률');
-  if(m.confuseTarget)effects.push('상대를 혼란 상태로');
-  if(m.lowerTargetEvasion)effects.push('상대 회피율 -'+m.lowerTargetEvasion+'랭크');
-  if(m.lowerTargetAccuracy)effects.push('상대 명중률 -'+m.lowerTargetAccuracy+'랭크');
-  if(m.description)effects.push(m.description);
-  return '위력: '+(m.power??'—')+'  |  명중률: '+moveAccuracyText(m)+(effects.length?'\n효과: '+effects.join(' · '):'');
- };
+ const detailText=moveDescription;
  const appendMove=(id,level,isOwned)=>{
   const move=MOVES[id];if(!move)return;
   const wrap=document.createElement('div');wrap.className='recall-move-entry';
@@ -2047,39 +2026,7 @@ function showPartyManager(selectedKey=null,replacement=false){
   const id=moveIds[i],move=id?MOVES[id]:null;
   const cell=document.createElement('button');cell.type='button';cell.className='party-summary-move';
   cell.textContent=move?.name||'—';cell.disabled=!move;
-  cell.onclick=()=>{
-   const power=move.power?'위력 '+move.power:'위력 --';
-   const accuracy='명중률 '+moveAccuracyText(move);
-   const effects=[];
-   const names={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
-   const status={poison:'독',paralysis:'마비',sleep:'수면',freeze:'얼음',burn:'화상'};
-   const boosts=(entries,who)=>{for(const [stat,n] of Object.entries(entries||{}))effects.push(who+(names[stat]||stat)+' '+(n>0?'+':'')+n+'랭크');};
-   if(move.boosts)boosts(move.boosts,'자신 ');
-   if(move.boostsOnHit)boosts(move.boostsOnHit,'자신 ');
-   if(move.boostOnHit)effects.push('명중 시 '+Math.round((move.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
-   if(move.boostOnKnockout)effects.push('상대 기절 시 능력치 상승');
-   if(move.critMultiplier&&move.critMultiplier!==1)effects.push('급소 확률 '+move.critMultiplier+'배');
-   if(move.inflict)effects.push((status[move.inflict]||move.inflict)+' '+Math.round((move.inflictChance??1)*100)+'% 확률');
-   if(move.confuseTarget)effects.push('상대를 혼란 상태로');
-   if(move.confuseChance)effects.push('혼란 '+Math.round(move.confuseChance*100)+'% 확률');
-   if(move.healMaxHp)effects.push('최대 HP의 '+Math.round(move.healMaxHp*100)+'% 회복');
-   if(move.shieldTurns)effects.push('빛의장막 '+move.shieldTurns+'턴');
-   if(move.aquaRing)effects.push('매 턴 HP 회복');
-   if(move.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사 (교체 시 해제)');
-   if(move.lowerTargetDefense)effects.push('상대 방어 -'+move.lowerTargetDefense+'랭크');
-   if(move.lowerTargetAttackChance)effects.push('상대 공격 하락 '+Math.round(move.lowerTargetAttackChance*100)+'%');
-   if(move.lowerTargetDefenseChance)effects.push('상대 방어 하락 '+Math.round(move.lowerTargetDefenseChance*100)+'%');
-   if(move.lowerTargetSpeedChance)effects.push('상대 스피드 하락 '+Math.round(move.lowerTargetSpeedChance*100)+'%');
-   if(move.lowerTargetAccuracy)effects.push('상대 명중률 하락');
-   if(move.drain)effects.push('준 피해의 '+Math.round(move.drain*100)+'% HP 흡수');
-   if(move.recoilMaxHp)effects.push('사용 후 최대 HP의 '+Math.round(move.recoilMaxHp*100)+'% 반동 피해');
-   if(move.multiHit)effects.push(move.multiHit.min+'~'+move.multiHit.max+'회 연속 공격');
-   if(move.priority>0)effects.push('선공 기술');
-   if(move.recharge)effects.push('사용 후 다음 턴 행동 불가');
-   if(move.hpScale)effects.push('현재 HP에 따라 위력 변동');
-   if(move.description)effects.push(move.description);
-   partyOverlay(move.name,power+'\n'+accuracy+(effects.length?'\n효과: '+effects.join(' · '):''),[{text:'확인',action:()=>showPartyManager(m.key)}]);
-  };
+  cell.onclick=()=>partyOverlay(move.name,moveDescription(id),[{text:'확인',action:()=>showPartyManager(m.key)}]);
   moves.append(cell);
  }
  details.append(moves);
