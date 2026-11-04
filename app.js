@@ -1066,7 +1066,7 @@ function playHomeLevelUp(previousLevel,newLevel){
 
 function canLearnNow(id){return availableMoves(chosen,progress.level).some(m=>m.id===id)&&!!MOVES[id];}
 function moveAccuracyText(move){return move.target==='self'&&!move.power&&!move.oneHitKo?'--':Math.round((move.accuracy??1)*100)+'%';}
-function moveInfo(id){const m=MOVES[id];return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+moveAccuracyText(m)+(m.description?' · '+m.description:'');}
+function moveInfo(id){const m=MOVES[id];const effects=[];if(m.description)effects.push(m.description);if(m.lowerTargetEvasion)effects.push('상대 회피율 '+m.lowerTargetEvasion+'랭크 감소');if(m.lowerTargetAccuracy)effects.push('상대 명중률 '+m.lowerTargetAccuracy+'랭크 감소');if(m.inflict)effects.push(({paralysis:'마비',burn:'화상',poison:'독',sleep:'수면',freeze:'얼음'})[m.inflict]||m.inflict)+(m.inflictChance!=null?' '+Math.round(m.inflictChance*100)+'% 확률':'');if(m.healFraction)effects.push('HP 회복');if(m.recoilFraction)effects.push('반동 피해');return m.name+' · '+(m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기')+' · 명중 '+moveAccuracyText(m)+(effects.length?' · '+[...new Set(effects)].join(' · '):'');}
 function updateBattleMoves(){
  saveProgress();renderHome();
  // The current battle has already ended when learning happens.
