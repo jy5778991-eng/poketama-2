@@ -171,3 +171,40 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   gunkShot:{name:'더스트슈트',power:120,accuracy:0.8,priority:0,inflict:'poison',inflictChance:0.3},
   smokescreen:{name:'연막',accuracy:1,priority:0,lowerTargetAccuracy:1}
 });
+
+const STAT_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중률',evasion:'회피율'};
+const STATUS_LABELS={poison:'독',sleep:'수면',paralysis:'마비',burn:'화상',freeze:'얼음'};
+export function moveDescription(id){
+ const m=MOVES[id];if(!m)return '기술 정보 없음';
+ const effects=[];
+ const boosts=(data,who)=>{for(const [stat,n] of Object.entries(data||{}))effects.push(who+(STAT_LABELS[stat]||stat)+' '+(n>0?'+':'')+n+'랭크');};
+ boosts(m.boosts,'자신 ');
+ boosts(m.boostsOnHit,'자신 ');
+ if(m.boostOnHit)effects.push('명중 시 '+Math.round((m.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
+ if(m.boostOnKnockout)effects.push('상대 기절 시 능력치 상승');
+ if(m.critMultiplier>1)effects.push('급소 확률 '+m.critMultiplier+'배');
+ if(m.inflict)effects.push((STATUS_LABELS[m.inflict]||m.inflict)+' '+Math.round((m.inflictChance??1)*100)+'% 확률');
+ if(m.triStatus)effects.push('마비·화상·얼음 중 하나 발생 가능');
+ if(m.confuseTarget)effects.push('상대를 혼란 상태로');
+ if(m.confuseChance)effects.push('혼란 '+Math.round(m.confuseChance*100)+'% 확률');
+ if(m.healMaxHp)effects.push('최대 HP의 '+Math.round(m.healMaxHp*100)+'% 회복');
+ if(m.healFraction)effects.push('HP 회복');
+ if(m.shieldTurns)effects.push('빛의장막 '+m.shieldTurns+'턴');
+ if(m.aquaRing)effects.push('매 턴 HP 회복');
+ if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사 (교체 시 해제)');
+ for(const stat of ['Attack','Defense','Speed','Accuracy','Evasion']){
+  const n=m['lowerTarget'+stat];if(n)effects.push('상대 '+(STAT_LABELS[stat.toLowerCase()]||stat)+' -'+n+'랭크');
+  const chance=m['lowerTarget'+stat+'Chance'];if(chance)effects.push('상대 '+(STAT_LABELS[stat.toLowerCase()]||stat)+' 하락 '+Math.round(chance*100)+'% 확률');
+ }
+ if(m.drain)effects.push('피해량의 '+Math.round(m.drain*100)+'% 회복');
+ if(m.recoilMaxHp)effects.push('최대 HP의 '+Math.round(m.recoilMaxHp*100)+'% 반동 피해');
+ if(m.recoilFraction)effects.push('반동 피해');
+ if(m.multiHit)effects.push(m.multiHit.min+'~'+m.multiHit.max+'회 연속 공격');
+ if(m.priority>0)effects.push('선공 기술');
+ if(m.recharge)effects.push('사용 후 다음 턴 행동 불가');
+ if(m.hpScale)effects.push('HP에 따라 위력 변동');
+ if(m.oneHitKo)effects.push('일격 필살');
+ if(m.description)effects.push(m.description);
+ const accuracy=m.target==='self'&&!m.power&&!m.oneHitKo?'--':Math.round((m.accuracy??1)*100)+'%';
+ return '위력: '+(m.power??'—')+'  |  명중률: '+accuracy+(effects.length?'\n효과: '+[...new Set(effects)].join(' · '):'');
+}
