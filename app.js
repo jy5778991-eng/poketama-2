@@ -1665,7 +1665,7 @@ function showItemCategory(category){
 function reviveMember(m){
  if(inventory.revive<1||memberHp(m)!==0)return false;
  const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
- if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}
+ setMemberHp(m,hp);
  appendAdventureLog('💎 '+m.name+' 기력의조각 부활: '+hp+' HP');
  return true;
 }
@@ -1686,7 +1686,7 @@ function chooseRecoveryTarget(item){
   if(inventory[item.id]<1)return;
   const before=memberHp(m),max=memberMaxHp(m);
   const hp=item.id==='revive'?Math.max(1,Math.floor(max/2)):Math.min(max,before+item.power);
-  if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}
+  setMemberHp(m,hp);
   inventory[item.id]--;
   if(item.id==='revive')injured=!livingMembers().length;
   appendAdventureLog(item.icon+' '+m.name+'에게 '+item.name+' 사용 (HP '+before+' → '+hp+')');
@@ -1750,7 +1750,12 @@ let battleParticipants=new Set();
 let battleRoster=new Map();
 let activeBattleKey=null;
 function activeMember(){return teamMembers().find(m=>m.key===activeBattleKey)||leaderMember();}
-function setMemberHp(m,hp){if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}}
+function setMemberHp(m,hp){
+ if(m.starter)storedHp=hp;else{const found=companions.find(x=>x.family===m.family);if(found)found.hp=hp;}
+ // Battle fighters are cached per party member; keep their HP in sync with the saved party.
+ const cached=battleRoster.get(m.key);
+ if(cached)cached.hp=hp;
+}
 function setActiveHp(hp){setMemberHp(activeMember(),hp);}
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function battleHealingTargets(){
@@ -2048,6 +2053,8 @@ async function sendOutReplacement(m){
   await playSwitchBallAnimation(()=>{
    chooseActiveMember(m);
    battle.player=battleRoster.get(m.key)||makeMemberFighter(m);
+   // A revived member can have a stale fainted fighter in battleRoster.
+   battle.player.hp=memberHp(m);
    battleRoster.set(m.key,battle.player);
    battle.ended=false;battle.result=null;
    updateBattlePlayerHeader();
