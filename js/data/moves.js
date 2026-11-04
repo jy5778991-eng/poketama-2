@@ -4,11 +4,11 @@ export const MOVES = Object.freeze({
   triAttack:{name:'트라이어택',power:70,accuracy:1,priority:0,triStatus:true},
   sing:{name:'노래하기',accuracy:0.6,priority:0,inflict:'sleep'},
   charm:{name:'애교부리기',accuracy:1,priority:0,lowerTargetAttack:2},
-  takeDown:{name:'돌진',power:90,accuracy:0.85,priority:0,recoilMaxHp:0.10},
+  takeDown:{name:'돌진',power:90,accuracy:0.85,priority:0,recoilDamageFraction:0.10},
   megaKick:{name:'메가톤킥',power:120,accuracy:0.75,priority:0},
-  tackle40:{name:'몸통박치기',power:40,accuracy:1,priority:0},
+  tackle40:{name:'몸통박치기',power:25,accuracy:1,priority:0},
   hornAttack50:{name:'뿔찌르기',power:50,accuracy:1,priority:0},
-  poisonSting15:{name:'독침',power:15,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
+  poisonSting15:{name:'독침',power:25,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
   hornDrill:{name:'뿔드릴',accuracy:0.3,priority:0,oneHitKo:true},
   sheerCold:{name:'절대영도',accuracy:0.3,priority:0,oneHitKo:true},
   hurricane:{name:'폭풍',power:110,accuracy:0.7,priority:0,confuseChance:0.3},
@@ -17,8 +17,8 @@ export const MOVES = Object.freeze({
   transform:{name:'변신',accuracy:1,priority:0,transform:true},
   ancientPower:{name:'원시의힘',power:60,accuracy:1,priority:0,boostChance:0.2,boostOnHit:{attack:1,defense:1,speed:1}},
   psystrike:{name:'사이코브레이크',power:100,accuracy:1,priority:0},
-  hornAttack:{name:'뿔찌르기',power:65,accuracy:1,priority:0},
-  doubleEdge:{name:'이판사판태클',power:120,accuracy:1,priority:0,recoilMaxHp:0.15},
+  hornAttack:{name:'뿔찌르기',power:50,accuracy:1,priority:0},
+  doubleEdge:{name:'이판사판태클',power:120,accuracy:1,priority:0,recoilDamageFraction:0.20},
 drillPeck:{name:'드릴부리',power:80,accuracy:1,priority:0},
 rotaryPeck:{name:'회전부리',power:80,accuracy:1,priority:0},
 stoneEdge:{name:'스톤엣지',power:100,accuracy:0.8,priority:0,critMultiplier:2},
@@ -65,7 +65,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
  darkPulse:{name:'악의파동',power:80,accuracy:1,priority:0},
  snarl:{name:'바크아웃',power:55,accuracy:1,priority:0,lowerTargetAttackChance:1},
  toxic:{name:'맹독',accuracy:1,priority:0,inflict:'poison'},
-  lick: {name:'핥기',accuracy:1,priority:0,power:40,inflict:'paralysis',inflictChance:0.3},
+  lick: {name:'핥기',accuracy:1,priority:0,power:40,inflict:'paralysis',inflictChance:0.1},
   crunch: {name:"깨물어부수기", accuracy:1.0, priority:0, power:80},
   gigaImpact: {name:"기가임팩트", accuracy:0.9, priority:0, power:140, recharge:true},
   hyperBeam: {name:'파괴광선', accuracy:0.9, priority:0, power:140, recharge:true},
@@ -85,10 +85,10 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   bellyDrum: {name:'배북',accuracy:1,priority:0,bellyDrum:true,target:'self'},
   hydroPump: {name:"하이드로펌프", accuracy:0.8, priority:0, power:110},
   suckerPunch: {name:"기습", accuracy:1.0, priority:1, power:70},
-  sludgeBomb: {name:'오물폭탄',accuracy:1,priority:0,power:90,inflict:'poison',inflictChance:0.3},
+  sludgeBomb: {name:'오물폭탄',accuracy:1,priority:0,power:90,inflict:'poison',inflictChance:0.1},
   supersonic:{name:'초음파',accuracy:0.6,priority:0,confuseTarget:true},
   wrap: {name:"김밥말이", accuracy:0.95, priority:0, power:10, multiHit:{min:2,max:5}},
-  dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, inflict:"paralysis", inflictChance:0.3},
+  dragonBreath: {name:"용의숨결", accuracy:1.0, priority:0, power:60, inflict:"paralysis", inflictChance:0.1},
   outrage: {name:'역린',accuracy:1,priority:0,power:120,lockedTurns:true},
   vineWhip: {name:"덩굴채찍", accuracy:1.0, priority:0, power:45},
   razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, critMultiplier:2},
@@ -119,7 +119,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   solarBeam: {name:'솔라빔', power:130, accuracy:1, priority:0, recharge:true},
   surf: {name:'파도타기', power:90, accuracy:1, priority:0},
   waterSpout: {name:'해수스파운팅', power:150, accuracy:1, priority:0, hpScale:'currentRatio', description:'현재 체력이 높을수록 위력이 높다.'},
-  psybeam: {name:'환상빔', power:65, accuracy:1, priority:0, confuseChance:0.2},
+  psybeam: {name:'환상빔', power:65, accuracy:1, priority:0, confuseChance:0.1},
   bugBuzz: {name:'벌레의야단법석', power:90, accuracy:1, priority:0},
   harden: {name:'단단해지기', accuracy:1, priority:0, boosts:{defense:1},target:'self'},
   defenseCurl: {name:'웅크리기', accuracy:1, priority:0, boosts:{defense:1},target:'self'},
@@ -127,10 +127,10 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   dreamEater: {name:'꿈먹기',power:100,accuracy:1,priority:0,requiresTargetSleep:true,drain:0.5,pp:15},
 
   thunderbolt: {name:'10만볼트', power:95, accuracy:1, priority:0},
-  voltTackle: {name:'볼트태클',power:130,accuracy:1,priority:0,recoilMaxHp:0.15,critMultiplier:2},
+  voltTackle: {name:'볼트태클',power:130,accuracy:1,priority:0,recoilDamageFraction:0.20,critMultiplier:2},
   quickAttack: {name:'전광석화', power:40, accuracy:1, priority:1},
   thunderWave: {name:'전기자석파',accuracy:1,priority:0,inflict:'paralysis'},
-  flareBlitz: {name:'플레어드라이브',power:130,accuracy:1,priority:0,recoilMaxHp:0.15,critMultiplier:2},
+  flareBlitz: {name:'플레어드라이브',power:130,accuracy:1,priority:0,recoilDamageFraction:0.20,critMultiplier:2},
   hypnosis: {name:'최면술', accuracy:0.7, priority:0, inflict:'sleep'},
   sleepPowder: {name:'수면가루', accuracy:0.75, priority:0, inflict:'sleep'},
   poisonPowder: {name:'독가루', accuracy:1, priority:0, inflict:'poison'},
@@ -146,7 +146,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   rockTomb:{name:'암석봉인',power:40,accuracy:1,priority:0,lowerTargetSpeedChance:1},
   hpRecover:{name:'HP회복',accuracy:1,priority:0,healMaxHp:0.5,target:'self',pp:8},
   wingAttack:{name:'날개치기',power:60,accuracy:1,priority:0},
-  braveBird:{name:'브레이브버드',power:130,accuracy:1,priority:0,recoilMaxHp:0.15},
+  braveBird:{name:'브레이브버드',power:130,accuracy:1,priority:0,recoilDamageFraction:0.20},
   guillotine:{name:'가위자르기',accuracy:0.3,priority:0,oneHitKo:true},
   rockThrow:{name:'돌떨구기',power:50,accuracy:0.9,priority:0},
   rockSlide:{name:'스톤샤워',power:75,accuracy:0.9,priority:0,confuseChance:0.1},
@@ -156,7 +156,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   swordsDance:{name:'칼춤',accuracy:1,priority:0,boosts:{attack:2},target:'self'},
   explosion:{name:'대폭발',power:180,accuracy:1,priority:0,selfKo:true},
   dig:{name:'구멍파기',power:60,accuracy:1,priority:0},
-  poisonJab:{name:'독찌르기',power:80,accuracy:1,priority:0,inflict:'poison',inflictChance:0.3},
+  poisonJab:{name:'독찌르기',power:80,accuracy:1,priority:0,inflict:'poison',inflictChance:0.2},
   fireBlast:{name:'불대문자',power:110,accuracy:0.85,priority:0},
   auroraBeam:{name:'오로라빔',power:65,accuracy:1,priority:0},
   machPunch:{name:'마하펀치',power:40,accuracy:1,priority:1},
@@ -168,7 +168,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   hyperFang:{name:'필살앞니',power:80,accuracy:0.95,priority:0},
   glare:{name:'뱀의눈초리',accuracy:1,priority:0,inflict:'paralysis'},
   lockOn:{name:'록온',accuracy:1,priority:0,lowerTargetEvasion:2},
-  gunkShot:{name:'더스트슈트',power:120,accuracy:0.8,priority:0,inflict:'poison',inflictChance:0.3},
+  gunkShot:{name:'더스트슈트',power:120,accuracy:0.8,priority:0,inflict:'poison',inflictChance:0.2},
   smokescreen:{name:'연막',accuracy:1,priority:0,lowerTargetAccuracy:1}
 });
 
@@ -191,20 +191,20 @@ export function moveDescription(id){
  if(m.healFraction)effects.push('HP 회복');
  if(m.shieldTurns)effects.push('빛의장막 '+m.shieldTurns+'턴');
  if(m.aquaRing)effects.push('매 턴 HP 회복');
- if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치 복사 (교체 시 해제)');
+ if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치를 복사한다. 배틀 종료 시 원래대로 돌아온다.');
  for(const stat of ['Attack','Defense','Speed','Accuracy','Evasion']){
   const n=m['lowerTarget'+stat];if(n)effects.push('상대 '+(STAT_LABELS[stat.toLowerCase()]||stat)+' -'+n+'랭크');
   const chance=m['lowerTarget'+stat+'Chance'];if(chance)effects.push('상대 '+(STAT_LABELS[stat.toLowerCase()]||stat)+' 하락 '+Math.round(chance*100)+'% 확률');
  }
  if(m.drain)effects.push('피해량의 '+Math.round(m.drain*100)+'% 회복');
- if(m.recoilMaxHp)effects.push('최대 HP의 '+Math.round(m.recoilMaxHp*100)+'% 반동 피해');
+ if(m.recoilDamageFraction)effects.push('상대에게 실제로 준 피해의 '+Math.round(m.recoilDamageFraction*100)+'%만큼 반동 피해를 받는다.');
  if(m.recoilFraction)effects.push('반동 피해');
  if(m.multiHit)effects.push(m.multiHit.min+'~'+m.multiHit.max+'회 연속 공격');
- if(m.priority>0)effects.push('선공 기술');
+ if(m.priority>0)effects.push('우선도가 높아 상대보다 먼저 공격하기 쉽다.');
  if(m.recharge)effects.push('사용 후 다음 턴 행동 불가');
  if(m.lockedTurns)effects.push('2~3턴 연속 공격 · 공격 중 다른 기술 선택 불가 · 종료 후 자신이 혼란');
  if(m.hpScale)effects.push('HP에 따라 위력 변동');
- if(m.oneHitKo)effects.push('일격 필살');
+ if(m.oneHitKo)effects.push('명중하면 상대를 즉시 기절시킨다. 자신이 상대보다 10레벨 이상 낮으면 명중률이 20%로 감소한다.');
  if(m.description)effects.push(m.description);
  const accuracy=m.target==='self'&&!m.power&&!m.oneHitKo?'--':Math.round((m.accuracy??1)*100)+'%';
  return '위력: '+(m.power??'—')+'  |  명중률: '+accuracy+(effects.length?'\n효과: '+[...new Set(effects)].join(' · '):'');
