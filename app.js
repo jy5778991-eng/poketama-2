@@ -12,7 +12,7 @@ import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-u
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261104-rocket-trainers263';
-import {renderInventoryView} from './js/inventory.js?v=20261104-lens-quantity271';
+import {renderInventoryView} from './js/inventory.js?v=20261104-equipped-labels273';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','scopeLens','revivalSeed'];
@@ -1695,7 +1695,7 @@ function chooseRecoveryTarget(item){
 }
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';/* Preserve the user's page scroll position when switching between home and battle. */if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -1943,6 +1943,14 @@ function showPartyManager(selectedKey=null,replacement=false){
   pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>pic.style.visibility='hidden';};
   const data=document.createElement('div');data.className='party-summary-info';
   const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+m.level;
+  const nameRow=document.createElement('div');nameRow.className='party-summary-name-row';nameRow.append(name);
+  for(const id of HELD_ITEMS){
+   if(!hasHeld(id,m.key))continue;
+   const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;
+   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name;heldIcon.loading='lazy';
+   heldIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=item.name;heldIcon.replaceWith(fallback);};
+   nameRow.append(heldIcon);
+  }
   const meter=(label,current,total,type)=>{const row=document.createElement('div');row.className='party-summary-meter';
    const tag=document.createElement('b');tag.textContent=label;
    const track=document.createElement('div');track.className='party-summary-track '+type;
@@ -1952,7 +1960,7 @@ function showPartyManager(selectedKey=null,replacement=false){
    const count=document.createElement('span');count.className='party-summary-meter-count';count.textContent=type==='hp'?current+' / '+total:(m.level>=100?'MAX':current+' / '+total);
    row.append(tag,track,count);return row;};
   const xp=m.starter?progress.exp:m.exp||0;
-  data.append(name,meter('HP',hp,maxHp,'hp'),meter('EXP',xp,m.level>=100?1:levelNeed(m.level),'exp'));
+  data.append(nameRow,meter('HP',hp,maxHp,'hp'),meter('EXP',xp,m.level>=100?1:levelNeed(m.level),'exp'));
   if(hp===0){const faint=document.createElement('small');faint.textContent='기절';data.append(faint);}
   button.append(pic,data);
   button.onclick=()=>showPartyManager(m.key,replacement);cards.append(button);
