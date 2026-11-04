@@ -151,7 +151,7 @@ function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStar
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
-const ACHIEVEMENTS=[["champion","내가 챔피언","리그 최초 제패"],["badges","배지 수집가","배지 8종 수집"],["firstLoss","첫 패배","최초 패배"],["healing100","약물 중독","회복 아이템 100회"],["eggs20","리세마라","알 부화 20회"],["starter:raichu","주인공은 역시 피카츄","해당 스타팅으로 리그 제패"],["starter:eevee","이브이는 거꾸로 해도 이브이","해당 스타팅으로 리그 제패"],["starter:dragonite","드래곤 조련사","해당 스타팅으로 리그 제패"],["starter:butterfree","나비효과","해당 스타팅으로 리그 제패"],["starter:venusaur","씨앗부터 챔피언 까지","해당 스타팅으로 리그 제패"],["starter:charizard","불꽃은 꺼지지 않아","해당 스타팅으로 리그 제패"],["starter:blastoise","만렙거북이","해당 스타팅으로 리그 제패"],["starter:gyarados","튀어오르다 정상까지","해당 스타팅으로 리그 제패"],["starter:snorlax","먹고 자고 챔피언","해당 스타팅으로 리그 제패"],["starter:gengar","유령도 전당등록 되나요?","해당 스타팅으로 리그 제패"],["evo:3","이상한…꽃?","해당 포켓몬으로 진화"],["evo:12","4드론","해당 포켓몬으로 진화"],["evo:25","근본은 피카츄지","해당 포켓몬으로 진화"],["evo:130","등용문","해당 포켓몬으로 진화"],["evo:149","연애,신혼,지금","해당 포켓몬으로 진화"],["brock","관장 별거 없네","웅이 승리"],["misty","뉴비 절단기","이슬이 승리"],["level100","근성","Lv.100 달성"],["eggs100","알까기 장인","알 부화 100회"],["rival","라이벌","그린 승리"],["hall10","컴까기 장인","명예의 전당 10회"],["free10","파트너를 소중히","무료 치료 10회"],["wild1000","눈 감고도 이긴다","야생 승리 1000회"],["trainer100","인간 사냥","트레이너 승리 100회"],["legendSeen","이거 좋은거에요?","전설 최초 조우"],["paidHeal","비보험 치료","유료 치료 1회"],["center200","병원 밥은 맛없어","센터 치료 200회"],["money999999","워렌 버핏 나와!","보유금 999999원"],["run100","삼십육계 줄행랑!","도망 100회"],["hypnosis","불면증 해결","최면술 가르치기"],["perfectIV","엄친아","개체값 전부 최대"],["hatchMaxIV","한 분야의 천재","알 부화 최대 개체값"],["hatchMinIV","누굴 닮아서 머리가 이 모양일까","알 부화 최소 개체값"],["maxEV","노력의 천재","노력치 총합 216"],["birds","전설의 삼새","삼새 포획 등록"],["dexSeenAll","도감 완…성??","전체 도감 발견"],["zapdos","발전소","썬더 포획"],["moltres","내 집은 어디에?","파이어 포획"],["articuno","쌍둥이 섬","프리저 포획"],["mewtwo","인간이 만든 사상 최강의 포켓몬","뮤츠 포획"],["eevees","이브이즈","이브이 계열 4종 포획"],["mew","모든 포켓몬의 유전자","뮤 포획"],["dna","DNA","뮤 뮤츠 포획"],["legendPokeBall","와 이게 되네","몬스터볼 전설 포획"],["normalUltraBall","요거트 뚜껑 버리기","하이퍼볼 일반 포획"],["reroll50","가챠 중독","랜덤보상에서 리롤 50회"],["reroll10000","멘징 중독","랜덤보상에서 리롤로 한번에 10000원 이상 사용."]];
+const ACHIEVEMENTS=[["champion","내가 챔피언","리그 최초 제패"],["badges","배지 수집가","배지 8종 수집"],["firstLoss","첫 패배","최초 패배"],["healing100","약물 중독","회복 아이템 100회"],["eggs20","리세마라","알 부화 20회"],["starter:raichu","주인공은 역시 피카츄","해당 스타팅으로 리그 제패"],["starter:eevee","이브이는 거꾸로 해도 이브이","해당 스타팅으로 리그 제패"],["starter:dragonite","드래곤 조련사","해당 스타팅으로 리그 제패"],["starter:butterfree","나비효과","해당 스타팅으로 리그 제패"],["starter:venusaur","씨앗부터 챔피언 까지","해당 스타팅으로 리그 제패"],["starter:charizard","불꽃은 꺼지지 않아","해당 스타팅으로 리그 제패"],["starter:blastoise","만렙거북이","해당 스타팅으로 리그 제패"],["starter:gyarados","튀어오르다 정상까지","해당 스타팅으로 리그 제패"],["starter:snorlax","먹고 자고 챔피언","해당 스타팅으로 리그 제패"],["starter:gengar","유령도 전당등록 되나요?","해당 스타팅으로 리그 제패"],["evo:3","이상한…꽃?","해당 포켓몬으로 진화"],["evo:12","4드론","해당 포켓몬으로 진화"],["evo:25","근본은 피카츄지","해당 포켓몬으로 진화"],["evo:130","등용문","해당 포켓몬으로 진화"],["evo:149","연애,신혼,지금","해당 포켓몬으로 진화"],["brock","관장 별거 없네","웅이 승리"],["misty","뉴비 절단기","이슬이 승리"],["level100","근성","Lv.100 달성"],["eggs100","알까기 장인","알 부화 100회"],["rival","라이벌","그린 승리"],["hall10","컴까기 장인","명예의 전당 10회"],["free10","파트너를 소중히","무료 치료 10회"],["wild1000","눈 감고도 이긴다","야생 승리 1000회"],["trainer100","인간 사냥","트레이너 승리 100회"],["legendSeen","이거 좋은거에요?","전설 최초 조우"],["paidHeal","비보험 치료","유료 치료 1회"],["center200","병원 밥은 맛없어","센터 치료 200회"],["money999999","워렌 버핏 나와!","보유금 999999원"],["run100","삼십육계 줄행랑!","도망 100회"],["hypnosis","불면증 해결","최면술 가르치기"],["perfectIV","엄친아","개체값 전부 최대"],["hatchMaxIV","한 분야의 천재","알 부화 최대 개체값"],["hatchMinIV","누굴 닮아서 머리가 이 모양일까","알 부화 최소 개체값"],["maxEV","노력의 천재","노력치 총합 240"],["birds","전설의 삼새","삼새 포획 등록"],["dexSeenAll","도감 완…성??","전체 도감 발견"],["zapdos","발전소","썬더 포획"],["moltres","내 집은 어디에?","파이어 포획"],["articuno","쌍둥이 섬","프리저 포획"],["mewtwo","인간이 만든 사상 최강의 포켓몬","뮤츠 포획"],["eevees","이브이즈","이브이 계열 4종 포획"],["mew","모든 포켓몬의 유전자","뮤 포획"],["dna","DNA","뮤 뮤츠 포획"],["legendPokeBall","와 이게 되네","몬스터볼 전설 포획"],["normalUltraBall","요거트 뚜껑 버리기","하이퍼볼 일반 포획"],["reroll50","가챠 중독","랜덤보상에서 리롤 50회"],["reroll10000","멘징 중독","랜덤보상에서 리롤로 한번에 10000원 이상 사용."]];
 let achievementData=(()=>{try{const v=JSON.parse(localStorage.getItem(ACHIEVEMENT_KEY)||'{}');return {earned:Array.isArray(v.earned)?v.earned:[],healing:v.healing||0,eggs:v.eggs||0,wildWins:v.wildWins||0,trainerWins:v.trainerWins||0,centerUses:v.centerUses||0,runs:v.runs||0,rerolls:v.rerolls||0};}catch{return {earned:[],healing:0,eggs:0,wildWins:0,trainerWins:0,centerUses:0,runs:0,rerolls:0};}})();
 const achievementQueue=[];let achievementOpen=false;
 function saveAchievements(){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(achievementData));}
@@ -173,7 +173,7 @@ function recordHealingItem(){achievementData.healing++;saveAchievements();if(ach
 function recordEggHatch(){achievementData.eggs++;saveAchievements();if(achievementData.eggs>=20)earnAchievement('eggs20');if(achievementData.eggs>=100)earnAchievement('eggs100');}
 function checkMoneyAchievement(){if(progress.money>=999999)earnAchievement('money999999');}
 function checkIVAchievement(iv){if(iv&&EV_STATS.every(k=>iv[k]===16))earnAchievement('perfectIV');}
-function checkEVAchievement(ev){if(ev&&EV_STATS.reduce((n,k)=>n+(ev[k]||0),0)>=216)earnAchievement('maxEV');}
+function checkEVAchievement(ev){if(ev&&EV_STATS.reduce((n,k)=>n+(ev[k]||0),0)>=240)earnAchievement('maxEV');}
 function checkDexAchievements(){const has=d=>caughtSpecies.has(d);if([144,145,146].every(has))earnAchievement('birds');if([133,134,135,136].every(has))earnAchievement('eevees');if([150,151].every(has))earnAchievement('dna');if(DEX_CATALOG.length&&DEX_CATALOG.every(p=>seenPokemon.has(p.dex)))earnAchievement('dexSeenAll');}
 function recordCatchAchievement(dex,ball){if(dex===145)earnAchievement('zapdos');if(dex===146)earnAchievement('moltres');if(dex===144)earnAchievement('articuno');if(dex===150)earnAchievement('mewtwo');if(dex===151)earnAchievement('mew');if(LEGENDARY_DEX.has(dex)&&ball==='pokeBall')earnAchievement('legendPokeBall');if(ball==='ultraBall'&&!LEGENDARY_DEX.has(dex)&&!RARE_DEX.has(dex)&&!HYPER_DEX.has(dex)&&!EVOLVED_DEX.has(dex))earnAchievement('normalUltraBall');checkDexAchievements();}
 function showAchievements(){const layer=document.createElement('div');layer.className='party-summary-overlay';const panel=document.createElement('section');panel.className='party-summary-panel';panel.style.maxHeight='80vh';panel.style.overflowY='auto';const h=document.createElement('h2');h.textContent='🏆 업적 '+achievementData.earned.length+'/'+ACHIEVEMENTS.length;panel.append(h);for(const [id,name,desc] of ACHIEVEMENTS){const p=document.createElement('p');p.textContent=(achievementData.earned.includes(id)?'✅ ':'🔒 ')+name+' — '+desc;panel.append(p);}const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='닫기';btn.onclick=()=>layer.remove();panel.append(btn);layer.append(panel);document.body.append(layer);}
@@ -374,7 +374,7 @@ const ivTier=value=>value===16?'red':value>=12?'gold':value>=7?'silver':value>=1
 let playerIVs=saved?.ivs||randomIVs();
 
 let playerEVs=Object.fromEntries(EV_STATS.map(k=>[k,Number.isInteger(saved?.evs?.[k])&&saved.evs[k]>=0&&saved.evs[k]<=100?saved.evs[k]:0]));
-if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>216)playerEVs={hp:0,attack:0,defense:0,speed:0};
+if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>240)playerEVs={hp:0,attack:0,defense:0,speed:0};
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
 let learningBusy=false;
 function renderStatPanel(){
@@ -525,7 +525,7 @@ const TRAINER_STAT_CONFIG={
  brock:[8,0],misty:[8,10],surge:[8,10],erika:[8,20],koga:[8,30],
  sabrina:[8,40],blaine:[8,40],giovanni:[8,40],
  rocketApollo:[12,20],rocketAthena:[12,20],rocketGiovanni:[16,54],
- league0:[14,10],league1:[14,10],league2:[14,10],league3:[14,10],league4:[16,54],red:[16,54]
+ league0:[14,10],league1:[14,10],league2:[14,10],league3:[14,10],league4:[16,60],red:[16,60]
 };
 function trainerFighter(name,dex,level,base,moveIds=['tackle']){
  // Temporary trainer rule: use the four most recently learned moves at this level.
@@ -1337,7 +1337,7 @@ function choosePermanentTarget(choice,autoMember=null){
    const stat=choice.stat,ev=m.starter?playerEVs:companions.find(x=>x.family===m.family)?.evs;
    if(!ev)return;
    const total=Object.values(ev).reduce((a,b)=>a+b,0);
-   const gain=Math.min(choice.amount||2,100-ev[stat],216-total);
+   const gain=Math.min(choice.amount||2,100-ev[stat],240-total);
    if(gain<=0){alert('선택한 포켓몬의 노력치가 최대치야.');$('rewardChoiceOverlay').hidden=false;return;}
    ev[stat]+=gain;checkEVAchievement(ev);
    appendAdventureLog('💊 '+m.name+' '+STAT_LABELS[stat]+' 노력치 +'+gain);
@@ -1518,7 +1518,7 @@ function claimRewardChoice(index){
   const stat=choice.stat;
   if(!EV_STATS.includes(stat))return;
   const total=Object.values(playerEVs).reduce((sum,n)=>sum+n,0);
-  const gain=Math.min(choice.amount||2,100-playerEVs[stat],216-total);
+  const gain=Math.min(choice.amount||2,100-playerEVs[stat],240-total);
   playerEVs[stat]+=gain;checkEVAchievement(playerEVs);
   // Preserve HP lost as maximum HP increases; never auto-heal via EV rewards.
   if(storedHp!==null){
@@ -1881,7 +1881,7 @@ function partyOverlay(title,description,choices){
  let layer=document.getElementById('partyActionOverlay');
  if(!layer){
   layer=document.createElement('div');layer.id='partyActionOverlay';
-  layer.style.cssText='position:fixed;inset:0;background:#0009;z-index:30000;overflow-y:auto;padding:6vh 16px;display:flex;align-items:flex-start;justify-content:center';
+  layer.style.cssText='position:fixed;inset:0;background:#0009;z-index:100001;overflow-y:auto;padding:6vh 16px;display:flex;align-items:flex-start;justify-content:center';
   const dialog=document.createElement('div');dialog.style.cssText='background:white;border:3px solid #405675;border-radius:17px;padding:20px;max-width:460px;width:100%;color:#293e59;box-shadow:0 12px 25px #0005';
   const heading=document.createElement('h2');heading.id='partyActionTitle';heading.style.margin='0 0 12px';
   const info=document.createElement('p');info.id='partyActionInfo';
