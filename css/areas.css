@@ -18,7 +18,12 @@
  overflow:hidden;
 }
 .home-sprite-wrap.area-grass{
- background-image:url('https://play.pokemonshowdown.com/fx/bg-meadow.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%);
+ background-image:url('../assets/grass.png?v=20261104-grass302');
+ background-color:#8fca65;
+ background-size:cover;
+ background-position:center center;
+ background-repeat:no-repeat;
+ image-rendering:auto;
 }
 .home-sprite-wrap.area-forest{
  background-image:url('https://play.pokemonshowdown.com/fx/bg-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%);
@@ -44,7 +49,7 @@
 /* Battle arena shares the current area's scenery with the home Pokémon card.
    Keep all sprite, HP panel, platform and battle animation layers intact. */
 #battleScreen .arena{background-color:#83bf81;background-position:center;background-size:cover;background-repeat:no-repeat;image-rendering:pixelated}
-#battleScreen .arena.area-grass{background-image:url('https://play.pokemonshowdown.com/fx/bg-meadow.png'),linear-gradient(180deg,#a2d8e5 0%,#b4d7ac 56%,#70aa64 100%)}
+#battleScreen .arena.area-grass{background-image:url('../assets/grass.png?v=20261104-grass302');background-color:#8fca65;background-size:cover;background-position:center center;background-repeat:no-repeat;image-rendering:auto}
 #battleScreen .arena.area-forest{background-color:#578c61;background-image:url('https://play.pokemonshowdown.com/fx/bg-forest.png'),linear-gradient(180deg,#7da68f 0%,#518e59 100%)}
 #battleScreen .arena.area-cave{background-color:#73788b;background-image:url('https://play.pokemonshowdown.com/fx/bg-earthycave.png'),linear-gradient(180deg,#849096 0%,#54546c 100%)}
 
@@ -175,3 +180,8 @@
 .recovery-target-gauge-fill{display:block;height:100%;background:#3dbd67;border-radius:999px}
 .recovery-target-count{font-size:12px;color:#4b617b;font-variant-numeric:tabular-nums}
 .recovery-target-fainted{font-weight:900;color:#bd3449}
+
+/* On mobile, preserve the left edge of the grass scene; crop excess only on the right. */
+@media(max-width:767px){
+ .home-sprite-wrap.area-grass,#battleScreen .arena.area-grass{background-position:left center}
+}
