@@ -545,7 +545,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
- return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(BASE_STATS[s.dex],level,ivs,playerEVs),moveIds});
+ return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
 }
 const WILD_EVOLUTIONS={
  10:[11,7,'단데기'],11:[12,10,'버터플'],13:[14,7,'딱충이'],14:[15,10,'독침붕'],
