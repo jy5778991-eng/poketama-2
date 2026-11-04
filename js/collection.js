@@ -62,7 +62,9 @@ export function renderCollectionView({$,collectionTab,capturedPokemon,caughtSpec
    ['체육관 관장 초련','sabrina'],['체육관 관장 강연','blaine'],
    ['체육관 관장 비주기','giovanni'],['라이벌 그린 5차전','greenFifth'],
    ['사천왕 칸나','league0'],['사천왕 시바','league1'],['사천왕 국화','league2'],
-   ['사천왕 목호','league3'],['챔피언 그린','league4'],['레드','red']
+   ['사천왕 목호','league3'],['챔피언 그린','league4'],
+   ['로켓단 간부 아폴로','rocketApollo'],['로켓단 간부 아테나','rocketAthena'],
+   ['로켓단 보스 비주기','rocketGiovanni'],['레드','red']
   ];
   for(const [name,key] of trainers){
    const done=!!trainerRecords[key];
