@@ -148,13 +148,13 @@ function rewardWeight(choice,context){
   const id=choice.id;
   if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
   if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?4:0;
-  if(id==='wideLensA')return inventory.wideLensA>=2?0:inventory.wideLensA===1?2:4;
-  if(id==='wideLensB')return inventory.wideLensB>=1?0:4;
-  if(id==='focusSash')return inventory.focusSash>=2?0:inventory.focusSash===1?1:2;
+  if(id==='wideLensA')return inventory.wideLensA>=2?0:inventory.wideLensA===1?1:2;
+  if(id==='wideLensB')return inventory.wideLensB>=1?0:2;
+  if(id==='focusSash')return inventory.focusSash>=1?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=1?0:1;
    if(id==='shellBell')return inventory.shellBell>=1?0:1;
-   if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?2:4;
+   if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?1:2;
    if(id==='expShare')return inventory.expShare>=1?0:4;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
