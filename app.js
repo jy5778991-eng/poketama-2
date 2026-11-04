@@ -25,6 +25,20 @@ const TM02_DEX=new Set([106,107,56,57,66,67,68,61,62,4,5,6,7,8,9,34,31,115,143,2
 let tm02Learned=Array.isArray(readSave()?.tm02Learned)?readSave().tm02Learned.filter(k=>typeof k==='string'):[];
 function tm02Targets(){return teamMembers().filter(m=>m.level>=28&&TM02_DEX.has(m.dex)&&!tm02Learned.includes(m.key));}
 function tm01Targets(){return teamMembers().filter(m=>m.level>=19&&TM01_DEX.has(m.dex)&&!tm01Learned.includes(m.key));}
+
+// Additional normal-tier TMs. A reward is eligible only while the party's highest level is below 50.
+const EXTRA_TM_CONFIG={
+ tm03:{number:'03',name:'마구할퀴기',moveId:'furySwipes',minLevel:9,dex:[52,53,56,57,46,47,4,5,6,27,28,34,31,115,123]},
+ tm04:{number:'04',name:'바위깨기',moveId:'rockSmash',minLevel:10,dex:[66,67,68,56,57,106,107,34,31,74,75,76,95,112,104,105,115,143,127,150,151]},
+ tm05:{number:'05',name:'번개펀치',moveId:'thunderPunch',minLevel:22,dex:[125,107,66,67,68,56,57,34,31,115,143,112,150,151,172,25,26]},
+ tm06:{number:'06',name:'불꽃펀치',moveId:'firePunch',minLevel:22,dex:[126,107,66,67,68,56,57,34,31,115,143,112,150,151,4,5,6]},
+ tm07:{number:'07',name:'냉동펀치',moveId:'icePunch',minLevel:22,dex:[124,107,66,67,68,56,57,34,31,115,143,112,150,151,7,8,9]}
+};
+const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
+let extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,Array.isArray(readSave()?.extraTmLearned?.[key])?readSave().extraTmLearned[key].filter(v=>typeof v==='string'):[]]));
+function extraTmTargets(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?teamMembers().filter(m=>m.level>=cfg.minLevel&&extraTmDex[kind].has(m.dex)&&!extraTmLearned[kind].includes(m.key)):[];}
+function extraTmLabel(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?'기술머신'+cfg.number+'.'+cfg.name:'';}
+
 const isLens=id=>id==='wideLensA'||id==='wideLensB';
 
 // Reward choices scale by stage when a stage system is added later.
@@ -102,9 +116,10 @@ function rewardWeight(choice,context){
  const cap=wildRewardLevelCap();
  const redLevelReached=cap!==null&&members.some(m=>m.level>=cap);
  if(['expCandy','rareCandy'].includes(choice.kind))return redLevelReached?2:4;
- if(choice.kind==='tm01')return tm01Targets().length?2:0;
- if(choice.kind==='tm02')return tm02Targets().length?2:0;
- if(choice.kind==='cash')return ['normal','rare'].includes(choice.tier)?2:4;
+ if(choice.kind==='tm01')return lv<50&&tm01Targets().length?1:0;
+ if(choice.kind==='tm02')return lv<50&&tm02Targets().length?1:0;
+ if(EXTRA_TM_CONFIG[choice.kind])return lv<50&&extraTmTargets(choice.kind).length?1:0;
+ if(choice.kind==='cash')return choice.tier==='normal'?3:choice.tier==='rare'?2:4;
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
   if(choice.healType==='potion')return lv>=50?0:lv>=36?2:lv>=20?4:6;
@@ -155,7 +170,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
- normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
+ normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
  legendary:[{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
@@ -172,7 +187,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*16+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -1127,7 +1142,7 @@ async function processLearnQueue(queue){
 }
 let recallSelectedKey=null;
 function recallMemberMoves(member){return member.starter?playerMoves:(companions.find(c=>c.family===member.family)?.moves||[]);}
-function recallLearnable(member){let natural=member.starter?availableMoves(chosen,progress.level):((learnsetForDex(member.dex)||[]).filter(x=>x.level<=member.level&&MOVES[x.id]));if(tm01Learned.includes(member.key))natural=[...natural.filter(x=>x.id!=='megaPunch'),{level:null,id:'megaPunch',tmLabel:'기술머신01.메가톤펀치'}];if(tm02Learned.includes(member.key))natural=[...natural.filter(x=>x.id!=='megaKick'),{level:null,id:'megaKick',tmLabel:'기술머신02.메가톤킥'}];return natural;}
+function recallLearnable(member){let natural=member.starter?availableMoves(chosen,progress.level):((learnsetForDex(member.dex)||[]).filter(x=>x.level<=member.level&&MOVES[x.id]));if(tm01Learned.includes(member.key))natural=[...natural.filter(x=>x.id!=='megaPunch'),{level:null,id:'megaPunch',tmLabel:'기술머신01.메가톤펀치'}];if(tm02Learned.includes(member.key))natural=[...natural.filter(x=>x.id!=='megaKick'),{level:null,id:'megaKick',tmLabel:'기술머신02.메가톤킥'}];for(const [kind,cfg] of Object.entries(EXTRA_TM_CONFIG)){if(extraTmLearned[kind].includes(member.key))natural=[...natural.filter(x=>x.id!==cfg.moveId),{level:null,id:cfg.moveId,tmLabel:extraTmLabel(kind)}];}return natural;}
 async function recallTeach(member,id){
  const moves=recallMemberMoves(member);
  if(!recallLearnable(member).some(x=>x.id===id)||moves.includes(id))return;
@@ -1172,7 +1187,7 @@ function openRecall(){
   const move=MOVES[id];if(!move)return;
   const wrap=document.createElement('div');wrap.className='recall-move-entry';
   const header=document.createElement('button');header.type='button';header.className='learn-replace-button recall-move-toggle';
-  const label=(level===null?'': 'Lv.'+level+' · ')+(id==='megaPunch'&&tm01Learned.includes(member.key)?'기술머신01.메가톤펀치':id==='megaKick'&&tm02Learned.includes(member.key)?'기술머신02.메가톤킥':move.name);
+  const label=(level===null?'': 'Lv.'+level+' · ')+(id==='megaPunch'&&tm01Learned.includes(member.key)?'기술머신01.메가톤펀치':id==='megaKick'&&tm02Learned.includes(member.key)?'기술머신02.메가톤킥':Object.entries(EXTRA_TM_CONFIG).find(([kind,cfg])=>cfg.moveId===id&&extraTmLearned[kind].includes(member.key))?.[0] ? extraTmLabel(Object.entries(EXTRA_TM_CONFIG).find(([kind,cfg])=>cfg.moveId===id&&extraTmLearned[kind].includes(member.key))[0]):move.name);
   const drawHeader=expanded=>{header.replaceChildren();const name=document.createElement('span');name.textContent=label;header.append(name);if(isOwned){const star=document.createElement('span');star.className='recall-equipped-star';star.textContent='★';star.setAttribute('aria-label','장착 중');header.append(star);}const arrow=document.createElement('span');arrow.className='recall-move-chevron';arrow.textContent=expanded?'▴':'▾';header.append(arrow);};
   drawHeader(false);
   header.setAttribute('aria-expanded','false');
@@ -1199,6 +1214,7 @@ function openRecallList(){openRecall();}
 function rewardChoiceText(choice){
  if(choice.kind==='tm01')return '기술머신01.메가톤펀치 · 위력 80 / 명중 80% · 즉시 사용 · Lv.19 이상 지정 포켓몬에게 가르친다.';
  if(choice.kind==='tm02')return '기술머신02.메가톤킥 · 위력 110 / 명중 75% · 즉시 사용 · Lv.28 이상 지정 포켓몬에게 가르친다.';
+ if(EXTRA_TM_CONFIG[choice.kind]){const c=EXTRA_TM_CONFIG[choice.kind],m=MOVES[c.moveId];return extraTmLabel(choice.kind)+' · '+moveDescription(c.moveId).replace(/\n/g,' · ')+' · 즉시 사용 · Lv.'+c.minLevel+' 이상 지정 포켓몬에게 가르친다.';}
  if(choice.kind==='item'&&choice.id==='memoryMushroom')return '기술관리에 필요하다.';
  if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
   if(choice.kind==='expCandy')return '선택한 포켓몬의 레벨 × 10 경험치를 획득한다.';
@@ -1248,6 +1264,7 @@ function rewardImageName(choice){
 function rewardChoiceName(choice){
  if(choice.kind==='tm01')return '기술머신01.메가톤펀치';
  if(choice.kind==='tm02')return '기술머신02.메가톤킥';
+ if(EXTRA_TM_CONFIG[choice.kind])return extraTmLabel(choice.kind);
   if(choice.kind==='expCandy')return '경험사탕';
  if(choice.kind==='candyBundle')return '사탕 보따리';
  if(choice.kind==='rareCandy')return '이상한 사탕';
@@ -1415,6 +1432,31 @@ function claimRewardChoice(index){
  if(!pendingRewardChoice||!Number.isInteger(index))return;
  const choice=pendingRewardChoice.choices[index];
  if(!choice)return;
+ if(EXTRA_TM_CONFIG[choice.kind]){
+  const kind=choice.kind,cfg=EXTRA_TM_CONFIG[kind],targets=extraTmTargets(kind);
+  if(!targets.length){alert(extraTmLabel(kind)+'을 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
+  $('rewardChoiceOverlay').hidden=true;
+  partyOverlay('📀 '+extraTmLabel(kind),'기술을 가르칠 포켓몬을 선택해. 사용 즉시 소모돼.',[
+   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:async()=>{
+    if(!pendingRewardChoice||!extraTmTargets(kind).some(x=>x.key===m.key)){showRewardChoices();return;}
+    const moves=recallMemberMoves(m);
+    if(!moves.includes(cfg.moveId)){
+     if(moves.length<4)moves.push(cfg.moveId);
+     else{
+      const old=await resolveMoveChoice(cfg.moveId,{member:{name:m.name,moves},allowSkip:true});
+      if(old===null){showRewardChoices();return;}
+      const at=moves.indexOf(old);if(at<0){showRewardChoices();return;}
+      moves.splice(at,1,cfg.moveId);
+     }
+    }
+    if(!extraTmLearned[kind].includes(m.key))extraTmLearned[kind].push(m.key);
+    if(m.starter)updateBattleMoves();
+    completeInstantRecoveryReward(choice,m.name+' 습득');
+   }})),
+   {text:'취소',action:showRewardChoices}
+  ]);
+  return;
+ }
  if(choice.kind==='tm02'){
   const targets=tm02Targets();
   if(!targets.length){alert('기술머신02를 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
@@ -2892,7 +2934,7 @@ function beginNewAdventure(id,fixedIV){
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
- inventory={...START_INVENTORY};tm01Learned=[];tm02Learned=[];expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
+ inventory={...START_INVENTORY};tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
