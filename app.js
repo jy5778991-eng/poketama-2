@@ -177,16 +177,41 @@ function saveAchievements(){localStorage.setItem(ACHIEVEMENT_KEY,JSON.stringify(
 function showNextAchievement(){
  if(achievementOpen||!achievementQueue.length)return;
  const starterOverlay=document.getElementById('starterSelectionOverlay');
- if(starterOverlay&&!starterOverlay.hidden)return;
- const entry=ACHIEVEMENTS.find(x=>x[0]===achievementQueue.shift());if(!entry)return;
- achievementOpen=true;const layer=document.createElement('div');layer.className='party-summary-overlay';layer.style.zIndex='99999';
- const panel=document.createElement('section');panel.className='party-summary-panel';panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');
- const title=document.createElement('h2');title.textContent="🏆 '"+entry[1]+"' 달성!";
-
- const btn=document.createElement('button');btn.className='party-summary-close';btn.textContent='확인';btn.onclick=()=>{layer.remove();achievementOpen=false;showNextAchievement();};
+ if(starterOverlay&&!starterOverlay.hidden)return; // Keep queued until starter selection closes.
+ const id=achievementQueue.shift();
+ const entry=ACHIEVEMENTS.find(x=>x[0]===id);
+ if(!entry){showNextAchievement();return;}
+ achievementOpen=true;
+ // Dedicated top-level fixed overlay: never depend on the stacking context of a game panel.
+ const layer=document.createElement('div');
+ layer.className='achievement-unlock-overlay';
+ Object.assign(layer.style,{position:'fixed',inset:'0',zIndex:'2147483647',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px',background:'rgba(0,0,0,.72)',boxSizing:'border-box'});
+ const panel=document.createElement('section');
+ panel.className='party-summary-panel';
+ Object.assign(panel.style,{position:'relative',width:'min(420px,100%)',maxHeight:'90vh',overflowY:'auto',boxSizing:'border-box'});
+ panel.setAttribute('role','alertdialog');
+ panel.setAttribute('aria-modal','true');
+ panel.setAttribute('aria-labelledby','achievement-unlock-title');
+ const title=document.createElement('h2');
+ title.id='achievement-unlock-title';
+ title.textContent="🏆 '"+entry[1]+"' 달성!";
+ const btn=document.createElement('button');
+ btn.className='party-summary-close';
+ btn.textContent='확인';
+ btn.onclick=()=>{layer.remove();achievementOpen=false;showNextAchievement();};
  panel.append(title,btn);layer.append(panel);document.body.append(layer);btn.focus();
 }
-function earnAchievement(id){const entry=ACHIEVEMENTS.find(x=>x[0]===id);if(!entry||achievementData.earned.includes(id))return;achievementData.earned.push(id);saveAchievements();appendAdventureLog('🏆 업적 달성! \''+entry[1]+'\'');saveProgress();achievementQueue.push(id);showNextAchievement();}
+function earnAchievement(id){
+ const entry=ACHIEVEMENTS.find(x=>x[0]===id);
+ if(!entry||achievementData.earned.includes(id))return;
+ achievementData.earned.push(id);
+ // Never let a storage or log failure suppress the achievement notification.
+ try{saveAchievements();}catch(error){console.error('업적 저장 실패',error);}
+ try{appendAdventureLog('🏆 업적 달성! \''+entry[1]+'\'');}catch(error){console.error('업적 로그 실패',error);}
+ try{saveProgress();}catch(error){console.error('업적 진행 저장 실패',error);}
+ achievementQueue.push(id);
+ showNextAchievement();
+}
 function checkLevelAchievement(){if(teamMembers().some(m=>m.level>=100))earnAchievement('level100');}
 function recordHealingItem(){achievementData.healing++;saveAchievements();if(achievementData.healing>=100)earnAchievement('healing100');}
 function recordEggHatch(){achievementData.eggs++;saveAchievements();if(achievementData.eggs>=20)earnAchievement('eggs20');if(achievementData.eggs>=100)earnAchievement('eggs100');}
