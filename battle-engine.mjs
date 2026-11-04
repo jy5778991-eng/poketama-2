@@ -234,7 +234,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
         emit(b,{type:'capture',side:'enemy',success:true});
       }else{emit(b,{type:'capture',side:'enemy',success:false});}
     } else if(a.action.type==='item'){
-      if(!canAct(a.fighter,b))continue;
+      // Trainer uses the healing item; no sleep, confusion or paralysis action check.
       const healed=Math.min(a.fighter.stats.hp-a.fighter.hp,a.action.power);
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
