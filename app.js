@@ -292,7 +292,7 @@ function healInjury(){
  document.getElementById('pokemonCenterOverlay')?.remove();
  const members=teamMembers();
  if(members.every(m=>memberHp(m)>=memberMaxHp(m))){alert('이미 포켓몬이 최고 컨디션이다');return;}
- const fee=freeHealsUsed<10?0:Math.max(...members.map(m=>m.level))*100;
+ const fee=freeHealsUsed<10?0:Math.round(5.2*Math.sqrt(Math.max(...members.map(m=>m.level))))*100;
  const overlay=document.createElement('div');overlay.id='pokemonCenterOverlay';overlay.className='party-summary-overlay';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 센터');
  const panel=document.createElement('section');panel.className='party-summary-panel pokemon-center-panel';
@@ -324,7 +324,7 @@ function healInjury(){
  confirm.onclick=()=>{
   if(teamMembers().every(m=>memberHp(m)>=memberMaxHp(m))){overlay.remove();alert('이미 포켓몬이 최고 컨디션이다');return;}
   refreshHealingDay();
-  const actualFee=freeHealsUsed<10?0:Math.max(...teamMembers().map(m=>m.level))*100;
+  const actualFee=freeHealsUsed<10?0:Math.round(5.2*Math.sqrt(Math.max(...teamMembers().map(m=>m.level))))*100;
   if(progress.money<actualFee){alert('포켓몬 센터 이용료가 부족해!');return;}
   if(actualFee)progress.money-=actualFee;else freeHealsUsed++;achievementData.centerUses++;saveAchievements();if(actualFee)earnAchievement('paidHeal');if(freeHealsUsed===10)earnAchievement('free10');if(achievementData.centerUses>=200)earnAchievement('center200');
   injured=false;storedHp=null;
