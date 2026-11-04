@@ -486,7 +486,7 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
   else battleEffectDisplay[ev.side].status=ev.status;
   renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));
  }
- addDetail(pokemonName(ev.side)+' '+({sleep:'수면',paralysis:'마비',poison:'독',burn:'화상',freeze:'얼음',confusion:'혼란'}[ev.status]||ev.status||'상태이상')+' 상태!');if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}await pause(250);}else if(ev.type==='statChange'){
+ addDetail(currentMove?.id==='rest'&&currentMove.side===ev.side?pokemonName(ev.side)+'는 잠자기로 HP를 모두 회복하고 잠들었다!':pokemonName(ev.side)+' '+({sleep:'수면',paralysis:'마비',poison:'독',burn:'화상',freeze:'얼음',confusion:'혼란'}[ev.status]||ev.status||'상태이상')+' 상태!');if(currentMove?.isStatus&&currentMove.side!==ev.side){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}await pause(250);}else if(ev.type==='statChange'){
   if(currentMove?.isStatus&&currentMove.side!==ev.side&&ev.change<0){await playMoveImpact(ev.side,currentMove.id);await shakeHit(ev.side);}
   // A compound boost (e.g. Dragon Dance) emits several adjacent stat changes.
   // Display one three-arrow animation for the whole group.
@@ -507,7 +507,7 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
+}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='heal'){if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
