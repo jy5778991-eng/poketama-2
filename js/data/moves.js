@@ -149,7 +149,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   braveBird:{name:'브레이브버드',power:130,accuracy:1,priority:0,recoilMaxHp:0.15},
   guillotine:{name:'가위자르기',accuracy:0.3,priority:0,oneHitKo:true},
   rockThrow:{name:'돌떨구기',power:50,accuracy:0.9,priority:0},
-  rockSlide:{name:'스톤샤워',power:75,accuracy:0.9,priority:0,confuseChance:0.1,critMultiplier:2},
+  rockSlide:{name:'스톤샤워',power:75,accuracy:0.9,priority:0,confuseChance:0.1},
   earthquake:{name:'지진',power:100,accuracy:1,priority:0},
   psychic:{name:'사이코키네시스',power:90,accuracy:1,priority:0,lowerTargetDefenseChance:0.2},
   slash:{name:'베어가르기',power:70,accuracy:1,priority:0,critMultiplier:2},
