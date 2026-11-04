@@ -3,7 +3,7 @@
  */
 export const RULES = Object.freeze({
   stageLimit: 6, criticalMultiplier: 1.5, randomMin: 0.85,
-  poisonFraction: 0.10, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
+  poisonFraction: 0.08, paralysisSpeed: 0.5, paralysisSkipChance: 0.25,
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
 import {MOVES} from './js/data/moves.js?v=20261104-firefang279';
@@ -108,7 +108,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
     user.pp[moveId]=remaining-1;
   }
   if(move.sleepTalk){if(user.status?.type!=='sleep'){say(b,'실패했다!');return;}const eligible=user.moveIds.filter(id=>MOVES[id]);if(!eligible.length){say(b,'실패했다!');return;}const selected=eligible[Math.floor(roll(b.rng)*eligible.length)];say(b,`${user.name}의 잠꼬대!`);if(selected==='sleepTalk'){say(b,'실패했다!');return;}executeMove(b,user,target,selected,true);return;}
-  if(move.rest){say(b,`${user.name}의 ${move.name}!`);emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:true});if(user.status){say(b,'실패했다!');return;}const healed=user.stats.hp-user.hp;user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 ${healed} 회복하고 잠들었다!`);emit(b,{type:'statusApplied',side:sideOf(b,user),status:'sleep'});emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});return;}
+  if(move.rest){say(b,`${user.name}의 ${move.name}!`);emit(b,{type:'move',side:sideOf(b,user),name:move.name,moveId,isStatus:true});if(user.status){say(b,'실패했다!');return;}const healed=user.stats.hp-user.hp;user.hp=user.stats.hp;user.status={type:'sleep',sleepBlockedActions:0,fromRest:true};say(b,`${user.name}은(는) 잠자기로 HP를 모두 회복하고 잠들었다!`);emit(b,{type:'statusApplied',side:sideOf(b,user),status:'sleep'});emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});return;}
   if(move.bellyDrum){const cost=Math.floor(user.stats.hp/2);if(user.hp<=cost||user.stages.attack>=RULES.stageLimit){say(b,'실패했다!');return;}user.hp-=cost;user.stages.attack=RULES.stageLimit;say(b,`${user.name}의 공격이 최대치까지 올랐다!`);emit(b,{type:'damage',side:sideOf(b,user),amount:cost,hp:user.hp,critical:false,selfCost:true});return;}
   say(b,`${user.name}의 ${move.name}!`);
   // Announce the attempted move before its accuracy result, including misses.
