@@ -26,7 +26,7 @@ const isLens=id=>id==='wideLensA'||id==='wideLensB';
 const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
 const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:4;
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
-const baseCashForWin=level=>20+level*5;
+const baseCashForWin=level=>40+level*4;
 const WILD_ADVANCED_REWARD_MULTIPLIER=1.2;
 const TRAINER_MONEY_REWARD_MULTIPLIER=2;
 const TRAINER_EXP_REWARD_MULTIPLIER=1.5;
