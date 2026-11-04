@@ -12,7 +12,7 @@ import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-u
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261104-rocket-trainers263';
-import {renderInventoryView} from './js/inventory.js?v=20261103-item-sprites245';
+import {renderInventoryView} from './js/inventory.js?v=20261104-lens-quantity271';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','scopeLens','revivalSeed'];
