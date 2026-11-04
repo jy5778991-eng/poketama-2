@@ -294,7 +294,7 @@ function healInjury(){
  document.getElementById('pokemonCenterOverlay')?.remove();
  const members=teamMembers();
  if(members.every(m=>memberHp(m)>=memberMaxHp(m))){alert('이미 포켓몬이 최고 컨디션이다');return;}
- const fee=freeHealsUsed<10?0:Math.round(5.2*Math.sqrt(Math.max(...members.map(m=>m.level))))*100;
+ const fee=freeHealsUsed<10?0:pokemonCenterFee(members);
  const overlay=document.createElement('div');overlay.id='pokemonCenterOverlay';overlay.className='party-summary-overlay';
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','포켓몬 센터');
  const panel=document.createElement('section');panel.className='party-summary-panel pokemon-center-panel';
