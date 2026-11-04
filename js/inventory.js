@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261103-item-sprites245';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261104-revival-seed275';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
