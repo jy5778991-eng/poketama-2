@@ -1994,6 +1994,7 @@ function showPartyManager(selectedKey=null,replacement=false){
    if(move.critMultiplier&&move.critMultiplier!==1)effects.push('급소 확률 '+move.critMultiplier+'배');
    if(move.inflict)effects.push((status[move.inflict]||move.inflict)+' '+Math.round((move.inflictChance??1)*100)+'% 확률');
    if(move.confuseTarget)effects.push('상대를 혼란 상태로');
+   if(move.confuseChance)effects.push('혼란 '+Math.round(move.confuseChance*100)+'% 확률');
    if(move.healMaxHp)effects.push('최대 HP의 '+Math.round(move.healMaxHp*100)+'% 회복');
    if(move.shieldTurns)effects.push('빛의장막 '+move.shieldTurns+'턴');
    if(move.aquaRing)effects.push('매 턴 HP 회복');
