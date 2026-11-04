@@ -138,6 +138,13 @@
  background-repeat:no-repeat;
 }
 
+/* Faraway Island: anchor scenery to the left. On narrow screens only the right edge is cropped. */
+.home-sprite-wrap.area-farawayIsland,#battleScreen .arena.area-farawayIsland{
+ background-position:left center;
+ background-size:auto 100%;
+ background-repeat:no-repeat;
+}
+
 /* Preserve uploaded artwork sharpness; avoid forced pixelation of full-resolution scenery. */
 .home-sprite-wrap.area-sea,#battleScreen .arena.area-sea,.home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{image-rendering:auto}
 
