@@ -49,12 +49,12 @@ const EVOLUTION_REWARD_ITEMS=[
  {id:'sootheBell',name:'평온의 방울',icon:'🔔'}
 ];
 const STONE_WILD_EVOLUTIONS={
- moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'}},
+ moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'},35:{dex:36,name:'픽시'},39:{dex:40,name:'푸크린'}},
  leafStone:{44:{dex:45,name:'라플레시아'},70:{dex:71,name:'우츠보트'},102:{dex:103,name:'나시'}},
- waterStone:{61:{dex:62,name:'강챙이'}},
+ waterStone:{61:{dex:62,name:'강챙이'},90:{dex:91,name:'파르셀'},120:{dex:121,name:'아쿠스타'}},
  metalCoat:{95:{dex:208,name:'강철톤'},123:{dex:212,name:'핫삼'}},
  sootheBell:{42:{dex:169,name:'크로뱃'}},
- fireStone:{58:{dex:59,name:'윈디'}}
+ fireStone:{58:{dex:59,name:'윈디'},37:{dex:38,name:'나인테일'}}
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
@@ -62,10 +62,10 @@ function eligibleEvolutionTargets(choice){
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
   if(choice.id==='sootheBell')return member.dex===42&&member.level>=36;
   if(choice.id==='metalCoat')return (member.dex===95&&member.level>=34)||(member.dex===123&&member.level>=40);
-  if(choice.id==='fireStone'&&member.dex===58&&member.level>=36)return true;
-  if(choice.id==='moonStone')return [30,33].includes(member.dex)&&member.level>=22;
+  if(choice.id==='fireStone'&&((member.dex===58&&member.level>=36)||(member.dex===37&&member.level>=32)))return true;
+  if(choice.id==='moonStone')return ([30,33].includes(member.dex)&&member.level>=22)||(member.dex===35&&member.level>=30)||(member.dex===39&&member.level>=25);
   if(choice.id==='leafStone')return ([44,70].includes(member.dex)&&member.level>=30)||(member.dex===102&&member.level>=40);
-  if(choice.id==='waterStone'&&member.dex===61&&member.level>=30)return true;
+  if(choice.id==='waterStone')return (member.dex===61&&member.level>=30)||(member.dex===90&&member.level>=30)||(member.dex===120&&member.level>=25);
   return member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm());
  });
 }
@@ -559,7 +559,10 @@ const WILD_EVOLUTIONS={
  81:[82,30,'레어코일'],84:[85,31,'두트리오'],111:[112,42,'코뿌리'],
  92:[93,25,'고우스트'],96:[97,26,'슬리퍼'],
  98:[99,28,'킹크랩'],100:[101,30,'붐볼'],104:[105,28,'텅구리'],
- 116:[117,32,'시드라'],118:[119,33,'왕콘치'],129:[130,20,'갸라도스']
+ 116:[117,32,'시드라'],118:[119,33,'왕콘치'],129:[130,20,'갸라도스'],
+ 48:[49,31,'도나리'],50:[51,26,'닥트리오'],52:[53,28,'페르시온'],56:[57,28,'성원숭'],
+ 77:[78,40,'날쌩마'],86:[87,34,'쥬레곤'],88:[89,38,'질뻐기'],109:[110,35,'또도가스'],
+ 138:[139,40,'암스타'],140:[141,40,'투구푸스']
 };
 async function processPartyGrowth(events){
  if(!events.length)return;
