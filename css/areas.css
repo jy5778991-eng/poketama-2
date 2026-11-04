@@ -133,7 +133,7 @@
 .home-sprite-wrap.area-championRoad2,#battleScreen .arena.area-championRoad2{
  background-color:#699b6d;
  background-image:url('../assets/champion-road-b.png?v=20261030-upload');
- background-position:center;background-size:cover;background-repeat:no-repeat;
+ background-position:center;background-size:contain;background-repeat:no-repeat;
 }
 
 /* Preserve uploaded artwork sharpness; avoid forced pixelation of full-resolution scenery. */
