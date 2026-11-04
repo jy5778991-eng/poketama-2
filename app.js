@@ -34,9 +34,9 @@ const EXTRA_TM_CONFIG={
  tm06:{number:'06',name:'불꽃펀치',moveId:'firePunch',minLevel:22,dex:[126,107,66,67,68,56,57,34,31,115,143,112,150,151,4,5,6]},
  tm07:{number:'07',name:'냉동펀치',moveId:'icePunch',minLevel:22,dex:[124,107,66,67,68,56,57,34,31,115,143,112,150,151,7,8,9]},
  tm08:{number:'08',name:'진흙뿌리기',moveId:'mudSlap',minLevel:10,tier:'rare',dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,27,28,29,30,31,32,33,34,50,51,52,53,54,55,60,61,62,74,75,76,79,80,83,84,85,95,98,99,104,105,115,133,134,135,136,196,197,150,151]},
- tm09:{number:'09',name:'그로우펀치',moveId:'powerUpPunch',minLevel:15,maxLevelExclusive:70,tier:'rare',dex:[4,5,6,7,8,9,173,35,36,174,39,40,54,55,56,57,66,67,68,74,75,76,88,89,96,97,106,107,108,115,113,122,124,125,126,446,143,149,150,151],
+ tm09:{number:'09',name:'그로우펀치',moveId:'powerUpPunch',minLevel:15,maxLevelExclusive:70,tier:'rare',dex:[4,5,6,7,8,9,173,35,36,174,39,40,54,55,56,57,66,67,68,74,75,76,88,89,96,97,106,107,108,115,113,122,124,125,126,446,143,149,150,151]},
  tm10:{number:'10',name:'돌진',moveId:'takeDown',minLevel:20,maxLevelExclusive:60,tier:'rare',dex:[1,2,3,19,20,58,59,21,22,77,78,111,112,115,120,121,133,134,135,136,196,197,147,148,149]},
- tm11:{number:'11',name:'날개쉬기',moveId:'roost',minLevel:40,maxLevelExclusive:100,tier:'legendary',weight:1,dex:[6,12,15,16,17,18,21,22,41,42,169,49,83,84,85,123,142,144,145,146,149,151],
+ tm11:{number:'11',name:'날개쉬기',moveId:'roost',minLevel:40,maxLevelExclusive:100,tier:'legendary',weight:1,dex:[6,12,15,16,17,18,21,22,41,42,169,49,83,84,85,123,142,144,145,146,149,151]},
  tm12:{number:'12',name:'애교부리기',moveId:'charm',minLevel:10,maxLevelExclusive:40,tier:'hyper',weight:1,dex:[1,2,3,172,25,26,173,35,36,174,39,40,37,38,43,44,45,52,53,58,59,113,133,134,135,136,196,197,131,151]},
  tm13:{number:'13',name:'싫은소리',moveId:'screech',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[174,39,40,41,42,169,52,53,72,73,81,82,95,104,105,90,91,109,110,140,141,151]},
  tm14:{number:'14',name:'맹독',moveId:'toxic',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[1,2,3,13,14,15,23,24,29,30,31,32,33,34,41,42,169,43,44,45,48,49,69,70,71,72,73,88,89,92,93,94,109,110,150,151]}
