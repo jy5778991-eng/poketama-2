@@ -10,7 +10,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteU
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {renderCollectionView} from './js/collection.js?v=20261102-trainerrecords206';
+import {renderCollectionView} from './js/collection.js?v=20261104-rocket-trainers263';
 import {renderInventoryView} from './js/inventory.js?v=20261103-item-sprites245';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
