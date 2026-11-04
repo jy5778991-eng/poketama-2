@@ -303,3 +303,9 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
  .online-ranking-starter{grid-template-columns:repeat(4,minmax(0,1fr))}
  .online-ranking-starter .online-ranking-starter-button{font-size:11px;min-height:36px}
 }
+
+/* Held-item visibility in bag and party */
+.bag-held-status{display:block;margin-top:4px;font-size:12px;font-weight:600;color:#247b62}
+.party-summary-name-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
+.party-summary-name-row strong{margin-right:2px}
+.party-summary-held-icon{display:inline-flex;width:18px;height:18px;object-fit:contain;flex:0 0 18px;vertical-align:middle;font-size:15px;align-items:center;justify-content:center}
