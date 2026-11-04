@@ -26,6 +26,11 @@ const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
 const currentRewardStage=()=>area==='grass'?1:area==='forest'?2:area==='cave'?3:4;
 const rewardItemSlots=(stage)=>REWARD_ITEM_SLOTS_BY_STAGE[stage]??2;
 const baseCashForWin=level=>20+level*5;
+const WILD_ADVANCED_REWARD_MULTIPLIER=1.2;
+const TRAINER_MONEY_REWARD_MULTIPLIER=2;
+const TRAINER_EXP_REWARD_MULTIPLIER=1.5;
+const scaledBattleReward=(base,multiplier)=>Math.floor(base*multiplier);
+const wildHasAdvancedReward=enemy=>!!enemy&&(enemy.tier?enemy.tier!=='normal'||EVOLVED_DEX.has(enemy.dex):EVOLVED_DEX.has(enemy.dex)||RARE_DEX.has(enemy.dex)||HYPER_DEX.has(enemy.dex)||LEGENDARY_DEX.has(enemy.dex)||!!enemy.rare);
 const bonusCashForWin=()=>100+13*Math.max(...teamMembers().map(m=>m.level));
 // Each reward slot rolls independently: 74% normal, 20% rare, 5% hyper, 1% legendary.
 // Duplicate tiers, reward types and exact rewards are intentional.
@@ -425,7 +430,7 @@ async function shakeHit(side,critical=false){
  await pause(430);
  host.classList.remove('impact-shake','impact-shake-heavy');
 }
-async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='brightness(0.48) saturate(0.65)';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
+async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
  if(battleEffectDisplay?.[ev.side]){
   if(ev.status==='confusion')battleEffectDisplay[ev.side].confused=true;
   else battleEffectDisplay[ev.side].status=ev.status;
@@ -529,12 +534,14 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle']){
   ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
   :recentWildMoves(dex,level);
  const selected=recent.length?recent:moveIds;
- return createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:(()=>{
+ const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
   const evs={hp:ev,attack:ev,defense:ev,speed:ev};
   return calculateStats(base,level,ivs,evs);
  })(),moveIds:selected});
+ trainer.dex=dex;
+ return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
  return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
@@ -639,8 +646,9 @@ function awardExperience(){
  rewardClaimed=true;
  const cap=wildRewardLevelCap();
  const capped=wildRewardCapped(activeMember());
- const gained=capped?0:12+wildEnemy.level*6;
- const baseMoney=baseCashForWin(wildEnemy.level);
+ const rewardMultiplier=wildHasAdvancedReward(wildEnemy)?WILD_ADVANCED_REWARD_MULTIPLIER:1;
+ const gained=capped?0:scaledBattleReward(12+wildEnemy.level*6,rewardMultiplier);
+ const baseMoney=scaledBattleReward(baseCashForWin(wildEnemy.level),rewardMultiplier);
  const bonusMoney=bonusCashForWin(wildEnemy.level);
  lastBattleReward={exp:gained,money:baseMoney};
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
@@ -745,12 +753,13 @@ function finishTrainerBattle(){
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
   // Award trainer EXP exactly once, on victory, based on the final opposing Pokemon.
   // Keep the pre-victory region cap even if this victory advances to the next area.
-  gained=activeWasCapped?0:12+level*6;
+  gained=activeWasCapped?0:scaledBattleReward(12+level*6,TRAINER_EXP_REWARD_MULTIPLIER);
   trainerExpEarned=gained;
   if(gained>0)addPartyExperience(gained,finalEnemy?.name||'마지막 포켓몬',rewardLevelCap);
-  progress.money+=baseCashForWin(level);checkMoneyAchievement();
-  appendAdventureLog('💰 트레이너 승리 보상 '+baseCashForWin(level)+'원 획득');
-  lastBattleReward={exp:gained,money:baseCashForWin(level)};
+  const trainerMoney=scaledBattleReward(baseCashForWin(level),TRAINER_MONEY_REWARD_MULTIPLIER);
+  progress.money+=trainerMoney;checkMoneyAchievement();
+  appendAdventureLog('💰 트레이너 승리 보상 '+trainerMoney+'원 획득');
+  lastBattleReward={exp:gained,money:trainerMoney};
   lastPartyExp={...battleExpEarned};
   pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
  }else{
@@ -957,7 +966,7 @@ function reset(kind='wild',recordDiscovery=true){
   const wildStats=calculateStats(wild.base,level,zeroIV,{});
   const openingPenalty=leader.level<=3?0.7:leader.level<=7?0.85:1;
   if(openingPenalty<1)for(const stat of ['attack','defense','speed'])wildStats[stat]=Math.max(1,Math.floor(wildStats[stat]*openingPenalty));
-  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
+  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.dex=wild.dex;enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
  }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
@@ -1755,7 +1764,7 @@ function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.d
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,form.base,form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
 player.shellBell=hasHeld('shellBell',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
@@ -2278,7 +2287,14 @@ async function act(a){
    defeatedEnemies++;
   }}
  }
- shownHp={...previousHp};render();await playEvents(events);battleEffectDisplay=null;renderBattleEffects();
+ shownHp={...previousHp};render();await playEvents(events);
+ // Transform is only a battle appearance. Restore original sprites at its end.
+ if(battle.ended){
+  if(battle.player.transformDex){$('playerSprite').style.filter='';sprite('playerSprite',activeMember().dex,true,'⚔️');}
+  const endingEnemy=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+  if(endingEnemy?.transformDex){$('enemySprite').style.filter='';sprite('enemySprite',endingEnemy.dex||Number(endingEnemy.id?.replace(/^(wild|trainer|companion)-/,'')),false,'⚔️');}
+ }
+ battleEffectDisplay=null;renderBattleEffects();
  animatingEnemy=null; // Only now may the next trainer Pokémon's max HP appear.
  if(needsReplacement){const playerSprite=document.querySelector('#battleScreen .sprite.player');if(playerSprite){playerSprite.classList.add('party-fainted');await pause(500);}}
  if(battleKind!=='wild'&&events.some(ev=>ev.type==='knockout'&&ev.side==='enemy')&&!battle.ended){
