@@ -69,6 +69,25 @@ function eligibleEvolutionTargets(choice){
   return member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm());
  });
 }
+// Minimum level required for each evolution reward and species.
+const EVOLUTION_REWARD_LEVELS={
+ linkCord:{93:30,64:30,67:30,75:30},
+ thunderStone:{25:24,133:22},
+ sootheBell:{42:36},
+ metalCoat:{95:34,123:40},
+ fireStone:{58:36,37:32,133:22},
+ moonStone:{30:22,33:22,35:30,39:25},
+ leafStone:{44:30,70:30,102:40,133:22},
+ waterStone:{61:30,90:30,120:25,133:22},
+ dawnStone:{133:22},duskStone:{133:22}
+};
+function evolutionRewardWeight(choice){
+ const thresholds=EVOLUTION_REWARD_LEVELS[choice.id]||{};
+ const targets=eligibleEvolutionTargets(choice);
+ if(!targets.length)return 0;
+ const maxExtra=Math.max(...targets.map(member=>member.level-(thresholds[member.dex]??22)));
+ return maxExtra>=10?10:maxExtra>=5?6:4;
+}
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
 // Rewards roll a fixed tier first (74/20/5/1), then use weights within that tier.
 // Every reward has a base weight of 4. Unmet eligibility conditions set it to 0.
@@ -93,7 +112,7 @@ function rewardWeight(choice,context){
  if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?4:0;
  if(choice.kind==='candyBundle')return members.length>=2?(redLevelReached?2:4):0;
  if(choice.kind==='ev')return 3;
- if(choice.kind==='evolution')return eligibleEvolutionTargets(choice).length>0?9:0;
+ if(choice.kind==='evolution')return evolutionRewardWeight(choice);
  if(choice.kind==='item'){
   const id=choice.id;
   if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
