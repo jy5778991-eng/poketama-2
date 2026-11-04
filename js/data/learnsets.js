@@ -106,32 +106,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "misdreavus": [{"level":1,"id":"lick"},{"level":20,"id":"confuseRay"},{"level":35,"id":"nightShade"},{"level":48,"id":"shadowBall"}],
  "spearow": [{level:1,id:'tackle'}, {level:16,id:'wingAttack'}, {level:32,id:'rotaryPeck'}, {level:43,id:'fly'}, {level:48,id:'agility'}, {level:55,id:'braveBird'}],
  "nidoranF": [{"level":1,"id":"tackle40"},{"level":8,"id":"poisonSting15"},{"level":15,"id":"hornAttack50"},{"level":30,"id":"poisonJab"},{"level":48,"id":"earthquake"},{"level":52,"id":"thrash"},{"level":68,"id":"hornDrill"}],
- "eevee": [
-  {
-   "level": 1,
-   "id": "tackle"
-  },
-  {
-   "level": 10,
-   "id": "quickAttack"
-  },
-  {
-   "level": 20,
-   "id": "bite"
-  },
-  {
-   "level": 30,
-   "id": "swift"
-  },
-  {
-   "level": 40,
-   "id": "bodySlam"
-  },
-  {
-   "level": 55,
-   "id": "gigaImpact"
-  }
- ],
+ "eevee": STARTER_LEARNSETS.eevee,
  "weedle": [{level:1,id:'poisonSting'}, {level:7,id:'harden'}, {level:12,id:'furyAttack'}, {level:27,id:'poisonJab'}, {level:38,id:'fellStinger'}, {level:43,id:'agility'}, {level:46,id:'drillRun'}],
  "paras": [{level:1,id:'scratch'}, {level:10,id:'poisonPowder'}, {level:13,id:'absorb'}, {level:17,id:'furySwipes'}, {level:22,id:'slash'}, {level:28,id:'megaDrain'}, {level:45,id:'gigaDrain'}],
  "sandshrew": [{"level":1,"id":"scratch"},{"level":10,"id":"harden"},{"level":12,"id":"mudSlap"},{"level":26,"id":"dig"},{"level":32,"id":"slash"},{"level":45,"id":"earthquake"},{"level":52,"id":"swordsDance"}],
@@ -161,7 +136,7 @@ export const STARTER_FAMILY_BY_DEX={"196":"eevee","197":"eevee","1":"venusaur","
 export const EXTRA_FAMILY_BY_DEX={39:'jigglypuff',40:'jigglypuff',56:'mankey',57:'mankey',83:'farfetchd',98:'krabby',99:'krabby',108:'lickitung',122:'mrMime',125:'electabuzz',127:'pinsir',128:'tauros',138:'omanyte',139:'omanyte',140:'kabuto',141:'kabuto'};
 export const CROBAT_EXTRA_LEARNSET=[{level:60,id:'braveBird'}];
 export const MOVE_LEARNSETS=STARTER_LEARNSETS;
-export function learnsetForDex(dex){if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
+export function learnsetForDex(dex){if(Number(dex)===133)return STARTER_LEARNSETS.eevee;if(Number(dex)===135)return [...STARTER_LEARNSETS.eevee,...STARTER_LEARNSETS.jolteon];if(Number(dex)===134)return [...STARTER_LEARNSETS.eevee,...STARTER_LEARNSETS.vaporeon];if(Number(dex)===136)return [...STARTER_LEARNSETS.eevee,...STARTER_LEARNSETS.flareon];if(Number(dex)===212)return SCIZOR_LEARNSET;if(Number(dex)===169)return [...(FAMILY_LEARNSETS.zubat||[]),...CROBAT_EXTRA_LEARNSET];return FAMILY_LEARNSETS[FAMILY_BY_DEX[dex]]||ADDITIONAL_FAMILY_LEARNSETS[ADDITIONAL_FAMILY_BY_DEX[dex]]||ROCKET_ISLAND_LEARNSETS[ROCKET_ISLAND_FAMILY_BY_DEX[dex]]||STARTER_LEARNSETS[STARTER_FAMILY_BY_DEX[dex]]||FAMILY_LEARNSETS[EXTRA_FAMILY_BY_DEX[dex]]||null;}
 export function recentWildMoves(dex,level){
  const list=learnsetForDex(dex);
  if(!list)return ['tackle'];
