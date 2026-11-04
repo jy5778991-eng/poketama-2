@@ -226,7 +226,8 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       if(!a.player)continue;
       const hpFraction=Math.max(0,Math.min(1,e.hp/e.stats.hp));
       const speciesMultiplier=e.catchMultiplier??(e.rare?0.2:0.8);
-      const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)));
+      const statusMultiplier=e.status?.type||e.confusionTurns>0?1.5:1;
+      const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)*statusMultiplier));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';
