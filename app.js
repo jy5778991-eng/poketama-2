@@ -10,6 +10,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteU
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
+import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261104-rocket-trainers263';
 import {renderInventoryView} from './js/inventory.js?v=20261103-item-sprites245';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
@@ -1760,7 +1761,17 @@ function battleHealingTargets(){
 function livingMembers(){return teamMembers().filter(m=>memberHp(m)>0);}
 function normalizeLivingLead(){const all=teamMembers(),first=all[0];if(first&&memberHp(first)===0){const next=all.find(m=>memberHp(m)>0);if(next){partyOrder=[next.key,...all.filter(m=>m.key!==next.key).map(m=>m.key)];saveProgress();}}}
 function leaderMember(){return teamMembers()[0];}
-function memberBase(m){return m.starter?getForm(chosen,progress.level).base:(m.dex===208?{hp:75,attack:85,defense:153,speed:30}:m.dex===212?{hp:70,attack:130,defense:90,speed:65}:DEX_CATALOG.find(p=>p.dex===m.dex)?.base)||{hp:60,attack:65,defense:60,speed:60};}
+function memberBase(m){
+ if(m.starter)return getForm(chosen,progress.level).base;
+ // Preserve hand-balanced species from the Poketama roster; use complete
+ // canonical four-stat data for species that were previously missing.
+ const balanced=m.dex===208?{hp:75,attack:85,defense:153,speed:30}
+  :m.dex===212?{hp:70,attack:130,defense:90,speed:65}
+  :DEX_CATALOG.find(p=>p.dex===m.dex)?.base;
+ const base=balanced||BASE_STATS[m.dex];
+ if(!base)throw new Error('포켓몬 #'+m.dex+'의 종족값이 등록되지 않았습니다.');
+ return base;
+}
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
@@ -2656,7 +2667,7 @@ function archivedHallMember(record,m){
  const isStarter=record?.dex===m.dex&&record?.pokemon===m.name;
  if(isStarter&&record?.ivs){
   const base=Object.values(EVOLUTIONS).flat().find(f=>f.dex===m.dex)?.base
-   ||DEX_CATALOG.find(f=>f.dex===m.dex)?.base;
+   ||DEX_CATALOG.find(f=>f.dex===m.dex)?.base||BASE_STATS[m.dex];
   const evs=record.evs||{},ivs=record.ivs;
   const stats=base?calculateStats(base,m.level,ivs,evs):null;
   return {...m,ivs,evs,stats,moves:record.moves||[],source:'legacy-starter'};
