@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261104-move-balance305';
+import {moveDescription} from './js/data/moves.js?v=20261104-tm02-306';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261104-rest308';
