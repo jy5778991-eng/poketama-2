@@ -1,0 +1,15 @@
+name: Poketama base stat checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  base-stats:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify species, exceptions, IV and EV rules
+        run: node --experimental-default-type=module --test tests/base-stats.test.mjs
