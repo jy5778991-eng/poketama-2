@@ -2232,7 +2232,7 @@ function renderHome(){
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
  $('healButton').setAttribute('aria-disabled','false');
- $('healButtonNote').textContent=freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'이용료 '+(Math.max(...teamMembers().map(m=>m.level))*100).toLocaleString('ko-KR')+'원';
+ $('healButtonNote').textContent=freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'유료';
  $('startBattle').disabled=!livingMembers().length||!!pendingRewardChoice;
  const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
  $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
