@@ -57,7 +57,15 @@
 .home-sprite-wrap.area-lake,#battleScreen .arena.area-lake{background-color:#80bfd6;background-image:url('https://play.pokemonshowdown.com/fx/bg-river.png'),linear-gradient(180deg,#b9e9ee 0%,#77b7cc 58%,#3785a4 100%);background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Cemetery background shown after Lt. Surge; encounter roster pending confirmation. */
 /* Indoor Pokémon Tower-inspired stone hall: no outdoor forest background. */
-.home-sprite-wrap.area-cemetery,#battleScreen .arena.area-cemetery{background-color:#596879;background-image:url('../assets/cemetery-overlay.svg?v=20261023-13');background-size:cover;background-position:center;background-repeat:no-repeat}
+/* Custom cemetery interior: center the new art and retain the original SVG as a fallback. */
+.home-sprite-wrap.area-cemetery,#battleScreen .arena.area-cemetery{
+ background-color:#30254b;
+ background-image:url('../assets/cemetery.png?v=20261104-cemetery303'),url('../assets/cemetery-overlay.svg?v=20261023-13');
+ background-position:center center,center center;
+ background-size:cover,cover;
+ background-repeat:no-repeat,no-repeat;
+ image-rendering:auto;
+}
 /* Road background placeholder; replace after road art is selected. */
 .home-sprite-wrap.area-road,#battleScreen .arena.area-road{background-color:#91b487;background-image:url('../assets/road-scene.svg?v=20261023-15');background-size:cover;background-position:center;background-repeat:no-repeat}
 /* Metropolitan route: city street and buildings in the same pixel-art scale as other regions. */
