@@ -1180,6 +1180,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
+ if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 장착한 포켓몬의 급소 확률 +8%p';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
@@ -1875,7 +1876,7 @@ function partyOverlay(title,description,choices){
  let layer=document.getElementById('partyActionOverlay');
  if(!layer){
   layer=document.createElement('div');layer.id='partyActionOverlay';
-  layer.style.cssText='position:fixed;inset:0;background:#0009;z-index:15000;overflow-y:auto;padding:6vh 16px;display:flex;align-items:flex-start;justify-content:center';
+  layer.style.cssText='position:fixed;inset:0;background:#0009;z-index:30000;overflow-y:auto;padding:6vh 16px;display:flex;align-items:flex-start;justify-content:center';
   const dialog=document.createElement('div');dialog.style.cssText='background:white;border:3px solid #405675;border-radius:17px;padding:20px;max-width:460px;width:100%;color:#293e59;box-shadow:0 12px 25px #0005';
   const heading=document.createElement('h2');heading.id='partyActionTitle';heading.style.margin='0 0 12px';
   const info=document.createElement('p');info.id='partyActionInfo';
@@ -2263,7 +2264,9 @@ async function act(a){
   
   if(battle.player.hp===0){
    setActiveHp(0);
-   needsReplacement=teamMembers().some(m=>m.key!==activeBattleKey&&memberHp(m)>0);
+   // Revived reserve members must prevent an engine-level defeat on the active Pokemon's knockout.
+   const survivingReserves=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0);
+   needsReplacement=survivingReserves.length>0;
    if(needsReplacement){
     // A double knockout against the final enemy is already a victory.
     if(battle.result!=='victory'){battle.ended=false;battle.result=null;}
