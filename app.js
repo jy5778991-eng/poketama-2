@@ -39,7 +39,7 @@ const EXTRA_TM_CONFIG={
  tm11:{number:'11',name:'날개쉬기',moveId:'roost',minLevel:40,maxLevelExclusive:100,tier:'legendary',weight:1,dex:[6,12,15,16,17,18,21,22,41,42,169,49,83,84,85,123,142,144,145,146,149,151]},
  tm12:{number:'12',name:'애교부리기',moveId:'charm',minLevel:10,maxLevelExclusive:40,tier:'hyper',weight:1,dex:[1,2,3,172,25,26,173,35,36,174,39,40,37,38,43,44,45,52,53,58,59,113,133,134,135,136,196,197,131,151]},
  tm13:{number:'13',name:'싫은소리',moveId:'screech',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[174,39,40,41,42,169,52,53,72,73,81,82,95,104,105,90,91,109,110,140,141,151]},
- tm14:{number:'14',name:'맹독',moveId:'toxic',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[1,2,3,13,14,15,23,24,29,30,31,32,33,34,41,42,169,43,44,45,48,49,69,70,71,72,73,88,89,92,93,94,109,110,150,151],
+ tm14:{number:'14',name:'맹독',moveId:'toxic',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[1,2,3,13,14,15,23,24,29,30,31,32,33,34,41,42,169,43,44,45,48,49,69,70,71,72,73,88,89,92,93,94,109,110,150,151]},
  tm15:{number:'15',name:'전기자석파',moveId:'thunderWave',minLevel:15,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[19,20,172,25,26,173,35,36,63,64,65,79,80,81,82,92,93,94,100,101,113,120,121,125,135,147,148,149]},
  tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49]}
 };
