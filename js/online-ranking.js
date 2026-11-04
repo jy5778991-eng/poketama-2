@@ -124,7 +124,15 @@ async function refresh(snapshot){
  try{
   const db=await client();let response;
   if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
-  else response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order('updated_at',{ascending:true}).limit(100);
+  else {
+   const tieField=tab==='dex'?'updated_at':'achievement_reached_at';
+   response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order(tieField,{ascending:true}).limit(100);
+   // Remain compatible with the old database until the one-time SQL migration is applied.
+   if(response.error&&tab==='achievements'&&/achievement_reached_at/.test(response.error.message||'')){
+    response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order('achievement_count',{ascending:false}).order('updated_at',{ascending:true}).limit(100);
+    notice('업적 동점자 순위 고정 기능을 사용하려면 서버 SQL 업데이트가 필요해.',true);
+   }
+  }
   if(response.error)throw response.error;
   if(!overlay||requestId!==rankingRequestId)return;
   board.replaceChildren();const entries=response.data||[];
