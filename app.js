@@ -41,7 +41,7 @@ const EXTRA_TM_CONFIG={
  tm13:{number:'13',name:'싫은소리',moveId:'screech',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[174,39,40,41,42,169,52,53,72,73,81,82,95,104,105,90,91,109,110,140,141,151]},
  tm14:{number:'14',name:'맹독',moveId:'toxic',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[1,2,3,13,14,15,23,24,29,30,31,32,33,34,41,42,169,43,44,45,48,49,69,70,71,72,73,88,89,92,93,94,109,110,150,151]},
  tm15:{number:'15',name:'전기자석파',moveId:'thunderWave',minLevel:15,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[19,20,172,25,26,173,35,36,63,64,65,79,80,81,82,92,93,94,100,101,113,120,121,125,135,147,148,149]},
- tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49],
+ tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49]},
  tm17:{number:'17',name:'인파이트',moveId:'closeCombat',minLevel:45,maxLevelExclusive:101,tier:'hyper',weight:1,dex:[56,57,58,59,62,66,67,68,83,106,107,123,212,128,151]}
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
