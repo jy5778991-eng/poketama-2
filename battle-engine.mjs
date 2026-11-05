@@ -86,10 +86,10 @@ function canAct(p,b){
 function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
 function applyAttackDamage(b,target,damage){
  const hp=target.hp;
- if(hp>0&&damage>=hp&&target===b.player&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<0.3){
+ if(hp>0&&damage>=hp&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<0.3){
   target.focusSashUsed=true;target.hp=1;
   say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
-  emit(b,{type:'focusSash',side:'player'});
+  emit(b,{type:'focusSash',side:sideOf(b,target)});
  }else target.hp=Math.max(0,hp-damage);
  return hp-target.hp;
 }
@@ -192,6 +192,11 @@ function settle(b){
   const p=b.player,e=activeEnemy(b);
   // Resolve the enemy knockout before checking the active player's HP.
   // The app decides whether a fainted player has a surviving party member.
+  if(!isAlive(e)&&e.revivalSeedEnabled&&!e.revivalSeedUsed){
+    e.revivalSeedUsed=true;e.revivalSeedEnabled=false;e.hp=e.stats.hp;
+    say(b,`${e.name}의 부활의 씨앗 발동! HP 전부 회복`);
+    emit(b,{type:'heal',side:'enemy',amount:e.hp,hp:e.hp,heldItem:'revivalSeed'});
+  }
   if(!isAlive(e)){
     emit(b,{type:'knockout',side:'enemy',enemyIndex:b.enemyIndex});
     if(b.enemyIndex===b.enemies.length-1){b.ended=true;b.result='victory';say(b,'승리했다!');}
