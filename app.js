@@ -4,7 +4,7 @@ import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon2
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-ai-all332';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261104-legendary-dex302';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-dex-cap335';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261105-leftovers326';
@@ -12,7 +12,7 @@ import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.j
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
-import {renderCollectionView} from './js/collection.js?v=20261104-rocket-trainers263';
+import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
 import {renderInventoryView} from './js/inventory.js?v=20261104-revival-seed275';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
@@ -1401,6 +1401,12 @@ function rerollRewards(){
  showRewardChoices();
 }
 function showSilverCapStatChoice(member=leaderMember()){
+ const currentIVs=member.starter?playerIVs:companions.find(x=>x.family===member.family)?.ivs;
+ if(!currentIVs||EV_STATS.every(stat=>currentIVs[stat]>=16)){
+  alert('선택한 포켓몬의 모든 개체값이 이미 최대입니다. 병뚜껑을 사용할 수 없습니다.');
+  $('rewardChoiceOverlay').hidden=false;
+  return;
+ }
  const layer=$('silverCapOverlay'),options=$('silverCapOptions');
  options.replaceChildren();
  for(const stat of EV_STATS){
@@ -1433,6 +1439,11 @@ function choosePermanentTarget(choice,autoMember=null){
   if(choice.kind==='goldCap'){
    const iv=m.starter?playerIVs:companions.find(x=>x.family===m.family)?.ivs;
    if(!iv){$('rewardChoiceOverlay').hidden=false;return;}
+   if(EV_STATS.every(stat=>iv[stat]>=16)){
+    alert('선택한 포켓몬의 모든 개체값이 이미 최대입니다. 병뚜껑을 사용할 수 없습니다.');
+    $('rewardChoiceOverlay').hidden=false;
+    return;
+   }
    for(const stat of EV_STATS)iv[stat]=16;checkIVAchievement(iv);
    appendAdventureLog('🥇 '+m.name+' 모든 개체값 최대 강화');
   }
