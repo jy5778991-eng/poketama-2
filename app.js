@@ -17,7 +17,7 @@ import {renderInventoryView} from './js/inventory.js?v=20261104-revival-seed275'
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:1,shellBell:1,leftovers:1,scopeLens:2,revivalSeed:1};
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:5,shellBell:1,leftovers:1,scopeLens:2,revivalSeed:1};
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -177,7 +177,7 @@ function rewardWeight(choice,context){
   if(id==='wideLensB')return inventory.wideLensB>=1?0:2;
   if(id==='focusSash')return inventory.focusSash>=1?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
-  if(id==='hardClaw')return inventory.hardClaw>=1?0:1;
+  if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
    if(id==='shellBell')return inventory.shellBell>=1?0:1;
    if(id==='leftovers')return inventory.leftovers>=1?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?1:2;
@@ -1315,7 +1315,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='revivalSeed')return '🌱 부활의 씨앗 · 포켓몬에게 장착하면 배틀 중 HP 0이 될 때 즉시 풀피로 부활 · 발동 시 소모';
  if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 장착 포켓몬이 기절할 공격을 받을 때 30% 확률로 HP 1 생존, 배틀당 1회';
- if(choice.kind==='item'&&choice.id==='hardClaw')return '🐾 단단한 발톱 · 장착 포켓몬 공격력 1.3배 (사용 아이템)';
+ if(choice.kind==='item'&&choice.id==='hardClaw')return '단단한 발톱 · 1개당 공격력 +10%, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
@@ -1607,7 +1607,7 @@ function claimRewardChoice(index){
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:hasHeld(choice.id,m.key),action:()=>{
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=(choice.id==='hardClaw'?3:1),action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -1982,26 +1982,33 @@ function memberBase(m){
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
+function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(1+0.1*heldCount('hardClaw',m.key));
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
 player.shellBell=hasHeld('shellBell',m.key);player.leftoversEnabled=hasHeld('leftovers',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
-  const seen=new Set();
+  const seen=new Map();
   battleItemHolders[id]=(battleItemHolders[id]||[]).filter(k=>{
-   if(!keys.has(k)||seen.has(k))return false;
-   seen.add(k);return true;
+   if(!keys.has(k))return false;
+   if(id==='hardClaw'){
+    const count=seen.get(k)||0;
+    if(count>=3)return false;
+    seen.set(k,count+1);return true;
+   }
+   if(seen.has(k))return false;
+   seen.set(k,1);return true;
   }).slice(0,inventory[id]||0);
  }
  const bOwners=new Set(battleItemHolders.wideLensB);
  battleItemHolders.wideLensA=battleItemHolders.wideLensA.filter(k=>!bOwners.has(k));
 }
-function hasHeld(id,key){return (battleItemHolders[id]||[]).includes(key);}
+function heldCount(id,key){return (battleItemHolders[id]||[]).filter(holder=>holder===key).length;}
+function hasHeld(id,key){return heldCount(id,key)>0;}
 function equipHeld(id,key){
  normalizeHeldItems();
  if(!HELD_ITEMS.includes(id)||!teamMembers().some(m=>m.key===key))return false;
- if(hasHeld(id,key))return true;
+ if(heldCount(id,key)>=(id==='hardClaw'?3:1))return false;
  if(battleItemHolders[id].length>=inventory[id])return false;
  if(isLens(id)){
   const other=id==='wideLensA'?'wideLensB':'wideLensA';
@@ -2039,12 +2046,61 @@ function selectHeldItemTarget(id){
 }
 function manageHeldItem(id){
  normalizeHeldItems();
- const item=SHOP_ITEMS.find(i=>i.id===id),holders=battleItemHolders[id];
- partyOverlay(item.icon+' '+item.name,'보유 '+inventory[id]+'개 · 장착 '+holders.length+'개. 한 포켓몬은 여러 종류를 착용할 수 있지만 광각렌즈끼리는 중복할 수 없어.',[
-  {text:'장착 대상 선택',action:()=>selectHeldItemTarget(id)},
-  ...holders.map(key=>({text:(teamMembers().find(m=>m.key===key)?.name||key)+' · 장착 해제',action:()=>{battleItemHolders[id]=battleItemHolders[id].filter(k=>k!==key);saveProgress();renderInventory();manageHeldItem(id);}})),
-  {text:'닫기'}
- ]);
+ const item=SHOP_ITEMS.find(i=>i.id===id);
+ if(!item)return;
+ document.getElementById('partyActionOverlay')?.remove();
+ const overlay=document.createElement('div');
+ overlay.id='partyActionOverlay';
+ overlay.style.cssText='position:fixed;inset:0;background:#0009;z-index:100001;overflow-y:auto;padding:6vh 16px;display:flex;align-items:flex-start;justify-content:center';
+ const dialog=document.createElement('section');
+ dialog.style.cssText='background:white;border:3px solid #405675;border-radius:17px;padding:20px;max-width:460px;width:100%;color:#293e59;box-shadow:0 12px 25px #0005;display:grid;gap:12px';
+ const header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:10px';
+ const image=document.createElement('img');image.src=itemSpriteUrl(id);image.alt=item.name;image.width=36;image.height=36;image.style.cssText='image-rendering:pixelated;object-fit:contain';
+ const heading=document.createElement('div');
+ const title=document.createElement('h2');title.textContent=item.name+' 장착 관리';title.style.margin='0';
+ const status=document.createElement('small');
+ heading.append(title,status);header.append(image,heading);dialog.append(header);
+ const rows=document.createElement('div');rows.style.cssText='display:grid;gap:10px';dialog.append(rows);
+ const close=document.createElement('button');close.type='button';close.textContent='닫기';
+ close.style.cssText='min-height:44px;border-radius:10px;border:2px solid #697e9d;background:#f3f6fb;color:#283c5a;font-weight:bold';
+ close.onclick=()=>{overlay.remove();renderInventory();};
+ dialog.append(close);overlay.append(dialog);document.body.append(overlay);
+ function update(){
+  normalizeHeldItems();
+  const used=battleItemHolders[id].length,available=Math.max(0,inventory[id]-used);
+  status.textContent='보유 '+inventory[id]+'개 · 장착 '+used+'개 · 미장착 '+available+'개';
+  rows.replaceChildren();
+  for(const member of teamMembers()){
+   const count=heldCount(id,member.key),limit=id==='hardClaw'?3:1;
+   const row=document.createElement('div');row.style.cssText='border:1px solid #cad5e5;border-radius:11px;padding:11px;display:grid;gap:7px';
+   const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:8px;justify-content:space-between';
+   const label=document.createElement('div');
+   const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
+   const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
+   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':count?'장착 중':'미장착';label.append(detail);
+   const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
+   const button=(symbol,disabled,action)=>{
+    const el=document.createElement('button');el.type='button';el.textContent=symbol;
+    el.disabled=disabled;el.style.cssText='width:36px;height:36px;border:1px solid #697e9d;border-radius:9px;font-size:21px;font-weight:bold;background:#f3f6fb;color:#283c5a;cursor:pointer';
+    if(disabled)el.style.opacity='0.35';
+    el.onclick=action;return el;
+   };
+   const minus=button('−',count===0,()=>{
+    const index=battleItemHolders[id].indexOf(member.key);if(index<0)return;
+    battleItemHolders[id].splice(index,1);saveProgress();renderInventory();update();
+   });
+   const amount=document.createElement('strong');amount.textContent=count+'/'+limit;amount.style.minWidth='34px';amount.style.textAlign='center';
+   const plus=button('+',count>=limit||available===0,()=>{
+    if(!equipHeld(id,member.key))return;
+    appendAdventureLog('🎒 '+member.name+'에게 '+item.name+' 장착');renderInventory();update();
+   });
+   controls.append(minus,amount,plus);line.append(label,controls);row.append(line);
+   const gauge=document.createElement('div');gauge.style.cssText='display:flex;gap:5px';
+   for(let n=0;n<limit;n++){const segment=document.createElement('span');segment.style.cssText='height:6px;flex:1;border-radius:5px;background:'+(n<count?'#16a34a':'#e2e8f0');gauge.append(segment);}
+   row.append(gauge);rows.append(row);
+  }
+ }
+ update();
 }
 function chooseActiveMember(m){
  if(memberHp(m)<=0)return false;
