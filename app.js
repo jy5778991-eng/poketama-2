@@ -608,21 +608,31 @@ const TRAINER_STAT_CONFIG={
  rocketApollo:[12,20],rocketAthena:[12,20],rocketGiovanni:[16,54],
  league0:[14,30],league1:[14,30],league2:[14,30],league3:[14,30],league4:[16,60],red:[16,60]
 };
-function trainerFighter(name,dex,level,base,moveIds=['tackle']){
+function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Temporary trainer rule: use the four most recently learned moves at this level.
  // Starter evolution families share their existing starter learnsets.
  const starterFamily=Object.keys(EVOLUTIONS).find(id=>EVOLUTIONS[id].some(form=>form.dex===dex));
  const recent=starterFamily
   ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
   :recentWildMoves(dex,level);
- const selected=recent.length?recent:moveIds;
+ const selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
  const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
   const evs={hp:ev,attack:ev,defense:ev,speed:ev};
-  return calculateStats(BASE_STATS[dex],level,ivs,evs);
+  return calculateStats(BASE_STATS[dex],level,ivs,options.evs||evs);
  })(),moveIds:selected});
  trainer.dex=dex;
+ if(options.redPikachu){
+  // Red's Pikachu carries all six boss item effects simultaneously.
+  trainer.attackBuffMultiplier=1.5*1.3; // Light Ball + Hard Claw
+  trainer.accuracyBuff=0.10; // Wide Lens B
+  trainer.critBuff=0.08; // Scope Lens
+  trainer.focusSashEnabled=true;
+  trainer.focusSashUsed=false;
+  trainer.revivalSeedEnabled=true;
+  trainer.revivalSeedUsed=false;
+ }
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
@@ -1013,7 +1023,7 @@ function reset(kind='wild',recordDiscovery=true){
   battleOpponent='greenThird';
  }else if(kind==='red'){
   enemies=[
-   trainerFighter('피카츄',25,99,{hp:35,attack:55,defense:45,speed:90},['thunderbolt','quickAttack']),
+   trainerFighter('피카츄',25,99,{hp:35,attack:55,defense:45,speed:90},['voltTackle','thunderWave','thunder','doubleTeam'],{fixedMoves:true,evs:{hp:100,attack:100,defense:0,speed:40},redPikachu:true}),
    trainerFighter('잠만보',143,92,{hp:160,attack:110,defense:88,speed:30},['tackle','bite']),
    trainerFighter('라프라스',131,95,{hp:130,attack:85,defense:88,speed:60},['waterPulse','bite']),
    trainerFighter('이상해꽃',3,96,{hp:80,attack:100,defense:92,speed:80},['razorLeaf','vineWhip']),
