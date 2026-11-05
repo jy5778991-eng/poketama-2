@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261105-claw-stack344';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-exp-share-stack';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261105-claw-stack344';
+import {renderInventoryView} from './js/inventory.js?v=20261106-exp-share-stack';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
@@ -181,7 +181,7 @@ function rewardWeight(choice,context){
    if(id==='shellBell')return inventory.shellBell>=1?0:1;
    if(id==='leftovers')return inventory.leftovers>=1?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?1:2;
-   if(id==='expShare')return inventory.expShare>=1?0:4;
+   if(id==='expShare')return inventory.expShare>=4?0:4;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
@@ -445,7 +445,7 @@ function recoverLastStarterFromResetBackup(){
 let expShareActive=saved?.expShareActive===true;
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
  const recorded=saved?.battleItemHolders?.[id];
@@ -770,7 +770,7 @@ function addPartyExperience(amount,enemyName,cap=null){
   const participate=battleParticipants.has(member.key);
   const memberCap=cap===null?wildRewardLevelCap():cap;
   if(memberCap!==null&&member.level>=memberCap)continue;
-  const gained=Math.floor(amount*(participate?1:0.7)*(inventory.expShare&&expShareActive?2:1));
+  const gained=Math.floor(amount*(participate?1:0.7)*(inventory.expShare&&expShareActive?1+0.25*Math.min(4,inventory.expShare):1));
   const oldLevel=member.level,beforeMax=memberMaxHp(member),beforeHp=memberHp(member);
   if(member.starter){
    if(memberCap!==null&&progress.level>=memberCap)continue;
@@ -1385,7 +1385,7 @@ function showRewardChoices(){
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
   const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||unique&&(choice.id==='expShare'?inventory.expShare>=4:inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -1751,12 +1751,12 @@ function claimRewardChoice(index){
   storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
   const item=SHOP_ITEMS.find(item=>item.id===choice.id);
-  if(item?.category==='key'){
+  if(item?.category==='key'&&choice.id!=='expShare'){
    if(inventory[choice.id]===1 || (choice.id==='partySlotB'&&inventory.partySlotA!==1 || choice.id==='wideLensB'&&inventory.wideLensA!==1)){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
-  }else inventory[choice.id]=Math.min(choice.id==='masterBall'?2:choice.id==='quickBall'?1:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
+  }else inventory[choice.id]=Math.min(choice.id==='expShare'?4:choice.id==='masterBall'?2:choice.id==='quickBall'?1:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
  }else return;
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
