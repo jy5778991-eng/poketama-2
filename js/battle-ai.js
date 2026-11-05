@@ -1,9 +1,51 @@
 import {MOVES} from './data/moves.js?v=20261031-recover-name157';
+// Red has a dedicated policy; all other trainers keep the shared tactical AI.
+const stageMultiplier=n=>n>=0?(2+n)/2:2/(2-n);
+function redExpectedDamage(enemy,opponent,id){
+ const move=MOVES[id];
+ if(!move?.power)return -Infinity;
+ const attack=Math.max(1,Math.floor(enemy.stats.attack*stageMultiplier(enemy.stages?.attack||0)))*(enemy.status?.type==='burn'?0.5:1)*(enemy.attackBuffMultiplier||1);
+ const defense=Math.max(1,Math.floor((opponent?.stats?.defense||100)*stageMultiplier(opponent?.stages?.defense||0)))*(opponent?.defenseBuffMultiplier||1);
+ const power=move.hpScale==='currentRatio'?150*enemy.hp/enemy.stats.hp:move.power;
+ const raw=Math.floor((Math.floor(2*enemy.level/5)+2)*power*attack/defense/50)+2;
+ const accuracyStage=(enemy.stages?.accuracy||0)-(opponent?.stages?.evasion||0);
+ const accuracyFactor=accuracyStage>=0?(3+accuracyStage)/3:3/(3-accuracyStage);
+ const accuracy=Math.min(1,((move.accuracy??1)+(enemy.accuracyBuff||0))*accuracyFactor);
+ return Math.max(1,raw)*accuracy*.925*1.1;
+}
+function chooseRedMove(enemy,opponent,rng,usable){
+ const can=id=>usable.includes(id);
+ const hp=enemy.hp/Math.max(1,enemy.stats.hp);
+ if(enemy.redAiMode==='pikachu'){
+  // Establish paralysis, then use Double Team once before settling into offense.
+  if(!opponent?.status&&can('thunderWave'))return {moveId:'thunderWave'};
+  if(!enemy.redFirstDoubleTeamSelected&&can('doubleTeam')&&(enemy.stages?.evasion||0)<6){
+   enemy.redFirstDoubleTeamSelected=true;
+   return {moveId:'doubleTeam'};
+  }
+  const evasion=enemy.stages?.evasion||0;
+  const chance=[0.22,0.18,0.12,0.075,0.035,0.01,0][Math.min(6,Math.max(0,evasion))];
+  if(can('doubleTeam')&&rng()<chance)return {moveId:'doubleTeam'};
+  const attacks=['thunder','voltTackle'].filter(can);
+  if(attacks.length)return {moveId:attacks.sort((a,b)=>redExpectedDamage(enemy,opponent,b)-redExpectedDamage(enemy,opponent,a))[0]};
+ }
+ if(enemy.redAiMode==='snorlax'){
+  if(!enemy.redFirstTurnSelected){
+   enemy.redFirstTurnSelected=true;
+   if(can('bellyDrum')&&enemy.hp>Math.floor(enemy.stats.hp/2))return {moveId:'bellyDrum'};
+  }
+  if(enemy.status?.type==='sleep'&&can('sleepTalk'))return {moveId:'sleepTalk'};
+  if(hp<0.53&&!enemy.status&&can('rest'))return {moveId:'rest'};
+  if(can('bodySlam'))return {moveId:'bodySlam'};
+ }
+ return null;
+}
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
  if(!usable.length)return {moveId:'struggle'};
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
+ if(enemy.redAiMode){const chosen=chooseRedMove(enemy,opponent,rng,usable);if(chosen)return chosen;}
  const hp=enemy.hp/Math.max(1,enemy.stats.hp);
  const opponentHp=opponent?.hp??Infinity;
  const attack=enemy.stats.attack;
