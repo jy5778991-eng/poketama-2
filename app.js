@@ -654,6 +654,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redCharizard)trainer.redAiMode='charizard';
  if(options.redVenusaur)trainer.redAiMode='venusaur';
  if(options.redBlastoise)trainer.redAiMode='blastoise';
+ // Reflect trainer-held item effects in the opponent HP panel.
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:1,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:1}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:1}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3}:null;
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.hardClawCount=3;
@@ -2467,7 +2469,23 @@ function renderBattleStatus(side,fighter){
  }
  statusElement.style.color=status==='burn'?'#c75e32':status==='freeze'?'#278ac9':status==='poison'?'#985ac0':status==='sleep'?'#438fe1':status==='paralysis'?'#b98906':'';
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(['hardClaw','scopeLens','focusSash'].includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(['hardClaw','scopeLens','focusSash'].includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+function renderEnemyHeldItems(enemy){
+ const host=$('enemyHeldItemIcons');if(!host)return;
+ host.replaceChildren();
+ if(!enemy?.heldItemCounts)return;
+ for(const [id,quantity] of Object.entries(enemy.heldItemCounts)){
+  if(quantity<=0||(id==='revivalSeed'&&enemy.revivalSeedUsed))continue;
+  const item=SHOP_ITEMS.find(entry=>entry.id===id);
+  if(!item)continue;
+  const el=document.createElement('span');el.className='player-held-item-icon';el.style.position='relative';
+  const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;
+  img.onerror=()=>{el.textContent=item.icon||'?';};
+  el.append(img);
+  if(quantity>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(quantity);count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.append(count);}
+  el.title=item.name+(quantity>1?' '+quantity+'개':'');host.append(el);
+ }
+}
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(['hardClaw','scopeLens','focusSash'].includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(['hardClaw','scopeLens','focusSash'].includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
@@ -2578,7 +2596,7 @@ async function act(a){
   registerEncounter(enemy.dex);
   $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='LV '+enemy.level;
   sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):rivalForm(blueChoice,7).dex,false,'⚔️');
-  shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);
+  shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);renderEnemyHeldItems(enemy);
  }
   if(battle.ended){
     battleRoster.set(activeBattleKey,battle.player);
