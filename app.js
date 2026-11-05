@@ -656,7 +656,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redBlastoise)trainer.redAiMode='blastoise';
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
-  trainer.attackBuffMultiplier=1.5*1.3; // Light Ball + Hard Claw
+  trainer.hardClawCount=3;
+  trainer.attackBuffMultiplier=1.5*(1+0.1*trainer.hardClawCount); // Light Ball + 3 Hard Claws
   trainer.accuracyBuff=0.10; // Wide Lens B
   trainer.critBuff=0.08; // Scope Lens
   trainer.focusSashEnabled=true;
@@ -677,11 +678,13 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  }
  if(options.redVenusaur){
   trainer.leftoversEnabled=true;
-  trainer.attackBuffMultiplier=1.3;
+  trainer.hardClawCount=3;
+  trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
   trainer.critBuff=0.08;
  }
  if(options.redCharizard){
-  trainer.attackBuffMultiplier=1.3;
+  trainer.hardClawCount=3;
+  trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
   trainer.focusSashEnabled=true;
   trainer.focusSashUsed=false;
   trainer.critBuff=0.08;
@@ -691,7 +694,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
   trainer.focusSashUsed=false;
-  trainer.attackBuffMultiplier=1.3;
+  trainer.hardClawCount=3;
+  trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
  return trainer;
 }
