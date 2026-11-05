@@ -2256,7 +2256,7 @@ function renderHome(){
   $('trainerChallenge').hidden=false;
   $('trainerChallenge').disabled=!rocketTrainer||!rocketLevelReady||!livingMembers().length||!!pendingRewardChoice||animating||learningBusy;
   $('trainerButtonTitle').textContent=rocketTrainer?'⚔ '+({rocketApollo:'아폴로',rocketAthena:'아테나',rocketGiovanni:'비주기'}[rocketKind]||rocketTrainer.name)+'에게 도전':'🏆 로켓단 보스 격파 완료';
-  $('trainerButtonNote').textContent=!rocketTrainer?'비밀기지 보스 모두 클리어 · 뮤츠 출현 4%':!rocketLevelReady?'Lv.'+rocketTrainer.level+' 이상일 때 도전 가능':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'승리해도 현재 지역 유지';
+  $('trainerButtonNote').textContent=!rocketTrainer?'비밀기지 보스 모두 클리어':!rocketLevelReady?'Lv.'+rocketTrainer.level+' 이상일 때 도전 가능':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'승리해도 현재 지역 유지';
   $('trainerChallenge').classList.toggle('adventure-ready',!!rocketTrainer&&rocketLevelReady);
   $('trainerChallenge').classList.toggle('adventure-locked',!rocketTrainer||!rocketLevelReady);
  }
