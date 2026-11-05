@@ -137,6 +137,16 @@ function rewardWeight(choice,context){
  // If any party member has reached the current area's red level cap, candy rewards become rarer.
  const cap=wildRewardLevelCap();
  const redLevelReached=cap!==null&&members.some(m=>m.level>=cap);
+ // Check the CURRENT party, not the Pokémon that were present when an item
+ // was first obtained. Replacing a fully trained member can re-enable rewards.
+ const allPartyEVsMax=members.length>0&&members.every(m=>{
+  const ev=m.starter?playerEVs:companions.find(c=>c.family===m.family)?.evs;
+  return ev&&EV_STATS.reduce((total,stat)=>total+(ev[stat]||0),0)>=240;
+ });
+ const allPartyIVsMax=members.length>0&&members.every(m=>{
+  const iv=m.starter?playerIVs:companions.find(c=>c.family===m.family)?.ivs;
+  return iv&&EV_STATS.every(stat=>iv[stat]>=16);
+ });
  if(choice.kind==='expCandy')return choice.multiplier===12?4:(redLevelReached?2:4);
  if(choice.kind==='rareCandy')return 3;
  if(choice.kind==='tm01')return lv<=60&&tm01Targets().length?1:0;
@@ -155,7 +165,9 @@ function rewardWeight(choice,context){
  if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?2:0;
  if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?4:0;
  if(choice.kind==='candyBundle')return members.length>=2?(redLevelReached?2:4):0;
- if(choice.kind==='ev')return 2;
+ if(choice.kind==='ev')return allPartyEVsMax?0:2;
+ if(choice.kind==='goldCap')return allPartyIVsMax?0:1;
+ if(choice.kind==='silverCap')return allPartyIVsMax?0:4;
  if(choice.kind==='evolution')return evolutionRewardWeight(choice);
  if(choice.kind==='item'){
   const id=choice.id;
