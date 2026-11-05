@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261105-lightscreen324';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-ai330';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-ai-lapras-charizard331';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261104-legendary-dex302';
@@ -625,6 +625,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  trainer.dex=dex;
  if(options.redPikachu)trainer.redAiMode='pikachu';
  if(options.redSnorlax)trainer.redAiMode='snorlax';
+ if(options.redLapras)trainer.redAiMode='lapras';
+ if(options.redCharizard)trainer.redAiMode='charizard';
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.attackBuffMultiplier=1.5*1.3; // Light Ball + Hard Claw
