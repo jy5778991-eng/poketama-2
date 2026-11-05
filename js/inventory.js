@@ -26,13 +26,18 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  for(const item of items){
   const row=document.createElement('div');row.className='shop-item-row';
   const info=document.createElement('div');info.className='shop-item-info';
-  const name=document.createElement('strong');const icon=document.createElement('img');icon.className='shop-item-sprite';icon.src=itemSpriteUrl(item.id);icon.alt='';icon.loading='lazy';icon.onerror=()=>{const fallback=document.createElement('span');fallback.textContent=item.icon||'🎁';icon.replaceWith(fallback);};name.append(icon,document.createTextNode(' '+item.name+(inventoryMode==='bag'&&(item.id==='wideLensA'||!(item.category==='key'||item.unique))?' ×'+(inventory[item.id]||0):'')));
+  const name=document.createElement('strong');const icon=document.createElement('img');icon.className='shop-item-sprite';icon.src=itemSpriteUrl(item.id);icon.alt='';icon.loading='lazy';icon.onerror=()=>{const fallback=document.createElement('span');fallback.textContent=item.icon||'🎁';icon.replaceWith(fallback);};name.append(icon,document.createTextNode(' '+item.name+(inventoryMode==='bag'&&(heldItems.includes(item.id)||!(item.category==='key'||item.unique))?' ×'+(inventory[item.id]||0):'')));
   const description=document.createElement('small');
   description.textContent=inventoryMode==='shop'?item.description+' · 보유 '+(inventory[item.id]||0)+'개':item.description;
   if(inventoryMode==='bag'&&heldItems.includes(item.id)&&inventory[item.id]>0){
-   const owners=(battleItemHolders[item.id]||[]).map(key=>partyMembers.find(m=>m.key===key)?.name).filter(Boolean);
+   const holders=battleItemHolders[item.id]||[];
+   const owners=[...new Set(holders)].map(key=>{
+    const name=partyMembers.find(m=>m.key===key)?.name;
+    const count=holders.filter(k=>k===key).length;
+    return name?(item.id==='hardClaw'?name+' '+count+'개':name):null;
+   }).filter(Boolean);
    const status=document.createElement('small');status.className='bag-held-status';
-   status.textContent=owners.length?'장착 중: '+owners.join(' · '):'미장착';
+   status.textContent='장착 '+holders.length+'개 · 미장착 '+Math.max(0,(inventory[item.id]||0)-holders.length)+'개'+(owners.length?' · '+owners.join(' · '):'');
    info.append(status);
   }
   info.append(name,description);row.append(info);
