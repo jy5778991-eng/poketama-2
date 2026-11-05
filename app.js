@@ -661,7 +661,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.accuracyBuff=0.10; // Wide Lens B
   trainer.critBuff=0.08; // Scope Lens
   trainer.focusSashEnabled=true;
-  trainer.focusSashChance=0.05; // One equipped Focus Sash
+  trainer.focusSashCount=6;
+  trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
   trainer.revivalSeedEnabled=true;
   trainer.revivalSeedUsed=false;
@@ -669,7 +670,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redSnorlax){
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
-  trainer.focusSashChance=0.05; // One equipped Focus Sash
+  trainer.focusSashCount=6;
+  trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
   trainer.critBuff=0.08;
  }
@@ -688,7 +690,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
   trainer.focusSashEnabled=true;
-  trainer.focusSashChance=0.05; // One equipped Focus Sash
+  trainer.focusSashCount=6;
+  trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
   trainer.critBuff=0.08;
  }
@@ -696,7 +699,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.shellBell=true;
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
-  trainer.focusSashChance=0.05; // One equipped Focus Sash
+  trainer.focusSashCount=6;
+  trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
