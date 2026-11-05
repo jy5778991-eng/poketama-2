@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261105-lightscreen324';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-ai-all332';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-run-attempt338';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
@@ -512,7 +512,7 @@ async function shakeHit(side,critical=false){
  await pause(430);
  host.classList.remove('impact-shake','impact-shake-heavy');
 }
-async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
+async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='runFailed'){currentMove=null;tell('도망가기 실패!');await pause(700);}else if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
  if(battleEffectDisplay?.[ev.side]){
   if(ev.status==='confusion')battleEffectDisplay[ev.side].confused=true;
   else battleEffectDisplay[ev.side].status=ev.status;
@@ -3063,7 +3063,23 @@ function setup(){
  $('commandFight').addEventListener('click',()=>showMenu('fight'));
  $('commandBall').addEventListener('click',()=>showMenu('ball'));
  $('commandHeal').addEventListener('click',()=>showMenu('heal'));
- $('commandRun').addEventListener('click',()=>{if(animating||battle.ended||!battle.wild)return;setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();showMenu('main');renderHome();achievementData.runs++;saveAchievements();if(achievementData.runs>=100)earnAchievement('run100');showScreen('home')});
+ $('commandRun').addEventListener('click',()=>{
+  if(animating||battle.ended||!battle.wild||learningBusy)return;
+  const tier=wildEnemy?.tier||(LEGENDARY_DEX.has(wildEnemy.dex)?'legendary':HYPER_DEX.has(wildEnemy.dex)?'hyper':RARE_DEX.has(wildEnemy.dex)?'rare':EVOLVED_DEX.has(wildEnemy.dex)?'evolved':'normal');
+  const multiplier={normal:1,evolved:0.8,rare:0.7,hyper:0.5,legendary:0.3}[tier]??1;
+  const chance=Math.max(0,Math.min(100,(85+battle.player.level-wildEnemy.level)*multiplier))/100;
+  if(Math.random()<chance){
+   setActiveHp(battle.player.hp);
+   battleRoster.set(activeBattleKey,battle.player);
+   saveProgress();showMenu('main');renderHome();
+   achievementData.runs++;saveAchievements();
+   if(achievementData.runs>=100)earnAchievement('run100');
+   showScreen('home');
+  }else{
+   // Escaping consumes the player's action; the opponent alone attacks this turn.
+   act({type:'run'});
+  }
+ });
  $('submenuBack').addEventListener('click',()=>{if(!animating&&!battle.ended)showMenu('main')});
  $('homeLevelUp').addEventListener('animationend',e=>{if(e.target!==$('homeLevelUp'))return;$('homeLevelUp').classList.remove('playing');$('homeLevelUp').hidden=true;});
  for(const item of SHOP_ITEMS){
