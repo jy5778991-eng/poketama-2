@@ -172,6 +172,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
   }
 }
 function pickAction(p,requested){
+  if(requested?.type==='run') return {type:'run',priority:8};
   if(requested?.type==='revive') return {type:'revive',priority:6};
   if(requested?.type==='healAlly') return {type:'healAlly',priority:6};
   if(requested?.type==='switch') return {type:'switch',priority:Number.POSITIVE_INFINITY,fighter:requested.fighter};
@@ -215,13 +216,17 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   }
   if(pAction.type==='item'&&(!(pAction.power>0)||p.hp>=p.stats.hp))throw new Error('Cannot use healing item now');
   if(pAction.type==='ball'&&!b.wild)throw new Error('Pokeballs can only be used in wild battles');
+  if(pAction.type==='run'&&!b.wild)throw new Error('Run attempts are only allowed in wild battles');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);for(const key of ['player','enemy'])if(b.shields[key]>0)b.shields[key]--;
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
   order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
     if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
     if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
-    if(a.action.type==='revive'){
+    if(a.action.type==='run'){
+      say(b,'도망가기 실패!');
+      emit(b,{type:'runFailed',side:'player'});
+    }else if(a.action.type==='revive'){
       say(b,'기력의조각을 사용했다!');emit(b,{type:'revive',side:'player'});
     }else if(a.action.type==='healAlly'){
       say(b,'동료에게 회복약을 사용했다!');
