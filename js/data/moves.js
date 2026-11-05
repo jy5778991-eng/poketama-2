@@ -189,7 +189,7 @@ export function moveDescription(id){
  if(m.confuseChance)effects.push('혼란 '+Math.round(m.confuseChance*100)+'% 확률');
  if(m.healMaxHp)effects.push('최대 HP의 '+Math.round(m.healMaxHp*100)+'% 회복');
  if(m.healFraction)effects.push('HP 회복');
- if(m.shieldTurns)effects.push('빛의장막 '+m.shieldTurns+'턴');
+ if(m.shieldTurns)effects.push(m.shieldTurns+'턴 동안 아군이 받는 데미지가 줄어든다.');
  if(m.aquaRing)effects.push('매 턴 HP 회복');
  if(m.transform)effects.push('상대의 모습·기술·HP 외 능력치를 복사한다. 배틀 종료 시 원래대로 돌아온다.');
  for(const stat of ['Attack','Defense','Speed','Accuracy','Evasion']){
