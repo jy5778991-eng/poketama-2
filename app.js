@@ -936,7 +936,7 @@ const MAP_REGIONS=[
  ['championRoad2','🏛️ 석영고원',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
  ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,90],
  ['farawayIsland','🏝️ 환상의 섬',()=>hallOfFame.length>0&&inventory.oldSeaMap>0,90],
- ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,100]
+ ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,null]
 ];
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
 let volcanoAutoVisited=!!(saved?.volcanoAutoVisited||area==='volcano'||(sabrinaCleared&&progress.level>=48));
