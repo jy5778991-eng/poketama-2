@@ -46,7 +46,19 @@ const EXTRA_TM_CONFIG={
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
 let extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,Array.isArray(readSave()?.extraTmLearned?.[key])?readSave().extraTmLearned[key].filter(v=>typeof v==='string'):[]]));
-function extraTmTargets(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?teamMembers().filter(m=>m.level>=cfg.minLevel&&extraTmDex[kind].has(m.dex)&&!extraTmLearned[kind].includes(m.key)):[];}
+function extraTmTargets(kind){
+ const cfg=EXTRA_TM_CONFIG[kind];
+ if(!cfg)return [];
+ return teamMembers().filter(m=>{
+  if(m.level<cfg.minLevel||!extraTmDex[kind].has(m.dex)||extraTmLearned[kind].includes(m.key))return false;
+  // Don't offer a TM for a move the Pokémon already has or has naturally
+  // learned by its current level (even if it was later forgotten).
+  const current=m.starter?playerMoves:(companions.find(c=>c.family===m.family)?.moves||[]);
+  if(current.includes(cfg.moveId))return false;
+  const natural=m.starter?availableMoves(chosen,m.level):(learnsetForDex(m.dex)||[]).filter(x=>x.level<=m.level);
+  return !natural.some(move=>move.id===cfg.moveId);
+ });
+}
 function extraTmLabel(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?'기술머신'+cfg.number+'.'+cfg.name:'';}
 
 const isLens=id=>id==='wideLensA'||id==='wideLensB';
