@@ -644,6 +644,24 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.shellBell=true;
   trainer.accuracyBuff=0.10;
  }
+ if(options.redVenusaur){
+  trainer.leftoversEnabled=true;
+  trainer.attackBuffMultiplier=1.3;
+  trainer.critBuff=0.08;
+ }
+ if(options.redCharizard){
+  trainer.attackBuffMultiplier=1.3;
+  trainer.focusSashEnabled=true;
+  trainer.focusSashUsed=false;
+  trainer.critBuff=0.08;
+ }
+ if(options.redBlastoise){
+  trainer.shellBell=true;
+  trainer.leftoversEnabled=true;
+  trainer.focusSashEnabled=true;
+  trainer.focusSashUsed=false;
+  trainer.attackBuffMultiplier=1.3;
+ }
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
@@ -1037,9 +1055,9 @@ function reset(kind='wild',recordDiscovery=true){
    trainerFighter('피카츄',25,99,{hp:35,attack:55,defense:45,speed:90},['voltTackle','thunderWave','thunder','doubleTeam'],{fixedMoves:true,evs:{hp:100,attack:100,defense:0,speed:40},redPikachu:true}),
    trainerFighter('잠만보',143,92,{hp:160,attack:110,defense:88,speed:30},['bellyDrum','rest','sleepTalk','bodySlam'],{fixedMoves:true,evs:{hp:100,attack:40,defense:100,speed:0},redSnorlax:true}),
    trainerFighter('라프라스',131,95,{hp:130,attack:85,defense:88,speed:60},['sheerCold','charm','bodySlam','blizzard'],{fixedMoves:true,evs:{hp:100,attack:0,defense:100,speed:40},redLapras:true}),
-   trainerFighter('이상해꽃',3,96,{hp:80,attack:100,defense:92,speed:80},['razorLeaf','vineWhip']),
-   trainerFighter('리자몽',6,96,{hp:78,attack:109,defense:82,speed:100},['flamethrower','swift']),
-   trainerFighter('거북왕',9,96,{hp:79,attack:85,defense:103,speed:78},['waterPulse','tackle'])
+   trainerFighter('이상해꽃',3,96,{hp:80,attack:100,defense:92,speed:80},['synthesis','sleepPowder','energyBall','solarBeam'],{fixedMoves:true,evs:{hp:100,attack:40,defense:100,speed:0},redVenusaur:true}),
+   trainerFighter('리자몽',6,96,{hp:78,attack:109,defense:82,speed:100},['flareBlitz','roost','dragonDance','fireBlast'],{fixedMoves:true,evs:{hp:40,attack:100,defense:0,speed:100},redCharizard:true}),
+   trainerFighter('거북왕',9,96,{hp:79,attack:85,defense:103,speed:78},['shellSmash','hydroPump','surf','powerUpPunch'],{fixedMoves:true,evs:{hp:100,attack:100,defense:0,speed:40},redBlastoise:true})
   ];battleOpponent='red';
  }else if(kind.startsWith('league')){
   const n=Number(kind.slice(6));
