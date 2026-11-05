@@ -248,9 +248,10 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   if(!b.ended){poisonTick(b,p);poisonTick(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.08));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp,burn:true});}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}
     // End-of-turn held food triggers only after poison and burn residual damage.
     // A Pokemon knocked out by residual damage cannot recover.
-    if(p.hp>0&&p.leftoversEnabled){
-      const amount=Math.min(p.stats.hp-p.hp,Math.max(1,Math.floor(p.stats.hp*0.06)));
-      if(amount>0){p.hp+=amount;say(b,`${p.name}은(는) 먹다남은음식으로 HP ${amount} 회복!`);emit(b,{type:'heal',side:'player',amount,hp:p.hp,heldItem:'leftovers'});}
+    for(const fighter of [p,e]){
+      if(fighter.hp<=0||!fighter.leftoversEnabled)continue;
+      const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.06)));
+      if(amount>0){fighter.hp+=amount;say(b,`${fighter.name}은(는) 먹다남은음식으로 HP ${amount} 회복!`);emit(b,{type:'heal',side:sideOf(b,fighter),amount,hp:fighter.hp,heldItem:'leftovers'});}
     }
     settle(b);}
   return b.log.slice(start);
