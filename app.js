@@ -2235,7 +2235,7 @@ function renderHome(){
  const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&(area===latestMapRegion()||(area==='city'&&trainerKind==='greenFourth'));
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  // Champion Road 2 has the Pokémon League instead of a trainer/gym challenge.
- $('trainerChallenge').hidden=area==='championRoad2';
+ $('trainerChallenge').hidden=area==='championRoad2'&&hallOfFame.length===0;
  $('trainerChallenge').disabled=area==='championRoad2'||(hallOfFame.length>0?false:challengeDisabled);
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
