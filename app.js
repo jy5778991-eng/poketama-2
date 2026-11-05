@@ -157,6 +157,7 @@ function rewardWeight(choice,context){
    if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?1:2;
    if(id==='expShare')return inventory.expShare>=1?0:4;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
+   if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
   if(['map','secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
@@ -182,7 +183,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const pool={
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:10,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm08',icon:'📀'},{kind:'tm09',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'rareCandy',icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
- hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+ hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'candyBundle',icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
  legendary:[{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
@@ -1307,7 +1308,7 @@ function showRewardChoices(){
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
   const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||unique&&(inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -1667,7 +1668,7 @@ function claimRewardChoice(index){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
-  }else inventory[choice.id]=Math.min(choice.id==='masterBall'?2:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
+  }else inventory[choice.id]=Math.min(choice.id==='masterBall'?2:choice.id==='quickBall'?1:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
  }else return;
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
