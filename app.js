@@ -1407,7 +1407,7 @@ function choosePermanentTarget(choice,autoMember=null){
    if(!ev)return;
    const total=Object.values(ev).reduce((a,b)=>a+b,0);
    const gain=Math.min(choice.amount||2,100-ev[stat],240-total);
-   if(gain<=0){alert('선택한 포켓몬의 노력치가 최대치야.');$('rewardChoiceOverlay').hidden=false;return;}
+   if(gain<=0){alert(total>=240?'선택한 포켓몬의 기초포인트 총합이 최대입니다.':`선택한 포켓몬의 ${STAT_LABELS[stat]} 기초포인트가 최대입니다.`);$('rewardChoiceOverlay').hidden=false;return;}
    ev[stat]+=gain;checkEVAchievement(ev);
    appendAdventureLog('💊 '+m.name+' '+STAT_LABELS[stat]+' 노력치 +'+gain);
   }
