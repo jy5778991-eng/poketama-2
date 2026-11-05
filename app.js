@@ -1026,7 +1026,7 @@ async function playTrainerSummon(kind){ const arena=$('battleScreen');
  ball.classList.remove('trainer-ball-flying');
  void ball.offsetWidth;
  ball.classList.add('trainer-ball-flying');
- $('trainerSummonMessage').textContent=(TRAINERS[kind]?.name||LEAGUE_NAMES[Number(kind.slice(6))]||'트레이너')+'이(가) 몬스터볼을 던졌다!';
+ $('trainerSummonMessage').textContent=(kind==='red'?'레드':TRAINERS[kind]?.name||LEAGUE_NAMES[Number(kind.slice(6))]||'트레이너')+'이(가) 몬스터볼을 던졌다!';
  $('trainerSummonMessage').hidden=false;
  $('battleCommands').hidden=true;
  animating=true;
@@ -3133,7 +3133,7 @@ function setup(){
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
- $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;battlePlayerLevelStart=progress.level;reset('red');showScreen('battle')});
+ $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/red.png';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
