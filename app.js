@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261105-lightscreen324';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-pikachu327';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-red-snorlax-lapras328';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261104-legendary-dex302';
@@ -633,6 +633,17 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.revivalSeedEnabled=true;
   trainer.revivalSeedUsed=false;
  }
+ if(options.redSnorlax){
+  trainer.leftoversEnabled=true;
+  trainer.focusSashEnabled=true;
+  trainer.focusSashUsed=false;
+  trainer.critBuff=0.08;
+ }
+ if(options.redLapras){
+  trainer.leftoversEnabled=true;
+  trainer.shellBell=true;
+  trainer.accuracyBuff=0.10;
+ }
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
@@ -1024,8 +1035,8 @@ function reset(kind='wild',recordDiscovery=true){
  }else if(kind==='red'){
   enemies=[
    trainerFighter('피카츄',25,99,{hp:35,attack:55,defense:45,speed:90},['voltTackle','thunderWave','thunder','doubleTeam'],{fixedMoves:true,evs:{hp:100,attack:100,defense:0,speed:40},redPikachu:true}),
-   trainerFighter('잠만보',143,92,{hp:160,attack:110,defense:88,speed:30},['tackle','bite']),
-   trainerFighter('라프라스',131,95,{hp:130,attack:85,defense:88,speed:60},['waterPulse','bite']),
+   trainerFighter('잠만보',143,92,{hp:160,attack:110,defense:88,speed:30},['bellyDrum','rest','sleepTalk','bodySlam'],{fixedMoves:true,evs:{hp:100,attack:40,defense:100,speed:0},redSnorlax:true}),
+   trainerFighter('라프라스',131,95,{hp:130,attack:85,defense:88,speed:60},['sheerCold','charm','bodySlam','blizzard'],{fixedMoves:true,evs:{hp:100,attack:0,defense:100,speed:40},redLapras:true}),
    trainerFighter('이상해꽃',3,96,{hp:80,attack:100,defense:92,speed:80},['razorLeaf','vineWhip']),
    trainerFighter('리자몽',6,96,{hp:78,attack:109,defense:82,speed:100},['flamethrower','swift']),
    trainerFighter('거북왕',9,96,{hp:79,attack:85,defense:103,speed:78},['waterPulse','tackle'])
