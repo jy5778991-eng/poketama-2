@@ -1160,7 +1160,7 @@ function reset(kind='wild',recordDiscovery=true){
  $('trainerName').textContent=kind==='wild'?'야생 포켓몬':opponentName;
  $('trainerPortrait').hidden=kind==='wild';
  if(kind!=='wild'){
-  const image=kind==='red'?'https://play.pokemonshowdown.com/sprites/trainers/red.png':kind.startsWith('league')?'https://play.pokemonshowdown.com/sprites/trainers/'+(['lorelei','bruno','agatha','lance','blue'][Number(kind.slice(6))])+'.png':TRAINERS[kind]?.image;
+  const image=kind==='red'?'./assets/red-animated.webp?v=20261106-animated-red':kind.startsWith('league')?'https://play.pokemonshowdown.com/sprites/trainers/'+(['lorelei','bruno','agatha','lance','blue'][Number(kind.slice(6))])+'.png':TRAINERS[kind]?.image;
   if(image){$('trainerPortrait').src=image;$('trainerPortrait').onerror=()=>{$('trainerPortrait').hidden=true;};}else $('trainerPortrait').hidden=true;
  }
  $('battleResult').hidden=true;
@@ -3151,7 +3151,7 @@ function setup(){
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
- $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='https://play.pokemonshowdown.com/sprites/trainers/red.png';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
+ $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!hallOfFame.length||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='./assets/red-animated.webp?v=20261106-animated-red';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
