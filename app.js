@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-explosion-power';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-explosion-power';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-bellydrum-log';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
@@ -564,7 +564,7 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
+}else if(ev.type==='moveFailed'){addDetail('하지만 실패했다!');await pause(600);}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -654,14 +654,15 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redCharizard)trainer.redAiMode='charizard';
  if(options.redVenusaur)trainer.redAiMode='venusaur';
  if(options.redBlastoise)trainer.redAiMode='blastoise';
+ // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
+ if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:1,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:1}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:1}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1,scopeLens:3}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:3}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3,scopeLens:3}:null;
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1.5*(1+0.1*trainer.hardClawCount); // Light Ball + 3 Hard Claws
   trainer.accuracyBuff=0.10; // Wide Lens B
-  trainer.critBuff=0.08; // Scope Lens
   trainer.focusSashEnabled=true;
   trainer.focusSashCount=6;
   trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
@@ -675,7 +676,6 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.focusSashCount=6;
   trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
-  trainer.critBuff=0.08;
  }
  if(options.redLapras){
   trainer.leftoversEnabled=true;
@@ -686,7 +686,6 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.leftoversEnabled=true;
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
-  trainer.critBuff=0.08;
  }
  if(options.redCharizard){
   trainer.hardClawCount=3;
@@ -695,7 +694,6 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.focusSashCount=6;
   trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
-  trainer.critBuff=0.08;
  }
  if(options.redBlastoise){
   trainer.shellBell=true;
