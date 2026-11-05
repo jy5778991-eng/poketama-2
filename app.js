@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261105-lightscreen324';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-run-attempt338';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-sash-stack';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
@@ -661,6 +661,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.accuracyBuff=0.10; // Wide Lens B
   trainer.critBuff=0.08; // Scope Lens
   trainer.focusSashEnabled=true;
+  trainer.focusSashChance=0.05; // One equipped Focus Sash
   trainer.focusSashUsed=false;
   trainer.revivalSeedEnabled=true;
   trainer.revivalSeedUsed=false;
@@ -668,6 +669,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redSnorlax){
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
+  trainer.focusSashChance=0.05; // One equipped Focus Sash
   trainer.focusSashUsed=false;
   trainer.critBuff=0.08;
  }
@@ -686,6 +688,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
   trainer.focusSashEnabled=true;
+  trainer.focusSashChance=0.05; // One equipped Focus Sash
   trainer.focusSashUsed=false;
   trainer.critBuff=0.08;
  }
@@ -693,6 +696,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.shellBell=true;
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
+  trainer.focusSashChance=0.05; // One equipped Focus Sash
   trainer.focusSashUsed=false;
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
