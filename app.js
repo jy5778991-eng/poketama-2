@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261105-toxic90-317';
+import {moveDescription} from './js/data/moves.js?v=20261105-lightscreen324';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261105-quickball321';
