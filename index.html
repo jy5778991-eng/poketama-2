@@ -80,7 +80,7 @@
 <div id="captureBall" class="capture-ball" aria-hidden="true" hidden><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
 <div id="captureFlash" class="capture-flash" aria-hidden="true" hidden></div>
 <div id="trainerThrowBall" class="trainer-throw-ball" aria-hidden="true"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="" draggable="false"/></div>
-<div class="battle-info enemy-info"><div class="name"><strong class="battle-name-line"><span id="enemyName">구구</span><span id="enemyLevel">LV 3</span><img id="enemyCaughtMark" class="enemy-caught-mark" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="이미 포획한 포켓몬" title="도감에 포획 등록됨" hidden/><span id="enemyStatus" class="status" style="font:inherit;color:inherit"></span></strong></div><div class="hp"><div id="enemyBar"></div></div><div id="enemyHp" class="number"></div></div>
+<div class="battle-info enemy-info"><div class="name"><strong class="battle-name-line"><span id="enemyName">구구</span><span id="enemyLevel">LV 3</span><img id="enemyCaughtMark" class="enemy-caught-mark" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="이미 포획한 포켓몬" title="도감에 포획 등록됨" hidden/><span id="enemyStatus" class="status" style="font:inherit;color:inherit"></span></strong></div><div class="hp"><div id="enemyBar"></div></div><div class="player-hp-bottom"><span id="enemyHeldItemIcons" class="player-held-item-icons"></span><div id="enemyHp" class="number"></div></div></div>
 <div class="platform enemy-platform"></div><div class="sprite enemy"><img id="enemySprite" alt="상대 포켓몬" /><span id="enemyFallback" class="fallback">🔥</span><div id="enemyPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="platform player-platform"></div><div class="sprite player"><img id="playerSprite" alt="내 포켓몬"/><span id="playerFallback" class="fallback">⚡</span><div id="playerPopup" class="damage-popup" aria-hidden="true"></div></div>
 <div class="battle-info player-info"><div class="name"><strong class="battle-name-line"><span id="playerName">피츄</span><span id="playerLevel">LV 5</span><span id="playerStatus" class="status" style="font:inherit;color:inherit"></span></strong></div><div class="hp"><div id="playerBar"></div></div><div class="player-hp-bottom"><span id="playerHeldItemIcons" class="player-held-item-icons"></span><div id="playerHp" class="number"></div></div></div>
@@ -123,7 +123,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261106-red-trainer-intro');
+ await import('./app.js?v=20261106-enemy-held-items');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
