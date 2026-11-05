@@ -44,7 +44,7 @@ export function createBattle(player,enemies,{items=0,balls=0,wild=false,rng=Math
   return {player, enemies,enemyIndex:0,items,balls,wild,turn:0,ended:false,result:null,log:[],events:[],rng,shields:{player:0,enemy:0},rings:{player:false,enemy:false}};
 }
 function activeEnemy(b){return b.enemies[b.enemyIndex];}
-function accuracySuccess(move,b,user,target){const effectiveAccuracy=move.oneHitKo&&user.level<=target.level-10?0.2:(move.accuracy??1);const evasion=target?.stages?.evasion||0;const accuracy=user?.stages?.accuracy||0;const net=evasion-accuracy;const factor=net>=0?3/(3+net):(3-net)/3;return roll(b.rng)<Math.min(1,(effectiveAccuracy+(user.accuracyBuff||0))*factor);}
+function accuracySuccess(move,b,user,target){const levelPenalty=move.oneHitKo?Math.min(15,Math.max(0,target.level-user.level))*0.01:0;const effectiveAccuracy=Math.max(0,(move.accuracy??1)-levelPenalty);const evasion=target?.stages?.evasion||0;const accuracy=user?.stages?.accuracy||0;const net=evasion-accuracy;const factor=net>=0?3/(3+net):(3-net)/3;return roll(b.rng)<Math.min(1,(effectiveAccuracy+(user.accuracyBuff||0))*factor);}
 function critRate(p){return 0.06+0.0008*p.friendship;} // draft curve: 14% at friendship 100
 export function damageRoll(attacker,defender,move,{rng=Math.random}={}) {
   const atk=effectiveStat(attacker,'attack')*(attacker.status?.type==='burn'?0.5:1), def=effectiveStat(defender,'defense')*(defender.defenseBuffMultiplier||1);
