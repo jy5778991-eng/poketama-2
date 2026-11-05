@@ -3067,7 +3067,7 @@ function setup(){
   if(animating||battle.ended||!battle.wild||learningBusy)return;
   const tier=wildEnemy?.tier||(LEGENDARY_DEX.has(wildEnemy.dex)?'legendary':HYPER_DEX.has(wildEnemy.dex)?'hyper':RARE_DEX.has(wildEnemy.dex)?'rare':EVOLVED_DEX.has(wildEnemy.dex)?'evolved':'normal');
   const multiplier={normal:1,evolved:0.8,rare:0.7,hyper:0.5,legendary:0.3}[tier]??1;
-  const chance=Math.max(0,Math.min(100,(85+battle.player.level-wildEnemy.level)*multiplier))/100;
+  const chance=Math.max(0,Math.min(100,(80+battle.player.level-wildEnemy.level)*multiplier))/100;
   if(Math.random()<chance){
    setActiveHp(battle.player.hp);
    battleRoster.set(activeBattleKey,battle.player);
