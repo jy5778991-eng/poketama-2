@@ -2210,9 +2210,12 @@ function showPartyManager(selectedKey=null,replacement=false){
   for(const id of HELD_ITEMS){
    if(!hasHeld(id,m.key))continue;
    const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;
-   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name;heldIcon.loading='lazy';
+   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name+(id==='hardClaw'?' '+heldCount(id,m.key)+'개':'');heldIcon.loading='lazy';
    heldIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=item.name;heldIcon.replaceWith(fallback);};
    nameRow.append(heldIcon);
+   if(id==='hardClaw'&&heldCount(id,m.key)>1){
+    const quantity=document.createElement('small');quantity.textContent=String(heldCount(id,m.key));quantity.title='단단한 발톱 장착 수량';quantity.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';nameRow.append(quantity);
+   }
   }
   const meter=(label,current,total,type)=>{const row=document.createElement('div');row.className='party-summary-meter';
    const tag=document.createElement('b');tag.textContent=label;
@@ -2452,7 +2455,7 @@ function renderBattleStatus(side,fighter){
  }
  statusElement.style.color=status==='burn'?'#c75e32':status==='freeze'?'#278ac9':status==='poison'?'#985ac0':status==='sleep'?'#438fe1':status==='paralysis'?'#b98906':'';
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);el.title=item.name;heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(id==='hardClaw'&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(id==='hardClaw'?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
