@@ -623,6 +623,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   return calculateStats(BASE_STATS[dex],level,ivs,options.evs||evs);
  })(),moveIds:selected});
  trainer.dex=dex;
+ if(options.redPikachu)trainer.redAiMode='pikachu';
+ if(options.redSnorlax)trainer.redAiMode='snorlax';
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.attackBuffMultiplier=1.5*1.3; // Light Ball + Hard Claw
