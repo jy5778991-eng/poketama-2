@@ -7,17 +7,17 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-exp-share-stack';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-scope-stack';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261106-exp-share-stack';
+import {renderInventoryView} from './js/inventory.js?v=20261106-scope-stack';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:5,shellBell:1,leftovers:1,scopeLens:2,revivalSeed:1};
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:2,hardClaw:5,shellBell:1,leftovers:1,scopeLens:5,revivalSeed:1};
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -180,7 +180,7 @@ function rewardWeight(choice,context){
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
    if(id==='shellBell')return inventory.shellBell>=1?0:1;
    if(id==='leftovers')return inventory.leftovers>=1?0:2;
-   if(id==='scopeLens')return inventory.scopeLens>=2?0:inventory.scopeLens===1?1:2;
+   if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
    if(id==='expShare')return inventory.expShare>=4?0:4;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
@@ -1324,7 +1324,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
- if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 장착한 포켓몬의 급소 확률 +8%p';
+ if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +4%p, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
@@ -1611,7 +1611,7 @@ function claimRewardChoice(index){
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=(choice.id==='hardClaw'?3:1),action:()=>{
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=(['hardClaw','scopeLens'].includes(choice.id)?3:1),action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -1988,14 +1988,14 @@ function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?store
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(1+0.1*heldCount('hardClaw',m.key));
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-player.shellBell=hasHeld('shellBell',m.key);player.leftoversEnabled=hasHeld('leftovers',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+player.shellBell=hasHeld('shellBell',m.key);player.leftoversEnabled=hasHeld('leftovers',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
   const seen=new Map();
   battleItemHolders[id]=(battleItemHolders[id]||[]).filter(k=>{
    if(!keys.has(k))return false;
-   if(id==='hardClaw'){
+   if(id==='hardClaw'||id==='scopeLens'){
     const count=seen.get(k)||0;
     if(count>=3)return false;
     seen.set(k,count+1);return true;
@@ -2012,7 +2012,7 @@ function hasHeld(id,key){return heldCount(id,key)>0;}
 function equipHeld(id,key){
  normalizeHeldItems();
  if(!HELD_ITEMS.includes(id)||!teamMembers().some(m=>m.key===key))return false;
- if(heldCount(id,key)>=(id==='hardClaw'?3:1))return false;
+ if(heldCount(id,key)>=(['hardClaw','scopeLens'].includes(id)?3:1))return false;
  if(battleItemHolders[id].length>=inventory[id])return false;
  if(isLens(id)){
   const other=id==='wideLensA'?'wideLensB':'wideLensA';
@@ -2075,13 +2075,13 @@ function manageHeldItem(id){
   status.textContent='보유 '+inventory[id]+'개 · 장착 '+used+'개 · 미장착 '+available+'개';
   rows.replaceChildren();
   for(const member of teamMembers()){
-   const count=heldCount(id,member.key),limit=id==='hardClaw'?3:1;
+   const count=heldCount(id,member.key),limit=['hardClaw','scopeLens'].includes(id)?3:1;
    const row=document.createElement('div');row.style.cssText='border:1px solid #cad5e5;border-radius:11px;padding:11px;display:grid;gap:7px';
    const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:8px;justify-content:space-between';
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%p':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2214,11 +2214,11 @@ function showPartyManager(selectedKey=null,replacement=false){
   for(const id of HELD_ITEMS){
    if(!hasHeld(id,m.key))continue;
    const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;
-   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name+(id==='hardClaw'?' '+heldCount(id,m.key)+'개':'');heldIcon.loading='lazy';
+   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name+(['hardClaw','scopeLens'].includes(id)?' '+heldCount(id,m.key)+'개':'');heldIcon.loading='lazy';
    heldIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=item.name;heldIcon.replaceWith(fallback);};
    nameRow.append(heldIcon);
-   if(id==='hardClaw'&&heldCount(id,m.key)>1){
-    const quantity=document.createElement('small');quantity.textContent=String(heldCount(id,m.key));quantity.title='단단한 발톱 장착 수량';quantity.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';nameRow.append(quantity);
+   if(['hardClaw','scopeLens'].includes(id)&&heldCount(id,m.key)>1){
+    const quantity=document.createElement('small');quantity.textContent=String(heldCount(id,m.key));quantity.title=item.name+' 장착 수량';quantity.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';nameRow.append(quantity);
    }
   }
   const meter=(label,current,total,type)=>{const row=document.createElement('div');row.className='party-summary-meter';
@@ -2459,7 +2459,7 @@ function renderBattleStatus(side,fighter){
  }
  statusElement.style.color=status==='burn'?'#c75e32':status==='freeze'?'#278ac9':status==='poison'?'#985ac0':status==='sleep'?'#438fe1':status==='paralysis'?'#b98906':'';
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(id==='hardClaw'&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(id==='hardClaw'?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(['hardClaw','scopeLens'].includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(['hardClaw','scopeLens'].includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
@@ -2487,7 +2487,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-  battle.player.critBuff=0.15*boostCount('critical')+(hasHeld('scopeLens',m.key)?0.08:0);battle.player.shellBell=hasHeld('shellBell',m.key);battle.player.leftoversEnabled=hasHeld('leftovers',m.key);
+  battle.player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));battle.player.shellBell=hasHeld('shellBell',m.key);battle.player.leftoversEnabled=hasHeld('leftovers',m.key);
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
