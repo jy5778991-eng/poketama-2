@@ -38,6 +38,37 @@ function chooseRedMove(enemy,opponent,rng,usable){
   if(hp<0.53&&!enemy.status&&can('rest'))return {moveId:'rest'};
   if(can('bodySlam'))return {moveId:'bodySlam'};
  }
+ if(enemy.redAiMode==='lapras'){
+  // One opening Charm; afterward choose among all four moves at random.
+  if(!enemy.redFirstTurnSelected){
+   enemy.redFirstTurnSelected=true;
+   if(can('charm')&&(opponent?.stages?.attack??0)>-6)return {moveId:'charm'};
+  }
+  // Repeated attack drops make Charm progressively less likely.
+  const drop=Math.min(6,Math.max(0,-(opponent?.stages?.attack??0)));
+  const charmWeight=[1,.65,.4,.25,.12,.05,0][drop];
+  const choices=usable.map(id=>({id,weight:id==='charm'?charmWeight:1}))
+    .filter(choice=>choice.weight>0);
+  const total=choices.reduce((sum,choice)=>sum+choice.weight,0);
+  let roll=rng()*total;
+  for(const choice of choices){if(roll<choice.weight)return {moveId:choice.id};roll-=choice.weight;}
+  if(choices.length)return {moveId:choices.at(-1).id};
+ }
+ if(enemy.redAiMode==='charizard'){
+  if(!enemy.redFirstTurnSelected){
+   enemy.redFirstTurnSelected=true;
+   if(can('dragonDance')&&(enemy.stages?.attack??0)<6&&(enemy.stages?.speed??0)<6)return {moveId:'dragonDance'};
+  }
+  // Keep healing as the highest priority when HP falls below 53%.
+  if(hp<0.53&&can('roost'))return {moveId:'roost'};
+  const attackStage=Math.max(0,enemy.stages?.attack??0);
+  const speedStage=Math.max(0,enemy.stages?.speed??0);
+  const boostLevel=Math.min(6,Math.floor((attackStage+speedStage)/2));
+  const danceChance=[.30,.22,.15,.09,.04,.01,0][boostLevel];
+  if(can('dragonDance')&&attackStage<6&&speedStage<6&&rng()<danceChance)return {moveId:'dragonDance'};
+  const attacks=['flareBlitz','fireBlast'].filter(can);
+  if(attacks.length)return {moveId:attacks[Math.floor(rng()*attacks.length)]};
+ }
  return null;
 }
 // Exactly two modes: random wild selection and shared tactical trainer selection.
