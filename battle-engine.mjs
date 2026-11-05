@@ -176,7 +176,7 @@ function pickAction(p,requested){
   if(requested?.type==='healAlly') return {type:'healAlly',priority:6};
   if(requested?.type==='switch') return {type:'switch',priority:Number.POSITIVE_INFINITY,fighter:requested.fighter};
   if(requested?.type==='item') return {type:'item',priority:6,power:requested.power};
-  if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true};
+  if(requested?.type==='ball') return {type:'ball',priority:7,multiplier:requested.multiplier,guaranteedCatch:requested.guaranteedCatch===true,quickBall:requested.itemId==='quickBall'};
   const id=p.lockedMove?.id||requested?.moveId;
   if(id==='struggle'&&p.moveIds.every(move=>!!MOVES[move].pp&&(p.pp?.[move]??MOVES[move].pp)<=0))
     return {type:'move',moveId:'struggle',priority:0};
@@ -227,7 +227,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       const hpFraction=Math.max(0,Math.min(1,e.hp/e.stats.hp));
       const speciesMultiplier=e.catchMultiplier??(e.rare?0.2:0.8);
       const statusMultiplier=e.status?.type||e.confusionTurns>0?1.5:1;
-      const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.multiplier||1)*statusMultiplier));
+      const chance=a.action.guaranteedCatch===true?1:Math.max(0,Math.min(1,((300-200*hpFraction)/300)*speciesMultiplier*(a.action.quickBall?(b.turn===1?7:b.turn===2?3:1):(a.action.multiplier||1))*statusMultiplier));
       say(b,'몬스터볼을 던졌다!');
       if(roll(b.rng)<chance){
         b.ended=true;b.result='capture';
