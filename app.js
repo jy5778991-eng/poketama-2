@@ -2281,10 +2281,10 @@ function renderHome(){
  const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&(area===latestMapRegion()||(area==='city'&&trainerKind==='greenFourth'));
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  // Champion Road 2 has the Pokémon League instead of a trainer/gym challenge.
- $('trainerChallenge').hidden=area==='championRoad2'&&hallOfFame.length===0;
+ $('trainerChallenge').hidden=(area==='championRoad2'&&hallOfFame.length===0)||(area==='mountSilver'&&hallOfFame.length>0&&redHallOfFame.length===0);
  $('trainerChallenge').disabled=area==='championRoad2'||(hallOfFame.length>0?false:challengeDisabled);
  const redButton=$('redChallenge');
- redButton.hidden=area!=='mountSilver'||!hallOfFame.length;
+ redButton.hidden=area!=='mountSilver'||!hallOfFame.length||redHallOfFame.length>0;
  redButton.disabled=progress.level<90||!livingMembers().length||!!pendingRewardChoice||animating;
  $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
  $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
