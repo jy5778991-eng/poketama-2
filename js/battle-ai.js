@@ -54,6 +54,32 @@ function chooseRedMove(enemy,opponent,rng,usable){
   for(const choice of choices){if(roll<choice.weight)return {moveId:choice.id};roll-=choice.weight;}
   if(choices.length)return {moveId:choices.at(-1).id};
  }
+ if(enemy.redAiMode==='venusaur'){
+  // Heal below 53%, otherwise favor Sleep Powder over the two attacks.
+  if(hp<0.53&&can('synthesis'))return {moveId:'synthesis'};
+  const candidates=[
+   {id:'sleepPowder',weight:2},
+   {id:'energyBall',weight:1},
+   {id:'solarBeam',weight:1}
+  ].filter(choice=>can(choice.id)&&(choice.id!=='sleepPowder'||!opponent?.status));
+  const total=candidates.reduce((sum,choice)=>sum+choice.weight,0);
+  if(total>0){
+   let roll=rng()*total;
+   for(const choice of candidates){
+    if(roll<choice.weight)return {moveId:choice.id};
+    roll-=choice.weight;
+   }
+   return {moveId:candidates.at(-1).id};
+  }
+ }
+ if(enemy.redAiMode==='blastoise'){
+  if(!enemy.redFirstTurnSelected){
+   enemy.redFirstTurnSelected=true;
+   if(can('shellSmash'))return {moveId:'shellSmash'};
+  }
+  const attacks=['hydroPump','surf','powerUpPunch'].filter(can);
+  if(attacks.length)return {moveId:attacks[Math.floor(rng()*attacks.length)]};
+ }
  if(enemy.redAiMode==='charizard'){
   if(!enemy.redFirstTurnSelected){
    enemy.redFirstTurnSelected=true;
