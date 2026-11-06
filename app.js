@@ -943,7 +943,7 @@ const CHALLENGE_ORDER=['blue','brock','misty','greenReturn','surge','greenThird'
 const MAP_REGIONS=[
  ['grass','🌿 초원',()=>true,8],['forest','🌳 상록숲',()=>blueCleared,14],['cave','🪨 달맞이동굴',()=>brockCleared,18],['lake','💧 호수공원',()=>mistyCleared,26],
  ['cemetery','🪦 공동묘지',()=>surgeCleared,29],['town','🏘️ 무지개시티',()=>greenThirdCleared,34],['road','🛣️ 자전거도로',()=>erikaCleared,39],
- ['city','🏙️ 노랑시티',()=>kogaCleared,47],['sea','🌊 바다',()=>sabrinaCleared,54],['volcano','🌋 화산',()=>sabrinaCleared,54],
+ ['city','🏙️ 노랑시티',()=>kogaCleared,47],['sea','🌊 바다',()=>sabrinaCleared,54],['volcano','🌋 화산',()=>sabrinaCleared&&(progress.level>=48||volcanoAutoVisited||blaineCleared),54],
  ['strangeForest','🌲 이상한 숲',()=>blaineCleared,60],['championRoad','🏔️ 챔피언로드',()=>giovanniCleared,66],
  ['championRoad2','🏛️ 석영고원',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
  ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,90],
