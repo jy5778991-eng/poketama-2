@@ -17,7 +17,7 @@ const say=(battle,msg)=>battle.log.push(msg);
 const emit=(battle,event)=>battle.events.push(event);
 const sideOf=(battle,p)=>p===battle.player?'player':'enemy';
 const stageMultiplier=(stage)=>stage>=0 ? (2+stage)/2 : 2/(2-stage);
-const effectiveStat=(p, stat)=>Math.max(1,Math.floor(p.stats[stat]*stageMultiplier(p.stages[stat])*(stat==='speed'&&p.status?.type==='paralysis'?RULES.paralysisSpeed:1)));
+const effectiveStat=(p, stat)=>Math.max(1,Math.floor(p.stats[stat]*stageMultiplier(p.stages[stat])*(stat==='speed'&&p.status?.type==='paralysis'?RULES.paralysisSpeed:1)*(stat==='speed'?(p.speedBuffMultiplier||1):1)));
 export function calculateStats(base,level,iv={},ev={}) {
   if(!Number.isInteger(level)||level<1||level>100) throw new Error('Invalid level');
   const stats={};
