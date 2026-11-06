@@ -2871,13 +2871,16 @@ function showMap(){
  selectedMapDestination=area;
  $('mapLocationText').textContent='현재 위치: '+(mapRegion(area)?.[1]||area);
  const list=$('mapDestinations');list.replaceChildren();
- for(const [key,name] of MAP_REGIONS){
+ for(const [key,name,isUnlocked] of MAP_REGIONS){
+  // Discoverability is separate from travel: not owning the optional Map must not hide a discovered region.
+  const revealed=key===area||isUnlocked();
   const problem=mapTravelProblem(key),locked=!!problem,label=document.createElement('label'),input=document.createElement('input'),caption=document.createElement('span');
+  const displayName=revealed?name:'???';
   input.type='radio';input.name='mapDestination';input.value=key;input.disabled=locked;input.checked=selectedMapDestination===key;
   label.className=locked?'locked':'';if(input.checked)label.classList.add('chosen');
-  if(locked){label.title=problem;label.setAttribute('aria-label',name+' · '+problem);label.onclick=e=>{e.preventDefault();alert(problem);};}
-  caption.textContent=name+(key===area?' · 현재 위치':locked?' · 잠김':'');
-  input.onchange=()=>{selectedMapDestination=key;for(const row of list.querySelectorAll('label'))row.classList.toggle('chosen',row.querySelector('input').checked);$('mapSelectionText').textContent=name+'(으)로 이동할까요?';$('mapConfirm').disabled=key===area;};
+  if(locked){const message=revealed?problem:'아직 해금되지 않은 지역입니다.';label.title=message;label.setAttribute('aria-label',displayName+' · '+message);label.onclick=e=>{e.preventDefault();alert(message);};}
+  caption.textContent=displayName+(key===area?' · 현재 위치':!revealed?'':locked?' · 잠김':'');
+  input.onchange=()=>{selectedMapDestination=key;for(const row of list.querySelectorAll('label'))row.classList.toggle('chosen',row.querySelector('input').checked);$('mapSelectionText').textContent=displayName+'(으)로 이동할까요?';$('mapConfirm').disabled=key===area;};
   label.append(input,caption);list.append(label);
  }
  $('mapSelectionText').textContent='목적지를 선택한 후 이동 확인을 눌러주세요.';
