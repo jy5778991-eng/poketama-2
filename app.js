@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-scope-3pct';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-gear-tab-memory-move';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261106-stacked-heal-items';
+import {renderInventoryView} from './js/inventory.js?v=20261106-gear-tab-memory-move';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
@@ -2486,7 +2486,7 @@ function renderEnemyHeldItems(enemy){
  host.replaceChildren();
  if(!enemy?.heldItemCounts)return;
  for(const [id,quantity] of Object.entries(enemy.heldItemCounts)){
-  if(quantity<=0||(id==='revivalSeed'&&enemy.revivalSeedUsed)||(id==='lightBall'&&![172,25,26].includes(enemy.dex)))continue;
+  if(quantity<=0||(id==='revivalSeed'&&enemy.revivalSeedUsed)||(id==='lightBall'&&![172,25,26].includes(enemy.dex))||(id==='thickClub'&&![104,105].includes(enemy.dex)))continue;
   const item=SHOP_ITEMS.find(entry=>entry.id===id);
   if(!item)continue;
   const el=document.createElement('span');el.className='player-held-item-icon';el.style.position='relative';
@@ -2497,7 +2497,7 @@ function renderEnemyHeldItems(enemy){
   el.title=item.name+(quantity>1?' '+quantity+'개':'');host.append(el);
  }
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}if(inventory.lightBall>0&&[172,25,26].includes(battle.player?.dex)){const item=SHOP_ITEMS.find(x=>x.id==='lightBall');if(item){const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl('lightBall');img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'⚡';};el.append(img);el.title=item.name+' · 중요 아이템 보유 효과';heldHost.append(el);}}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}for(const [id,dexes] of [['lightBall',[172,25,26]],['thickClub',[104,105]]]){if(!inventory[id]||!dexes.includes(battle.player?.dex))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);el.title=item.name+' · 중요 아이템 보유 효과';heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
