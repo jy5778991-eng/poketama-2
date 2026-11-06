@@ -189,15 +189,18 @@ export function poisonTick(b,p){
   const dmg=Math.max(1,Math.floor(p.stats.hp*RULES.poisonFraction));
   p.hp=Math.max(0,p.hp-dmg);say(b,`${p.name}은(는) 독으로 ${dmg} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,p),amount:dmg,hp:p.hp,critical:false,poison:true});
 }
+function activateRevivalSeed(b,fighter){
+  if(isAlive(fighter)||!fighter.revivalSeedEnabled||fighter.revivalSeedUsed)return false;
+  fighter.revivalSeedUsed=true;fighter.revivalSeedEnabled=false;fighter.hp=fighter.stats.hp;
+  say(b,`${fighter.name}의 부활의 씨앗 발동! HP 전부 회복`);
+  emit(b,{type:'heal',side:sideOf(b,fighter),amount:fighter.hp,hp:fighter.hp,heldItem:'revivalSeed'});
+  return true;
+}
 function settle(b){
   const p=b.player,e=activeEnemy(b);
-  // Resolve the enemy knockout before checking the active player's HP.
-  // The app decides whether a fainted player has a surviving party member.
-  if(!isAlive(e)&&e.revivalSeedEnabled&&!e.revivalSeedUsed){
-    e.revivalSeedUsed=true;e.revivalSeedEnabled=false;e.hp=e.stats.hp;
-    say(b,`${e.name}의 부활의 씨앗 발동! HP 전부 회복`);
-    emit(b,{type:'heal',side:'enemy',amount:e.hp,hp:e.hp,heldItem:'revivalSeed'});
-  }
+  // Also handle knockouts caused by end-of-turn residual damage.
+  activateRevivalSeed(b,e);
+  activateRevivalSeed(b,p);
   if(!isAlive(e)){
     emit(b,{type:'knockout',side:'enemy',enemyIndex:b.enemyIndex});
     if(b.enemyIndex===b.enemies.length-1){b.ended=true;b.result='victory';say(b,'승리했다!');}
@@ -249,8 +252,11 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
       a.fighter.hp+=healed;say(b,`회복약 사용: HP +${healed}`);
       emit(b,{type:'heal',side:sideOf(b,a.fighter),amount:healed,hp:a.fighter.hp,item:true});
     } else {a.target.sideShieldTurns=b.shields[sideOf(b,a.target)];if(a.action.moveId==='sleepTalk'&&a.fighter.status?.type==='sleep'){const wasRest=!!a.fighter.status.fromRest;if(wasRest){const n=a.fighter.status.sleepBlockedActions;if(n>=2){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}else{const n=a.fighter.status.sleepBlockedActions;const chance=n===0?0:n===1?RULES.sleepSecondActionWakeChance:n===2?RULES.sleepThirdActionWakeChance:1;if(roll(b.rng)<chance){a.fighter.status=null;say(b,`${a.fighter.name}이(가) 잠에서 깨어났다!`);}else a.fighter.status.sleepBlockedActions=n+1;}}executeMove(b,a.fighter,a.target,a.action.moveId,a.action.moveId==='sleepTalk');}
+    // A Revival Seed triggers after the attack, BEFORE the second fighter's action.
+    // Both sides keep their already-selected action for this same turn.
+    activateRevivalSeed(b,p);activateRevivalSeed(b,e);
   }
-  if(!b.ended){poisonTick(b,p);poisonTick(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.08));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp,burn:true});}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}
+  if(!b.ended){poisonTick(b,p);activateRevivalSeed(b,p);poisonTick(b,e);activateRevivalSeed(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.08));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp,burn:true});activateRevivalSeed(b,fighter);}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}
     // End-of-turn held food triggers only after poison and burn residual damage.
     // A Pokemon knocked out by residual damage cannot recover.
     for(const fighter of [p,e]){
