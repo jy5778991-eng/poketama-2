@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-explosion-power';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-stacked-heal-items';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-friendship50';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
@@ -643,7 +643,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
   :recentWildMoves(dex,level);
  const selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
- const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:0,stats:(()=>{
+ const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:50,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
   const evs={hp:ev,attack:ev,defense:ev,speed:ev};
@@ -712,7 +712,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
- return createFighter({id:s.id,name:displayName,level,friendship:100,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
+ return createFighter({id:s.id,name:displayName,level,friendship:50,stats:calculateStats(baseStats,level,ivs,playerEVs),moveIds});
 }
 const WILD_EVOLUTIONS={
  10:[11,7,'단데기'],11:[12,10,'버터플'],13:[14,7,'딱충이'],14:[15,10,'독침붕'],
@@ -1138,7 +1138,7 @@ function reset(kind='wild',recordDiscovery=true){
   const wildStats=calculateStats(BASE_STATS[wild.dex],level,zeroIV,{});
   const openingPenalty=leader.level<=3?0.7:leader.level<=7?0.85:1;
   if(openingPenalty<1)for(const stat of ['attack','defense','speed'])wildStats[stat]=Math.max(1,Math.floor(wildStats[stat]*openingPenalty));
-  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:0,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.dex=wild.dex;enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
+  const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:50,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.dex=wild.dex;enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
  }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
@@ -2164,7 +2164,7 @@ function requestBattleSwitch(){
   if(newFighter&&!battle.ended)await act({type:'switch',fighter:newFighter});
  }})),{text:'취소',action:()=>{}}]);
 }
-function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:100,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
+function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:50,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
 
 function partyOverlay(title,description,choices){
  let layer=document.getElementById('partyActionOverlay');
