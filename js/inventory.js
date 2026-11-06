@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261106-gear-tab-memory-move';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261106-sharpbeak-magnet';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
