@@ -1,23 +1,25 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-explosion-power';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-bellydrum-log';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-stacked-heal-items';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-sash-stack';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-stacked-heal-items';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261106-sash-stack';
+import {renderInventoryView} from './js/inventory.js?v=20261106-stacked-heal-items';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:6,hardClaw:5,shellBell:1,leftovers:1,scopeLens:5,revivalSeed:1};
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1};
+const STACKABLE_HELD_ITEMS=['hardClaw','scopeLens','focusSash','shellBell','leftovers'];
+function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:['hardClaw','scopeLens'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -178,8 +180,8 @@ function rewardWeight(choice,context){
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
-   if(id==='shellBell')return inventory.shellBell>=1?0:1;
-   if(id==='leftovers')return inventory.leftovers>=1?0:2;
+   if(id==='shellBell')return inventory.shellBell>=4?0:1;
+   if(id==='leftovers')return inventory.leftovers>=4?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
    if(id==='expShare')return inventory.expShare>=4?0:4;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
@@ -705,6 +707,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
+ trainer.shellBellCount=trainer.heldItemCounts?.shellBell||0;
+ trainer.leftoversCount=trainer.heldItemCounts?.leftovers||0;
  return trainer;
 }
 function fighter(s,ivs={hp:8,attack:8,defense:8,speed:8},level=5,baseStats=s.base,displayName=s.name,moveIds=s.moves){
@@ -1619,7 +1623,7 @@ function claimRewardChoice(index){
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=(choice.id==='focusSash'?6:['hardClaw','scopeLens'].includes(choice.id)?3:1),action:()=>{
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id),action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -2006,16 +2010,16 @@ function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?store
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(1+0.1*heldCount('hardClaw',m.key));
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-player.shellBell=hasHeld('shellBell',m.key);player.leftoversEnabled=hasHeld('leftovers',m.key);player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
   const seen=new Map();
   battleItemHolders[id]=(battleItemHolders[id]||[]).filter(k=>{
    if(!keys.has(k))return false;
-   if(['hardClaw','scopeLens','focusSash'].includes(id)){
+   if(STACKABLE_HELD_ITEMS.includes(id)){
     const count=seen.get(k)||0;
-    if(count>=(id==='focusSash'?6:3))return false;
+    if(count>=heldItemPerPokemonLimit(id))return false;
     seen.set(k,count+1);return true;
    }
    if(seen.has(k))return false;
@@ -2030,7 +2034,7 @@ function hasHeld(id,key){return heldCount(id,key)>0;}
 function equipHeld(id,key){
  normalizeHeldItems();
  if(!HELD_ITEMS.includes(id)||!teamMembers().some(m=>m.key===key))return false;
- if(heldCount(id,key)>=(id==='focusSash'?6:['hardClaw','scopeLens'].includes(id)?3:1))return false;
+ if(heldCount(id,key)>=heldItemPerPokemonLimit(id))return false;
  if(battleItemHolders[id].length>=inventory[id])return false;
  if(isLens(id)){
   const other=id==='wideLensA'?'wideLensB':'wideLensA';
@@ -2093,13 +2097,13 @@ function manageHeldItem(id){
   status.textContent='보유 '+inventory[id]+'개 · 장착 '+used+'개 · 미장착 '+available+'개';
   rows.replaceChildren();
   for(const member of teamMembers()){
-   const count=heldCount(id,member.key),limit=id==='focusSash'?6:['hardClaw','scopeLens'].includes(id)?3:1;
+   const count=heldCount(id,member.key),limit=heldItemPerPokemonLimit(id);
    const row=document.createElement('div');row.style.cssText='border:1px solid #cad5e5;border-radius:11px;padding:11px;display:grid;gap:7px';
    const line=document.createElement('div');line.style.cssText='display:flex;align-items:center;gap:8px;justify-content:space-between';
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2232,10 +2236,10 @@ function showPartyManager(selectedKey=null,replacement=false){
   for(const id of HELD_ITEMS){
    if(!hasHeld(id,m.key))continue;
    const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;
-   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name+(['hardClaw','scopeLens','focusSash'].includes(id)?' '+heldCount(id,m.key)+'개':'');heldIcon.loading='lazy';
+   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;heldIcon.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,m.key)+'개':'');heldIcon.loading='lazy';
    heldIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=item.name;heldIcon.replaceWith(fallback);};
    nameRow.append(heldIcon);
-   if(['hardClaw','scopeLens','focusSash'].includes(id)&&heldCount(id,m.key)>1){
+   if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,m.key)>1){
     const quantity=document.createElement('small');quantity.textContent=String(heldCount(id,m.key));quantity.title=item.name+' 장착 수량';quantity.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';nameRow.append(quantity);
    }
   }
@@ -2493,7 +2497,7 @@ function renderEnemyHeldItems(enemy){
   el.title=item.name+(quantity>1?' '+quantity+'개':'');host.append(el);
  }
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(['hardClaw','scopeLens','focusSash'].includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(['hardClaw','scopeLens','focusSash'].includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
@@ -2521,7 +2525,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-  battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));battle.player.shellBell=hasHeld('shellBell',m.key);battle.player.leftoversEnabled=hasHeld('leftovers',m.key);
+  battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
