@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-crit-triple';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-sharpbeak-magnet';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261107-revival-same-turn';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
@@ -2040,7 +2040,7 @@ function bugPowderBonus(m){return inventory.silverPowder===1&&BUG_TYPE_DEX.has(m
 function magnetSpeedBonus(m){return inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.05:0;}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0)+(grassSeedBonus(m)?0.05:0);
-player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);return player;}
+player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
@@ -2580,16 +2580,11 @@ async function act(a){
    appendAdventureLog('💊 '+target.name+' HP '+before+' → '+hp);
   }
   if(a.type==='ball')lastCaptureBall=a.itemId;battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a);
-  // A held Revival Seed activates on knockout, even from status/recoil damage.
-  // Resolve before defeat handling so the battle continues with full HP.
-  if(battle.player.hp<=0&&inventory.revivalSeed>0&&hasHeld('revivalSeed',activeBattleKey)){
-   battle.player.hp=battle.player.stats.hp;
-   battle.ended=false;
-   battle.result=null;
-   inventory.revivalSeed--;
+  // The engine now revives either side immediately after the lethal action.
+  // Consume the player's held seed once, without cancelling the opponent's turn.
+  if(battle.events.some(ev=>ev.type==='heal'&&ev.side==='player'&&ev.heldItem==='revivalSeed')){
+   inventory.revivalSeed=Math.max(0,inventory.revivalSeed-1);
    battleItemHolders.revivalSeed=battleItemHolders.revivalSeed.filter(key=>key!==activeBattleKey);
-   battle.player.revivalSeedEnabled=false;
-   battle.events.push({type:'heal',side:'player',amount:battle.player.hp,hp:battle.player.hp,item:true});
    appendAdventureLog('🌱 '+activeMember().name+' 부활의 씨앗 발동! HP 전부 회복');
   }
   if(a.type==='switch')updateBattlePlayerHeader();
