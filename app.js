@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-mystic-water';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-red-type-items';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261106-mystic-water';
+import {renderInventoryView} from './js/inventory.js?v=20261106-red-type-items';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -665,7 +665,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.03*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1,scopeLens:3}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:3}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3,scopeLens:3}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:null;
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.hardClawCount=3;
@@ -686,24 +686,28 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.focusSashUsed=false;
  }
  if(options.redLapras){
+  trainer.defenseBuffMultiplier=1.15;
   trainer.leftoversEnabled=true;
   trainer.shellBell=true;
   trainer.accuracyBuff=0.10;
  }
  if(options.redVenusaur){
+  trainer.defenseBuffMultiplier=1.10;
+  trainer.accuracyBuff=0.05;
   trainer.leftoversEnabled=true;
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
  if(options.redCharizard){
   trainer.hardClawCount=3;
-  trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
+  trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount+0.20; // Three Hard Claws + Charcoal (additive)
   trainer.focusSashEnabled=true;
   trainer.focusSashCount=6;
   trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
   trainer.focusSashUsed=false;
  }
  if(options.redBlastoise){
+  trainer.defenseBuffMultiplier=1.15;
   trainer.shellBell=true;
   trainer.leftoversEnabled=true;
   trainer.focusSashEnabled=true;
@@ -1339,9 +1343,9 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 1개당 생존 확률 +5%p · 포켓몬당 최대 6개 · 최대 6개 보유 · 발동 시 HP 1 생존 (배틀당 1회)';
  if(choice.kind==='item'&&choice.id==='hardClaw')return '단단한 발톱 · 1개당 공격력 +10%, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유시 불꽃 타입 포켓몬의 공격력이 1.2배가 된다. (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유시 풀 타입 포켓몬의 방어력이 1.1배가 되고 명중률이 5% 증가한다. (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='mysticWater')return '💧 신비의 물방울 · 보유시 물 타입 포켓몬의 방어력이 1.15배가 된다. (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유 시 불꽃 타입 포켓몬의 공격력이 20% 증가한다. (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5%p 증가한다. (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='mysticWater')return '💧 신비의 물방울 · 보유 시 물 타입 포켓몬의 방어력이 15% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
