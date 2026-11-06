@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261106-explosion-power';
+import {moveDescription} from './js/data/moves.js?v=20261106-crit-triple';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261106-friendship50';
@@ -7,7 +7,7 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-stacked-heal-items';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-scope-3pct';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -656,8 +656,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redCharizard)trainer.redAiMode='charizard';
  if(options.redVenusaur)trainer.redAiMode='venusaur';
  if(options.redBlastoise)trainer.redAiMode='blastoise';
- // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
- if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
+ // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
+ if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.03*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
  trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1}:options.redSnorlax?{leftovers:1,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:1,shellBell:1,wideLensB:1,scopeLens:3}:options.redVenusaur?{leftovers:1,hardClaw:3,scopeLens:3}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3}:options.redBlastoise?{shellBell:1,leftovers:1,focusSash:6,hardClaw:3,scopeLens:3}:null;
  if(options.redPikachu){
@@ -1336,7 +1336,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
  if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
- if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +4%p, 포켓몬당 최대 3개 · 최대 5개 보유';
+ if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
@@ -2010,7 +2010,7 @@ function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?store
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(1+0.1*heldCount('hardClaw',m.key));
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
+player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense');return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
@@ -2103,7 +2103,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2525,7 +2525,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=(1+0.2*boostCount('attack'))*(inventory.thickClub===1&&[104,105].includes(m.dex)?2:1)*(inventory.lightBall===1&&[172,25,26].includes(m.dex)?1.5:1)*(hasHeld('hardClaw',m.key)?1.3:1);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0);
-  battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.04*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
+  battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense');
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
