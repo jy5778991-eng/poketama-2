@@ -66,7 +66,7 @@
  <div class="inventory-category-tabs" role="tablist" aria-label="아이템 종류">
   <button type="button" data-item-category="heal" role="tab" aria-selected="true">회복</button>
   <button type="button" data-item-category="ball" role="tab" aria-selected="false">볼</button>
-  <button type="button" data-item-category="use" role="tab" aria-selected="false">사용</button>
+  <button type="button" data-item-category="use" role="tab" aria-selected="false">장착</button>
   <button type="button" data-item-category="move" role="tab" aria-selected="false">기술</button>
   <button type="button" data-item-category="key" role="tab" aria-selected="false">중요</button>
  </div>
@@ -123,7 +123,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261106-lightball-icons');
+ await import('./app.js?v=20261106-thickclub-gear-tabs');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
