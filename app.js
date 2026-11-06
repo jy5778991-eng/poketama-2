@@ -1883,6 +1883,8 @@ function showItemCategory(category){
 }
 function reviveMember(m){
  if(inventory.revive<1||memberHp(m)!==0)return false;
+ // A fainted fighter may still be cached in battleRoster: revival restores HP, never old stat ranks.
+ resetFighterStages(battleRoster.get(m.key));
  const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
  setMemberHp(m,hp);
  appendAdventureLog('💎 '+m.name+' 기력의조각 부활: '+hp+' HP');
@@ -1975,6 +1977,7 @@ function setMemberHp(m,hp){
  const cached=battleRoster.get(m.key);
  if(cached)cached.hp=hp;
 }
+function resetFighterStages(fighter){if(fighter?.stages)for(const stat of Object.keys(fighter.stages))fighter.stages[stat]=0;}
 function setActiveHp(hp){setMemberHp(activeMember(),hp);}
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function battleHealingTargets(){
@@ -2137,7 +2140,7 @@ function requestBattleSwitch(){
   animating=true;
   try{
    setActiveHp(battle.player.hp);
-   if(battle.player.stages)for(const stat of Object.keys(battle.player.stages))battle.player.stages[stat]=0;
+   resetFighterStages(battle.player);
    battleRoster.set(activeBattleKey,battle.player);
    await playSwitchBallAnimation(()=>{
     if(!chooseActiveMember(m))return;
@@ -2543,6 +2546,8 @@ async function act(a){
   battleRoster.set(activeBattleKey,battle.player);
   
   if(battle.player.hp===0){
+   // Fainting ends all stat stage modifiers; do not persist them on the cached fighter.
+   resetFighterStages(battle.player);
    setActiveHp(0);
    // Revived reserve members must prevent an engine-level defeat on the active Pokemon's knockout.
    const survivingReserves=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0);
