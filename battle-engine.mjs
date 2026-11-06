@@ -30,7 +30,7 @@ export function calculateStats(base,level,iv={},ev={}) {
   if(Object.values(ev).reduce((a,b)=>a+b,0)>240) throw new Error('EV total exceeds 240');
   return stats;
 }
-export function createFighter({id,name,stats,level=50,friendship=0,moveIds}) {
+export function createFighter({id,name,stats,level=50,friendship=50,moveIds}) {
   if(!stats||!Number.isFinite(stats.hp)||stats.hp<=0) throw new Error('Invalid stats');
   if(!Array.isArray(moveIds)||moveIds.length<1||moveIds.length>4||new Set(moveIds).size!==moveIds.length) throw new Error('Choose 1-4 unique moves');
   for(const m of moveIds) if(!MOVES[m]) throw new Error('Unknown move: '+m);
