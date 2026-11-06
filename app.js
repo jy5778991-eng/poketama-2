@@ -1884,7 +1884,7 @@ function showItemCategory(category){
 function reviveMember(m){
  if(inventory.revive<1||memberHp(m)!==0)return false;
  // A fainted fighter may still be cached in battleRoster: revival restores HP, never old stat ranks.
- resetFighterStages(battleRoster.get(m.key));
+ resetFighterAfterFaint(battleRoster.get(m.key));
  const hp=Math.max(1,Math.floor(memberMaxHp(m)/2));
  setMemberHp(m,hp);
  appendAdventureLog('💎 '+m.name+' 기력의조각 부활: '+hp+' HP');
@@ -1978,6 +1978,13 @@ function setMemberHp(m,hp){
  if(cached)cached.hp=hp;
 }
 function resetFighterStages(fighter){if(fighter?.stages)for(const stat of Object.keys(fighter.stages))fighter.stages[stat]=0;}
+function resetFighterAfterFaint(fighter){
+ if(!fighter)return;
+ resetFighterStages(fighter);
+ fighter.status=null;
+ fighter.confusionTurns=0;
+ fighter.lockedMove=null;
+}
 function setActiveHp(hp){setMemberHp(activeMember(),hp);}
 function memberHp(m){const max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function battleHealingTargets(){
@@ -2402,7 +2409,7 @@ function renderHome(){
  $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2'||hallOfFame.length>0;
  $('leagueEnter').disabled=area!=='championRoad2'||hallOfFame.length>0||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
- $('leagueRecords').hidden=!hasHallOfFameRecords();
+ $('leagueRecords').hidden=false; // Always show both Hall of Fame tabs, even before first victory.
  $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
  if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
@@ -2547,7 +2554,7 @@ async function act(a){
   
   if(battle.player.hp===0){
    // Fainting ends all stat stage modifiers; do not persist them on the cached fighter.
-   resetFighterStages(battle.player);
+   resetFighterAfterFaint(battle.player);
    setActiveHp(0);
    // Revived reserve members must prevent an engine-level defeat on the active Pokemon's knockout.
    const survivingReserves=teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0);
