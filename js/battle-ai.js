@@ -39,20 +39,11 @@ function chooseRedMove(enemy,opponent,rng,usable){
   if(can('bodySlam'))return {moveId:'bodySlam'};
  }
  if(enemy.redAiMode==='lapras'){
-  // One opening Charm; afterward choose among all four moves at random.
-  if(!enemy.redFirstTurnSelected){
-   enemy.redFirstTurnSelected=true;
-   if(can('charm')&&(opponent?.stages?.attack??0)>-6)return {moveId:'charm'};
-  }
-  // Repeated attack drops make Charm progressively less likely.
-  const drop=Math.min(6,Math.max(0,-(opponent?.stages?.attack??0)));
-  const charmWeight=[1,.65,.4,.25,.12,.05,0][drop];
-  const choices=usable.map(id=>({id,weight:id==='charm'?charmWeight:1}))
-    .filter(choice=>choice.weight>0);
-  const total=choices.reduce((sum,choice)=>sum+choice.weight,0);
-  let roll=rng()*total;
-  for(const choice of choices){if(roll<choice.weight)return {moveId:choice.id};roll-=choice.weight;}
-  if(choices.length)return {moveId:choices.at(-1).id};
+  // Charm whenever the opposing Pokemon's Attack stage is -1 or higher.
+  // Once it reaches -2 or lower, use another available move instead.
+  if((opponent?.stages?.attack??0)>=-1&&can('charm'))return {moveId:'charm'};
+  const choices=usable.filter(id=>id!=='charm');
+  if(choices.length)return {moveId:choices[Math.floor(rng()*choices.length)]};
  }
  if(enemy.redAiMode==='venusaur'){
   // Heal below 53%, otherwise favor Sleep Powder over the two attacks.
