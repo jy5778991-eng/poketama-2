@@ -222,10 +222,17 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   if(pAction.type==='run'&&!b.wild)throw new Error('Run attempts are only allowed in wild battles');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);for(const key of ['player','enemy'])if(b.shields[key]>0)b.shields[key]--;
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
-  order.sort((a,z)=>z.action.priority-a.action.priority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
+  // Trigger independently of normal speed order: +4 percentage points per claw.
+  for(const entry of order){
+    const count=Math.min(5,Math.max(0,entry.fighter.quickClawCount||0));
+    entry.quickClawTriggered=entry.action.type==='move'&&count>0&&roll(b.rng)<0.04*count;
+    entry.orderPriority=entry.action.priority+(entry.quickClawTriggered?1:0);
+  }
+  order.sort((a,z)=>z.orderPriority-a.orderPriority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
     if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
     if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
+    if(a.quickClawTriggered){say(b,'선제공격손톱 발동!');emit(b,{type:'quickClaw',side:sideOf(b,a.fighter)});}
     if(a.action.type==='run'){
       say(b,'도망가기 실패!');
       emit(b,{type:'runFailed',side:'player'});
