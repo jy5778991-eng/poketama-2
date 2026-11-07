@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261107-quick-claw';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261107-quick-claw-test-shop';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
@@ -44,11 +44,12 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   if(inventoryMode==='shop'){
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
    const unique=item.category==='key'||item.unique;
+   const stockLimit=item.id==='quickClaw'?5:unique?1:99;
    const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
-   buy.textContent=inventory[item.id]&&unique?'보유 완료':blockedB?'슬롯A 필요':item.price.toLocaleString('ko-KR')+'원 · 구매';
-   buy.disabled=(unique?inventory[item.id]>=1:inventory[item.id]>=99)||blockedB||progress.money<item.price;
+   buy.textContent=inventory[item.id]>=stockLimit?'최대 보유':blockedB?'슬롯A 필요':item.price.toLocaleString('ko-KR')+'원 · 구매';
+   buy.disabled=inventory[item.id]>=stockLimit||blockedB||progress.money<item.price;
    buy.onclick=()=>{
-    if((unique?inventory[item.id]>=1:inventory[item.id]>=99)||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<item.price)return;
+    if(inventory[item.id]>=stockLimit||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<item.price)return;
     progress.money-=item.price;inventory[item.id]=unique?1:inventory[item.id]+1;
     saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect});
    };
