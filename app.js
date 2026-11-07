@@ -1,19 +1,19 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-crit-triple';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261107-lapras-charm-stage';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261107-quick-claw';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261105-faraway-island337';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261106-sharpbeak-magnet';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261107-quick-claw';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261106-sharpbeak-magnet';
+import {renderInventoryView} from './js/inventory.js?v=20261107-quick-claw';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -22,10 +22,10 @@ const FLYING_TYPE_DEX=new Set([6,12,16,17,18,21,22,41,42,83,84,85,123,130,142,14
 const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99,116,117,118,119,120,121,129,130,131,134,138,139,140,141]);
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
-const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1};
-const STACKABLE_HELD_ITEMS=['hardClaw','scopeLens','focusSash','shellBell','leftovers'];
-function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:['hardClaw','scopeLens'].includes(id)?3:1;}
+const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw'];
+const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5};
+const STACKABLE_HELD_ITEMS=['hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw'];
+function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:['hardClaw','scopeLens'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -186,6 +186,7 @@ function rewardWeight(choice,context){
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
+  if(id==='quickClaw')return inventory.quickClaw>=5?0:1;
    if(id==='shellBell')return inventory.shellBell>=4?0:1;
    if(id==='leftovers')return inventory.leftovers>=4?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
@@ -223,7 +224,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const pool={
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm08',icon:'📀'},{kind:'tm09',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
- hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+ hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
  legendary:[{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
@@ -551,7 +552,7 @@ async function shakeHit(side,critical=false){
  await pause(430);
  host.classList.remove('impact-shake','impact-shake-heavy');
 }
-async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='runFailed'){currentMove=null;tell('도망가기 실패!');await pause(700);}else if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
+async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상대 ':'')+(side==='enemy'?((animatingEnemy??battle.enemies[battle.enemyIndex])?.name||'포켓몬'):battle.player.name);let currentMove=null;let lastTitle='';let details=[];const tell=(title,detail='')=>{lastTitle=title;details=detail?[detail]:[];showBattleActionMessage(title,details.join(', '));};const addDetail=detail=>{details.push(detail);showBattleActionMessage(lastTitle,details.join(', '));};for(let i=0;i<events.length;i++){const ev=events[i];if(ev.type==='quickClaw'){currentMove=null;tell('선제공격손톱 발동!');await pause(750);}else if(ev.type==='runFailed'){currentMove=null;tell('도망가기 실패!');await pause(700);}else if(ev.type==='sleepBlocked'){currentMove=null;tell(pokemonName(ev.side)+'은(는) 잠들어 행동할 수 없다!');await pause(950);}else if(ev.type==='paralysisBlocked'){currentMove=null;tell('⚡ '+pokemonName(ev.side)+'은(는) 마비로 움직이지 못했다!');await pause(950);}else if(ev.type==='statusCleared'){if(battleEffectDisplay?.[ev.side]){battleEffectDisplay[ev.side].status=null;renderBattleStatus(ev.side,ev.side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]));}tell(pokemonName(ev.side)+'이(가) 잠에서 깨어났다!');await pause(420);}else if(ev.type==='confusionSelfHit'){currentMove=null;tell(pokemonName(ev.side)+'은 혼란으로 자기 자신을 공격했다!');await pause(500);}else if(ev.type==='move'){currentMove={id:ev.moveId||ev.name,side:ev.side,isStatus:ev.isStatus};tell(pokemonName(ev.side)+'의 '+ev.name+'!','');if(ev.isStatus){await pause(180);}else{const el=visualSprite(ev.side);animateClass(el,'attacking');await pause(380);el.classList.remove('attacking');}}else if(ev.type==='damage'){const el=visualSprite(ev.side);const arena=document.querySelector('#battleScreen .arena');const attackHit=currentMove&&currentMove.side!==ev.side&&!ev.poison&&!ev.burn&&!ev.recoil&&!ev.selfCost; if(attackHit)await playMoveImpact(ev.side,currentMove.id,!!ev.critical);if(attackHit)await shakeHit(ev.side,!!ev.critical);else animateClass(el,'hit');if(ev.poison||ev.burn){tell(pokemonName(ev.side)+' '+(ev.poison?'독':'화상')+' 상태이상으로 '+ev.amount+' 피해');}else{addDetail(pokemonName(ev.side)+'에게 '+ev.amount+' 피해'+(ev.critical?' · 급소!':''));}if(ev.critical&&arena){arena.classList.remove('critical-shake');void arena.offsetWidth;arena.classList.add('critical-shake');}popup(ev.side,ev.amount,ev.critical);await pause(500);displayHp(ev.side,ev.hp);await pause(650);el.classList.remove('hit');arena?.classList.remove('critical-shake');$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='transform'){const img=$(ev.side+'Sprite');if(ev.dex){sprite(ev.side+'Sprite',ev.dex,ev.side==='player','✨');img.style.filter='';}addDetail((ev.userName||pokemonName(ev.side))+'이(가) '+(ev.targetName||'상대 포켓몬')+'의 모습과 기술을 복사했다!');await pause(950);}else if(ev.type==='statusApplied'){
  if(battleEffectDisplay?.[ev.side]){
   if(ev.status==='confusion')battleEffectDisplay[ev.side].confused=true;
   else battleEffectDisplay[ev.side].status=ev.status;
@@ -1354,6 +1355,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='revivalSeed')return '🌱 부활의 씨앗 · 포켓몬에게 장착하면 배틀 중 HP 0이 될 때 즉시 풀피로 부활 · 발동 시 소모';
  if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 1개당 생존 확률 +5%p · 포켓몬당 최대 6개 · 최대 6개 보유 · 발동 시 HP 1 생존 (배틀당 1회)';
  if(choice.kind==='item'&&choice.id==='hardClaw')return '단단한 발톱 · 1개당 공격력 +10%, 포켓몬당 최대 3개 · 최대 5개 보유';
+ if(choice.kind==='item'&&choice.id==='quickClaw')return '🐾 선제공격의손톱 · 1개당 4% 확률로 선제공격 · 포켓몬당 최대 5개 · 최대 5개 보유';
  if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유 시 불꽃 타입 포켓몬의 공격력이 15% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5%p 증가한다. (중요 아이템)';
@@ -1385,7 +1387,7 @@ function rewardImageName(choice){
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
- if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',memoryMushroom:'tiny-mushroom',hardClaw:'razor-claw',focusSash:'focus-sash',revivalSeed:'revive',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',memoryMushroom:'tiny-mushroom',hardClaw:'razor-claw',quickClaw:'quick-claw',focusSash:'focus-sash',revivalSeed:'revive',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
@@ -2044,7 +2046,7 @@ function bugPowderBonus(m){return inventory.silverPowder===1&&BUG_TYPE_DEX.has(m
 function magnetSpeedBonus(m){return inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.05:0;}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
 player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0)+(grassSeedBonus(m)?0.05:0);
-player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);return player;}
+player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
  for(const id of HELD_ITEMS){
@@ -2137,7 +2139,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2568,6 +2570,7 @@ async function act(a){
   battle.player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');
   battle.player.speedBuffMultiplier=1+magnetSpeedBonus(m);
   battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0)+(grassSeedBonus(m)?0.05:0);
+  battle.player.quickClawCount=heldCount('quickClaw',m.key);
   battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);
   if(a.type==='revive'){
