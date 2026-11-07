@@ -643,7 +643,7 @@ async function playCaptureSequence(success){
 const TRAINER_STAT_CONFIG={
  blue:[8,0],greenReturn:[8,10],greenThird:[8,20],greenFourth:[8,20],greenFifth:[8,40],
  brock:[8,0],misty:[8,10],surge:[8,10],erika:[8,20],koga:[8,30],
- sabrina:[8,40],blaine:[8,40],giovanni:[8,40],
+ sabrina:[8,40],blaine:[8,50],giovanni:[8,60],
  rocketApollo:[12,20],rocketAthena:[12,20],rocketGiovanni:[16,54],
  league0:[14,30],league1:[14,30],league2:[14,30],league3:[14,30],league4:[16,60],red:[16,60]
 };
@@ -671,7 +671,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.03*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:4,wideLensB:1,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:4}:options.redBlastoise?{shellBell:4,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:4,wideLensB:1,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:4}:options.redBlastoise?{shellBell:4,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:null;
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.hardClawCount=3;
@@ -727,6 +727,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
+ if(battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex))trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.15; // Charcoal: Fire-type Attack +15%
  trainer.shellBellCount=trainer.heldItemCounts?.shellBell||0;
  trainer.leftoversCount=trainer.heldItemCounts?.leftovers||0;
  return trainer;
