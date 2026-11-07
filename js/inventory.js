@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261106-sharpbeak-magnet';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261107-quick-claw';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
@@ -34,7 +34,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const owners=[...new Set(holders)].map(key=>{
     const name=partyMembers.find(m=>m.key===key)?.name;
     const count=holders.filter(k=>k===key).length;
-    return name?(['hardClaw','scopeLens','focusSash','shellBell','leftovers'].includes(item.id)?name+' '+count+'개':name):null;
+    return name?(['hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw'].includes(item.id)?name+' '+count+'개':name):null;
    }).filter(Boolean);
    const status=document.createElement('small');status.className='bag-held-status';
    status.textContent='장착 '+holders.length+'개 · 미장착 '+Math.max(0,(inventory[item.id]||0)-holders.length)+'개'+(owners.length?' · '+owners.join(' · '):'');
