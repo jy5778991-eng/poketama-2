@@ -661,7 +661,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   :recentWildMoves(dex,level);
  let selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
  // Agatha's level-71 Gengar uses Hypnosis instead of Confuse Ray.
- if(battleKind==='league2'&&dex===94&&level===71){selected=[...selected];const i=selected.indexOf('confuseRay');if(i>=0)selected[i]='hypnosis';else if(!selected.includes('hypnosis'))selected[selected.length-1]='hypnosis';}
+ if(battleKind==='league2'&&dex===94&&level===71){selected=[...selected];const i=selected.indexOf('confuseRay');if(i>=0){if(selected.includes('hypnosis'))selected.splice(i,1);else selected[i]='hypnosis';}else if(!selected.includes('hypnosis'))selected[selected.length-1]='hypnosis';}
  const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:50,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
