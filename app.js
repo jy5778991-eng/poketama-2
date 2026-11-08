@@ -164,7 +164,13 @@ function rewardWeight(choice,context){
  if(choice.kind==='tm01')return tm01Targets().length?1:0;
  if(choice.kind==='tm02')return tm02Targets().length?1:0;
  if(EXTRA_TM_CONFIG[choice.kind])return extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].weight??1):0;
- if(choice.kind==='cash')return choice.tier==='normal'?3:4;
+ if(choice.kind==='cash'){
+  // Reduce money rewards as the highest party level rises; never below weight 2.
+  if(lv>=70)return 2;
+  if(lv>=60)return choice.tier==='normal'?2:3;
+  if(lv>=30)return choice.tier==='normal'?3:4;
+  return choice.tier==='normal'?5:6;
+ }
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
   if(choice.healType==='potion')return lv>=50?0:lv>=36?2:lv>=20?4:6;
