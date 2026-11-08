@@ -266,7 +266,7 @@ function chooseTeamStatusTactic(enemy,opponent,rng,usable){
  const canFinish=usable.some(id=>MOVES[id]?.power&&
   projectedAttackDamage(enemy,opponent,MOVES[id])>=opponent.hp*.9);
  if(canFinish)return null;
- const baseChance={paralysis:.80,sleep:.65,poison:.55};
+ const baseChance={paralysis:.80,sleep:.55,poison:.80};
  const options=usable.filter(id=>!MOVES[id]?.power&&baseChance[MOVES[id]?.inflict])
   .map(id=>({id,chance:baseChance[MOVES[id].inflict]*
     combatAccuracy(MOVES[id],enemy,opponent)}));
