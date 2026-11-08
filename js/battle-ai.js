@@ -109,6 +109,13 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
    const effectivePower=m.hpScale==='high'?85+50*hp:m.hpScale==='low'?85+50*(1-hp):m.power;
    const expected=(Math.floor((Math.floor(2*enemy.level/5)+2)*effectivePower*attack*stage(attackStage)/(Math.max(1,defense*stage(defenseStage)))/50)+2)*accuracy*.925;
    score=expected;
+   // HP below 53%: favor draining attacks (Absorb, Mega Drain, Giga Drain, etc.).
+   // Base the bonus on usable healing, capped by missing HP, while preserving damage scoring.
+   if(hp<.53&&m.drain){
+    const missing=Math.max(0,enemy.stats.hp-enemy.hp);
+    const potentialHeal=Math.min(missing,Math.max(1,Math.floor(Math.min(expected,opponentHp)*m.drain)));
+    score+=Math.max(18,potentialHeal*(hp<.30?1.4:1));
+   }
    if(expected>=opponentHp)score+=50;
    if(m.requiresTargetSleep&&opponent?.status?.type!=='sleep')score=-10000;
    if(m.recoilMaxHp&&enemy.hp<=Math.floor(enemy.stats.hp*m.recoilMaxHp))score-=100;
