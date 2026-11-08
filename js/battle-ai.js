@@ -255,21 +255,26 @@ function chooseConfusionTactic(enemy,opponent,rng,usable){
  for(const item of chances){if(pick<item.chance)return {moveId:item.id};pick-=item.chance;}
  return {moveId:chances[chances.length-1].id};
 }
-// Sleep and paralysis offer team-wide value even if the current trainer Pokemon faints.
-// Evaluate them independently of the user's HP and raw attack damage.
+// Team-wide status control should remain valuable regardless of the active Pokemon's HP.
+// Prefer accurate paralysis, then sleep, then poison; never compete with raw damage scores.
+// These are selection probabilities, before the actual move's hit roll.
 function chooseTeamStatusTactic(enemy,opponent,rng,usable){
  if(!opponent||opponent.hp<=0||opponent.status)return null;
  const targetHp=opponent.hp/Math.max(1,opponent.stats?.hp||opponent.hp);
- // Skip incapacitating an opponent that is already almost defeated.
+ // Avoid spending a turn on status when the foe is almost defeated or can be finished.
  if(targetHp<.25)return null;
- const options=usable.filter(id=>!MOVES[id]?.power&&
-  (MOVES[id]?.inflict==='sleep'||MOVES[id]?.inflict==='paralysis'))
-  .map(id=>({id,chance:(MOVES[id].inflict==='sleep'?.35:.25)*
-   combatAccuracy(MOVES[id],enemy,opponent)}));
+ const canFinish=usable.some(id=>MOVES[id]?.power&&
+  projectedAttackDamage(enemy,opponent,MOVES[id])>=opponent.hp*.9);
+ if(canFinish)return null;
+ const baseChance={paralysis:.80,sleep:.65,poison:.55};
+ const options=usable.filter(id=>!MOVES[id]?.power&&baseChance[MOVES[id]?.inflict])
+  .map(id=>({id,chance:baseChance[MOVES[id].inflict]*
+    combatAccuracy(MOVES[id],enemy,opponent)}));
  if(!options.length)return null;
- // One combined selection roll: multiple status moves must not stack indefinitely.
+ // A single selection roll shared across status moves; high priority does not stack
+ // into a 100% chance simply because two such moves are equipped.
  const sum=options.reduce((acc,x)=>acc+x.chance,0);
- const total=Math.min(.5,sum);
+ const total=Math.min(.88,sum);
  if(rng()>=total)return null;
  let pick=rng()*sum;
  for(const option of options){if(pick<option.chance)return {moveId:option.id};pick-=option.chance;}
@@ -294,15 +299,16 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,
   projectedAttackDamage(enemy,opponent,MOVES[id])>=opponent.hp*.9);
  const screenShouldWait=healingNeeded||(opponent&&opponentHpRatio<.25)||likelyFinish;
  if(!enemy.redAiMode&&usable.includes('lightScreen')&&!screenUp&&!screenShouldWait&&rng()<.88)return {moveId:'lightScreen'};
+ if(!enemy.redAiMode){const teamStatus=chooseTeamStatusTactic(enemy,opponent,rng,usable);if(teamStatus)return teamStatus;}
  if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
  if(!enemy.redAiMode){const confusion=chooseConfusionTactic(enemy,opponent,rng,usable);if(confusion)return confusion;}
- if(!enemy.redAiMode){const teamStatus=chooseTeamStatusTactic(enemy,opponent,rng,usable);if(teamStatus)return teamStatus;}
+ 
  if(!enemy.redAiMode){const gamble=chooseOneHitKo(enemy,opponent,rng,usable);if(gamble)return gamble;}
  // A failed setup roll must really mean 'use another move': do not let the
  // older score-based fallback select the same setup/debuff move anyway.
  const normalUsable=enemy.redAiMode?usable:usable.filter(id=>{
   if(MOVES[id].oneHitKo)return false; // OHKO moves are handled by the separate tactical gamble.
-  if(!MOVES[id].power&&(MOVES[id].inflict==='sleep'||MOVES[id].inflict==='paralysis'))return false; // Independently selected above.
+  if(!MOVES[id].power&&['sleep','paralysis','poison'].includes(MOVES[id].inflict))return false; // Independently selected above.
   if(id==='lightScreen')return !screenUp&&!screenShouldWait;
   const m=MOVES[id];
   return m.power||m.healMaxHp||m.inflict||m.rest||m.bellyDrum||
