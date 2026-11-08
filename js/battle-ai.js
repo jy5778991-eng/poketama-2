@@ -88,12 +88,61 @@ function chooseRedMove(enemy,opponent,rng,usable){
  }
  return null;
 }
+// Shared trainer stage tactics (Red's dedicated AI is deliberately excluded).
+// Chances are per turn and recalculate from the CURRENT stat stages.
+// Reversing a stage (via an opponent move) makes the corresponding tactic more likely again.
+const STAGE_TACTIC_CHANCE=[.38,.31,.23,.16,.09,.035,0];
+const stageValue=(fighter,stat)=>Math.max(-6,Math.min(6,fighter?.stages?.[stat]??0));
+function stageTacticChance(move,enemy,opponent){
+ const effects=[];
+ for(const [stat,delta] of Object.entries(move.boosts||{})){
+  if(delta>0)effects.push({progress:Math.max(0,stageValue(enemy,stat)),amount:delta});
+ }
+ const drops={attack:move.lowerTargetAttack||0,defense:move.lowerTargetDefense||0,accuracy:move.lowerTargetAccuracy||0,evasion:move.lowerTargetEvasion||0};
+ for(const [stat,amount] of Object.entries(drops)){
+  if(amount>0&&opponent)effects.push({progress:Math.max(0,-stageValue(opponent,stat)),amount});
+ }
+ if(!effects.length)return 0;
+ // Only consider stages which can still change; cap at six.
+ const active=effects.filter(({progress})=>progress<6);
+ if(!active.length)return 0;
+ const weight=active.reduce((sum,e)=>sum+e.amount,0);
+ return active.reduce((sum,{progress,amount})=>sum+STAGE_TACTIC_CHANCE[progress]*amount,0)/weight;
+}
+function chooseStageTactic(enemy,opponent,rng,usable){
+ if(!opponent||opponent.hp<=0)return null;
+ const hp=enemy.hp/Math.max(1,enemy.stats.hp);
+ const opponentHp=opponent.hp/Math.max(1,opponent.stats?.hp||opponent.hp);
+ // When almost knocked out, prioritize acting rather than setting up.
+ const survival=hp<.25?.20:hp<.45?.5:1;
+ // Do not spend many turns setting up against an almost-fainted opponent.
+ const finish=opponentHp<.18?.3:opponentHp<.35?.65:1;
+ const candidates=[];
+ for(const id of usable){
+  const move=MOVES[id];
+  if(move.power||move.healMaxHp||move.inflict||move.rest||move.bellyDrum)continue;
+  const chance=stageTacticChance(move,enemy,opponent)*survival*finish*(move.accuracy??1);
+  if(chance>0)candidates.push({id,chance});
+ }
+ if(!candidates.length)return null;
+ // One shared roll prevents multiple setup moves from unfairly stacking probabilities.
+ // If several moves qualify, choose which one to try by their current stage usefulness.
+ const total=Math.min(.72,candidates.reduce((sum,c)=>sum+c.chance,0));
+ if(rng()>=total)return null;
+ let pick=rng()*candidates.reduce((sum,c)=>sum+c.chance,0);
+ for(const candidate of candidates){
+  if(pick<candidate.chance)return {moveId:candidate.id};
+  pick-=candidate.chance;
+ }
+ return {moveId:candidates[candidates.length-1].id};
+}
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
  if(!usable.length)return {moveId:'struggle'};
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
  if(enemy.redAiMode){const chosen=chooseRedMove(enemy,opponent,rng,usable);if(chosen)return chosen;}
+ if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
  const hp=enemy.hp/Math.max(1,enemy.stats.hp);
  const opponentHp=opponent?.hp??Infinity;
  const attack=enemy.stats.attack;
