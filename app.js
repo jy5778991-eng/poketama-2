@@ -2479,6 +2479,9 @@ function offerCapturedCompanion(){
  ]);
 }
 function checkPartyTypeAchievements(){
+ // Credit pre-existing cleared saves and archived champion records, too.
+ if(['rocketApollo','rocketAthena','rocketGiovanni'].every(kind=>trainerClears[kind]))earnAchievement('rocketFan');
+ if(hallOfFameEntries('first').some(record=>Array.isArray(record.party)&&record.party.some(m=>m.dex===25)&&!record.party.some(m=>m.dex===26)))earnAchievement('ashPikachu');
  const members=teamMembers();
  if(members.length!==3)return;
  if(members.every(m=>FLYING_TYPE_DEX.has(m.dex)))earnAchievement('flyingTrainer');
