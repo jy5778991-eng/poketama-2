@@ -201,40 +201,28 @@ function secondaryForecast(move,enemy,opponent,hp){
 // OHKO moves have no ordinary power value. Their decision is a separate tactical gamble,
 // based on the SAME accuracy calculation as battle-engine.mjs (including level penalty).
 // Avoid the gamble if a reliable ordinary attack can finish the opponent.
-function oneHitKoHitChance(move,user,target){
- const levelPenalty=Math.min(15,Math.max(0,(target.level||1)-(user.level||1)))*.01;
- const accuracy=Math.max(0,(move.accuracy??1)-levelPenalty)+(user.accuracyBuff||0);
- const net=stageValue(target,'evasion')-stageValue(user,'accuracy');
- const factor=net>=0?3/(3+net):(3-net)/3;
- return Math.max(0,Math.min(1,accuracy*factor));
-}
+// OHKO moves have the same baseline selection weight as ordinary damaging attacks.
+// Target Defense raises the OHKO choice weight; target Evasion lowers it.
+// Neither expected damage nor remaining HP affects OHKO move selection.
+// Accuracy, level difference and accuracy/evasion still affect the actual hit roll in the engine.
 function chooseOneHitKo(enemy,opponent,rng,usable){
  if(!opponent||opponent.hp<=0)return null;
  const ohkos=usable.filter(id=>MOVES[id]?.oneHitKo);
  if(!ohkos.length)return null;
- const ordinary=usable.filter(id=>MOVES[id]?.power&&!MOVES[id].oneHitKo);
- // Include all regular damaging options; stage-boosts and other tactical effects
- // are still evaluated in the normal scorer when this OHKO gamble is skipped.
- const bestOrdinary=Math.max(0,...ordinary.map(id=>projectedAttackDamage(enemy,opponent,MOVES[id])));
- const enemyHp=enemy.hp/Math.max(1,enemy.stats.hp);
- const ratio=bestOrdinary/Math.max(1,opponent.hp);
- // When a normal move can reliably finish the foe, do not gamble on an OHKO.
- if(bestOrdinary>=opponent.hp*.9)return null;
- // Prefer an OHKO against bulky foes who would take multiple ordinary attacks.
- let chance=ratio<.25?.30:ratio<.45?.24:ratio<.70?.14:.06;
- // Desperation at low HP; do not overuse OHKOs against weakened targets.
- if(enemyHp<=.25)chance*=1.35;
- else if(enemyHp<=.5)chance*=1.15;
- const available=ohkos.map(id=>({id,hitChance:oneHitKoHitChance(MOVES[id],enemy,opponent)}))
-  .filter(o=>o.hitChance>0).sort((a,b)=>b.hitChance-a.hitChance);
- if(!available.length)return null;
- // Scale the selection rate with real probability of a successful one-hit knockout.
- // Even boosted accuracy cannot make the trainer choose the OHKO every turn.
- chance=Math.min(.42,chance*available[0].hitChance/.30);
- // If there is no usable normal attack, attempt the OHKO instead of Struggle.
- if(!ordinary.length)return {moveId:available[0].id};
- if(rng()<chance)return {moveId:available[0].id};
- return null;
+ const ordinaryCount=usable.filter(id=>MOVES[id]?.power&&!MOVES[id].oneHitKo).length;
+ const defenseRank=stageValue(opponent,'defense');
+ const evasionRank=stageValue(opponent,'evasion');
+ // At neutral stages: one OHKO and three attacks => 1/(3+1) = 25% OHKO choice.
+ // Defense +6 => 2.8x OHKO weight; Evasion +6 => about 0.32x.
+ const defenseWeight=Math.max(.25,1+defenseRank*.30);
+ const evasionWeight=Math.max(.2,1+evasionRank*.35);
+ const ohkoWeight=defenseWeight/evasionWeight;
+ const totalWeight=ordinaryCount+ohkos.length*ohkoWeight;
+ if(totalWeight<=0)return null;
+ const roll=rng()*totalWeight;
+ if(roll>=ohkos.length*ohkoWeight)return null; // Let the normal attack scorer choose.
+ const index=Math.min(ohkos.length-1,Math.floor(roll/ohkoWeight));
+ return {moveId:ohkos[index]};
 }
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,shields=null}={}){
