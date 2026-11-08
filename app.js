@@ -65,7 +65,9 @@ function extraTmTargets(kind){
   const current=m.starter?playerMoves:(companions.find(c=>c.family===m.family)?.moves||[]);
   if(current.includes(cfg.moveId))return false;
   const natural=m.starter?availableMoves(chosen,m.level):(learnsetForDex(m.dex)||[]).filter(x=>x.level<=m.level);
-  return !natural.some(move=>move.id===cfg.moveId);
+  // TM18 can teach Light Screen after it was forgotten, even for species that
+  // could have learned it naturally (e.g. Mew or Voltorb).
+  return kind==='tm18'||!natural.some(move=>move.id===cfg.moveId);
  });
 }
 function extraTmLabel(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?'기술머신'+cfg.number+'.'+cfg.name:'';}
