@@ -22,10 +22,10 @@ const FLYING_TYPE_DEX=new Set([6,12,16,17,18,21,22,41,42,83,84,85,123,130,142,14
 const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99,116,117,118,119,120,121,129,130,131,134,138,139,140,141]);
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
-const HELD_ITEMS=['wideLensA','wideLensB','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw'];
-const HELD_MAX={wideLensA:2,wideLensB:1,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5};
-const STACKABLE_HELD_ITEMS=['hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw'];
-function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:['hardClaw','scopeLens'].includes(id)?3:1;}
+const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw'];
+const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5};
+const STACKABLE_HELD_ITEMS=['wideLens','hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw'];
+function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -69,7 +69,7 @@ function extraTmTargets(kind){
 }
 function extraTmLabel(kind){const cfg=EXTRA_TM_CONFIG[kind];return cfg?'기술머신'+cfg.number+'.'+cfg.name:'';}
 
-const isLens=id=>id==='wideLensA'||id==='wideLensB';
+const isLens=id=>id==='wideLens';
 
 // Reward choices scale by stage when a stage system is added later.
 const REWARD_ITEM_SLOTS_BY_STAGE={1:2,2:3};
@@ -181,8 +181,7 @@ function rewardWeight(choice,context){
   const id=choice.id;
   if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
   if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?4:0;
-  if(id==='wideLensA')return inventory.wideLensA>=2?0:inventory.wideLensA===1?1:2;
-  if(id==='wideLensB')return inventory.wideLensB>=1?0:2;
+  if(id==='wideLens')return inventory.wideLens>=3?0:2;
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
@@ -224,8 +223,8 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  const pool={
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm08',icon:'📀'},{kind:'tm09',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
- hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLensA',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'wideLensB',quantity:1,icon:'🔎'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+ legendary:[{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -459,11 +458,15 @@ function recoverLastStarterFromResetBackup(){
 // Backward-compatible additions: existing Lv, money, IV, and captures are retained.
 let expShareActive=saved?.expShareActive===true;
 let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
- const value=Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
+ // Migrate existing Wide Lens A/B collections without deleting earned items.
+ const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
+ const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
+ const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
  return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
- const recorded=saved?.battleItemHolders?.[id];
+ const oldLensOwners=id==='wideLens'?[...(saved?.battleItemHolders?.wideLensA||[]),...(saved?.battleItemHolders?.wideLensB||[])]:null;
+ const recorded=Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldLensOwners;
  return [id,Array.isArray(recorded)?recorded.filter(x=>typeof x==='string').slice(0,inventory[id]):Array(inventory[id]).fill('starter')];
 }));
 // Slot B only makes sense when slot A has been unlocked.
@@ -672,13 +675,13 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.03*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLensB:1,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:4,wideLensB:1,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:4}:options.redBlastoise?{shellBell:4,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:4,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:4}:options.redBlastoise?{shellBell:4,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:null;
  if(options.redPikachu){
   // Red's Pikachu carries all six boss item effects simultaneously.
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.5+0.1*trainer.hardClawCount+0.1; // Light Ball + 3 Hard Claws + Magnet, additive
   trainer.speedBuffMultiplier=1.05; // Magnet: +5% Speed
-  trainer.accuracyBuff=0.10; // Wide Lens B
+  trainer.accuracyBuff=0.10; // Two Wide Lenses
   trainer.focusSashEnabled=true;
   trainer.focusSashCount=6;
   trainer.focusSashChance=0.05*trainer.focusSashCount; // Six Focus Sashes: 30% survival
@@ -701,7 +704,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  }
  if(options.redVenusaur){
   trainer.defenseBuffMultiplier=1.10;
-  trainer.accuracyBuff=0.05;
+  trainer.accuracyBuff=0.05; // One Wide Lens
   trainer.leftoversEnabled=true;
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
@@ -1386,8 +1389,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='sharpBeak')return '🪶 예리한 부리 · 보유 시 비행 타입 포켓몬의 공격력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='magnet')return '🧲 자석 · 보유 시 전기 타입 포켓몬의 공격력이 10%, 스피드가 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='wideLensA')return '🔍 광각렌즈A · 장착한 포켓몬 명중률 +5%p';
- if(choice.kind==='item'&&choice.id==='wideLensB')return '🔎 광각렌즈B · 장착한 포켓몬 명중률 +10%p (광각렌즈 중복 불가)';
+ if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 명중률 +5%p · 포켓몬당 최대 2개 · 최대 3개 보유';
  if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
@@ -1675,7 +1677,7 @@ function claimRewardChoice(index){
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(isLens(choice.id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id),action:()=>{
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(heldCount(choice.id,m.key)>0?' · '+heldCount(choice.id,m.key)+'개 장착 중':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id),action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -1816,7 +1818,7 @@ function claimRewardChoice(index){
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
   const item=SHOP_ITEMS.find(item=>item.id===choice.id);
   if(item?.category==='key'&&choice.id!=='expShare'){
-   if(inventory[choice.id]===1 || (choice.id==='partySlotB'&&inventory.partySlotA!==1 || choice.id==='wideLensB'&&inventory.wideLensA!==1)){
+   if(inventory[choice.id]===1 || (choice.id==='partySlotB'&&inventory.partySlotA!==1 || false)){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
@@ -2067,7 +2069,7 @@ function waterDropBonus(m){return inventory.mysticWater===1&&WATER_TYPE_DEX.has(
 function bugPowderBonus(m){return inventory.silverPowder===1&&BUG_TYPE_DEX.has(m.dex);}
 function magnetSpeedBonus(m){return inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.05:0;}
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
-player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0)+(grassSeedBonus(m)?0.05:0);
+player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
 player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
@@ -2084,8 +2086,6 @@ function normalizeHeldItems(){
    seen.set(k,1);return true;
   }).slice(0,inventory[id]||0);
  }
- const bOwners=new Set(battleItemHolders.wideLensB);
- battleItemHolders.wideLensA=battleItemHolders.wideLensA.filter(k=>!bOwners.has(k));
 }
 function heldCount(id,key){return (battleItemHolders[id]||[]).filter(holder=>holder===key).length;}
 function hasHeld(id,key){return heldCount(id,key)>0;}
@@ -2094,10 +2094,6 @@ function equipHeld(id,key){
  if(!HELD_ITEMS.includes(id)||!teamMembers().some(m=>m.key===key))return false;
  if(heldCount(id,key)>=heldItemPerPokemonLimit(id))return false;
  if(battleItemHolders[id].length>=inventory[id])return false;
- if(isLens(id)){
-  const other=id==='wideLensA'?'wideLensB':'wideLensA';
-  battleItemHolders[other]=battleItemHolders[other].filter(k=>k!==key);
- }
  battleItemHolders[id].push(key);
  saveProgress();return true;
 }
@@ -2106,8 +2102,8 @@ function selectHeldItemTarget(id){
  const item=SHOP_ITEMS.find(i=>i.id===id);
  partyOverlay(item.icon+' '+item.name,'장착할 포켓몬을 선택해. 미장착 수량이 없으면 기존 착용자로부터 옮길 수 있어.',[
   ...teamMembers().map(m=>({
-   text:m.name+' Lv.'+m.level+(hasHeld(id,m.key)?' · 장착 중':isLens(id)&&(hasHeld('wideLensA',m.key)||hasHeld('wideLensB',m.key))?' · 기존 렌즈 교체':''),
-   disabled:hasHeld(id,m.key),
+   text:m.name+' Lv.'+m.level+(heldCount(id,m.key)?' · '+heldCount(id,m.key)+'개 장착 중':''),
+   disabled:heldCount(id,m.key)>=heldItemPerPokemonLimit(id),
    action:()=>{
     if(battleItemHolders[id].length<inventory[id]){
      if(equipHeld(id,m.key)){appendAdventureLog('🎒 '+m.name+'에게 '+item.name+' 장착');renderInventory();}
@@ -2116,7 +2112,7 @@ function selectHeldItemTarget(id){
     const originals=battleItemHolders[id].map(key=>teamMembers().find(x=>x.key===key)).filter(Boolean);
     partyOverlay(item.icon+' 옮기기',m.name+'에게 줄 '+item.name+'을(를) 누구에게서 옮길까?',[
      ...originals.map(source=>({text:source.name+' → '+m.name,action:()=>{
-      battleItemHolders[id]=battleItemHolders[id].filter(k=>k!==source.key);
+      battleItemHolders[id].splice(battleItemHolders[id].indexOf(source.key),1);
       if(!equipHeld(id,m.key)){battleItemHolders[id].push(source.key);saveProgress();return;}
       appendAdventureLog('🎒 '+source.name+'의 '+item.name+'을(를) '+m.name+'에게 옮겼다.');
       renderInventory();
@@ -2161,7 +2157,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='wideLens'?'명중률 +'+count*5+'%p':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2591,7 +2587,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');
   battle.player.speedBuffMultiplier=1+magnetSpeedBonus(m);
-  battle.player.accuracyBuff=0.1*boostCount('accuracy')+(hasHeld('wideLensB',m.key)?0.10:hasHeld('wideLensA',m.key)?0.05:0)+(grassSeedBonus(m)?0.05:0);
+  battle.player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
   battle.player.quickClawCount=heldCount('quickClaw',m.key);
   battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0);
