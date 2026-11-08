@@ -159,8 +159,8 @@ function rewardWeight(choice,context){
   const iv=m.starter?playerIVs:companions.find(c=>c.family===m.family)?.ivs;
   return iv&&EV_STATS.every(stat=>iv[stat]>=16);
  });
- if(choice.kind==='expCandy')return choice.multiplier===20?5:choice.multiplier===12?4:(redLevelReached?2:4);
- if(choice.kind==='rareCandy')return 3;
+ if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?3:7);
+ if(choice.kind==='rareCandy')return 5;
  if(choice.kind==='tm01')return tm01Targets().length?1:0;
  if(choice.kind==='tm02')return tm02Targets().length?1:0;
  if(EXTRA_TM_CONFIG[choice.kind])return extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].weight??1):0;
@@ -173,16 +173,16 @@ function rewardWeight(choice,context){
  }
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
-  if(choice.healType==='potion')return lv>=50?0:lv>=36?2:lv>=20?4:6;
-  if(choice.healType==='superPotion')return lv>=36?6:lv>=20?4:2;
-  if(choice.healType==='hyperPotion')return lv>=76?2:lv>=68?3:lv>=50?4:lv>=36?6:lv>=21?3:0;
-  if(choice.healType==='fullRestore')return lv>=68?6:lv>=50?4:lv>=36?2:0;
+  if(choice.healType==='potion')return lv<30?7:lv<50?5:lv<70?3:1;
+  if(choice.healType==='superPotion')return lv<30?2:lv<50?4:lv<70?6:8;
+  if(choice.healType==='hyperPotion')return lv<30?1:lv<50?3:lv<70?6:9;
+  if(choice.healType==='fullRestore')return lv<30?0:lv<50?1:lv<70?3:5;
   return 4;
  }
  if(choice.kind==='reviveShardReward')return members.length>=2&&hasFainted?6:0;
  if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?(choice.tier==='hyper'?6:1):0;
  if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?2:0;
- if(choice.kind==='candyBundle')return members.length>=2?(redLevelReached?2:4):0;
+ if(choice.kind==='candyBundle')return members.length>=2?4:0;
  if(choice.kind==='ev')return allPartyEVsMax?0:2;
  if(choice.kind==='goldCap')return allPartyIVsMax?0:1;
  if(choice.kind==='silverCap')return allPartyIVsMax?0:4;
