@@ -209,7 +209,7 @@ function settle(b){
   if(!b.ended&&!isAlive(p)){b.ended=true;b.result='defeat';say(b,'패배했다.');}
 }
 /** Advance exactly one turn; returns new log entries, and mutates battle state. */
-export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(activeEnemy(b),{wild:b.wild,rng:b.rng,opponent:b.player})){
+export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(activeEnemy(b),{wild:b.wild,rng:b.rng,opponent:b.player,shields:b.shields})){
   if(b.ended)throw new Error('Battle is over');
   let p=b.player;const e=activeEnemy(b);
   const pAction=pickAction(p,playerSelection),eAction=pickAction(e,enemySelection);
