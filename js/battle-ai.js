@@ -99,7 +99,7 @@ function stageTacticChance(move,enemy,opponent){
  const faster=speedAlreadyAhead(enemy,opponent);
  const effects=[];
  for(const [stat,delta] of Object.entries(move.boosts||{})){
-  if(delta>0&&!(stat==='speed'&&faster))effects.push({progress:Math.max(0,stageValue(enemy,stat)),amount:delta});
+  if(delta>0&&!(stat==='speed'&&faster))effects.push({stat,progress:Math.max(0,stageValue(enemy,stat)),amount:delta});
  }
  const drops={attack:move.lowerTargetAttack||0,defense:move.lowerTargetDefense||0,accuracy:move.lowerTargetAccuracy||0,evasion:move.lowerTargetEvasion||0};
  for(const [stat,amount] of Object.entries(drops)){
@@ -110,7 +110,15 @@ function stageTacticChance(move,enemy,opponent){
  const active=effects.filter(({progress})=>progress<6);
  if(!active.length)return 0;
  const weight=active.reduce((sum,e)=>sum+e.amount,0);
- return active.reduce((sum,{progress,amount})=>sum+STAGE_TACTIC_CHANCE[progress]*amount,0)/weight;
+ const baseChance=active.reduce((sum,{progress,amount})=>sum+STAGE_TACTIC_CHANCE[progress]*amount,0)/weight;
+ // When the trainer is moving second, Speed-boosting moves deserve extra setup value.
+ // This applies to both Agility and Dragon Dance without penalizing their other boosts.
+ // Once already moving first (or Speed is capped), the extra chance disappears.
+ const speedGain=active.some(effect=>effect.stat==='speed');
+ const speedProgress=Math.max(0,stageValue(enemy,'speed'));
+ const speedBonus=!faster&&speedProgress<6&&speedGain
+  ?Math.min(.17,STAGE_TACTIC_CHANCE[speedProgress]*.45):0;
+ return Math.min(.65,baseChance+speedBonus);
 }
 function chooseStageTactic(enemy,opponent,rng,usable){
  if(!opponent||opponent.hp<=0)return null;
