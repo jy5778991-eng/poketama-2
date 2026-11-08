@@ -728,6 +728,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
+ if(battleKind==='koga'&&(dex===89||dex===110)){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:3};trainer.leftoversEnabled=true;}
+ if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
  if(battleKind==='surge'){trainer.hardClawCount=1;trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.1;} // Lt. Surge: each Pokemon carries one Hard Claw (+10% Attack)
  if(battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex))trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.15; // Charcoal: Fire-type Attack +15%
  trainer.shellBellCount=trainer.heldItemCounts?.shellBell||0;
@@ -1147,16 +1149,16 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=[trainerFighter('우츠보트',71,30,{hp:80,attack:105,defense:68,speed:70},['vineWhip','razorLeaf']),trainerFighter('덩쿠리',114,26,{hp:65,attack:100,defense:88,speed:60},['vineWhip','tackle']),trainerFighter('라플레시아',45,31,{hp:75,attack:110,defense:88,speed:50},['razorLeaf','poisonPowder'])];
   battleOpponent='erika';
  }else if(kind==='koga'){
-  enemies=[trainerFighter('질뻐기',89,36,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,36,{hp:70,attack:90,defense:68,speed:90},['psybeam','poisonPowder']),trainerFighter('또도가스',110,37,{hp:65,attack:90,defense:105,speed:60},['tackle','sludgeBomb'])];
+  enemies=[trainerFighter('질뻐기',89,36,{hp:105,attack:105,defense:88,speed:50},['tackle','poisonPowder']),trainerFighter('도나리',49,36,{hp:70,attack:90,defense:68,speed:90},['roost','confusion','poisonPowder','psybeam'],{fixedMoves:true}),trainerFighter('또도가스',110,37,{hp:65,attack:90,defense:105,speed:60},['screech','poisonGas','toxic','selfDestruct'],{fixedMoves:true})];
   battleOpponent='koga';
  }else if(kind==='giovanni'){
-  enemies=[trainerFighter('닥트리오',51,55,{hp:35,attack:100,defense:60,speed:120},['tackle','bite']),trainerFighter('캥카',115,54,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,56,{hp:65,attack:70,defense:63,speed:115},['bite','quickAttack']),trainerFighter('니드킹',34,55,{hp:81,attack:102,defense:76,speed:85},['tackle','bite']),trainerFighter('코뿌리',112,57,{hp:105,attack:130,defense:93,speed:40},['tackle','bite'])];
+  enemies=[trainerFighter('닥트리오',51,55,{hp:35,attack:100,defense:60,speed:120},['mudSlap','slash','earthquake','fissure'],{fixedMoves:true}),trainerFighter('캥카',115,54,{hp:105,attack:95,defense:80,speed:90},['bite','tackle']),trainerFighter('페르시온',53,56,{hp:65,attack:70,defense:63,speed:115},['bite','quickAttack']),trainerFighter('니드킹',34,55,{hp:81,attack:102,defense:76,speed:85},['tackle','bite']),trainerFighter('코뿌리',112,57,{hp:105,attack:130,defense:93,speed:40},['tackle','bite'])];
   battleOpponent='giovanni';
  }else if(kind==='blaine'){
-  enemies=[trainerFighter('나인테일',38,50,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,47,{hp:65,attack:100,defense:71,speed:93},['flamethrower','tackle']),trainerFighter('날쌩마',78,50,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,51,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
+  enemies=[trainerFighter('나인테일',38,50,{hp:73,attack:81,defense:88,speed:100},['flamethrower','quickAttack']),trainerFighter('마그마',126,48,{hp:65,attack:100,defense:71,speed:93},['smokescreen','firePunch','flamethrower','fireBlast'],{fixedMoves:true}),trainerFighter('날쌩마',78,50,{hp:65,attack:100,defense:75,speed:105},['flamethrower','quickAttack']),trainerFighter('윈디',59,51,{hp:90,attack:110,defense:80,speed:95},['flamethrower','bite'])];
   battleOpponent='blaine';
  }else if(kind==='sabrina'){
-  enemies=[trainerFighter('캐이시',63,44,{hp:25,attack:105,defense:35,speed:90},['confusion']),trainerFighter('윤겔라',64,44,{hp:40,attack:120,defense:50,speed:105},['confusion','psybeam']),trainerFighter('후딘',65,44,{hp:55,attack:135,defense:80,speed:120},['psybeam','recover'])];
+  enemies=[trainerFighter('캐이시',63,44,{hp:25,attack:105,defense:35,speed:90},['lightScreen','psybeam','psychic','hpRecover'],{fixedMoves:true}),trainerFighter('윤겔라',64,44,{hp:40,attack:120,defense:50,speed:105},['thunderWave','psybeam','psychic','hpRecover'],{fixedMoves:true}),trainerFighter('후딘',65,44,{hp:55,attack:135,defense:80,speed:120},['psybeam','recover'])];
   battleOpponent='sabrina';
  }else{
   const wildStats=calculateStats(BASE_STATS[wild.dex],level,zeroIV,{});
