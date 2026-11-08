@@ -65,7 +65,7 @@ export const FAMILY_LEARNSETS={
   {"level":54,"id":"zapCannon"},
   {"level":58,"id":"lockOn"}
  ],
- "abra": [{level:1,id:'tackle'}, {level:15,id:'confusion'}, {level:22,id:'psybeam'}, {level:36,id:'psychic'}, {level:40,id:'hpRecover'}, {level:50,id:'lightScreen'}, {level:54,id:'calmMind'}],
+ "abra": [{level:1,id:'tackle'}, {level:15,id:'confusion'}, {level:22,id:'psybeam'}, {level:36,id:'psychic'}, {level:40,id:'hpRecover'}, {level:50,id:'calmMind'}],
  "lapras": [{"level":1,"id":"tackle"},{"level":15,"id":"waterGun"},{"level":20,"id":"sing"},{"level":28,"id":"auroraBeam"},{"level":35,"id":"surf"},{"level":40,"id":"bodySlam"},{"level":45,"id":"iceBeam"},{"level":58,"id":"blizzard"},{"level":80,"id":"sheerCold"}],
  "exeggcute": [{level:1,id:'tackle'}, {level:10,id:'confusion'}, {level:20,id:'razorLeaf'}, {level:30,id:'synthesis'}, {level:40,id:'energyBall'}, {level:50,id:'psychic'}, {level:55,id:'lightScreen'}],
  "scyther": [{"level":1,"id":"quickAttack"},{"level":20,"id":"wingAttack"},{"level":30,"id":"slash"},{"level":40,"id":"airSlash"},{"level":44,"id":"swordsDance"},{"level":52,"id":"doubleTeam"}],
@@ -122,7 +122,7 @@ export const ADDITIONAL_FAMILY_LEARNSETS={
  "articuno": [{"level":1,"id":"wingAttack"},{"level":25,"id":"ancientPower"},{"level":35,"id":"iceBeam"},{"level":45,"id":"agility"},{"level":51,"id":"blizzard"},{"level":63,"id":"hurricane"},{"level":72,"id":"sheerCold"},{"level":80,"id":"roost"}],
  "moltres": [{"level":1,"id":"ember"},{"level":25,"id":"ancientPower"},{"level":35,"id":"flamethrower"},{"level":45,"id":"agility"},{"level":51,"id":"fireBlast"},{"level":63,"id":"braveBird"},{"level":72,"id":"leer"},{"level":80,"id":"roost"}],
  "zapdos": [{"level":1,"id":"thunderShock"},{"level":25,"id":"thunderWave"},{"level":35,"id":"thunderbolt"},{"level":45,"id":"lightScreen"},{"level":51,"id":"thunder"},{"level":63,"id":"hurricane"},{"level":72,"id":"zapCannon"},{"level":80,"id":"roost"}],
- "mewtwo": [{level:1,id:'confusion'}, {level:16,id:'ancientPower'}, {level:24,id:'swift'}, {level:32,id:'psychic'}, {level:56,id:'recover'}, {level:64,id:'calmMind'}, {level:72,id:'psystrike'}, {level:80,id:'lightScreen'}],
+ "mewtwo": [{level:1,id:'confusion'}, {level:16,id:'ancientPower'}, {level:24,id:'swift'}, {level:32,id:'psychic'}, {level:56,id:'recover'}, {level:64,id:'calmMind'}, {level:72,id:'psystrike'}, {level:80,id:'hyperBeam'}],
  "mew": [{"level":1,"id":"confusion"},{"level":10,"id":"swift"},{"level":20,"id":"lightScreen"},{"level":30,"id":"ancientPower"},{"level":40,"id":"calmMind"},{"level":50,"id":"psychic"},{"level":60,"id":"recover"},{"level":70,"id":"transform"},{"level":80,"id":"doubleTeam"},{"level":90,"id":"hyperBeam"}]
 };
 export const ROCKET_ISLAND_LEARNSETS={
