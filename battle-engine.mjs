@@ -7,7 +7,7 @@ export const RULES = Object.freeze({
   sleepSecondActionWakeChance: 0.3, sleepThirdActionWakeChance: 0.7, strugglePower: 50, struggleRecoil: 0.25,
 });
 import {MOVES} from './js/data/moves.js?v=20261106-explosion-power';
-import {chooseEnemyMove} from './js/battle-ai.js?v=20261108-team-status';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261108-strong-status';
 export {MOVES};
 
 const clamp=(x,lo,hi)=>Math.max(lo,Math.min(hi,x));
