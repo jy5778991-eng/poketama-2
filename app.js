@@ -1,6 +1,6 @@
 import {moveDescription} from './js/data/moves.js?v=20261106-crit-triple';
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261104-athena-umbreon291';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261108-light-screen-tm18';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261108-light-screen-tm18';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261108-rocket-achievements-v2';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261105-toxic90-317';
 
@@ -50,7 +50,8 @@ const EXTRA_TM_CONFIG={
  tm14:{number:'14',name:'맹독',moveId:'toxic',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[1,2,3,13,14,15,23,24,29,30,31,32,33,34,41,42,169,43,44,45,48,49,69,70,71,72,73,88,89,92,93,94,109,110,150,151]},
  tm15:{number:'15',name:'전기자석파',moveId:'thunderWave',minLevel:15,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[19,20,172,25,26,173,35,36,63,64,65,79,80,81,82,92,93,94,100,101,113,120,121,125,135,147,148,149]},
  tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49]},
- tm17:{number:'17',name:'인파이트',moveId:'closeCombat',minLevel:45,maxLevelExclusive:101,tier:'hyper',weight:1,dex:[56,57,58,59,62,66,67,68,83,106,107,123,212,128,151]}
+ tm17:{number:'17',name:'인파이트',moveId:'closeCombat',minLevel:45,maxLevelExclusive:101,tier:'hyper',weight:1,dex:[56,57,58,59,62,66,67,68,83,106,107,123,212,128,151]},
+ tm18:{number:'18',name:'빛의장막',moveId:'lightScreen',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:2,dex:[172,25,26,63,64,65,173,35,36,174,39,40,150,151,122,121,79,80,135,37,38,145,100,101,102,103]}
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
 let extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,Array.isArray(readSave()?.extraTmLearned?.[key])?readSave().extraTmLearned[key].filter(v=>typeof v==='string'):[]]));
@@ -58,7 +59,7 @@ function extraTmTargets(kind){
  const cfg=EXTRA_TM_CONFIG[kind];
  if(!cfg)return [];
  return teamMembers().filter(m=>{
-  if(m.level<cfg.minLevel||!extraTmDex[kind].has(m.dex)||extraTmLearned[kind].includes(m.key))return false;
+  if(m.level<cfg.minLevel||m.level>=(cfg.maxLevelExclusive??101)||!extraTmDex[kind].has(m.dex)||extraTmLearned[kind].includes(m.key))return false;
   // Don't offer a TM for a move the Pokémon already has or has naturally
   // learned by its current level (even if it was later forgotten).
   const current=m.starter?playerMoves:(companions.find(c=>c.family===m.family)?.moves||[]);
@@ -159,7 +160,7 @@ function rewardWeight(choice,context){
  if(choice.kind==='rareCandy')return 3;
  if(choice.kind==='tm01')return lv<=60&&tm01Targets().length?1:0;
  if(choice.kind==='tm02')return lv<=60&&tm02Targets().length?1:0;
- if(EXTRA_TM_CONFIG[choice.kind])return lv<(EXTRA_TM_CONFIG[choice.kind].maxLevelExclusive??50)&&extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].weight??1):0;
+ if(EXTRA_TM_CONFIG[choice.kind])return lv>=(EXTRA_TM_CONFIG[choice.kind].minLevel??1)&&lv<(EXTRA_TM_CONFIG[choice.kind].maxLevelExclusive??50)&&extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].weight??1):0;
  if(choice.kind==='cash')return choice.tier==='normal'?3:choice.tier==='rare'?2:4;
  if(choice.kind==='heal'){
   if(!needsHealing)return 0;
@@ -224,7 +225,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm08',icon:'📀'},{kind:'tm09',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:10,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:40,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ legendary:[{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -1407,7 +1408,7 @@ function openRecallList(){openRecall();}
 function rewardChoiceText(choice){
  if(choice.kind==='tm01')return '기술머신01.메가톤펀치 · 위력 80 / 명중 80% · 즉시 사용 · Lv.25 이상 지정 포켓몬에게 가르친다.';
  if(choice.kind==='tm02')return '기술머신02.메가톤킥 · 위력 110 / 명중 75% · 즉시 사용 · Lv.28 이상 지정 포켓몬에게 가르친다.';
- if(EXTRA_TM_CONFIG[choice.kind]){const c=EXTRA_TM_CONFIG[choice.kind],m=MOVES[c.moveId];return extraTmLabel(choice.kind)+' · '+moveDescription(c.moveId).replace(/\n/g,' · ')+' · 즉시 사용 · Lv.'+c.minLevel+' 이상 지정 포켓몬에게 가르친다.';}
+ if(EXTRA_TM_CONFIG[choice.kind]){const c=EXTRA_TM_CONFIG[choice.kind],m=MOVES[c.moveId];return extraTmLabel(choice.kind)+' · '+moveDescription(c.moveId).replace(/\n/g,' · ')+' · 즉시 사용 · Lv.'+c.minLevel+'~'+((c.maxLevelExclusive??101)-1)+' 지정 포켓몬에게 가르친다.';}
  if(choice.kind==='item'&&choice.id==='memoryMushroom')return '기술관리에 필요하다.';
  if(choice.kind==='evolution')return rewardChoiceName(choice)+' · 가능한 포켓몬을 골라 즉시 진화 (사용 즉시 소모)';
   if(choice.kind==='expCandy')return choice.multiplier===20?'경험치를 많이 올려준다.':choice.multiplier===12?'경험치를 적당히 올려준다.':'경험치를 소량 올려준다.';
