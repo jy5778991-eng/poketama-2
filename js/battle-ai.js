@@ -143,6 +143,14 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
  if(enemy.redAiMode){const chosen=chooseRedMove(enemy,opponent,rng,usable);if(chosen)return chosen;}
  if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
+ // A failed setup roll must really mean 'use another move': do not let the
+ // older score-based fallback select the same setup/debuff move anyway.
+ const normalUsable=enemy.redAiMode?usable:usable.filter(id=>{
+  const m=MOVES[id];
+  return m.power||m.healMaxHp||m.inflict||m.rest||m.bellyDrum||
+    !(m.boosts||m.lowerTargetAttack||m.lowerTargetDefense||m.lowerTargetAccuracy||m.lowerTargetEvasion);
+ });
+ if(!normalUsable.length)return {moveId:'struggle'};
  const hp=enemy.hp/Math.max(1,enemy.stats.hp);
  const opponentHp=opponent?.hp??Infinity;
  const attack=enemy.stats.attack;
@@ -150,7 +158,7 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
  const attackStage=enemy.stages?.attack??0;
  const defenseStage=opponent?.stages?.defense??0;
  const stage=n=>n>=0?(2+n)/2:2/(2-n);
- const rated=usable.map(id=>{
+ const rated=normalUsable.map(id=>{
   const m=MOVES[id];
   const accuracy=m.accuracy??1;
   let score=-30;
