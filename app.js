@@ -663,6 +663,9 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
   :recentWildMoves(dex,level);
  let selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
+ // Rocket boss Giovanni uses a dedicated moveset; wild and other trainers stay unchanged.
+ if(battleKind==='rocketGiovanni'&&dex===150)selected=['recover','calmMind','psystrike','lightScreen'];
+ if(battleKind==='rocketGiovanni'&&dex===31)selected=['poisonJab','earthquake','thrash','powerUpPunch'];
  // Agatha's level-71 Gengar uses Hypnosis instead of Confuse Ray.
  if(battleKind==='league2'&&dex===94&&level===71){selected=[...selected];const i=selected.indexOf('confuseRay');if(i>=0){if(selected.includes('hypnosis'))selected.splice(i,1);else selected[i]='hypnosis';}else if(!selected.includes('hypnosis'))selected[selected.length-1]='hypnosis';}
  const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:50,stats:(()=>{
