@@ -142,6 +142,62 @@ function chooseStageTactic(enemy,opponent,rng,usable){
  }
  return {moveId:candidates[candidates.length-1].id};
 }
+// Lightweight 2-3 turn tactical forecast for attacks with secondary stat effects.
+// Future value is discounted by expected survival, target remaining HP, and stage caps.
+function combatAccuracy(move,user,target){
+ const net=stageValue(target,'evasion')-stageValue(user,'accuracy');
+ const factor=net>=0?3/(3+net):(3-net)/3;
+ return Math.max(0,Math.min(1,(move.accuracy??1)*factor));
+}
+function projectedAttackDamage(attacker,defender,move,attackStage=stageValue(attacker,'attack')){
+ if(!move?.power)return 0;
+ const atk=Math.max(1,attacker.stats.attack*stageMultiplier(attackStage)*(attacker.attackBuffMultiplier||1)*(attacker.status?.type==='burn'?.5:1));
+ const def=Math.max(1,defender.stats.defense*stageMultiplier(stageValue(defender,'defense'))*(defender.defenseBuffMultiplier||1));
+ const raw=(Math.floor(2*attacker.level/5)+2)*move.power*atk/def/50+2;
+ return raw*combatAccuracy(move,attacker,defender)*.925*1.1;
+}
+function strongestAttack(attacker,defender){
+ return Math.max(0,...(attacker.moveIds||[]).filter(id=>MOVES[id]?.power)
+  .map(id=>projectedAttackDamage(attacker,defender,MOVES[id])));
+}
+function secondaryForecast(move,enemy,opponent,hp){
+ if(!opponent||opponent.hp<=0)return 0;
+ const enemyHp=enemy.hp/Math.max(1,enemy.stats.hp);
+ const targetHp=opponent.hp/Math.max(1,opponent.stats.hp);
+ const targetAttack=strongestAttack(opponent,enemy);
+ const userAttack=strongestAttack(enemy,opponent);
+ // Short-term benefits matter most while both combatants can survive several turns.
+ const horizon=2.3*Math.min(1,enemyHp/.65)*Math.min(1,targetHp/.65);
+ const lowHpPenalty=hp<=.25?.15:hp<=.40?.4:hp<=.60?.7:1;
+ const hitChance=combatAccuracy(move,enemy,opponent);
+ let bonus=0;
+ if(move.boostsOnHit?.attack&&stageValue(enemy,'attack')<6){
+  const oldStage=stageValue(enemy,'attack');
+  const nextStage=Math.min(6,oldStage+move.boostsOnHit.attack);
+  const increase=stageMultiplier(nextStage)/stageMultiplier(oldStage)-1;
+  // Compare future offensive damage with and without the +Attack stage.
+  bonus+=Math.min(userAttack*.85,userAttack*increase*horizon*.55)*hitChance*lowHpPenalty;
+ }
+ if(move.lowerTargetAccuracy&&stageValue(opponent,'accuracy')>-6){
+  const oldAccuracy=stageValue(opponent,'accuracy');
+  const newAccuracy=Math.max(-6,oldAccuracy-move.lowerTargetAccuracy);
+  // Accuracy reduction lowers expected incoming hits over the next turns.
+  const oldNet=stageValue(enemy,'evasion')-oldAccuracy;
+  const newNet=stageValue(enemy,'evasion')-newAccuracy;
+  const accuracyFactor=net=>net>=0?3/(3+net):(3-net)/3;
+  const avoided=Math.max(0,1-accuracyFactor(newNet)/accuracyFactor(oldNet));
+  bonus+=Math.min(userAttack*.80,targetAttack*avoided*horizon*.65)*hitChance*lowHpPenalty;
+ }
+ if(move.lowerTargetSpeedChance&&stageValue(opponent,'speed')>-6&&battleSpeed(enemy)<battleSpeed(opponent)){
+  const nextSpeedStage=Math.max(-6,stageValue(opponent,'speed')-1);
+  const futureSpeed=Math.max(1,Math.floor(opponent.stats.speed*stageMultiplier(nextSpeedStage)*(opponent.status?.type==='paralysis'?.5:1)*(opponent.speedBuffMultiplier||1)));
+  const speedFlip=battleSpeed(enemy)>=futureSpeed;
+  // Reversing turn order can prevent an incoming hit when our next attack KOs.
+  const nearKo=userAttack>=opponent.hp*.65;
+  bonus+=Math.min(userAttack*.65,targetAttack*(speedFlip?(nearKo?.48:.25):.055)*horizon)*hitChance*lowHpPenalty;
+ }
+ return bonus;
+}
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,shields=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
@@ -181,21 +237,9 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,
    // Faster attackers favor their stronger normal move. Slower attackers favor useful priority moves,
    // but only as a preference, never as an absolute rule.
    if((m.priority||0)>0)score*=slower?1.42:.82;
-   if(m.lowerTargetSpeedChance&&slower){
-    const afterStage=Math.max(-6,(opponent?.stages?.speed??0)-1);
-    const possibleSpeed=Math.max(1,Math.floor((opponent?.stats?.speed||1)*stage(afterStage)*(opponent?.status?.type==='paralysis'?.5:1)));
-    if(battleSpeed(enemy)>=possibleSpeed)score+=Math.max(5,expected*.32);
-    else score+=Math.max(2,expected*.12);
-   }
-   // Reward damaging moves that also improve stats or accuracy, while limiting their value once capped.
-   if(m.boostsOnHit){
-    const gain=Object.entries(m.boostsOnHit).reduce((sum,[stat,n])=>sum+Math.max(0,Math.min(n,6-stageValue(enemy,stat)))*(stat==='attack'?7:stat==='speed'&&!speedAlreadyAhead(enemy,opponent)?5:3),0);
-    score+=gain*(hp<=.25?.15:hp<=.40?.4:hp<=.60?.7:1)*accuracy;
-   }
-   if(m.lowerTargetAccuracy&&opponent){
-    const remain=Math.max(0,6+stageValue(opponent,'accuracy'));
-    score+=Math.min(remain,m.lowerTargetAccuracy)*(hp<=.25?.1:hp<=.40?.3:hp<=.60?.6:1)*4*accuracy;
-   }
+   // Score damage plus the discounted value of secondary effects over 2-3 future turns.
+   // At stat caps secondary value is exactly zero. When HP is low, prioritize immediate attacks.
+   if(!enemy.redAiMode)score+=secondaryForecast(m,enemy,opponent,hp);
    // HP below 53%: favor draining attacks (Absorb, Mega Drain, Giga Drain, etc.).
    // Base the bonus on usable healing, capped by missing HP, while preserving damage scoring.
    if(hp<.53&&m.drain){
