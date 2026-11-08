@@ -728,6 +728,25 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
+ // Gym boss held items: retain distinct per-Pokemon effects and the existing Red setup.
+ if(battleKind==='giovanni'){
+  trainer.heldItemCounts={...(trainer.heldItemCounts||{}),hardClaw:2};
+  trainer.hardClawCount=2;
+  trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.20;
+  if(dex===112){
+   trainer.heldItemCounts={...trainer.heldItemCounts,quickClaw:5,focusSash:4};
+   trainer.quickClawCount=5;
+   trainer.focusSashEnabled=true;
+   trainer.focusSashCount=4;
+   trainer.focusSashChance=0.05*trainer.focusSashCount;
+   trainer.focusSashUsed=false;
+  }
+ }
+ if(battleKind==='blaine'&&dex===59){
+  trainer.heldItemCounts={...(trainer.heldItemCounts||{}),hardClaw:1};
+  trainer.hardClawCount=1;
+  trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.10;
+ }
  if(battleKind==='koga'&&(dex===89||dex===110)){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:3};trainer.leftoversEnabled=true;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
  if(battleKind==='surge'){trainer.hardClawCount=1;trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.1;} // Lt. Surge: each Pokemon carries one Hard Claw (+10% Attack)
