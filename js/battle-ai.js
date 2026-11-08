@@ -233,6 +233,28 @@ function chooseOneHitKo(enemy,opponent,rng,usable){
  const index=Math.min(ohkos.length-1,Math.floor(roll/ohkoWeight));
  return {moveId:ohkos[index]};
 }
+// Confusion-only status moves have a 20% initial preference at full HP.
+// Low HP, an almost fainted opponent, and reduced accuracy all lower the chance.
+// Never waste a turn trying to confuse a Pokemon that is already confused.
+function chooseConfusionTactic(enemy,opponent,rng,usable){
+ if(!opponent||opponent.hp<=0||opponent.confusionTurns>0)return null;
+ const moves=usable.filter(id=>MOVES[id]?.confuseTarget&&!MOVES[id]?.power);
+ if(!moves.length)return null;
+ const ownHp=enemy.hp/Math.max(1,enemy.stats.hp);
+ const targetHp=opponent.hp/Math.max(1,opponent.stats?.hp||opponent.hp);
+ const survival=ownHp<=.25?.02:ownHp<=.40?.10:ownHp<=.60?.35:ownHp<=.75?.70:1;
+ const finish=targetHp<.18?.3:targetHp<.35?.65:1;
+ const chances=moves.map(id=>({
+  id,chance:.20*survival*finish*combatAccuracy(MOVES[id],enemy,opponent)
+ }));
+ // One roll for the total chance; avoid inflating the odds if several
+ // confusion-only moves are equipped.
+ const total=Math.min(.20,chances.reduce((sum,item)=>sum+item.chance,0));
+ if(rng()>=total)return null;
+ let pick=rng()*chances.reduce((sum,item)=>sum+item.chance,0);
+ for(const item of chances){if(pick<item.chance)return {moveId:item.id};pick-=item.chance;}
+ return {moveId:chances[chances.length-1].id};
+}
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,shields=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
@@ -253,6 +275,7 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,
  const screenShouldWait=healingNeeded||(opponent&&opponentHpRatio<.25)||likelyFinish;
  if(!enemy.redAiMode&&usable.includes('lightScreen')&&!screenUp&&!screenShouldWait&&rng()<.88)return {moveId:'lightScreen'};
  if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
+ if(!enemy.redAiMode){const confusion=chooseConfusionTactic(enemy,opponent,rng,usable);if(confusion)return confusion;}
  if(!enemy.redAiMode){const gamble=chooseOneHitKo(enemy,opponent,rng,usable);if(gamble)return gamble;}
  // A failed setup roll must really mean 'use another move': do not let the
  // older score-based fallback select the same setup/debuff move anyway.
