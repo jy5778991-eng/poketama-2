@@ -114,7 +114,10 @@ function chooseStageTactic(enemy,opponent,rng,usable){
  const hp=enemy.hp/Math.max(1,enemy.stats.hp);
  const opponentHp=opponent.hp/Math.max(1,opponent.stats?.hp||opponent.hp);
  // When almost knocked out, prioritize acting rather than setting up.
- const survival=hp<.25?.20:hp<.45?.5:1;
+ // Sharp low-HP penalty for all non-Red trainer setup and debuff tactics.
+ // At or below 25% HP: only 2% of normal selection chance.
+ // At or below 40% HP: 10%; at or below 60% HP: 35%.
+ const survival=hp<=.25?.02:hp<=.40?.10:hp<=.60?.35:hp<=.75?.70:1;
  // Do not spend many turns setting up against an almost-fainted opponent.
  const finish=opponentHp<.18?.3:opponentHp<.35?.65:1;
  const candidates=[];
