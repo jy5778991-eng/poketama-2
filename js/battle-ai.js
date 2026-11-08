@@ -92,15 +92,18 @@ function chooseRedMove(enemy,opponent,rng,usable){
 // Chances are per turn and recalculate from the CURRENT stat stages.
 // Reversing a stage (via an opponent move) makes the corresponding tactic more likely again.
 const STAGE_TACTIC_CHANCE=[.38,.31,.23,.16,.09,.035,0];
+const battleSpeed=f=>Math.max(1,Math.floor((f?.stats?.speed||1)*stageMultiplier(f?.stages?.speed||0)*(f?.status?.type==='paralysis'?.5:1)*(f?.speedBuffMultiplier||1)));
+const speedAlreadyAhead=(enemy,opponent)=>!!opponent&&battleSpeed(enemy)>=battleSpeed(opponent);
 const stageValue=(fighter,stat)=>Math.max(-6,Math.min(6,fighter?.stages?.[stat]??0));
 function stageTacticChance(move,enemy,opponent){
+ const faster=speedAlreadyAhead(enemy,opponent);
  const effects=[];
  for(const [stat,delta] of Object.entries(move.boosts||{})){
-  if(delta>0)effects.push({progress:Math.max(0,stageValue(enemy,stat)),amount:delta});
+  if(delta>0&&!(stat==='speed'&&faster))effects.push({progress:Math.max(0,stageValue(enemy,stat)),amount:delta});
  }
  const drops={attack:move.lowerTargetAttack||0,defense:move.lowerTargetDefense||0,accuracy:move.lowerTargetAccuracy||0,evasion:move.lowerTargetEvasion||0};
  for(const [stat,amount] of Object.entries(drops)){
-  if(amount>0&&opponent)effects.push({progress:Math.max(0,-stageValue(opponent,stat)),amount});
+  if(amount>0&&opponent&&!(stat==='speed'&&faster))effects.push({progress:Math.max(0,-stageValue(opponent,stat)),amount});
  }
  if(!effects.length)return 0;
  // Only consider stages which can still change; cap at six.
@@ -140,15 +143,20 @@ function chooseStageTactic(enemy,opponent,rng,usable){
  return {moveId:candidates[candidates.length-1].id};
 }
 // Exactly two modes: random wild selection and shared tactical trainer selection.
-export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}={}){
+export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,shields=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
  if(!usable.length)return {moveId:'struggle'};
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
  if(enemy.redAiMode){const chosen=chooseRedMove(enemy,opponent,rng,usable);if(chosen)return chosen;}
+ // Party-wide Light Screen is valuable regardless of the user's HP.
+ // The engine decrements screen duration at the start of a turn, so 1 remaining expires now.
+ const screenUp=(shields?.enemy??0)>1;
+ if(!enemy.redAiMode&&usable.includes('lightScreen')&&!screenUp&&rng()<.88)return {moveId:'lightScreen'};
  if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
  // A failed setup roll must really mean 'use another move': do not let the
  // older score-based fallback select the same setup/debuff move anyway.
  const normalUsable=enemy.redAiMode?usable:usable.filter(id=>{
+  if(id==='lightScreen')return !screenUp;
   const m=MOVES[id];
   return m.power||m.healMaxHp||m.inflict||m.rest||m.bellyDrum||
     !(m.boosts||m.lowerTargetAttack||m.lowerTargetDefense||m.lowerTargetAccuracy||m.lowerTargetEvasion);
@@ -158,6 +166,7 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
  const opponentHp=opponent?.hp??Infinity;
  const attack=enemy.stats.attack;
  const defense=opponent?.stats?.defense||100;
+ const slower=!speedAlreadyAhead(enemy,opponent);
  const attackStage=enemy.stages?.attack??0;
  const defenseStage=opponent?.stages?.defense??0;
  const stage=n=>n>=0?(2+n)/2:2/(2-n);
@@ -169,6 +178,24 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
    const effectivePower=m.hpScale==='high'?85+50*hp:m.hpScale==='low'?85+50*(1-hp):m.power;
    const expected=(Math.floor((Math.floor(2*enemy.level/5)+2)*effectivePower*attack*stage(attackStage)/(Math.max(1,defense*stage(defenseStage)))/50)+2)*accuracy*.925;
    score=expected;
+   // Faster attackers favor their stronger normal move. Slower attackers favor useful priority moves,
+   // but only as a preference, never as an absolute rule.
+   if((m.priority||0)>0)score*=slower?1.42:.82;
+   if(m.lowerTargetSpeedChance&&slower){
+    const afterStage=Math.max(-6,(opponent?.stages?.speed??0)-1);
+    const possibleSpeed=Math.max(1,Math.floor((opponent?.stats?.speed||1)*stage(afterStage)*(opponent?.status?.type==='paralysis'?.5:1)));
+    if(battleSpeed(enemy)>=possibleSpeed)score+=Math.max(5,expected*.32);
+    else score+=Math.max(2,expected*.12);
+   }
+   // Reward damaging moves that also improve stats or accuracy, while limiting their value once capped.
+   if(m.boostsOnHit){
+    const gain=Object.entries(m.boostsOnHit).reduce((sum,[stat,n])=>sum+Math.max(0,Math.min(n,6-stageValue(enemy,stat)))*(stat==='attack'?7:stat==='speed'&&!speedAlreadyAhead(enemy,opponent)?5:3),0);
+    score+=gain*(hp<=.25?.15:hp<=.40?.4:hp<=.60?.7:1)*accuracy;
+   }
+   if(m.lowerTargetAccuracy&&opponent){
+    const remain=Math.max(0,6+stageValue(opponent,'accuracy'));
+    score+=Math.min(remain,m.lowerTargetAccuracy)*(hp<=.25?.1:hp<=.40?.3:hp<=.60?.6:1)*4*accuracy;
+   }
    // HP below 53%: favor draining attacks (Absorb, Mega Drain, Giga Drain, etc.).
    // Base the bonus on usable healing, capped by missing HP, while preserving damage scoring.
    if(hp<.53&&m.drain){
@@ -181,6 +208,8 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null}
    if(m.recoilMaxHp&&enemy.hp<=Math.floor(enemy.stats.hp*m.recoilMaxHp))score-=100;
    if(m.selfKo)score-=enemy.hp>enemy.stats.hp*.15?150:35;
    if(m.recharge)score-=Math.max(8,expected*.22);
+  }else if(m.shieldTurns){
+   score=screenUp?-10000:28;
   }else if(m.healMaxHp){
    const missing=enemy.stats.hp-enemy.hp;
    const possible=Math.min(missing,Math.floor(enemy.stats.hp*m.healMaxHp));
