@@ -238,11 +238,11 @@ function rewardRerollCost(count){
  const cost=(progress.level*16+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
-const ACHIEVEMENTS=[["champion","내가 챔피언","리그 최초 제패"],["redSummit","정점","은빛산 정상에서 레드와의 배틀에서 승리"],["flyingTrainer","새 조련사","3마리 파티 멤버를 모두 비행 포켓몬으로 구성"],["botanist","식물학자","3마리 파티 멤버를 모두 풀 포켓몬으로 구성"],["dragonTrainer","드래곤 조련사","리자몽, 프테라, 망나뇽, 갸라도스 중 3마리로 파티를 구성"],["badges","배지 수집가","배지 8종 수집"],["firstLoss","첫 패배","최초 패배"],["rocketCatch100","로켓단","포켓몬 포획 누적 100회 달성"],["healing100","약물 중독","회복 아이템 100회"],["eggs20","리세마라","알 부화 20회"],["starter:raichu","주인공은 역시 피카츄","해당 스타팅으로 리그 제패"],["starter:eevee","이브이는 거꾸로 해도 이브이","해당 스타팅으로 리그 제패"],["starter:dragonite","드래곤 조련사","해당 스타팅으로 리그 제패"],["starter:butterfree","나비효과","해당 스타팅으로 리그 제패"],["starter:venusaur","씨앗부터 챔피언 까지","해당 스타팅으로 리그 제패"],["starter:charizard","불꽃은 꺼지지 않아","해당 스타팅으로 리그 제패"],["starter:blastoise","만렙거북이","해당 스타팅으로 리그 제패"],["starter:gyarados","튀어오르다 정상까지","해당 스타팅으로 리그 제패"],["starter:snorlax","먹고 자고 챔피언","해당 스타팅으로 리그 제패"],["starter:gengar","유령도 전당등록 되나요?","해당 스타팅으로 리그 제패"],["evo:3","이상한…꽃?","해당 포켓몬으로 진화"],["evo:12","4드론","해당 포켓몬으로 진화"],["evo:25","근본은 피카츄지","해당 포켓몬으로 진화"],["evo:130","등용문","해당 포켓몬으로 진화"],["evo:149","연애,신혼,지금","해당 포켓몬으로 진화"],["brock","관장 별거 없네","웅이 승리"],["misty","뉴비 절단기","이슬이 승리"],["level100","근성","Lv.100 달성"],["eggs100","알까기 장인","알 부화 100회"],["rival","라이벌","그린 승리"],["hall10","컴까기 장인","명예의 전당 10회"],["free10","파트너를 소중히","무료 치료 10회"],["wild1000","눈 감고도 이긴다","야생 승리 1000회"],["trainer100","인간 사냥","트레이너 승리 100회"],["legendSeen","이거 좋은거에요?","전설 최초 조우"],["paidHeal","비보험 치료","유료 치료 1회"],["center200","병원 밥은 맛없어","센터 치료 200회"],["money999999","워렌 버핏 나와!","보유금 999999원"],["run100","삼십육계 줄행랑!","도망 100회"],["hypnosis","불면증 해결","최면술 가르치기"],["perfectIV","엄친아","개체값 전부 최대"],["hatchMaxIV","한 분야의 천재","알 부화 최대 개체값"],["hatchMinIV","누굴 닮아서 머리가 이 모양일까","알 부화 최소 개체값"],["maxEV","노력의 천재","노력치 총합 240"],["birds","전설의 삼새","삼새 포획 등록"],["dexSeenAll","도감 완…성??","전체 도감 발견"],["zapdos","발전소","썬더 포획"],["moltres","내 집은 어디에?","파이어 포획"],["articuno","쌍둥이 섬","프리저 포획"],["mewtwo","인간이 만든 사상 최강의 포켓몬","뮤츠 포획"],["eevees","이브이즈","이브이 계열 4종 포획"],["mew","모든 포켓몬의 유전자","뮤 포획"],["dna","DNA","뮤 뮤츠 포획"],["legendPokeBall","와 이게 되네","몬스터볼 전설 포획"],["normalUltraBall","요거트 뚜껑 버리기","하이퍼볼 일반 포획"],["reroll50","가챠 중독","랜덤보상에서 리롤 50회"],["reroll10000","멘징 중독","랜덤보상에서 리롤로 한번에 10000원 이상 사용."]];
+const ACHIEVEMENTS=[["abandonPidgeot","유기","피죤투를 다른포켓몬과 교체해서 버림"],["ashPikachu","한지우","피카츄를 라이츄로 진화하지 않은 채로 리그 제패"],["rocketFan","로켓 좋아","아테나, 아폴로, 로켓단 보스 비주기 모두 격파"],["bugLover","곤충 애호가","파티 내 3마리 포켓몬을 모두 곤충 타입으로 결성"],["champion","내가 챔피언","리그 최초 제패"],["redSummit","정점","은빛산 정상에서 레드와의 배틀에서 승리"],["flyingTrainer","새 조련사","3마리 파티 멤버를 모두 비행 포켓몬으로 구성"],["botanist","식물학자","3마리 파티 멤버를 모두 풀 포켓몬으로 구성"],["dragonTrainer","드래곤 조련사","리자몽, 프테라, 망나뇽, 갸라도스 중 3마리로 파티를 구성"],["badges","배지 수집가","배지 8종 수집"],["firstLoss","첫 패배","최초 패배"],["rocketCatch100","로켓단","포켓몬 포획 누적 100회 달성"],["healing100","약물 중독","회복 아이템 100회"],["eggs20","리세마라","알 부화 20회"],["starter:raichu","주인공은 역시 피카츄","해당 스타팅으로 리그 제패"],["starter:eevee","이브이는 거꾸로 해도 이브이","해당 스타팅으로 리그 제패"],["starter:dragonite","드래곤 조련사","해당 스타팅으로 리그 제패"],["starter:butterfree","나비효과","해당 스타팅으로 리그 제패"],["starter:venusaur","씨앗부터 챔피언 까지","해당 스타팅으로 리그 제패"],["starter:charizard","불꽃은 꺼지지 않아","해당 스타팅으로 리그 제패"],["starter:blastoise","만렙거북이","해당 스타팅으로 리그 제패"],["starter:gyarados","튀어오르다 정상까지","해당 스타팅으로 리그 제패"],["starter:snorlax","먹고 자고 챔피언","해당 스타팅으로 리그 제패"],["starter:gengar","유령도 전당등록 되나요?","해당 스타팅으로 리그 제패"],["evo:3","이상한…꽃?","해당 포켓몬으로 진화"],["evo:12","4드론","해당 포켓몬으로 진화"],["evo:25","근본은 피카츄지","해당 포켓몬으로 진화"],["evo:130","등용문","해당 포켓몬으로 진화"],["evo:149","연애,신혼,지금","해당 포켓몬으로 진화"],["brock","관장 별거 없네","웅이 승리"],["misty","뉴비 절단기","이슬이 승리"],["level100","근성","Lv.100 달성"],["eggs100","알까기 장인","알 부화 100회"],["rival","라이벌","그린 승리"],["hall10","컴까기 장인","명예의 전당 10회"],["free10","파트너를 소중히","무료 치료 10회"],["wild1000","눈 감고도 이긴다","야생 승리 1000회"],["trainer100","인간 사냥","트레이너 승리 100회"],["legendSeen","이거 좋은거에요?","전설 최초 조우"],["paidHeal","비보험 치료","유료 치료 1회"],["center200","병원 밥은 맛없어","센터 치료 200회"],["money999999","워렌 버핏 나와!","보유금 999999원"],["run100","삼십육계 줄행랑!","도망 100회"],["hypnosis","불면증 해결","최면술 가르치기"],["perfectIV","엄친아","개체값 전부 최대"],["hatchMaxIV","한 분야의 천재","알 부화 최대 개체값"],["hatchMinIV","누굴 닮아서 머리가 이 모양일까","알 부화 최소 개체값"],["maxEV","노력의 천재","노력치 총합 240"],["birds","전설의 삼새","삼새 포획 등록"],["dexSeenAll","도감 완…성??","전체 도감 발견"],["zapdos","발전소","썬더 포획"],["moltres","내 집은 어디에?","파이어 포획"],["articuno","쌍둥이 섬","프리저 포획"],["mewtwo","인간이 만든 사상 최강의 포켓몬","뮤츠 포획"],["eevees","이브이즈","이브이 계열 4종 포획"],["mew","모든 포켓몬의 유전자","뮤 포획"],["dna","DNA","뮤 뮤츠 포획"],["legendPokeBall","와 이게 되네","몬스터볼 전설 포획"],["normalUltraBall","요거트 뚜껑 버리기","하이퍼볼 일반 포획"],["reroll50","가챠 중독","랜덤보상에서 리롤 50회"],["reroll10000","멘징 중독","랜덤보상에서 리롤로 한번에 10000원 이상 사용."]];
 let achievementData=(()=>{try{const v=JSON.parse(localStorage.getItem(ACHIEVEMENT_KEY)||'{}');return {earned:Array.isArray(v.earned)?v.earned:[],healing:v.healing||0,eggs:v.eggs||0,wildWins:v.wildWins||0,trainerWins:v.trainerWins||0,centerUses:v.centerUses||0,runs:v.runs||0,rerolls:v.rerolls||0,catches:v.catches||0};}catch{return {earned:[],healing:0,eggs:0,wildWins:0,trainerWins:0,centerUses:0,runs:0,rerolls:0,catches:0};}})();
 const ACHIEVEMENT_NOTICE_KEY='poketama-2-achievement-notices-v1';
 const achievementQueue=(()=>{try{const saved=JSON.parse(localStorage.getItem(ACHIEVEMENT_NOTICE_KEY)||'[]');return Array.isArray(saved)?saved.filter(id=>ACHIEVEMENTS.some(a=>a[0]===id)):[];}catch{return [];}})();
@@ -352,6 +352,7 @@ if(mistyCleared)brockCleared=true;
 if(brockCleared)blueCleared=true;
 }
 let blueChoice=RIVAL_POOL.some(s=>s.id===saved?.blueChoice)?saved.blueChoice:null;
+let rivalEeveeEvolution=Object.hasOwn(EEVEE_FORMS,saved?.rivalEeveeEvolution)?saved.rivalEeveeEvolution:null;
 let battleKind='wild',battleOpponent=null,defeatedEnemies=0,trainerExpEarned=0;
 let injured=!!saved?.injured;
 const todayKST=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -658,7 +659,9 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  const recent=starterFamily
   ?availableMoves(starterFamily,level).slice(-4).map(m=>m.id)
   :recentWildMoves(dex,level);
- const selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
+ let selected=options.fixedMoves?moveIds:(recent.length?recent:moveIds);
+ // Agatha's level-71 Gengar uses Hypnosis instead of Confuse Ray.
+ if(battleKind==='league2'&&dex===94&&level===71){selected=[...selected];const i=selected.indexOf('confuseRay');if(i>=0)selected[i]='hypnosis';else if(!selected.includes('hypnosis'))selected[selected.length-1]='hypnosis';}
  const trainer=createFighter({id:'trainer-'+dex,name,level,friendship:50,stats:(()=>{
   const [iv,ev]=TRAINER_STAT_CONFIG[battleKind]||[0,0];
   const ivs={hp:iv,attack:iv,defense:iv,speed:iv};
@@ -749,6 +752,40 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),hardClaw:1};
   trainer.hardClawCount=1;
   trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.10;
+ }
+ // Rocket commanders and boss: actual held-item combat effects, not just HUD labels.
+ const rocketItems=()=>{
+  if(battleKind==='rocketApollo')return {...{leftovers:4},...(dex===169?{hardClaw:2}:{})};
+  if(battleKind==='rocketAthena')return {...{shellBell:2,magnet:1},...(dex===197?{leftovers:2}:{})};
+  if(battleKind==='rocketGiovanni'){
+   if(dex===112)return {quickClaw:5,revivalSeed:1,wideLens:1};
+   if(dex===15)return {hardClaw:3,focusSash:5,revivalSeed:1,scopeLens:1};
+   if(dex===150)return {hardClaw:3,focusSash:3,scopeLens:1};
+   if(dex===34||dex===31)return {hardClaw:3};
+  }
+  return null;
+ };
+ const rocketHeld=rocketItems();
+ if(rocketHeld){
+  trainer.heldItemCounts={...(trainer.heldItemCounts||{}),...rocketHeld};
+  trainer.hardClawCount=rocketHeld.hardClaw||0;
+  trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+trainer.hardClawCount*.10;
+  trainer.quickClawCount=rocketHeld.quickClaw||0;
+  trainer.focusSashCount=rocketHeld.focusSash||0;
+  trainer.focusSashEnabled=trainer.focusSashCount>0;
+  trainer.focusSashChance=.05*trainer.focusSashCount;
+  trainer.focusSashUsed=false;
+  trainer.revivalSeedEnabled=!!rocketHeld.revivalSeed;
+  trainer.revivalSeedUsed=false;
+  trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05*(rocketHeld.wideLens||0);
+  trainer.critBuff=(trainer.critBuff||0)+.03*(rocketHeld.scopeLens||0);
+  if(rocketHeld.magnet&&ELECTRIC_TYPE_DEX.has(dex))trainer.speedBuffMultiplier=(trainer.speedBuffMultiplier||1)*1.05;
+  trainer.leftoversEnabled=!!rocketHeld.leftovers;
+  trainer.shellBell=!!rocketHeld.shellBell;
+ }
+ if(battleKind==='giovanni'&&(dex===51||dex===112)){
+  trainer.heldItemCounts={...(trainer.heldItemCounts||{}),wideLens:1};
+  trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
  }
  if(battleKind==='koga'&&(dex===89||dex===110)){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:3};trainer.leftoversEnabled=true;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
@@ -961,12 +998,14 @@ function finishTrainerBattle(){
    if(battleKind==='greenFifth'&&!greenFifthCleared){greenFifthCleared=true;area='championRoad2';}
   const leagueIndex=battleKind.startsWith('league')?Number(battleKind.slice(6)):-1;
   if(battleKind!=='wild')trainerClears[battleKind]=true;
+  if(['rocketApollo','rocketAthena','rocketGiovanni'].every(kind=>trainerClears[kind]))earnAchievement('rocketFan');
   if(battleKind==='red'){
    earnAchievement('redSummit');
    const f=getForm(chosen,progress.level);
    redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;
   }
-  if(leagueIndex===4){earnAchievement('champion');earnAchievement('starter:'+chosen);}if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
+  if(leagueIndex===4){earnAchievement('champion');earnAchievement('starter:'+chosen);
+   if(teamMembers().some(m=>m.dex===25)&&!teamMembers().some(m=>m.dex===26))earnAchievement('ashPikachu');}if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
   if(leagueIndex===4&&hallOfFame.length>=10)earnAchievement('hall10');const money=battleKind==='red'?5000:leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
@@ -1024,7 +1063,13 @@ function refreshLevelCapIndicator(){
 }
 const REGION_TRAINERS={grass:['blue'],forest:['brock'],cave:['misty'],lake:['greenReturn','surge'],cemetery:['greenThird'],town:['erika'],road:['koga'],city:['greenFourth','sabrina'],sea:['blaine'],volcano:['blaine'],strangeForest:['giovanni'],championRoad:['greenFifth']};
 function nextTrainerKind(){return !blueCleared?'blue':!brockCleared?'brock':!mistyCleared?'misty':!greenReturnCleared?'greenReturn':!surgeCleared?'surge':!greenThirdCleared?'greenThird':!erikaCleared?'erika':!kogaCleared?'koga':!greenFourthCleared?'greenFourth':!sabrinaCleared?'sabrina':!blaineCleared?'blaine':!giovanniCleared?'giovanni':!greenFifthCleared?'greenFifth':null;}
-function rivalForm(id,level){return id==='gengar'&&level>=40?EVOLUTIONS.gengar.at(-1):id==='raichu'&&level>=30?EVOLUTIONS.raichu.at(-1):getForm(id,level);}
+function rivalForm(id,level){
+ if(id==='eevee'&&level>=22){
+  if(!rivalEeveeEvolution){const forms=Object.keys(EEVEE_FORMS);rivalEeveeEvolution=forms[Math.floor(Math.random()*forms.length)];saveProgress();}
+  return EEVEE_FORMS[rivalEeveeEvolution];
+ }
+ return id==='gengar'&&level>=40?EVOLUTIONS.gengar.at(-1):id==='raichu'&&level>=30?EVOLUTIONS.raichu.at(-1):getForm(id,level);
+}
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
 let battlePlayerLevelStart=1;
 let pendingTrainerIntro=null;
@@ -2398,6 +2443,7 @@ function offerCapturedCompanion(){
   if(replaceIndex===null)companions.push(member);
   else{
    const old=companions[replaceIndex],oldKey='companion-'+old.family,newKey='companion-'+member.family;
+   if(old.dex===18&&member.dex!==18)earnAchievement('abandonPidgeot');
    const ids=HELD_ITEMS.filter(id=>hasHeld(id,oldKey));
    for(const id of ids)battleItemHolders[id]=battleItemHolders[id].map(k=>k===oldKey?newKey:k);
    if(ids.length)inherited=member.name+'이(가) '+old.name+'의 '+ids.map(id=>SHOP_ITEMS.find(i=>i.id===id).name).join(', ')+'을(를) 이어받았다!';
@@ -2437,6 +2483,7 @@ function checkPartyTypeAchievements(){
  if(members.length!==3)return;
  if(members.every(m=>FLYING_TYPE_DEX.has(m.dex)))earnAchievement('flyingTrainer');
  if(members.every(m=>GRASS_TYPE_DEX.has(m.dex)))earnAchievement('botanist');
+ if(members.every(m=>BUG_TYPE_DEX.has(m.dex)))earnAchievement('bugLover');
  if(members.every(m=>[6,142,149,130].includes(m.dex)))earnAchievement('dragonTrainer');
 }
 function renderHome(){
@@ -3188,7 +3235,7 @@ function beginNewAdventure(id,fixedIV){
  greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;
  erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;
  leagueStage=null;leagueCeremonyPending=false;redCeremonyPending=false;
- blueChoice=chooseRivalStarter(id);injured=false;healingDay=todayKST();freeHealsUsed=0;
+ blueChoice=chooseRivalStarter(id);rivalEeveeEvolution=null;injured=false;healingDay=todayKST();freeHealsUsed=0;
  playerIVs=fixedIV?{hp:4,attack:4,defense:4,speed:4}:randomIVs();if(!fixedIV){if(EV_STATS.some(k=>playerIVs[k]===16))earnAchievement('hatchMaxIV');if(EV_STATS.some(k=>playerIVs[k]===0))earnAchievement('hatchMinIV');checkIVAchievement(playerIVs);}
  playerEVs={hp:0,attack:0,defense:0,speed:0};playerMoves=initialMoves(id);
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
