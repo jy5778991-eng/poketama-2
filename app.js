@@ -465,7 +465,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
- const oldLensOwners=id==='wideLens'?[...(saved?.battleItemHolders?.wideLensA||[]),...(saved?.battleItemHolders?.wideLensB||[])]:null;
+ const oldLensOwners=id==='wideLens'?[...(Array.isArray(saved?.battleItemHolders?.wideLensA)?saved.battleItemHolders.wideLensA:[]),...(Array.isArray(saved?.battleItemHolders?.wideLensB)?saved.battleItemHolders.wideLensB:[])]:null;
  const recorded=Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldLensOwners;
  return [id,Array.isArray(recorded)?recorded.filter(x=>typeof x==='string').slice(0,inventory[id]):Array(inventory[id]).fill('starter')];
 }));
