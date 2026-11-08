@@ -91,7 +91,8 @@ function chooseRedMove(enemy,opponent,rng,usable){
 // Shared trainer stage tactics (Red's dedicated AI is deliberately excluded).
 // Chances are per turn and recalculate from the CURRENT stat stages.
 // Reversing a stage (via an opponent move) makes the corresponding tactic more likely again.
-const STAGE_TACTIC_CHANCE=[.38,.31,.23,.16,.09,.035,0];
+// After +2 self-boost or -2 opponent-debuff, rapidly diminish further setup attempts.
+const STAGE_TACTIC_CHANCE=[.38,.31,.12,.045,.015,.004,0];
 const battleSpeed=f=>Math.max(1,Math.floor((f?.stats?.speed||1)*stageMultiplier(f?.stages?.speed||0)*(f?.status?.type==='paralysis'?.5:1)*(f?.speedBuffMultiplier||1)));
 const speedAlreadyAhead=(enemy,opponent)=>!!opponent&&battleSpeed(enemy)>=battleSpeed(opponent);
 const stageValue=(fighter,stat)=>Math.max(-6,Math.min(6,fighter?.stages?.[stat]??0));
