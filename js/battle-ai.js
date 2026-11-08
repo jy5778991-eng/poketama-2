@@ -242,14 +242,23 @@ export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,
  // Party-wide Light Screen is valuable regardless of the user's HP.
  // The engine decrements screen duration at the start of a turn, so 1 remaining expires now.
  const screenUp=(shields?.enemy??0)>1;
- if(!enemy.redAiMode&&usable.includes('lightScreen')&&!screenUp&&rng()<.88)return {moveId:'lightScreen'};
+ const ownHpRatio=enemy.hp/Math.max(1,enemy.stats.hp);
+ const opponentHpRatio=opponent?.hp/Math.max(1,opponent?.stats?.hp||opponent?.hp||1);
+ // Do not waste a turn on Light Screen when the foe is almost defeated,
+ // when a normal attack can likely finish it, or when a useful heal is available.
+ const healingNeeded=ownHpRatio<.53&&usable.some(id=>MOVES[id]?.healMaxHp&&
+  Math.min(enemy.stats.hp-enemy.hp,Math.floor(enemy.stats.hp*MOVES[id].healMaxHp))>=enemy.stats.hp*.15);
+ const likelyFinish=opponent&&usable.some(id=>MOVES[id]?.power&&
+  projectedAttackDamage(enemy,opponent,MOVES[id])>=opponent.hp*.9);
+ const screenShouldWait=healingNeeded||(opponent&&opponentHpRatio<.25)||likelyFinish;
+ if(!enemy.redAiMode&&usable.includes('lightScreen')&&!screenUp&&!screenShouldWait&&rng()<.88)return {moveId:'lightScreen'};
  if(!enemy.redAiMode){const tactic=chooseStageTactic(enemy,opponent,rng,usable);if(tactic)return tactic;}
  if(!enemy.redAiMode){const gamble=chooseOneHitKo(enemy,opponent,rng,usable);if(gamble)return gamble;}
  // A failed setup roll must really mean 'use another move': do not let the
  // older score-based fallback select the same setup/debuff move anyway.
  const normalUsable=enemy.redAiMode?usable:usable.filter(id=>{
   if(MOVES[id].oneHitKo)return false; // OHKO moves are handled by the separate tactical gamble.
-  if(id==='lightScreen')return !screenUp;
+  if(id==='lightScreen')return !screenUp&&!screenShouldWait;
   const m=MOVES[id];
   return m.power||m.healMaxHp||m.inflict||m.rest||m.bellyDrum||
     !(m.boosts||m.lowerTargetAttack||m.lowerTargetDefense||m.lowerTargetAccuracy||m.lowerTargetEvasion);
