@@ -22,8 +22,8 @@ const FLYING_TYPE_DEX=new Set([6,12,16,17,18,21,22,41,42,83,84,85,123,130,142,14
 const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99,116,117,118,119,120,121,129,130,131,134,138,139,140,141]);
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
-const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry'];
-const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:5,sitrusBerry:5};
+const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry','oranBerry'];
+const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:5,sitrusBerry:5,oranBerry:5};
 const STACKABLE_HELD_ITEMS=['wideLens','hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw','eviolite'];
 function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
@@ -194,6 +194,7 @@ function rewardWeight(choice,context){
   if(id==='wideLens')return choice.tier==='legendary'&&inventory.wideLens<3?2:0;
   if(id==='eviolite')return inventory.eviolite<5&&members.some(m=>EVOLVABLE_DEX.has(m.dex))?2:0;
   if(id==='sitrusBerry')return inventory.sitrusBerry<5?3:0;
+   if(id==='oranBerry')return inventory.oranBerry<5?4:0;
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
@@ -597,7 +598,7 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='moveFailed'){addDetail('하지만 실패했다!');await pause(600);}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.heldItem==='sitrusBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 자뭉열매 발동!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
+}else if(ev.type==='moveFailed'){addDetail('하지만 실패했다!');await pause(600);}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.heldItem==='sitrusBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 자뭉열매 발동!');}else if(ev.heldItem==='oranBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 오랭열매 발동!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -2153,7 +2154,7 @@ const EVOLVABLE_DEX=new Set([
 function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
 player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
 player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
- player.sitrusBerryEnabled=hasHeld('sitrusBerry',m.key)&&inventory.sitrusBerry>0;
+ player.sitrusBerryEnabled=hasHeld('sitrusBerry',m.key)&&inventory.sitrusBerry>0;player.oranBerryEnabled=hasHeld('oranBerry',m.key)&&inventory.oranBerry>0;
  return player;}
 function normalizeHeldItems(){
  const keys=new Set(teamMembers().map(m=>m.key));
