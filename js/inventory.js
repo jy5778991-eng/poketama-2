@@ -56,7 +56,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    buy.onclick=()=>{
     if(ticket){onInheritanceTicketBuy?.();return;}
     if(inventory[item.id]>=stockLimit||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<price)return;
-    progress.money-=price;inventory[item.id]=unique?1:inventory[item.id]+1;
+    progress.money-=price;inventory[item.id]=unique?1:(inventory[item.id]||0)+1;
     saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy,onInheritanceTicketUse});
    };
    row.append(buy);
