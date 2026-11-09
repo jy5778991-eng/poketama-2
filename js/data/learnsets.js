@@ -1,6 +1,6 @@
 // One learnset per evolution family. Starter learnsets retain their existing levels.
 export const STARTER_LEARNSETS={
- eevee:[{level:1,id:'tackle'},{level:8,id:'quickAttack'},{level:16,id:'bite'},{level:25,id:'swift'}],
+ eevee:[{level:1,id:'tackle'},{level:5,id:'sandAttack'},{level:8,id:'quickAttack'},{level:16,id:'bite'},{level:25,id:'swift'}],
  jolteon:[{level:32,id:'thunderWave'},{level:38,id:'thunderbolt'},{level:45,id:'doubleTeam'},{level:54,id:'thunder'},{level:62,id:'zapCannon'}],
  flareon:[{level:34,id:'fireFang'},{level:44,id:'flamethrower'},{level:55,id:'fireBlast'},{level:58,id:'willOWisp'},{level:70,id:'flareBlitz'}],
  vaporeon:[{level:32,id:'iceBeam'},{level:48,id:'aquaRing'},{level:56,id:'acidArmor'},{level:64,id:'hydroPump'}],
@@ -27,6 +27,7 @@ export const FAMILY_LEARNSETS={
  "omanyte": [{level:1,id:'tackle40'}, {level:10,id:'waterGun'}, {level:20,id:'bubbleBeam'}, {level:25,id:'rockTomb'}, {level:41,id:'harden'}, {level:45,id:'surf'}, {level:50,id:'ancientPower'}, {level:54,id:'shellSmash'}, {level:68,id:'hydroPump'}],
  "pidgey": [
   {"level":1,"id":"tackle"},
+  {"level":6,"id":"sandAttack"},
   {"level":9,"id":"gust"},
   {"level":12,"id":"quickAttack"},
   {"level":22,"id":"wingAttack"},
@@ -104,7 +105,7 @@ export const FAMILY_BY_DEX={"16":"pidgey","17":"pidgey","18":"pidgey","19":"ratt
 // Additional wild encounter families. Six curated milestone moves per evolution family.
 export const ADDITIONAL_FAMILY_LEARNSETS={
  "misdreavus": [{"level":1,"id":"lick"},{"level":20,"id":"confuseRay"},{"level":35,"id":"nightShade"},{"level":48,"id":"shadowBall"}],
- "spearow": [{level:1,id:'tackle'}, {level:16,id:'wingAttack'}, {level:32,id:'rotaryPeck'}, {level:43,id:'fly'}, {level:48,id:'agility'}, {level:55,id:'braveBird'}],
+ "spearow": [{level:1,id:'tackle'}, {level:8,id:'leer'}, {level:16,id:'wingAttack'}, {level:32,id:'rotaryPeck'}, {level:43,id:'fly'}, {level:48,id:'agility'}, {level:55,id:'braveBird'}],
  "nidoranF": [{"level":1,"id":"tackle40"},{"level":8,"id":"poisonSting15"},{"level":15,"id":"hornAttack50"},{"level":30,"id":"poisonJab"},{"level":48,"id":"earthquake"},{"level":52,"id":"thrash"},{"level":68,"id":"hornDrill"}],
  "eevee": STARTER_LEARNSETS.eevee,
  "weedle": [{level:1,id:'poisonSting'}, {level:7,id:'harden'}, {level:12,id:'furyAttack'}, {level:27,id:'poisonJab'}, {level:38,id:'fellStinger'}, {level:43,id:'agility'}, {level:46,id:'drillRun'}],
