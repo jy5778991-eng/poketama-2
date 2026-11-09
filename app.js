@@ -51,7 +51,7 @@ const EXTRA_TM_CONFIG={
  tm15:{number:'15',name:'전기자석파',moveId:'thunderWave',minLevel:12,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[19,20,172,25,26,173,35,36,63,64,65,79,80,81,82,92,93,94,100,101,113,120,121,125,135,147,148,149]},
  tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49]},
  tm17:{number:'17',name:'인파이트',moveId:'closeCombat',minLevel:45,maxLevelExclusive:101,tier:'hyper',weight:1,dex:[56,57,58,59,62,66,67,68,83,106,107,123,212,128,151]},
- tm18:{number:'18',name:'빛의장막',moveId:'lightScreen',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[172,25,26,63,64,65,173,35,36,174,39,40,150,151,122,121,79,80,135,37,38,145,100,101,102,103]},
+ tm18:{number:'18',name:'빛의장막',moveId:'lightScreen',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[172,25,26,63,64,65,173,35,36,174,39,40,150,151,122,120,121,79,80,135,37,38,145,100,101,102,103]},
  tm19:{number:'19',name:'칼춤',moveId:'swordsDance',minLevel:45,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[4,5,6,15,27,28,46,47,83,84,85,72,73,98,99,104,105,123,127,136,141,151,212]},
  // Lv.5-50; rare tier, weight 1. Snorlax and Dragonite families excluded from Growl.
  tm20:{number:'20',name:'울음소리',moveId:'growl',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:1,dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,29,30,31,32,33,34,172,25,26,133,134,135,136,196,197,174,39,40,173,35,36,37,38,58,59,77,78,79,80,131]},
