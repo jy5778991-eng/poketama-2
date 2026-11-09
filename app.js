@@ -2049,7 +2049,7 @@ function buyInheritanceTicket(){
 }
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:()=>partyOverlay('🎫 계승권 사용','계승권은 모험 전체 리셋 시 아이템을 다음 회차로 계승하는 데 사용돼.\n리셋 진행을 누르면 계승할 아이템을 선택할 수 있어.',[{text:'취소'},{text:'리셋 진행',action:requestAdventureReset}]),onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:showInheritanceChoices,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';/* Preserve the user's page scroll position when switching between home and battle. */if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -3332,43 +3332,61 @@ function finishAdventureReset(selected){
  seenPokemon=new Set(keep.seenPokemon||[]);hallOfFame=keep.hallOfFame||[];redHallOfFame=keep.redHallOfFame||[];
  needsStarterSelection=true;adventureResetPending=true;showStarterSelection();
 }
-function chooseInheritanceForReset(){
+const INHERITANCE_CHOICE_KEY='poketama-2-inheritance-choice-v1';
+function validInheritanceChoices(){
+ let wanted=[];
+ try{wanted=JSON.parse(localStorage.getItem(INHERITANCE_CHOICE_KEY)||'[]');}catch(e){}
+ if(!Array.isArray(wanted))wanted=[];
+ const limit=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
+ const counts={};
+ return wanted.filter(id=>{
+  const item=SHOP_ITEMS.find(x=>x.id===id&&x.category!=='key');
+  if(!item||!inventory[id]||((counts[id]||0)>=inventory[id]))return false;
+  counts[id]=(counts[id]||0)+1;return true;
+ }).slice(0,limit);
+}
+function showInheritanceChoices(){
  const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- const items=SHOP_ITEMS.filter(item=>item.category!=='key'&&item.id!=='inheritanceTicket'&&(inventory[item.id]||0)>0);
- if(!tickets||!items.length){finishAdventureReset([]);return;}
- const chosenCounts={};
- const selectedCount=()=>Object.values(chosenCounts).reduce((a,b)=>a+b,0);
+ const items=SHOP_ITEMS.filter(item=>item.category!=='key'&&(inventory[item.id]||0)>0);
+ if(!tickets||!items.length){
+  partyOverlay('🎫 계승권',tickets?'계승할 수 있는 아이템이 없어.':'보유 중인 계승권이 없어.',[{text:'확인',action:requestAdventureReset}]);return;
+ }
+ let selected=validInheritanceChoices();
  const showChoices=()=>{
-  const chosenNames=Object.entries(chosenCounts).filter(([,n])=>n>0).map(([id,n])=>SHOP_ITEMS.find(x=>x.id===id).name+' ×'+n);
-  partyOverlay('🎫 리셋 아이템 계승', '계승권 '+tickets+'장 · 선택 '+selectedCount()+'/'+tickets+'개\n중요 아이템·계승권은 계승할 수 없어.\n선택: '+(chosenNames.join(', ')||'없음'),[
+  const chosenCounts={};for(const id of selected)chosenCounts[id]=(chosenCounts[id]||0)+1;
+  const chosenNames=Object.entries(chosenCounts).map(([id,n])=>SHOP_ITEMS.find(x=>x.id===id).name+' ×'+n);
+  partyOverlay('🎫 계승 아이템 선택','계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n선택: '+(chosenNames.join(', ')||'없음'),[
    ...items.map(item=>({
     text:item.icon+' '+item.name+' · 보유 '+inventory[item.id]+'개 · 계승 '+(chosenCounts[item.id]||0)+'개',
-    disabled:selectedCount()>=tickets&&!(chosenCounts[item.id]>0),
+    disabled:selected.length>=tickets&&!(chosenCounts[item.id]>0),
     action:()=>{
      const old=chosenCounts[item.id]||0;
-     if(old>=inventory[item.id]||old>=tickets)chosenCounts[item.id]=0;
-     else if(selectedCount()<tickets)chosenCounts[item.id]=old+1;
-     else chosenCounts[item.id]=0;
+     if(old>=inventory[item.id])selected=selected.filter(id=>id!==item.id);
+     else if(selected.length<tickets)selected.push(item.id);
+     else selected=selected.filter(id=>id!==item.id);
      showChoices();
     }
    })),
-   {text:'✅ 선택 완료 · 리셋 진행 ('+selectedCount()+'/'+tickets+'개)',action:()=>{
-    const selected=Object.entries(chosenCounts).flatMap(([id,n])=>Array(n).fill(id));
-    finishAdventureReset(selected);
-   }},
-   {text:'취소',action:()=>{}}
+   {text:'선택 완료',action:()=>{localStorage.setItem(INHERITANCE_CHOICE_KEY,JSON.stringify(selected));requestAdventureReset();}},
+   {text:'취소',action:requestAdventureReset}
   ]);
  };
  showChoices();
 }
+function chooseInheritanceForReset(){finishAdventureReset(validInheritanceChoices());}
 function requestAdventureReset(){
  if(needsStarterSelection||animating||learningBusy)return;
  const used=resetUsage();
  if(used>=RESET_LIMIT){partyOverlay('오늘 리셋 횟수 소진','하루 최대 20회까지 리셋할 수 있어. 한국 시간 자정에 다시 이용할 수 있어.',[{text:'확인'}]);return;}
  const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: 다음 화면에서 계승 아이템 선택 가능.\n중요 아이템은 계승되지 않아. 정말 리셋할까?',[
+ const selected=validInheritanceChoices();
+ const names=selected.map(id=>SHOP_ITEMS.find(x=>x.id===id)?.name||id);
+ const counts={};for(const name of names)counts[name]=(counts[name]||0)+1;
+ const summary=Object.entries(counts).map(([name,n])=>name+(n>1?' ×'+n:'')).join(', ')||'없음';
+ partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아. 정말 리셋할까?',[
   {text:'취소'},
-  {text:'리셋 진행',action:chooseInheritanceForReset}
+  {text:'리셋 진행',action:chooseInheritanceForReset},
+  {text:'계승권',disabled:tickets===0,action:showInheritanceChoices}
  ]);
 }
 function setup(){
