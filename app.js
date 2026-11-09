@@ -518,16 +518,20 @@ let playerEVs=Object.fromEntries(EV_STATS.map(k=>[k,Number.isInteger(saved?.evs?
 if(Object.values(playerEVs).reduce((sum,n)=>sum+n,0)>240)playerEVs={hp:0,attack:0,defense:0,speed:0};
 let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves]:migrateMoves(chosen,progress.level);
 let learningBusy=false;
-function renderStatPanel(){
- const m=screen==='battle'?activeMember():leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
- // Show permanent item effects without changing the underlying stats or combat damage.
- // Use the same multipliers as makeMemberFighter, excluding temporary battle boosts.
- const itemMultipliers={
+// Item-adjusted values are presentation only; never write them into base stats.
+function permanentItemStatMultipliers(m){
+ return {
   hp:1,
   attack:attackItemMultiplier(m),
   defense:1+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0),
   speed:1+magnetSpeedBonus(m)
  };
+}
+function renderStatPanel(){
+ const m=screen==='battle'?activeMember():leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
+ // Show permanent item effects without changing the underlying stats or combat damage.
+ // Use the same multipliers as makeMemberFighter, excluding temporary battle boosts.
+ const itemMultipliers=permanentItemStatMultipliers(m);
  grid.replaceChildren(...STAT_KEYS.map(key=>{
   const card=document.createElement('div');card.className='stat-card';
   const head=document.createElement('div');head.className='stat-compact-head';
@@ -969,6 +973,7 @@ async function showEvolutions(evolutions){
   $('evolutionName').textContent=evolution.after.name;
   $('evolutionMessage').textContent=evolution.before.name+' → '+evolution.after.name+' 진화 성공! (LV '+evolution.level+')';
   await pause(2600);layer.hidden=true;
+  normalizeHeldItems(); // Free Eviolites immediately after evolution, before saving.
   // A Pokémon obtained by evolving a caught/owned Pokémon counts as caught in the Pokédex.
   if(Number.isInteger(evolution.after.dex)&&evolution.after.dex>0&&evolution.after.dex<=1025){
    earnAchievement('evo:'+evolution.after.dex);caughtSpecies.add(evolution.after.dex);checkDexAchievements();
@@ -2198,17 +2203,22 @@ const EVOLVABLE_DEX=new Set([
  ...Object.values(EVOLUTIONS).flatMap(forms=>forms.slice(0,-1).map(form=>form.dex)),
  133,172,25,446,35,39,30,33,61,90,120,42,95,123
 ]);
-function makeMemberFighter(m){const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
+function makeMemberFighter(m){normalizeHeldItems();const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
 player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
 player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
  player.sitrusBerryEnabled=hasHeld('sitrusBerry',m.key)&&inventory.sitrusBerry>0;player.oranBerryEnabled=hasHeld('oranBerry',m.key)&&inventory.oranBerry>0;
  return player;}
 function normalizeHeldItems(){
- const keys=new Set(teamMembers().map(m=>m.key));
+ const members=teamMembers();
+ const keys=new Set(members.map(m=>m.key));
+ const evolvableKeys=new Set(members.filter(m=>EVOLVABLE_DEX.has(m.dex)).map(m=>m.key));
  for(const id of HELD_ITEMS){
   const seen=new Map();
   battleItemHolders[id]=(battleItemHolders[id]||[]).filter(k=>{
    if(!keys.has(k))return false;
+   // Eviolite on a fully evolved Pokemon is unequipped automatically.
+   // The item stays in inventory and becomes available to equip elsewhere.
+   if(id==='eviolite'&&!evolvableKeys.has(k))return false;
    if(STACKABLE_HELD_ITEMS.includes(id)){
     const count=seen.get(k)||0;
     if(count>=heldItemPerPokemonLimit(id))return false;
@@ -2397,6 +2407,7 @@ function partyOverlay(title,description,choices){
 }
 function showPartyManager(selectedKey=null,replacement=false){
  normalizeLivingLead();
+ normalizeHeldItems();
  if(animating||learningBusy||pendingRewardChoice)return;
  const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
  const layer=document.getElementById('partyActionOverlay');
@@ -2446,6 +2457,7 @@ function showPartyManager(selectedKey=null,replacement=false){
  }
  const m=selected,ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
  const stats=calculateStats(memberBase(m),m.level,ivs,evs);
+ const itemMultipliers=permanentItemStatMultipliers(m);
  const heading=document.createElement('strong');heading.className='party-summary-detail-heading';heading.textContent=m.name+'의 정보';
  details.append(heading);
  const infoGrid=document.createElement('div');infoGrid.className='party-summary-statgrid';
@@ -2455,7 +2467,14 @@ function showPartyManager(selectedKey=null,replacement=false){
   const label=document.createElement('b');label.textContent=STAT_LABELS[stat];
   const iv=document.createElement('span');iv.className='iv-star iv-'+ivTier(ivs[stat]);iv.textContent='★';iv.title='개체값 '+ivs[stat];iv.setAttribute('aria-label','개체값 '+ivs[stat]);
   head.append(label,iv);
-  const value=document.createElement('strong');value.className='party-summary-stat-value';value.textContent=String(stats[stat]);
+  const base=stats[stat],effective=Math.floor(base*itemMultipliers[stat]),bonus=effective-base;
+  const value=document.createElement('strong');value.className='party-summary-stat-value';value.textContent=String(effective);
+  if(bonus>0){
+   const extra=document.createElement('span');extra.textContent=' (+'+bonus+')';
+   extra.style.cssText='font-size:0.72em;color:#16a34a;font-weight:700;white-space:nowrap';
+   extra.title='기본 능력치 '+base+' + 아이템 효과 '+bonus;
+   value.append(extra);
+  }
   const ev=document.createElement('small');ev.textContent='EV: '+(evs[stat]||0);
   tile.append(head,value,ev);infoGrid.append(tile);
  }
@@ -2578,6 +2597,7 @@ function checkPartyTypeAchievements(){
  if(members.every(m=>[6,142,149,130].includes(m.dex)))earnAchievement('dragonTrainer');
 }
 function renderHome(){
+ normalizeHeldItems();
  checkPartyTypeAchievements();
  showNextAchievement();
  // Sea has no trainer challenge: advance after reaching Lv.48 through any level-up source.
