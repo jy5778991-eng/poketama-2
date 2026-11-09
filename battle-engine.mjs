@@ -84,6 +84,12 @@ function canAct(p,b){
   return true;
 }
 function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
+function activateOranBerry(b,fighter){
+ if(!fighter.oranBerryEnabled||fighter.hp<=0||fighter.hp>=fighter.stats.hp*0.25)return;
+ fighter.oranBerryEnabled=false;
+ const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.10)));
+ if(amount>0){fighter.hp+=amount;say(b,`${fighter.name}의 오랭열매 발동! HP ${amount} 회복!`);emit(b,{type:'heal',side:sideOf(b,fighter),amount,hp:fighter.hp,heldItem:'oranBerry'});}
+}
 function activateSitrusBerry(b,fighter){
  if(!fighter.sitrusBerryEnabled||fighter.hp<=0||fighter.hp>Math.floor(fighter.stats.hp/2))return;
  fighter.sitrusBerryEnabled=false;
@@ -147,14 +153,14 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
         const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
-        emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateSitrusBerry(b,target);
+        emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateOranBerry(b,target);activateSitrusBerry(b,target);activateOranBerry(b,target);
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
       }
       say(b,`총 ${landed}회 명중!`);
     }else{
       const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;
-    emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateSitrusBerry(b,target);
+    emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateOranBerry(b,target);activateSitrusBerry(b,target);activateOranBerry(b,target);
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
     }
@@ -209,8 +215,8 @@ function activateRevivalSeed(b,fighter){
 function settle(b){
   const p=b.player,e=activeEnemy(b);
   // Also trigger berries if poison/burn brought a living Pokemon below half HP.
-  activateSitrusBerry(b,e);
-  activateSitrusBerry(b,p);
+  activateSitrusBerry(b,e);activateOranBerry(b,e);
+  activateSitrusBerry(b,p);activateOranBerry(b,p);
   // Also handle knockouts caused by end-of-turn residual damage.
   activateRevivalSeed(b,e);
   activateRevivalSeed(b,p);
