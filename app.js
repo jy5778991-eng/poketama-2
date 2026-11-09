@@ -189,8 +189,8 @@ function rewardWeight(choice,context){
  if(choice.kind==='evolution')return evolutionRewardWeight(choice);
  if(choice.kind==='item'){
   const id=choice.id;
-  if(id==='partySlotA')return inventory.partySlotA!==1?4:0;
-  if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?4:0;
+  if(id==='partySlotA')return inventory.partySlotA!==1?6:0;
+  if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?6:0;
   if(id==='wideLens')return choice.tier==='legendary'&&inventory.wideLens<3?2:0;
   if(id==='eviolite')return inventory.eviolite<5&&members.some(m=>EVOLVABLE_DEX.has(m.dex))?2:0;
   if(id==='sitrusBerry')return inventory.sitrusBerry<5?3:0;
