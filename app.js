@@ -1453,6 +1453,9 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='magnet')return '🧲 자석 · 보유 시 전기 타입 포켓몬의 공격력이 10%, 스피드가 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='eviolite')return '🪨 진화의휘석 · 진화할 수 있는 포켓몬만 사용 가능 · 1개당 방어력 +10% · 포켓몬당 최대 3개';
+ if(choice.kind==='item'&&choice.id==='oranBerry')return '🍊 오랭열매 · 전투 중 HP가 일정 이하가 되면 HP를 회복하고 1개 소모';
+ if(choice.kind==='item'&&choice.id==='shellBell')return '🔔 조개껍질방울 · 공격으로 피해를 주면 HP를 일부 회복';
+ if(choice.kind==='item'&&choice.id==='leftovers')return '🍎 먹다남은음식 · 매 턴 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='sitrusBerry')return '🍊 자뭉열매 · 전투 중 HP가 50% 이하가 되면 최대 HP의 20%를 회복하고 1개 소모';
  if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 명중률 +5%p · 포켓몬당 최대 2개 · 최대 3개 보유';
  if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
@@ -3522,7 +3525,7 @@ function setup(){
  }
  const egg=document.createElement('button');egg.type='button';egg.className='starter starter-egg';egg.dataset.id='egg';
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
- egg.onclick=()=>{beginNewAdventure(STARTERS[Math.floor(Math.random()*STARTERS.length)].id,false);if(!needsStarterSelection)recordEggHatch();};
+ egg.onclick=()=>{beginNewAdventure((()=>{const weights={bulbasaur:19,charmander:19,squirtle:19,pichu:15,caterpie:12,gastly:9,munchlax:5.5,dratini:1.5};const byDex={1:19,4:19,7:19,172:15,10:12,92:9,446:5.5,147:1.5};let roll=Math.random()*100;for(const starter of STARTERS){const weight=weights[starter.id]??byDex[starter.dex]??0;roll-=weight;if(roll<0)return starter.id;}return STARTERS[0].id;})(),false);if(!needsStarterSelection)recordEggHatch();};
  box.append(egg);
  $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
