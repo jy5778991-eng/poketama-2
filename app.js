@@ -479,7 +479,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
  return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(20,value):i.category==='key'?Math.min(1,value):value];
 }));
-inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0));
+inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0),Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
  const oldLensOwners=id==='wideLens'?[...(Array.isArray(saved?.battleItemHolders?.wideLensA)?saved.battleItemHolders.wideLensA:[]),...(Array.isArray(saved?.battleItemHolders?.wideLensB)?saved.battleItemHolders.wideLensB:[])]:null;
  const recorded=Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldLensOwners;
@@ -2045,6 +2045,7 @@ function buyInheritanceTicket(){
  const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
  if(owned>=limit||progress.money<price)return;
  progress.money-=price;inventory.inheritanceTicket=owned+1;inventory.inheritanceTicketPurchases=Math.max(0,Number(inventory.inheritanceTicketPurchases??owned)||0)+1;
+ localStorage.setItem('poketama-2-ticket-purchases-v1',String(inventory.inheritanceTicketPurchases));
  appendAdventureLog('🎫 계승권 '+inventory.inheritanceTicket+'/'+limit+'장 구매 ('+price.toLocaleString('ko-KR')+'원)');
  saveProgress();renderHome();renderInventory();
 }
@@ -3292,6 +3293,7 @@ function beginNewAdventure(id,fixedIV){
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
  inventory={...START_INVENTORY};
+ inventory.inheritanceTicketPurchases=Math.max(0,Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
  // Inheritance is paid for with tickets from the previous life; key items never carry over.
  try{
   const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
@@ -3323,6 +3325,7 @@ function finishAdventureReset(selected){
   rememberPermanent();
   // Store only item ids. At new-game creation the backed-up inventory is revalidated.
   localStorage.setItem(INHERITANCE_PENDING_KEY,JSON.stringify(selected));
+  localStorage.setItem('poketama-2-ticket-purchases-v1',String(Math.max(0,Number(inventory.inheritanceTicketPurchases)||0)));
   const previous=localStorage.getItem(SAVE_KEY);
   if(previous!==null)localStorage.setItem(SAVE_KEY+'-before-reset',previous);
   localStorage.setItem(RESET_USAGE_KEY,JSON.stringify({day:todayKST(),count:used+1}));
