@@ -57,6 +57,7 @@ const EXTRA_TM_CONFIG={
  tm20:{number:'20',name:'울음소리',moveId:'growl',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:1,dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,29,30,31,32,33,34,172,25,26,133,134,135,136,196,197,174,39,40,173,35,36,37,38,58,59,77,78,79,80,131]},
  tm21:{number:'21',name:'째려보기',moveId:'leer',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:1,dex:[21,22,16,17,18,19,20,56,57,32,33,34,29,30,31,4,5,6,7,8,9,66,67,68,27,28,50,51,23,24,58,59,52,53,104,105,95,208,123,212,127,128,115,129,130,147,148,149]},
  tm22:{number:'22',name:'손톱갈기',moveId:'honeClaws',minLevel:20,maxLevelExclusive:66,tier:'rare',weight:1,dex:[4,5,6,27,28,29,30,31,32,33,34,52,53,56,57,46,47,98,99,54,55,140,141,123,127,142,149,150,151]},
+ tm99:{number:'99',name:'테스크',moveId:'test99',minLevel:17,maxLevelExclusive:101,tier:'normal',weight:100,dex:[43,133]},
  tm23:{number:'23',name:'도깨비불',moveId:'willOWisp',minLevel:35,maxLevelExclusive:71,tier:'legendary',weight:1,dex:[37,38,58,59,4,5,6,92,93,94,109,110,126,136,151,146,105]}
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
