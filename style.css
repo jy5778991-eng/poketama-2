@@ -319,3 +319,10 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 @keyframes enemy-party-faint{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(26px) scale(.7)}}
 @keyframes enemy-party-ball-throw{0%{opacity:1;transform:translate(0,0) rotate(45deg) scale(.65)}55%{opacity:1;transform:translate(-110%, 70%) rotate(-180deg) scale(1.15)}83%{opacity:1;transform:translate(-185%, 100%) rotate(-330deg) scale(1)}100%{opacity:1;transform:translate(-210%, 110%) rotate(-360deg) scale(1.2)}}
 @media(prefers-reduced-motion:reduce){#battleScreen .sprite.enemy.party-fainted,#battleScreen .sprite.enemy.party-entering,#battleScreen .arena .enemy-replacement-pokeball.replacement-pokeball-throw{animation-duration:.01ms}}
+
+/* TM target selection: sprite, name, level and eligibility. */
+#partyActionButtons .tm-target-option{display:flex;align-items:center;text-align:left;gap:12px}
+#partyActionButtons .tm-target-option .recovery-target-sprite{width:56px;height:56px;object-fit:contain;flex-shrink:0}
+#partyActionButtons .tm-target-option .recovery-target-details{display:flex;flex:1;flex-direction:column;gap:3px}
+#partyActionButtons .tm-target-option .tm-target-status{font-size:13px;color:#25734b;font-weight:700}
+#partyActionButtons .tm-target-option:disabled .tm-target-status{color:#8c5961}
