@@ -47,7 +47,7 @@ test('all starter and evolved forms resolve to the same species base',()=>{
 
 test('battle and party calculations use central species base',()=>{
  assert.match(app,/function memberBase\(m\)\s*\{\s*const base=BASE_STATS\[m\.dex\]/);
- assert.match(app,/calculateStats\(BASE_STATS\[dex\],level,ivs,evs\)/);
+ assert.match(app,/calculateStats\(BASE_STATS\[dex\],level,ivs,options\.evs\|\|evs\)/);
  assert.match(app,/calculateStats\(BASE_STATS\[wild\.dex\],level,zeroIV,\{\}\)/);
  assert.match(app,/fighter\(s,playerIVs,progress\.level,BASE_STATS\[form\.dex\]/);
  assert.match(app,/calculateStats\(BASE_STATS\[getForm\(chosen,progress\.level\)\.dex\]/);
@@ -62,5 +62,5 @@ test('wild enemy has zero IV, captured Pokemon rerolls IV and starts with zero E
 test('rival Green first fight has IV 8 EV 0; other trainer tuning preserved',()=>{
  assert.match(app,/blue:\[8,0\],greenReturn:\[8,10\]/);
  assert.match(app,/rocketApollo:\[12,20\],rocketAthena:\[12,20\],rocketGiovanni:\[16,54\]/);
- assert.match(app,/league0:\[14,10\],league1:\[14,10\],league2:\[14,10\],league3:\[14,10\],league4:\[16,54\],red:\[16,54\]/);
+ assert.match(app,/league0:\[14,30\],league1:\[14,30\],league2:\[14,30\],league3:\[14,30\],league4:\[16,60\],red:\[16,60\]/);
 });
