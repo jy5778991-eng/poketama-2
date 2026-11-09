@@ -1,4 +1,4 @@
-import {MOVES} from './data/moves.js?v=20261031-recover-name157';
+import {MOVES} from './data/moves.js?v=20261109-growl-tm20';
 // Red has a dedicated policy; all other trainers keep the shared tactical AI.
 const stageMultiplier=n=>n>=0?(2+n)/2:2/(2-n);
 function redExpectedDamage(enemy,opponent,id){
