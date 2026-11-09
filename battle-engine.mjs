@@ -282,7 +282,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
     // Both sides keep their already-selected action for this same turn.
     activateRevivalSeed(b,p);activateRevivalSeed(b,e);
   }
-  if(!b.ended){poisonTick(b,p);activateRevivalSeed(b,p);poisonTick(b,e);activateRevivalSeed(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.08));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp,burn:true});activateRevivalSeed(b,fighter);}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}
+  if(!b.ended){poisonTick(b,p);activateRevivalSeed(b,p);poisonTick(b,e);activateRevivalSeed(b,e);for(const fighter of [p,e]){if(fighter.hp>0&&fighter.status?.type==='burn'){const damage=Math.max(1,Math.floor(fighter.stats.hp*0.06));fighter.hp=Math.max(0,fighter.hp-damage);say(b,`${fighter.name}은(는) 화상으로 ${damage} 피해를 받았다.`);emit(b,{type:'damage',side:sideOf(b,fighter),amount:damage,hp:fighter.hp,burn:true});activateRevivalSeed(b,fighter);}if(fighter.hp>0&&b.rings[sideOf(b,fighter)]){const heal=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp/16)));fighter.hp+=heal;emit(b,{type:'heal',side:sideOf(b,fighter),amount:heal,hp:fighter.hp});}}
     // End-of-turn held food triggers only after poison and burn residual damage.
     // A Pokemon knocked out by residual damage cannot recover.
     for(const fighter of [p,e]){
