@@ -1220,6 +1220,7 @@ function reset(kind='wild',recordDiscovery=true){
  }else if(kind.startsWith('league')){
   const n=Number(kind.slice(6));
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
+  if(n>=0&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
   if(n===4){const rival=rivalForm(blueChoice,75);enemies.push(trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id)))}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
