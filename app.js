@@ -2037,12 +2037,12 @@ function chooseRecoveryTarget(item){
  }})),{text:'취소',action:()=>{}}]);
 }
 function inheritanceTicketLimit(){return Math.min(10,3+hallOfFame.length);}
-function inheritanceTicketPrice(){const owned=inventory.inheritanceTicket||0;return owned===0?20000:owned===1?40000:60000+20000*(owned-1);}
+function inheritanceTicketPrice(){const purchased=Math.max(0,Number(inventory.inheritanceTicketPurchases??inventory.inheritanceTicket)||0);return purchased===0?20000:purchased===1?40000:80000+20000*(purchased-2);}
 function buyInheritanceTicket(){
  if(!hallOfFame.length)return;
  const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
  if(owned>=limit||progress.money<price)return;
- progress.money-=price;inventory.inheritanceTicket=owned+1;
+ progress.money-=price;inventory.inheritanceTicket=owned+1;inventory.inheritanceTicketPurchases=Math.max(0,Number(inventory.inheritanceTicketPurchases??owned)||0)+1;
  appendAdventureLog('🎫 계승권 '+inventory.inheritanceTicket+'/'+limit+'장 구매 ('+price.toLocaleString('ko-KR')+'원)');
  saveProgress();renderHome();renderInventory();
 }
