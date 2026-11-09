@@ -1055,14 +1055,14 @@ const MAP_REGIONS=[
  ['cemetery','🪦 공동묘지',()=>surgeCleared,29],['town','🏘️ 무지개시티',()=>greenThirdCleared,34],['road','🛣️ 자전거도로',()=>erikaCleared,39],
  ['city','🏙️ 노랑시티',()=>kogaCleared,47],['sea','🌊 바다',()=>sabrinaCleared,54],['volcano','🌋 화산',()=>sabrinaCleared&&(progress.level>=48||volcanoAutoVisited||blaineCleared),54],
  ['strangeForest','🌲 이상한 숲',()=>blaineCleared,60],['championRoad','🏔️ 챔피언로드',()=>giovanniCleared,66],
- ['championRoad2','🏛️ 석영고원',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>hallOfFame.length>0,80],
- ['rocketBase','🚀 로켓단 비밀기지',()=>hallOfFame.length>0&&inventory.secretSwitch>0,90],
- ['farawayIsland','🏝️ 환상의 섬',()=>hallOfFame.length>0&&inventory.oldSeaMap>0,90],
- ['mountSilver','🏔️ 은빛산',()=>hallOfFame.length>0,null]
+ ['championRoad2','🏛️ 석영고원',()=>greenFifthCleared,88],['palletTown','🏠 태초마을',()=>currentRunLeagueWon,80],
+ ['rocketBase','🚀 로켓단 비밀기지',()=>currentRunLeagueWon&&inventory.secretSwitch>0,90],
+ ['farawayIsland','🏝️ 환상의 섬',()=>currentRunLeagueWon&&inventory.oldSeaMap>0,90],
+ ['mountSilver','🏔️ 은빛산',()=>currentRunLeagueWon,null]
 ];
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
 let volcanoAutoVisited=!!(saved?.volcanoAutoVisited||area==='volcano'||(sabrinaCleared&&progress.level>=48));
-const latestMapRegion=()=>hallOfFame.length?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?(area==='volcano'||(progress.level>=48&&!blaineCleared)?'volcano':'sea'):kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
+const latestMapRegion=()=>currentRunLeagueWon?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?(area==='volcano'||(progress.level>=48&&!blaineCleared)?'volcano':'sea'):kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
  // Fixed absolute cap per region. The lake and city change only after their corresponding rival wins.
  if(area==='lake'&&!greenReturnCleared)return 22;
@@ -3041,14 +3041,14 @@ function mapTravelProblem(key){
  const entry=mapRegion(key);
  if(!entry)return '이동할 수 없는 지역입니다.';
  if(MAP_POSTGAME_AREAS.has(key)){
-  if(!hallOfFame.length)return '리그를 제패하지 않았습니다.';
+  if(!currentRunLeagueWon)return '현재 회차에서 리그를 제패하지 않았습니다.';
   if(key==='rocketBase'&&!inventory.secretSwitch)return "'비밀 스위치' 아이템이 없습니다.";
   if(key==='farawayIsland'&&!inventory.oldSeaMap)return "'오래된해도' 아이템이 없습니다.";
   return '';
  }
  if(!entry[2]())return '아직 해금되지 않은 지역입니다.';
  // The furthest story region remains accessible without the optional map item.
- if(key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
+ if(key!=='grass'&&key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
  return '';
 }
 function showMap(){
