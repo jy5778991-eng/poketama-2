@@ -114,3 +114,8 @@ test('Will-O-Wisp TM23 keeps burn effect and requested eligible species',()=>{
  for(const dex of [37,38,58,59,4,5,6,92,93,94,109,110,126,136,151,146,105])assert.ok(cfg.dex.includes(dex),'TM23 missing '+dex);
  assert.ok(!cfg.dex.includes(150),'Mewtwo excluded');
 });
+
+test('rare and hyper EV reward amounts are 8 and 24',()=>{
+ assert.match(tierPool.rare,/kind:'ev',stat,amount:8,icon:'💊'/);
+ assert.match(tierPool.hyper,/kind:'ev',stat,amount:24,icon:'💊'/);
+});
