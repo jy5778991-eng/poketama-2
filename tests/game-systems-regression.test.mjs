@@ -29,13 +29,13 @@ const tierPool=Object.fromEntries(tiers.map((tier,i)=>{
  const next=tiers.slice(i+1).map(t=>pool.indexOf(t+':[',start+1)).filter(x=>x>=0);
  return [tier,pool.slice(start,next.length?Math.min(...next):pool.length)];
 }));
-test('TM01–TM21 have unique consecutive IDs and all move definitions exist',()=>{
+test('TM01–TM22 have unique consecutive IDs and all move definitions exist',()=>{
  const all=[['tm01','megaPunch'],['tm02','megaKick'],...entries.map(([key,v])=>[key,v.moveId])];
- assert.deepEqual(all.map(([id])=>id),Array.from({length:21},(_,i)=>'tm'+String(i+1).padStart(2,'0')));
+ assert.deepEqual(all.map(([id])=>id),Array.from({length:22},(_,i)=>'tm'+String(i+1).padStart(2,'0')));
  for(const [id,move] of all)assert.ok(MOVES[move],id+' missing move '+move);
- assert.equal(new Set(all.map(([id])=>id)).size,21);
+ assert.equal(new Set(all.map(([id])=>id)).size,22);
 });
-test('TM03–TM21 have valid level windows, tiers, weights and species lists',()=>{
+test('TM03–TM22 have valid level windows, tiers, weights and species lists',()=>{
  for(const [id,cfg] of entries){
   assert.ok(cfg.minLevel>=1&&cfg.minLevel<cfg.maxLevelExclusive&&cfg.maxLevelExclusive<=101,id+' levels');
   assert.ok(tiers.includes(cfg.tier??'normal'),id+' tier');
@@ -88,10 +88,20 @@ test('held item limits, save guard and synchronized HP setter remain present',()
 });
 
 test('TM balance changes remain consistent across all reward settings',()=>{
- const expected={tm04:[8,60,'normal',1],tm05:[22,60,'rare',1],tm06:[22,60,'rare',1],tm07:[22,60,'rare',1],tm08:[10,70,'rare',1],tm09:[16,69,'hyper',1],tm10:[18,59,'rare',1],tm12:[15,39,'hyper',1],tm15:[12,49,'hyper',1],tm18:[40,100,'legendary',1],tm19:[45,100,'legendary',1]};
+ const expected={tm04:[8,60,'normal',1],tm05:[22,60,'rare',1],tm06:[22,60,'rare',1],tm07:[22,60,'rare',1],tm08:[10,70,'rare',1],tm09:[16,69,'hyper',1],tm10:[18,59,'rare',1],tm12:[15,39,'hyper',1],tm15:[12,49,'hyper',1],tm22:[20,65,'rare',1],tm18:[40,100,'legendary',1],tm19:[45,100,'legendary',1]};
  for(const [id,[min,max,tier,weight]] of Object.entries(expected)){
   const cfg=config[id];assert.equal(cfg.minLevel,min,id+' min');assert.equal(cfg.maxLevelExclusive,max+1,id+' max');assert.equal(cfg.tier??'normal',tier,id+' tier');assert.equal(cfg.weight??1,weight,id+' weight');
  }
  assert.match(app,/function tm01Targets\(\).*?m\.level>=22&&m\.level<=60/);
  assert.match(app,/기술머신01\.메가톤펀치[^'\\n]*Lv\.22~60/);
+});
+
+test('Hone Claws only raises attack and excludes Ghost family',()=>{
+ const cfg=config.tm22;
+ assert.equal(cfg.moveId,'honeClaws');
+ assert.equal(MOVES.honeClaws.boosts.attack,1);
+ assert.deepEqual(Object.keys(MOVES.honeClaws.boosts),['attack']);
+ assert.equal(MOVES.honeClaws.target,'self');
+ for(const dex of [54,55,140,141,149])assert.ok(cfg.dex.includes(dex),'TM22 missing '+dex);
+ for(const dex of [92,93,94])assert.ok(!cfg.dex.includes(dex),'TM22 should exclude '+dex);
 });
