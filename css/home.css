@@ -149,6 +149,8 @@
 .party-summary-stat-head{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
 .party-summary-stat-head .iv-star{font-size:16px;line-height:1}
 .party-summary-stat-value{font-size:19px;line-height:1.2;font-variant-numeric:tabular-nums}
+/* Item bonus is inline text, not another framed stat tile. */
+.party-summary-statgrid .party-summary-stat-value > span{display:inline;background:transparent;border:0;padding:0;margin:0;box-shadow:none;outline:0;border-radius:0;vertical-align:baseline}
 .party-summary-stat small{font-size:11px;white-space:nowrap}
 
 /* IV star must not inherit the generic stat-grid span tile frame. */
