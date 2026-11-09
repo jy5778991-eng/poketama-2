@@ -1711,13 +1711,23 @@ function choosePermanentTarget(choice,autoMember=null){
   {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
  ]);
 }
-function tmSelectionOptions(targets,actionFor){
+function tmSelectionOptions(targets,actionFor,kind){
  const eligible=new Set(targets.map(m=>m.key));
- return teamMembers().map(m=>({
-  member:m,tmStatus:eligible.has(m.key)?'가능':'불가능',
-  disabled:!eligible.has(m.key),
-  action:actionFor(m)
- }));
+ const cfg=EXTRA_TM_CONFIG[kind];
+ const compatible=cfg?extraTmDex[kind]:(kind==='tm01'?TM01_DEX:TM02_DEX);
+ const minLevel=cfg?cfg.minLevel:(kind==='tm01'?22:28);
+ const maxLevel=cfg?(cfg.maxLevelExclusive??101)-1:60;
+ return teamMembers().map(m=>{
+  const canLearn=eligible.has(m.key);
+  const speciesCompatible=compatible.has(m.dex);
+  const levelValid=m.level>=minLevel&&m.level<=maxLevel;
+  return {
+   member:m,
+   tmStatus:canLearn?'가능':speciesCompatible&&!levelValid?'레벨부족':'불가능',
+   disabled:!canLearn,
+   action:actionFor(m)
+  };
+ });
 }
 function completeInstantRecoveryReward(choice,details){
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice)+(details?' · '+details:''));
@@ -1753,7 +1763,7 @@ function claimRewardChoice(index){
     if(!extraTmLearned[kind].includes(m.key))extraTmLearned[kind].push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }),
+   },choice.kind),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
@@ -1778,7 +1788,7 @@ function claimRewardChoice(index){
     if(!tm02Learned.includes(m.key))tm02Learned.push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }),
+   },'tm02'),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
@@ -1803,7 +1813,7 @@ function claimRewardChoice(index){
     if(!tm01Learned.includes(m.key))tm01Learned.push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }),
+   },'tm01'),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
