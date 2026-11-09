@@ -3048,7 +3048,7 @@ function mapTravelProblem(key){
  }
  if(!entry[2]())return '아직 해금되지 않은 지역입니다.';
  // The furthest story region remains accessible without the optional map item.
- if(key!=='grass'&&key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
+ if(key!==latestMapRegion()&&key!==area&&!inventory.map)return "'지도' 아이템이 없습니다.";
  return '';
 }
 function showMap(){
