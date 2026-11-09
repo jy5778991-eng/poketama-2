@@ -52,11 +52,11 @@ test('each TM03–TM21 is in its configured reward tier',()=>{
   for(const other of tiers.filter(x=>x!==tier))assert.doesNotMatch(tierPool[other],new RegExp("kind:'"+id+"'"),id+' unexpectedly in '+other);
  }
 });
-test('Growl and Leer stay rare weight 2, level 5–50, with correct battle effects',()=>{
+test('Growl and Leer stay rare weight 1, level 5–50, with correct battle effects',()=>{
  for(const [id,move,effect] of [['tm20','growl','lowerTargetAttack'],['tm21','leer','lowerTargetDefense']]){
   const cfg=config[id];
   assert.equal(cfg.tier,'rare');
-  assert.equal(cfg.weight,2);
+  assert.equal(cfg.weight,1);
   assert.equal(cfg.minLevel,5);
   assert.equal(cfg.maxLevelExclusive,51);
   assert.equal(cfg.moveId,move);
@@ -85,4 +85,13 @@ test('held item limits, save guard and synchronized HP setter remain present',()
  assert.match(app,/if\(saveReadFailed\)/);
  assert.match(app,/localStorage\.setItem\(SAVE_KEY/);
  assert.match(app,/function setMemberHp\(/);
+});
+
+test('TM balance changes remain consistent across all reward settings',()=>{
+ const expected={tm04:[8,60,'normal',1],tm05:[22,60,'rare',1],tm06:[22,60,'rare',1],tm07:[22,60,'rare',1],tm08:[10,70,'rare',1],tm09:[20,69,'rare',1],tm10:[18,59,'rare',1],tm18:[40,100,'legendary',1],tm19:[45,100,'legendary',1]};
+ for(const [id,[min,max,tier,weight]] of Object.entries(expected)){
+  const cfg=config[id];assert.equal(cfg.minLevel,min,id+' min');assert.equal(cfg.maxLevelExclusive,max+1,id+' max');assert.equal(cfg.tier??'normal',tier,id+' tier');assert.equal(cfg.weight??1,weight,id+' weight');
+ }
+ assert.match(app,/function tm01Targets\(\).*?m\.level>=22&&m\.level<=60/);
+ assert.match(app,/기술머신01\.메가톤펀치[^'\\n]*Lv\.22~60/);
 });
