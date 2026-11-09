@@ -3310,6 +3310,8 @@ function beginNewAdventure(id,fixedIV){
    safeCounts[itemId]=(safeCounts[itemId]||0)+1;
   }
   for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
+  // Only a Destiny Knot actually inherited from the previous run affects the new egg.
+  if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;checkIVAchievement(playerIVs);}
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
  tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
