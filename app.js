@@ -3289,32 +3289,85 @@ function beginNewAdventure(id,fixedIV){
  lastBattleReward=null;lastPartyExp={};pendingRewardChoice=null;challengeNotified=[];
  $('challengeUnlockOverlay').hidden=true;storedHp=null;
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
- inventory={...START_INVENTORY};tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
+ inventory={...START_INVENTORY};
+ // Inheritance is paid for with tickets from the previous life; key items never carry over.
+ try{
+  const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
+  const wanted=JSON.parse(localStorage.getItem(INHERITANCE_PENDING_KEY)||'[]');
+  const maxTickets=Math.min(10,3+(Array.isArray(old?.hallOfFame)?old.hallOfFame.length:0));
+  const budget=Math.min(maxTickets,Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
+  const safeCounts={};
+  if(Array.isArray(wanted))for(const itemId of wanted.slice(0,budget)){
+   const item=SHOP_ITEMS.find(x=>x.id===itemId&&x.category!=='key');
+   if(!item)continue;
+   const available=Number.isInteger(old?.inventory?.[itemId])?old.inventory[itemId]:0;
+   const ceiling=HELD_MAX[itemId]??99;
+   if((safeCounts[itemId]||0)>=available||(safeCounts[itemId]||0)>=ceiling)continue;
+   safeCounts[itemId]=(safeCounts[itemId]||0)+1;
+  }
+  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=(inventory[itemId]||0)+count;
+ }catch(e){console.warn('계승 아이템 확인 실패',e);}
+ tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
- needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');
+ needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');localStorage.removeItem(INHERITANCE_PENDING_KEY);
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
  saveProgress();reset('wild',false);showScreen('home');showNextAchievement();
+}
+const INHERITANCE_PENDING_KEY='poketama-2-inheritance-pending-v1';
+function finishAdventureReset(selected){
+ const used=resetUsage();
+ if(used>=RESET_LIMIT||needsStarterSelection)return;
+ try{
+  rememberPermanent();
+  // Store only item ids. At new-game creation the backed-up inventory is revalidated.
+  localStorage.setItem(INHERITANCE_PENDING_KEY,JSON.stringify(selected));
+  const previous=localStorage.getItem(SAVE_KEY);
+  if(previous!==null)localStorage.setItem(SAVE_KEY+'-before-reset',previous);
+  localStorage.setItem(RESET_USAGE_KEY,JSON.stringify({day:todayKST(),count:used+1}));
+  localStorage.setItem('poketama-2-reset-pending-v1','yes');
+ }catch(e){alert('데이터 백업에 실패해서 리셋을 중단했어.');return;}
+ const keep=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}');
+ capturedPokemon=keep.captures||[];caughtSpecies=new Set(keep.caughtSpecies||[]);
+ seenPokemon=new Set(keep.seenPokemon||[]);hallOfFame=keep.hallOfFame||[];redHallOfFame=keep.redHallOfFame||[];
+ needsStarterSelection=true;adventureResetPending=true;showStarterSelection();
+}
+function chooseInheritanceForReset(){
+ const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
+ const items=SHOP_ITEMS.filter(item=>item.category!=='key'&&item.id!=='inheritanceTicket'&&(inventory[item.id]||0)>0);
+ if(!tickets||!items.length){finishAdventureReset([]);return;}
+ const chosenCounts={};
+ const selectedCount=()=>Object.values(chosenCounts).reduce((a,b)=>a+b,0);
+ const showChoices=()=>{
+  const chosenNames=Object.entries(chosenCounts).filter(([,n])=>n>0).map(([id,n])=>SHOP_ITEMS.find(x=>x.id===id).name+' ×'+n);
+  partyOverlay('🎫 리셋 아이템 계승', '계승권 '+tickets+'장 · 선택 '+selectedCount()+'/'+tickets+'개\\n중요 아이템·계승권은 계승할 수 없어.\\n선택: '+(chosenNames.join(', ')||'없음'),[
+   ...items.map(item=>({
+    text:item.icon+' '+item.name+' · 보유 '+inventory[item.id]+'개 · 계승 '+(chosenCounts[item.id]||0)+'개',
+    disabled:selectedCount()>=tickets&&!(chosenCounts[item.id]>0),
+    action:()=>{
+     const old=chosenCounts[item.id]||0;
+     if(old>=inventory[item.id]||old>=tickets)chosenCounts[item.id]=0;
+     else if(selectedCount()<tickets)chosenCounts[item.id]=old+1;
+     else chosenCounts[item.id]=0;
+     showChoices();
+    }
+   })),
+   {text:'✅ 선택 완료 · 리셋 진행 ('+selectedCount()+'/'+tickets+'개)',action:()=>{
+    const selected=Object.entries(chosenCounts).flatMap(([id,n])=>Array(n).fill(id));
+    finishAdventureReset(selected);
+   }},
+   {text:'취소',action:()=>{}}
+  ]);
+ };
+ showChoices();
 }
 function requestAdventureReset(){
  if(needsStarterSelection||animating||learningBusy)return;
  const used=resetUsage();
  if(used>=RESET_LIMIT){partyOverlay('오늘 리셋 횟수 소진','하루 최대 20회까지 리셋할 수 있어. 한국 시간 자정에 다시 이용할 수 있어.',[{text:'확인'}]);return;}
- partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼. 정말 리셋할까?',[
+ const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
+ partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\\n도감 · 업적 · 명예의전당은 영구 유지돼.\\n계승권 '+tickets+'장: 다음 화면에서 계승 아이템 선택 가능.\\n중요 아이템은 계승되지 않아. 정말 리셋할까?',[
   {text:'취소'},
-  {text:'리셋 확정',action:()=>{
-   try{
-    rememberPermanent();
-    localStorage.setItem(RESET_USAGE_KEY,JSON.stringify({day:todayKST(),count:used+1}));
-    // Retain the original adventure as an emergency snapshot.
-    const previous=localStorage.getItem(SAVE_KEY);
-    if(previous!==null)localStorage.setItem(SAVE_KEY+'-before-reset',previous);
-   }catch(e){alert('데이터 백업에 실패해서 리셋을 중단했어.');return;}
-   const keep=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}');
-   capturedPokemon=keep.captures||[];caughtSpecies=new Set(keep.caughtSpecies||[]);
-   seenPokemon=new Set(keep.seenPokemon||[]);hallOfFame=keep.hallOfFame||[];redHallOfFame=keep.redHallOfFame||[];
-   // The permanent collection survives; new badges and story start from zero.
-   localStorage.setItem('poketama-2-reset-pending-v1','yes');needsStarterSelection=true;adventureResetPending=true;showStarterSelection();
-  }}
+  {text:'리셋 진행',action:chooseInheritanceForReset}
  ]);
 }
 function setup(){
