@@ -231,7 +231,7 @@ function pickWeightedReward(candidates,context){
  }
  return weighted.findLast(entry=>entry.weight>0)?.choice||null;
 }
-function drawThreeRewards(level,count=rewardChoiceCount()){
+function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
  const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
@@ -242,7 +242,7 @@ function drawThreeRewards(level,count=rewardChoiceCount()){
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
-  const roll=Math.random()*100,tier=roll<74?'normal':roll<94.4?'rare':roll<99.2?'hyper':'legendary';
+  const roll=Math.random()*100,tier=gym?(roll<48?'normal':roll<88.8?'rare':roll<98.4?'hyper':'legendary'):(roll<74?'normal':roll<94.4?'rare':roll<99.2?'hyper':'legendary');
   const choice=pickWeightedReward(pool[tier].map(c=>({...c,tier})),context);
   if(!choice)throw new Error('해당 등급에 선택 가능한 보상이 없습니다: '+tier);
   return {tier,...choice};
@@ -1061,7 +1061,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+trainerMoney+'원 획득');
   lastBattleReward={exp:gained,money:trainerMoney};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
+  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory,!!GYM_BADGES[battleKind]),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
  }else{
   if(battle.result==='defeat')earnAchievement('firstLoss');if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -1606,7 +1606,7 @@ function rerollRewards(){
  saveAchievements();
  if(achievementData.rerolls>=50)earnAchievement('reroll50');
  if(cost>=10000)earnAchievement('reroll10000');
- pendingRewardChoice.choices=drawThreeRewards(Math.max(...teamMembers().map(m=>m.level)),pendingRewardChoice.choices.length);
+ pendingRewardChoice.choices=drawThreeRewards(Math.max(...teamMembers().map(m=>m.level)),pendingRewardChoice.choices.length,!!pendingRewardChoice.gym);
  pendingRewardChoice.rerolls++;
  saveProgress();
  showRewardChoices();
