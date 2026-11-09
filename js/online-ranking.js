@@ -87,7 +87,7 @@ function openModal(snapshot){
  const close=el('button','online-ranking-close','✕');close.type='button';close.setAttribute('aria-label','닫기');close.onclick=()=>{document.querySelector('.online-ranking-party-overlay')?.remove();overlay.remove();overlay=null;};head.append(close);panel.append(head);
  panel.append(el('p','online-ranking-intro','한번 정한 닉네임은 변경할 수 없습니다. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송됩니다.'));
  const tabs=el('div','online-ranking-tabs');
- for(const [key,label] of [['dex','도감'],['achievements','업적'],['hall','명예의 전당']]){
+ for(const [key,label] of [['dex','도감'],['achievements','업적'],['hall','명예의 전당'],['hall2','명예의전당2']]){
   const b=el('button','',label);b.type='button';b.onclick=()=>{tab=key;refresh(snapshot);};b.dataset.tab=key;tabs.append(b);
  }
  panel.append(tabs);
@@ -112,7 +112,7 @@ function openModal(snapshot){
 async function refresh(snapshot){
  if(!overlay)return;
  overlay.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
- overlay.querySelector('#onlineRankingStarter').hidden=tab!=='hall';
+ overlay.querySelector('#onlineRankingStarter').hidden=!['hall','hall2'].includes(tab);
  overlay.querySelectorAll('[data-starter]').forEach(b=>{
   const active=b.dataset.starter===selectedStarter;
   b.classList.toggle('active',active);
@@ -123,7 +123,8 @@ async function refresh(snapshot){
  if(!configured()){board.replaceChildren(el('p','online-ranking-empty','랭킹 화면 준비 완료 · 서버 설정 후 온라인 순위가 표시돼.'));notice('아직 서버 연결 정보가 등록되지 않았어.',true);return;}
  try{
   const db=await client();let response;
-  if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  if(tab==='hall2')response=await db.from('ranking_hall2_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  else if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
   else {
    const tieField=tab==='dex'?'updated_at':'achievement_reached_at';
    response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order(tieField,{ascending:true}).limit(100);
@@ -139,8 +140,8 @@ async function refresh(snapshot){
   if(!entries.length){board.append(el('p','online-ranking-empty','아직 등록된 기록이 없어. 첫 번째 트레이너가 되어봐!'));return;}
   const {data:{user}}=await db.auth.getUser();
   entries.forEach((item,i)=>{
-   const entry=row(i+1,item.nickname,tab==='hall'?displayAverage(item.level_sum)+' Lv.':tab==='dex'?item.dex_count+'종':item.achievement_count+'개',user?.id===item.user_id);
-   if(tab==='hall'){
+   const entry=row(i+1,item.nickname,['hall','hall2'].includes(tab)?displayAverage(item.level_sum)+' Lv.':tab==='dex'?item.dex_count+'종':item.achievement_count+'개',user?.id===item.user_id);
+   if(['hall','hall2'].includes(tab)){
     entry.classList.add('online-ranking-hall-row');
     const action=el('button','online-ranking-party-button','파티');action.type='button';
     action.setAttribute('aria-label',item.nickname+' 명예의전당 파티 보기');
@@ -163,6 +164,7 @@ async function upload(getSnapshot,button){
   if(!session)throw new Error('트레이너 ID 발급에 실패했어.');
   const record=getSnapshot();
   const {error}=await db.rpc('upload_ranking',{p_nickname:name,p_dex_count:record.dexCount,p_achievement_count:record.achievementCount,p_hall:record.hall});
+  if(!error&&record.hall2?.length){const second=await db.rpc('upload_ranking_hall2',{p_hall2:record.hall2});if(second.error)notice('1차 기록은 전송됐지만 명예의전당2는 서버 설정이 필요해: '+second.error.message,true);}
   if(error)throw error;
   localStorage.setItem(NAME_KEY,name);
   if(overlay)overlay.querySelector('#onlineRankingName').readOnly=true;
