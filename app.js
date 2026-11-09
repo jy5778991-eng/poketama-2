@@ -3361,7 +3361,7 @@ function showInheritanceChoices(){
  const button=(label,fn)=>{const el=document.createElement('button');el.type='button';el.textContent=label;el.style.cssText='min-height:44px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold';el.onclick=fn;return el;};
  const close=()=>overlay.remove();
  const redraw=()=>{
-  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
+  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
   info.style.whiteSpace='pre-line';list.replaceChildren();
   for(const item of items){
    const count=selected.filter(id=>id===item.id).length;
