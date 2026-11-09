@@ -3299,14 +3299,14 @@ function beginNewAdventure(id,fixedIV){
   const budget=Math.min(maxTickets,Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
   const safeCounts={};
   if(Array.isArray(wanted))for(const itemId of wanted.slice(0,budget)){
-   const item=SHOP_ITEMS.find(x=>x.id===itemId&&x.category!=='key');
+   const item=SHOP_ITEMS.find(x=>x.id===itemId&&x.id!=='inheritanceTicket');
    if(!item)continue;
    const available=Number.isInteger(old?.inventory?.[itemId])?old.inventory[itemId]:0;
-   const ceiling=HELD_MAX[itemId]??99;
+   const ceiling=HELD_MAX[itemId]??(item.category==='key'?1:99);
    if((safeCounts[itemId]||0)>=available||(safeCounts[itemId]||0)>=ceiling)continue;
    safeCounts[itemId]=(safeCounts[itemId]||0)+1;
   }
-  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=(inventory[itemId]||0)+count;
+  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
  tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
  registerOwnedStarter(id,1,null,false,false);
@@ -3340,38 +3340,42 @@ function validInheritanceChoices(){
  const limit=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
  const counts={};
  return wanted.filter(id=>{
-  const item=SHOP_ITEMS.find(x=>x.id===id&&x.category!=='key');
+  const item=SHOP_ITEMS.find(x=>x.id===id&&x.id!=='inheritanceTicket');
   if(!item||!inventory[id]||((counts[id]||0)>=inventory[id]))return false;
   counts[id]=(counts[id]||0)+1;return true;
  }).slice(0,limit);
 }
 function showInheritanceChoices(){
  const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- const items=SHOP_ITEMS.filter(item=>item.category!=='key'&&(inventory[item.id]||0)>0);
- if(!tickets||!items.length){
-  partyOverlay('🎫 계승권',tickets?'계승할 수 있는 아이템이 없어.':'보유 중인 계승권이 없어.',[{text:'확인',action:requestAdventureReset}]);return;
- }
+ const items=SHOP_ITEMS.filter(item=>(HELD_ITEMS.includes(item.id)||item.category==='key')&&item.id!=='inheritanceTicket'&&(inventory[item.id]||0)>0);
  let selected=validInheritanceChoices();
- const showChoices=()=>{
-  const chosenCounts={};for(const id of selected)chosenCounts[id]=(chosenCounts[id]||0)+1;
-  const chosenNames=Object.entries(chosenCounts).map(([id,n])=>SHOP_ITEMS.find(x=>x.id===id).name+' ×'+n);
-  partyOverlay('🎫 계승 아이템 선택','계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n선택: '+(chosenNames.join(', ')||'없음'),[
-   ...items.map(item=>({
-    text:item.icon+' '+item.name+' · 보유 '+inventory[item.id]+'개 · 계승 '+(chosenCounts[item.id]||0)+'개',
-    disabled:selected.length>=tickets&&!(chosenCounts[item.id]>0),
-    action:()=>{
-     const old=chosenCounts[item.id]||0;
-     if(old>=inventory[item.id])selected=selected.filter(id=>id!==item.id);
-     else if(selected.length<tickets)selected.push(item.id);
-     else selected=selected.filter(id=>id!==item.id);
-     showChoices();
-    }
-   })),
-   {text:'선택 완료',action:()=>{localStorage.setItem(INHERITANCE_CHOICE_KEY,JSON.stringify(selected));requestAdventureReset();}},
-   {text:'취소',action:requestAdventureReset}
-  ]);
+ const prior=document.getElementById('inheritanceChoiceOverlay');if(prior)prior.remove();
+ const overlay=document.createElement('div');overlay.id='inheritanceChoiceOverlay';
+ overlay.style.cssText='position:fixed;inset:0;z-index:100005;background:#0009;overflow-y:auto;padding:5vh 14px;display:flex;align-items:flex-start;justify-content:center';
+ const panel=document.createElement('section');panel.style.cssText='background:white;color:#293e59;border:3px solid #405675;border-radius:18px;padding:18px;max-width:480px;width:100%;box-sizing:border-box';
+ const title=document.createElement('h2');title.textContent='🎫 계승 아이템 선택';panel.append(title);
+ const info=document.createElement('p');panel.append(info);
+ const list=document.createElement('div');list.style.cssText='display:grid;gap:8px;max-height:55vh;overflow-y:auto';panel.append(list);
+ const controls=document.createElement('div');controls.style.cssText='display:grid;gap:8px;margin-top:14px';panel.append(controls);
+ const button=(label,fn)=>{const el=document.createElement('button');el.type='button';el.textContent=label;el.style.cssText='min-height:44px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold';el.onclick=fn;return el;};
+ const close=()=>overlay.remove();
+ const redraw=()=>{
+  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
+  info.style.whiteSpace='pre-line';list.replaceChildren();
+  for(const item of items){
+   const count=selected.filter(id=>id===item.id).length;
+   const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;border:1px solid #ccd4df;border-radius:10px;padding:8px';
+   const img=document.createElement('img');img.src=itemSpriteUrl(item.id);img.alt='';img.style.cssText='width:32px;height:32px;object-fit:contain';img.onerror=()=>{img.replaceWith(document.createTextNode(item.icon||'🎁'));};row.append(img);
+   const name=document.createElement('span');name.textContent=item.name+' · 보유 '+inventory[item.id]+'개';name.style.cssText='flex:1;font-size:14px';row.append(name);
+   const minus=button('−',()=>{const at=selected.indexOf(item.id);if(at>=0)selected.splice(at,1);redraw();});minus.disabled=count===0;
+   const number=document.createElement('strong');number.textContent=String(count);number.style.minWidth='20px';number.style.textAlign='center';
+   const plus=button('+',()=>{if(selected.length<tickets&&count<inventory[item.id])selected.push(item.id);redraw();});plus.disabled=selected.length>=tickets||count>=inventory[item.id];
+   row.append(minus,number,plus);list.append(row);
+  }
+  if(!items.length){const empty=document.createElement('p');empty.textContent='보유 중인 계승 가능 아이템이 없어.';list.append(empty);}
+  controls.replaceChildren(button('선택 저장',()=>{try{localStorage.setItem(INHERITANCE_CHOICE_KEY,JSON.stringify(selected));close();if(document.getElementById('partyActionOverlay'))requestAdventureReset();}catch(e){alert('계승 선택을 저장하지 못했어.');}}),button('취소',close));
  };
- showChoices();
+ redraw();overlay.append(panel);document.body.append(overlay);
 }
 function chooseInheritanceForReset(){finishAdventureReset(validInheritanceChoices());}
 function requestAdventureReset(){
@@ -3383,7 +3387,7 @@ function requestAdventureReset(){
  const names=selected.map(id=>SHOP_ITEMS.find(x=>x.id===id)?.name||id);
  const counts={};for(const name of names)counts[name]=(counts[name]||0)+1;
  const summary=Object.entries(counts).map(([name,n])=>name+(n>1?' ×'+n:'')).join(', ')||'없음';
- partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아. 정말 리셋할까?',[
+ partyOverlay('모험 전체 리셋','남는 일일 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아. 정말 리셋할까?',[
   {text:'취소'},
   {text:'리셋 진행',action:chooseInheritanceForReset},
   {text:'계승권',disabled:tickets===0,action:showInheritanceChoices}
