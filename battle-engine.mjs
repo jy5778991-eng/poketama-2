@@ -101,9 +101,7 @@ function applyAttackDamage(b,target,damage){
   say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
   emit(b,{type:'focusSash',side:sideOf(b,target)});
  }else target.hp=Math.max(0,hp-damage);
- const inflicted=hp-target.hp;
- activateSitrusBerry(b,target);
- return inflicted;
+ return hp-target.hp;
 }
 function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
@@ -149,14 +147,14 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
         const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
-        emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
+        emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
       }
       say(b,`총 ${landed}회 명중!`);
     }else{
       const {damage,critical}=move.oneHitKo?{damage:target.hp,critical:false}:move.currentHpFraction?{damage:Math.max(1,Math.floor(target.hp*move.currentHpFraction)),critical:false}:damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
     const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;
-    emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});
+    emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
     if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
     }
