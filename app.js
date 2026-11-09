@@ -1740,7 +1740,7 @@ function claimRewardChoice(index){
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(heldCount(choice.id,m.key)>0?' · '+heldCount(choice.id,m.key)+'개 장착 중':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id),action:()=>{
+   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(heldCount(choice.id,m.key)>0?' · '+heldCount(choice.id,m.key)+'개 장착 중':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id)||(choice.id==='eviolite'&&!EVOLVABLE_DEX.has(m.dex)),action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -2036,9 +2036,19 @@ function chooseRecoveryTarget(item){
   normalizeLivingLead();saveProgress();renderHome();renderInventory();
  }})),{text:'취소',action:()=>{}}]);
 }
+function inheritanceTicketLimit(){return Math.min(10,3+hallOfFame.length);}
+function inheritanceTicketPrice(){const owned=inventory.inheritanceTicket||0;return owned===0?20000:owned===1?40000:60000+20000*(owned-1);}
+function buyInheritanceTicket(){
+ if(!hallOfFame.length)return;
+ const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
+ if(owned>=limit||progress.money<price)return;
+ progress.money-=price;inventory.inheritanceTicket=owned+1;
+ appendAdventureLog('🎫 계승권 '+inventory.inheritanceTicket+'/'+limit+'장 구매 ('+price.toLocaleString('ko-KR')+'원)');
+ saveProgress();renderHome();renderInventory();
+}
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';/* Preserve the user's page scroll position when switching between home and battle. */if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
