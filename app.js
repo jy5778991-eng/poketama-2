@@ -477,7 +477,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
  const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
  const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(10,value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(20,value):i.category==='key'?Math.min(1,value):value];
 }));
 inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
@@ -2038,8 +2038,8 @@ function chooseRecoveryTarget(item){
   normalizeLivingLead();saveProgress();renderHome();renderInventory();
  }})),{text:'취소',action:()=>{}}]);
 }
-function inheritanceTicketLimit(){return Math.min(10,3+hallOfFame.length);}
-function inheritanceTicketPrice(){const purchased=Math.max(0,Number(inventory.inheritanceTicketPurchases??inventory.inheritanceTicket)||0);return purchased===0?20000:purchased===1?40000:80000+20000*(purchased-2);}
+function inheritanceTicketLimit(){return Math.min(20,3+hallOfFameEntries('first').length+hallOfFameEntries('second').length);}
+function inheritanceTicketPrice(){const purchased=Math.max(0,Number(inventory.inheritanceTicketPurchases??inventory.inheritanceTicket)||0);return Math.min(300000,50000*(Math.floor((purchased+1)/2)+1));}
 function buyInheritanceTicket(){
  if(!hallOfFame.length)return;
  const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
@@ -3088,7 +3088,7 @@ function hallPartySnapshot(){
  return teamMembers().slice(0,3).map(m=>{
   const ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
   return {name:m.name,dex:m.dex,level:m.level,
-   hp:memberHp(m),exp:m.starter?progress.exp:m.exp||0,
+   hp:memberMaxHp(m),exp:m.starter?progress.exp:m.exp||0,
    ivs:{...ivs},evs:{...evs},moves:[...(m.starter?playerMoves:m.moves||[])],
    stats:calculateStats(memberBase(m),m.level,ivs,evs)};
  });
@@ -3296,7 +3296,7 @@ function beginNewAdventure(id,fixedIV){
  try{
   const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
   const wanted=JSON.parse(localStorage.getItem(INHERITANCE_PENDING_KEY)||'[]');
-  const maxTickets=Math.min(10,3+(Array.isArray(old?.hallOfFame)?old.hallOfFame.length:0));
+  const maxTickets=Math.min(20,3+hallOfFameEntries('first').length+hallOfFameEntries('second').length);
   const budget=Math.min(maxTickets,Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
   const safeCounts={};
   if(Array.isArray(wanted))for(const itemId of wanted.slice(0,budget)){
