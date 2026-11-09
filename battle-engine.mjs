@@ -84,6 +84,16 @@ function canAct(p,b){
   return true;
 }
 function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transformOriginal;f.stats={...o.stats};f.moveIds=[...o.moveIds];f.pp={...o.pp};f.stages={...o.stages};f.transformOriginal=null;f.transformDex=null;}
+function activateSitrusBerry(b,fighter){
+ if(!fighter.sitrusBerryEnabled||fighter.hp<=0||fighter.hp>Math.floor(fighter.stats.hp/2))return;
+ fighter.sitrusBerryEnabled=false;
+ const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.20)));
+ if(amount>0){
+  fighter.hp+=amount;
+  say(b,`${fighter.name}의 자뭉열매 발동! HP ${amount} 회복!`);
+  emit(b,{type:'heal',side:sideOf(b,fighter),amount,hp:fighter.hp,heldItem:'sitrusBerry'});
+ }
+}
 function applyAttackDamage(b,target,damage){
  const hp=target.hp;
  if(hp>0&&damage>=hp&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<(target.focusSashChance??0.3)){
@@ -91,7 +101,9 @@ function applyAttackDamage(b,target,damage){
   say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
   emit(b,{type:'focusSash',side:sideOf(b,target)});
  }else target.hp=Math.max(0,hp-damage);
- return hp-target.hp;
+ const inflicted=hp-target.hp;
+ activateSitrusBerry(b,target);
+ return inflicted;
 }
 function executeMove(b,user,target,moveId,fromSleepTalk=false){
   if(!isAlive(user))return;
@@ -198,6 +210,9 @@ function activateRevivalSeed(b,fighter){
 }
 function settle(b){
   const p=b.player,e=activeEnemy(b);
+  // Also trigger berries if poison/burn brought a living Pokemon below half HP.
+  activateSitrusBerry(b,e);
+  activateSitrusBerry(b,p);
   // Also handle knockouts caused by end-of-turn residual damage.
   activateRevivalSeed(b,e);
   activateRevivalSeed(b,p);
