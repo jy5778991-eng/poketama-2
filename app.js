@@ -3480,7 +3480,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261104-starter-buttons262');openOnlineRanking(()=>{
+ $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261109-hall2');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
@@ -3494,7 +3494,10 @@ function setup(){
    const sum=party.reduce((n,p)=>n+p.level,0),current=best.get(r.starter);
    if(!current||sum<current.sum)best.set(r.starter,{starter:r.starter,party,sum});
   }
-  return {dexCount:caught.size,achievementCount:achievementData.earned.length,hall:[...best.values()].map(({starter,party})=>({starter,party}))};
+  const red=[...redHallOfFame,...(Array.isArray(permanent.redHallOfFame)?permanent.redHallOfFame:[])];
+  const bestRed=new Map();
+  for(const r of red){if(!STARTERS.some(st=>st.id===r?.starter)||!Array.isArray(r.party)||r.party.length!==3)continue;const party=r.party.map(p=>({name:String(p.name||'포켓몬').slice(0,32),dex:Number(p.dex)||0,level:Number(p.level)}));if(!party.every(p=>Number.isInteger(p.level)&&p.level>=1&&p.level<=100))continue;const sum=party.reduce((n,p)=>n+p.level,0),current=bestRed.get(r.starter);if(!current||sum<current.sum)bestRed.set(r.starter,{starter:r.starter,party,sum});}
+  return {dexCount:caught.size,achievementCount:achievementData.earned.length,hall:[...best.values()].map(({starter,party})=>({starter,party})),hall2:[...bestRed.values()].map(({starter,party})=>({starter,party}))};
  });}catch(e){alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));}});
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
