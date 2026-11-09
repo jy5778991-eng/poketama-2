@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261106-crit-triple';
+import {moveDescription} from './js/data/moves.js?v=20261109-growl-tm20';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261109-rest-status-fix';
