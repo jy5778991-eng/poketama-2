@@ -88,7 +88,7 @@ test('held item limits, save guard and synchronized HP setter remain present',()
 });
 
 test('TM balance changes remain consistent across all reward settings',()=>{
- const expected={tm04:[8,60,'normal',1],tm05:[22,60,'rare',1],tm06:[22,60,'rare',1],tm07:[22,60,'rare',1],tm08:[10,70,'rare',1],tm09:[20,69,'rare',1],tm10:[18,59,'rare',1],tm12:[15,39,'hyper',1],tm15:[12,49,'hyper',1],tm18:[40,100,'legendary',1],tm19:[45,100,'legendary',1]};
+ const expected={tm04:[8,60,'normal',1],tm05:[22,60,'rare',1],tm06:[22,60,'rare',1],tm07:[22,60,'rare',1],tm08:[10,70,'rare',1],tm09:[16,69,'hyper',1],tm10:[18,59,'rare',1],tm12:[15,39,'hyper',1],tm15:[12,49,'hyper',1],tm18:[40,100,'legendary',1],tm19:[45,100,'legendary',1]};
  for(const [id,[min,max,tier,weight]] of Object.entries(expected)){
   const cfg=config[id];assert.equal(cfg.minLevel,min,id+' min');assert.equal(cfg.maxLevelExclusive,max+1,id+' max');assert.equal(cfg.tier??'normal',tier,id+' tier');assert.equal(cfg.weight??1,weight,id+' weight');
  }
