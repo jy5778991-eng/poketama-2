@@ -476,7 +476,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
  const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
  const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:START_INVENTORY[i.id];
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(10,value):i.category==='key'?Math.min(1,value):value];
 }));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
  const oldLensOwners=id==='wideLens'?[...(Array.isArray(saved?.battleItemHolders?.wideLensA)?saved.battleItemHolders.wideLensA:[]),...(Array.isArray(saved?.battleItemHolders?.wideLensB)?saved.battleItemHolders.wideLensB:[])]:null;
@@ -3339,7 +3339,7 @@ function chooseInheritanceForReset(){
  const selectedCount=()=>Object.values(chosenCounts).reduce((a,b)=>a+b,0);
  const showChoices=()=>{
   const chosenNames=Object.entries(chosenCounts).filter(([,n])=>n>0).map(([id,n])=>SHOP_ITEMS.find(x=>x.id===id).name+' ×'+n);
-  partyOverlay('🎫 리셋 아이템 계승', '계승권 '+tickets+'장 · 선택 '+selectedCount()+'/'+tickets+'개\\n중요 아이템·계승권은 계승할 수 없어.\\n선택: '+(chosenNames.join(', ')||'없음'),[
+  partyOverlay('🎫 리셋 아이템 계승', '계승권 '+tickets+'장 · 선택 '+selectedCount()+'/'+tickets+'개\n중요 아이템·계승권은 계승할 수 없어.\n선택: '+(chosenNames.join(', ')||'없음'),[
    ...items.map(item=>({
     text:item.icon+' '+item.name+' · 보유 '+inventory[item.id]+'개 · 계승 '+(chosenCounts[item.id]||0)+'개',
     disabled:selectedCount()>=tickets&&!(chosenCounts[item.id]>0),
@@ -3365,7 +3365,7 @@ function requestAdventureReset(){
  const used=resetUsage();
  if(used>=RESET_LIMIT){partyOverlay('오늘 리셋 횟수 소진','하루 최대 20회까지 리셋할 수 있어. 한국 시간 자정에 다시 이용할 수 있어.',[{text:'확인'}]);return;}
  const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\\n도감 · 업적 · 명예의전당은 영구 유지돼.\\n계승권 '+tickets+'장: 다음 화면에서 계승 아이템 선택 가능.\\n중요 아이템은 계승되지 않아. 정말 리셋할까?',[
+ partyOverlay('모험 전체 리셋','남은 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: 다음 화면에서 계승 아이템 선택 가능.\n중요 아이템은 계승되지 않아. 정말 리셋할까?',[
   {text:'취소'},
   {text:'리셋 진행',action:chooseInheritanceForReset}
  ]);
