@@ -203,7 +203,7 @@ function rewardWeight(choice,context){
    if(id==='leftovers')return inventory.leftovers>=4?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
    if(id==='expShare')return inventory.expShare>=4?0:4;
-   if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?1:2;
+   if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:4;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
   if(id==='map')return inventory.map!==1?2:0;
@@ -2861,10 +2861,8 @@ function closeDeveloper(){
  $('developerPassword').value='';$('developerError').textContent='';$('developerSaveError').textContent='';
 }
 function openDeveloper(){
- if(animating||learningBusy)return;
- $('developerOverlay').hidden=false;$('developerLogin').hidden=false;$('developerEditor').hidden=true;
- $('developerError').textContent='';$('developerSaveError').textContent='';
- $('developerPassword').value='';$('developerPassword').focus();
+ // Temporarily disabled: keep the button visible but do nothing.
+ return;
 }
 const DEVELOPER_CLEAR_FLAGS=[
  ['blue','그린 1차'],['brock','웅'],['misty','이슬이'],['greenReturn','그린 2차'],
