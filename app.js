@@ -1716,7 +1716,7 @@ function tmSelectionOptions(targets,actionFor){
  return teamMembers().map(m=>({
   member:m,tmStatus:eligible.has(m.key)?'가능':'불가능',
   disabled:!eligible.has(m.key),
-  action:()=>actionFor(m)
+  action:actionFor(m)
  }));
 }
 function completeInstantRecoveryReward(choice,details){
