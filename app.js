@@ -2543,6 +2543,34 @@ async function playSwitchBallAnimation(onArrive,recall=false){
   playerSprite.classList.remove('party-recalling','party-sprite-hidden','party-entering');
  }
 }
+async function playEnemyReplacementAnimation(onArrive){
+ const arena=document.querySelector('#battleScreen .arena');
+ const enemySprite=document.querySelector('#battleScreen .sprite.enemy');
+ if(!arena||!enemySprite){onArrive();return;}
+ const ball=document.createElement('img');
+ ball.className='replacement-pokeball enemy-replacement-pokeball';
+ ball.alt='';ball.setAttribute('aria-hidden','true');
+ ball.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png';
+ try{
+  enemySprite.classList.remove('party-entering','party-fainted');
+  enemySprite.classList.add('party-fainted');
+  await pause(500);
+  enemySprite.classList.add('party-sprite-hidden');
+  enemySprite.classList.remove('party-fainted');
+  arena.append(ball);
+  void ball.offsetWidth;
+  ball.classList.add('replacement-pokeball-throw');
+  await pause(570);
+  onArrive();
+  ball.classList.add('replacement-pokeball-open');
+  enemySprite.classList.remove('party-sprite-hidden');
+  enemySprite.classList.add('party-entering');
+  await pause(440);
+ }finally{
+  ball.remove();
+  enemySprite.classList.remove('party-fainted','party-sprite-hidden','party-entering');
+ }
+}
 async function sendOutReplacement(m){
  if(!battle||memberHp(m)<=0||battle.ended||animating)return;
  animating=true;
@@ -2852,10 +2880,12 @@ async function act(a){
   const enemy=battle.enemies[battle.enemyIndex];
   // Every trainer, including Elite Four, champion, Rocket bosses and Red:
   // a Pokemon is discovered only when it actually appears.
-  registerEncounter(enemy.dex);
-  $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='LV '+enemy.level;
-  sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):rivalForm(blueChoice,7).dex,false,'⚔️');
-  shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);renderEnemyHeldItems(enemy);
+  await playEnemyReplacementAnimation(()=>{
+   registerEncounter(enemy.dex);
+   $('enemyName').textContent=enemy.name;$('enemyLevel').textContent='LV '+enemy.level;
+   sprite('enemySprite',enemy.id.startsWith('trainer-')?Number(enemy.id.slice(8)):rivalForm(blueChoice,7).dex,false,'⚔️');
+   shownHp.enemy=enemy.hp;displayHp('enemy',enemy.hp);renderEnemyHeldItems(enemy);
+  });
  }
   if(battle.ended){
     battleRoster.set(activeBattleKey,battle.player);
