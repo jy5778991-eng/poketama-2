@@ -3,7 +3,7 @@ import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
-export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,onMapUse,partyMembers=[],expShareActive=false,onExpShareToggle,inheritanceTicketLimit=3,inheritanceTicketUnlocked=false,inheritanceTicketPrice=20000,onInheritanceTicketBuy}){
+export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,onMapUse,partyMembers=[],expShareActive=false,onExpShareToggle,inheritanceTicketLimit=3,inheritanceTicketUnlocked=false,inheritanceTicketPrice=20000,onInheritanceTicketBuy,onInheritanceTicketUse}){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
@@ -57,13 +57,14 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
     if(ticket){onInheritanceTicketBuy?.();return;}
     if(inventory[item.id]>=stockLimit||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<price)return;
     progress.money-=price;inventory[item.id]=unique?1:inventory[item.id]+1;
-    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy});
+    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy,onInheritanceTicketUse});
    };
    row.append(buy);
   }else if(item.category==='key'){
    if(item.id==='expShare'&&inventoryMode==='bag'&&inventory.expShare){const toggle=document.createElement('button');toggle.type='button';toggle.className='shop-buy';toggle.textContent=expShareActive?'비활성':'활성';toggle.onclick=()=>onExpShareToggle?.();row.append(toggle);}
+    if(item.id==='inheritanceTicket'&&inventoryMode==='bag'&&inventory.inheritanceTicket){const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';use.onclick=()=>onInheritanceTicketUse?.();row.append(use);}
     if(item.id==='map'&&inventoryMode==='bag'&&inventory.map){const use=document.createElement('button');use.type='button';use.className='shop-buy';use.textContent='사용';use.onclick=()=>onMapUse?.();row.append(use);}
-   const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=item.id==='inheritanceTicket'?'보유 '+(inventory[item.id]||0)+'장 / '+inheritanceTicketLimit+'장':inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
+   const status=document.createElement('button');status.type='button';status.className='shop-buy';status.textContent=inventory[item.id]?'보유':'미보유';status.disabled=true;status.classList.toggle('item-missing',!inventory[item.id]);row.append(status);
   }else if(heldItems.includes(item.id)){
    const equipped=(battleItemHolders[item.id]||[]).length;
    description.textContent=item.description;
