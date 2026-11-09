@@ -52,7 +52,7 @@ async function showHallParty(item){
   try{
    const db=await client();
    // Older leaderboard views can omit party details. Try optional public records.
-   for(const table of ['ranking_hall_records','ranking_hall']){
+   for(const table of (tab==='hall2'?['ranking_hall2']:['ranking_hall_records','ranking_hall'])){
     const response=await db.from(table).select('*').eq('user_id',item.user_id).eq('starter',item.starter).limit(20);
     if(response.error)continue;
     const matched=(response.data||[]).filter(r=>Number(r.level_sum)===Number(item.level_sum)
@@ -164,11 +164,12 @@ async function upload(getSnapshot,button){
   if(!session)throw new Error('트레이너 ID 발급에 실패했어.');
   const record=getSnapshot();
   const {error}=await db.rpc('upload_ranking',{p_nickname:name,p_dex_count:record.dexCount,p_achievement_count:record.achievementCount,p_hall:record.hall});
-  if(!error&&record.hall2?.length){const second=await db.rpc('upload_ranking_hall2',{p_hall2:record.hall2});if(second.error)notice('1차 기록은 전송됐지만 명예의전당2는 서버 설정이 필요해: '+second.error.message,true);}
+  let hall2Error=null;
+  if(!error&&record.hall2?.length){const second=await db.rpc('upload_ranking_hall2',{p_hall2:record.hall2});hall2Error=second.error;}
   if(error)throw error;
   localStorage.setItem(NAME_KEY,name);
   if(overlay)overlay.querySelector('#onlineRankingName').readOnly=true;
-  notice('업데이트 완료! 서버에 저장한 기록으로 순위를 다시 불러왔어.');
+  notice(hall2Error?'기본 기록은 저장됐지만 명예의전당2는 서버 SQL 적용이 필요해: '+hall2Error.message:'업데이트 완료! 서버에 저장한 기록으로 순위를 다시 불러왔어.',!!hall2Error);
   await refresh(getSnapshot);
  }catch(e){notice(e.code==='23505'?'이미 사용 중인 닉네임이야. 다른 이름을 선택해줘.':e.message||'업데이트 실패',true);}
  finally{button.disabled=false;}
