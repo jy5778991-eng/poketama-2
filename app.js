@@ -1549,7 +1549,7 @@ function rewardChoiceName(choice){
  if(choice.kind==='maxReviveReward')return '기력의덩어리';
  if(choice.kind==='sacredAshReward')return '성스러운 분말';
  if(choice.kind==='silverCap')return '은색 병뚜껑';
- if(choice.kind==='ev')return (({hp:'맥스업',attack:'타우린',defense:'사포닌',speed:'알칼로이드'})[choice.stat]||'영양제')+(choice.amount===30?' ×3':choice.amount===40?' ×4':'');
+ if(choice.kind==='ev')return (({hp:'맥스업',attack:'타우린',defense:'사포닌',speed:'알칼로이드'})[choice.stat]||'영양제')+(choice.amount===24?' ×3':choice.amount===40?' ×4':'');
  if(choice.kind==='exp')return '경험치 사탕';
  if(choice.kind==='power')return BOOST_INFO[choice.effect||'attack']?.name||'플러스파워';
  if(choice.kind==='cash')return '추가 상금';
