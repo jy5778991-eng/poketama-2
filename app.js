@@ -336,7 +336,7 @@ setEeveeForm(saved?.eeveeForm||null);
 setGengarEvolved(saved?.gengarEvolved===true || (saved?.gengarEvolved===undefined&&saved?.id==='gengar'&&saved?.level>=40));
 setRaichuEvolved(saved?.raichuEvolved===true || (saved?.raichuEvolved===undefined&&saved?.id==='raichu'&&saved?.level>=30));
 let animatingEnemy=null; // Keep the defeated opponent's HP denominator until hit animation finishes.
-let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money??500};
+let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money??1000};
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
 let leagueStage=Number.isInteger(saved?.leagueStage)&&saved.leagueStage>=0&&saved.leagueStage<5?saved.leagueStage:null;
 let hallOfFame=Array.isArray(saved?.hallOfFame)?saved.hallOfFame.slice(-100):[];
@@ -3337,7 +3337,7 @@ function beginNewAdventure(id,fixedIV){
   // Only a Destiny Knot actually inherited from the previous run affects the new egg.
   if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;earnAchievement('hatchMaxIV');checkIVAchievement(playerIVs);}
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
- tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:500};
+ tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:1000};
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');localStorage.removeItem(INHERITANCE_PENDING_KEY);
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
