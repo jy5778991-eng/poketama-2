@@ -32,18 +32,18 @@ let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.fi
 const TM02_DEX=new Set([106,107,56,57,66,67,68,61,62,4,5,6,7,8,9,34,31,115,143,25,26,104,105,112,126,150,151]);
 let tm02Learned=Array.isArray(readSave()?.tm02Learned)?readSave().tm02Learned.filter(k=>typeof k==='string'):[];
 function tm02Targets(){return teamMembers().filter(m=>m.level>=28&&m.level<=60&&TM02_DEX.has(m.dex)&&!tm02Learned.includes(m.key));}
-function tm01Targets(){return teamMembers().filter(m=>m.level>=25&&m.level<=60&&TM01_DEX.has(m.dex)&&!tm01Learned.includes(m.key));}
+function tm01Targets(){return teamMembers().filter(m=>m.level>=22&&m.level<=60&&TM01_DEX.has(m.dex)&&!tm01Learned.includes(m.key));}
 
 // TM03–TM19: eligibility uses each compatible party member's own level, not the party maximum.
 const EXTRA_TM_CONFIG={
  tm03:{number:'03',name:'마구할퀴기',moveId:'furySwipes',minLevel:9,maxLevelExclusive:61,dex:[52,53,56,57,46,47,4,5,6,27,28,34,31,115,123]},
- tm04:{number:'04',name:'바위깨기',moveId:'rockSmash',minLevel:10,maxLevelExclusive:61,dex:[66,67,68,56,57,106,107,34,31,74,75,76,95,112,104,105,115,143,127,150,151]},
- tm05:{number:'05',name:'번개펀치',moveId:'thunderPunch',minLevel:25,maxLevelExclusive:61,dex:[125,107,66,67,68,56,57,34,31,115,143,112,150,151,172,25,26]},
- tm06:{number:'06',name:'불꽃펀치',moveId:'firePunch',minLevel:25,maxLevelExclusive:61,dex:[126,107,66,67,68,56,57,34,31,115,143,112,150,151,4,5,6]},
- tm07:{number:'07',name:'냉동펀치',moveId:'icePunch',minLevel:25,maxLevelExclusive:61,dex:[124,107,66,67,68,56,57,34,31,115,143,112,150,151,7,8,9]},
- tm08:{number:'08',name:'진흙뿌리기',moveId:'mudSlap',minLevel:10,maxLevelExclusive:101,tier:'rare',dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,27,28,29,30,31,32,33,34,50,51,52,53,54,55,60,61,62,74,75,76,79,80,83,84,85,95,98,99,104,105,115,133,134,135,136,196,197,150,151]},
- tm09:{number:'09',name:'그로우펀치',moveId:'powerUpPunch',minLevel:25,maxLevelExclusive:70,tier:'rare',dex:[4,5,6,7,8,9,173,35,36,174,39,40,54,55,56,57,66,67,68,74,75,76,88,89,96,97,106,107,108,115,113,122,124,125,126,446,143,149,150,151]},
- tm10:{number:'10',name:'돌진',moveId:'takeDown',minLevel:20,maxLevelExclusive:60,tier:'rare',dex:[1,2,3,19,20,58,59,21,22,77,78,111,112,115,120,121,133,134,135,136,196,197,147,148,149]},
+ tm04:{number:'04',name:'바위깨기',moveId:'rockSmash',minLevel:8,maxLevelExclusive:61,dex:[66,67,68,56,57,106,107,34,31,74,75,76,95,112,104,105,115,143,127,150,151]},
+ tm05:{number:'05',name:'번개펀치',moveId:'thunderPunch',minLevel:22,maxLevelExclusive:61,tier:'rare',dex:[125,107,66,67,68,56,57,34,31,115,143,112,150,151,172,25,26]},
+ tm06:{number:'06',name:'불꽃펀치',moveId:'firePunch',minLevel:22,maxLevelExclusive:61,tier:'rare',dex:[126,107,66,67,68,56,57,34,31,115,143,112,150,151,4,5,6]},
+ tm07:{number:'07',name:'냉동펀치',moveId:'icePunch',minLevel:22,maxLevelExclusive:61,tier:'rare',dex:[124,107,66,67,68,56,57,34,31,115,143,112,150,151,7,8,9]},
+ tm08:{number:'08',name:'진흙뿌리기',moveId:'mudSlap',minLevel:10,maxLevelExclusive:71,tier:'rare',dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,27,28,29,30,31,32,33,34,50,51,52,53,54,55,60,61,62,74,75,76,79,80,83,84,85,95,98,99,104,105,115,133,134,135,136,196,197,150,151]},
+ tm09:{number:'09',name:'그로우펀치',moveId:'powerUpPunch',minLevel:20,maxLevelExclusive:70,tier:'rare',dex:[4,5,6,7,8,9,173,35,36,174,39,40,54,55,56,57,66,67,68,74,75,76,88,89,96,97,106,107,108,115,113,122,124,125,126,446,143,149,150,151]},
+ tm10:{number:'10',name:'돌진',moveId:'takeDown',minLevel:18,maxLevelExclusive:60,tier:'rare',dex:[1,2,3,19,20,58,59,21,22,77,78,111,112,115,120,121,133,134,135,136,196,197,147,148,149]},
  tm11:{number:'11',name:'날개쉬기',moveId:'roost',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[6,12,15,16,17,18,21,22,41,42,169,49,83,84,85,123,142,144,145,146,149,151]},
  tm12:{number:'12',name:'애교부리기',moveId:'charm',minLevel:10,maxLevelExclusive:40,tier:'hyper',weight:1,dex:[1,2,3,172,25,26,173,35,36,174,39,40,37,38,43,44,45,52,53,58,59,113,133,134,135,136,196,197,131,151]},
  tm13:{number:'13',name:'싫은소리',moveId:'screech',minLevel:20,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[174,39,40,41,42,169,52,53,72,73,81,82,95,104,105,90,91,109,110,140,141,151]},
@@ -51,11 +51,11 @@ const EXTRA_TM_CONFIG={
  tm15:{number:'15',name:'전기자석파',moveId:'thunderWave',minLevel:15,maxLevelExclusive:50,tier:'hyper',weight:1,dex:[19,20,172,25,26,173,35,36,63,64,65,79,80,81,82,92,93,94,100,101,113,120,121,125,135,147,148,149]},
  tm16:{number:'16',name:'초음파',moveId:'supersonic',minLevel:10,maxLevelExclusive:50,tier:'rare',weight:1,dex:[12,41,42,169,81,82,48,49]},
  tm17:{number:'17',name:'인파이트',moveId:'closeCombat',minLevel:45,maxLevelExclusive:101,tier:'hyper',weight:1,dex:[56,57,58,59,62,66,67,68,83,106,107,123,212,128,151]},
- tm18:{number:'18',name:'빛의장막',moveId:'lightScreen',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:2,dex:[172,25,26,63,64,65,173,35,36,174,39,40,150,151,122,121,79,80,135,37,38,145,100,101,102,103]},
- tm19:{number:'19',name:'칼춤',moveId:'swordsDance',minLevel:45,maxLevelExclusive:101,tier:'legendary',weight:2,dex:[4,5,6,15,27,28,46,47,83,84,85,72,73,98,99,104,105,123,127,136,141,151,212]},
- // Lv.5-50; rare tier, weight 2. Snorlax and Dragonite families excluded from Growl.
- tm20:{number:'20',name:'울음소리',moveId:'growl',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:2,dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,29,30,31,32,33,34,172,25,26,133,134,135,136,196,197,174,39,40,173,35,36,37,38,58,59,77,78,79,80,131]},
- tm21:{number:'21',name:'째려보기',moveId:'leer',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:2,dex:[21,22,16,17,18,19,20,56,57,32,33,34,29,30,31,4,5,6,7,8,9,66,67,68,27,28,50,51,23,24,58,59,52,53,104,105,95,208,123,212,127,128,115,129,130,147,148,149]}
+ tm18:{number:'18',name:'빛의장막',moveId:'lightScreen',minLevel:40,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[172,25,26,63,64,65,173,35,36,174,39,40,150,151,122,121,79,80,135,37,38,145,100,101,102,103]},
+ tm19:{number:'19',name:'칼춤',moveId:'swordsDance',minLevel:45,maxLevelExclusive:101,tier:'legendary',weight:1,dex:[4,5,6,15,27,28,46,47,83,84,85,72,73,98,99,104,105,123,127,136,141,151,212]},
+ // Lv.5-50; rare tier, weight 1. Snorlax and Dragonite families excluded from Growl.
+ tm20:{number:'20',name:'울음소리',moveId:'growl',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:1,dex:[1,2,3,4,5,6,7,8,9,16,17,18,19,20,21,22,29,30,31,32,33,34,172,25,26,133,134,135,136,196,197,174,39,40,173,35,36,37,38,58,59,77,78,79,80,131]},
+ tm21:{number:'21',name:'째려보기',moveId:'leer',minLevel:5,maxLevelExclusive:51,tier:'rare',weight:1,dex:[21,22,16,17,18,19,20,56,57,32,33,34,29,30,31,4,5,6,7,8,9,66,67,68,27,28,50,51,23,24,58,59,52,53,104,105,95,208,123,212,127,128,115,129,130,147,148,149]}
 };
 const extraTmDex=Object.fromEntries(Object.entries(EXTRA_TM_CONFIG).map(([key,config])=>[key,new Set(config.dex)]));
 let extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,Array.isArray(readSave()?.extraTmLearned?.[key])?readSave().extraTmLearned[key].filter(v=>typeof v==='string'):[]]));
@@ -1474,7 +1474,7 @@ function openRecall(){
 function openRecallList(){openRecall();}
 
 function rewardChoiceText(choice){
- if(choice.kind==='tm01')return '기술머신01.메가톤펀치 · 위력 80 / 명중 80% · 즉시 사용 · Lv.25 이상 지정 포켓몬에게 가르친다.';
+ if(choice.kind==='tm01')return '기술머신01.메가톤펀치 · 위력 80 / 명중 80% · 즉시 사용 · Lv.22~60 지정 포켓몬에게 가르친다.';
  if(choice.kind==='tm02')return '기술머신02.메가톤킥 · 위력 110 / 명중 75% · 즉시 사용 · Lv.28 이상 지정 포켓몬에게 가르친다.';
  if(EXTRA_TM_CONFIG[choice.kind]){const c=EXTRA_TM_CONFIG[choice.kind],m=MOVES[c.moveId];return extraTmLabel(choice.kind)+' · '+moveDescription(c.moveId).replace(/\n/g,' · ')+' · 즉시 사용 · Lv.'+c.minLevel+'~'+((c.maxLevelExclusive??101)-1)+' 지정 포켓몬에게 가르친다.';}
  if(choice.kind==='item'&&choice.id==='memoryMushroom')return '기술관리에 필요하다.';
