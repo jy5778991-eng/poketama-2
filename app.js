@@ -3176,7 +3176,7 @@ function showArchivedHallParty(record,selectedIndex=0){
   pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>{pic.style.visibility='hidden';};};
   const data=document.createElement('div');data.className='party-summary-info';
   const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+(m.level||'?');
-  data.append(name,meter('HP',m.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
+  data.append(name,meter('HP',m.stats?.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
   button.append(pic,data);
   button.onclick=()=>showArchivedHallParty(record,i);
   cards.append(button);
