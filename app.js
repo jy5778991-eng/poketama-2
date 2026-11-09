@@ -520,13 +520,30 @@ let playerMoves=isValidMoves(chosen,progress.level,saved?.moves)?[...saved.moves
 let learningBusy=false;
 function renderStatPanel(){
  const m=screen==='battle'?activeMember():leaderMember(),ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{},grid=$('statGrid'),stats=calculateStats(memberBase(m),m.level,ivs,evs);
+ // Show permanent item effects without changing the underlying stats or combat damage.
+ // Use the same multipliers as makeMemberFighter, excluding temporary battle boosts.
+ const itemMultipliers={
+  hp:1,
+  attack:attackItemMultiplier(m),
+  defense:1+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0),
+  speed:1+magnetSpeedBonus(m)
+ };
  grid.replaceChildren(...STAT_KEYS.map(key=>{
   const card=document.createElement('div');card.className='stat-card';
   const head=document.createElement('div');head.className='stat-compact-head';
   const label=document.createElement('span');label.className='stat-name';label.textContent=STAT_LABELS[key];
   const star=document.createElement('span');star.className='iv-star iv-'+ivTier(ivs[key]);star.textContent='★';
   star.setAttribute('aria-label','개체값 등급');
-  const value=document.createElement('div');value.className='stat-value';value.textContent=String(stats[key]);
+  const base=stats[key],effective=Math.floor(base*itemMultipliers[key]),bonus=effective-base;
+  const value=document.createElement('div');value.className='stat-value';
+  value.textContent=String(effective);
+  if(bonus>0){
+   const extra=document.createElement('span');
+   extra.textContent=' (+'+bonus+')';
+   extra.style.cssText='font-size:0.65em;color:#16a34a;font-weight:700;white-space:nowrap';
+   extra.title='기본 능력치 '+base+' + 아이템 효과 '+bonus;
+   value.append(extra);
+  }
   head.append(label,star);card.append(head,value);return card;
  }));
 }
@@ -2283,7 +2300,7 @@ function manageHeldItem(id){
    };
    const minus=button('−',count===0,()=>{
     const index=battleItemHolders[id].indexOf(member.key);if(index<0)return;
-    battleItemHolders[id].splice(index,1);saveProgress();renderInventory();update();
+    battleItemHolders[id].splice(index,1);saveProgress();renderStatPanel();renderInventory();update();
    });
    const amount=document.createElement('strong');amount.textContent=count+'/'+limit;amount.style.minWidth='34px';amount.style.textAlign='center';
    const plus=button('+',count>=limit||available===0||(id==='eviolite'&&!EVOLVABLE_DEX.has(member.dex)),()=>{
