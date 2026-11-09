@@ -1105,7 +1105,7 @@ function showChallengeUnlockNotice(){
 function nextRocketTrainerKind(){return !trainerClears.rocketApollo?'rocketApollo':!trainerClears.rocketAthena?'rocketAthena':!trainerClears.rocketGiovanni?'rocketGiovanni':null;}
 function challengeTrainer(){
  const rocketChallenge=area==='rocketBase'&&hallOfFame.length>0;
- if(hallOfFame.length>0&&!rocketChallenge){showMap();return;}
+ if(hallOfFame.length>0&&blueCleared&&!rocketChallenge){showMap();return;}
  const kind=rocketChallenge?nextRocketTrainerKind():nextTrainerKind();
  if(!livingMembers().length||pendingRewardChoice||learningBusy||animating||pendingTrainerIntro)return;
  if(!kind)return;
@@ -2581,21 +2581,21 @@ function renderHome(){
  const regionHasChallenge=currentRegionKinds.includes(trainerKind)&&(area===latestMapRegion()||(area==='city'&&trainerKind==='greenFourth'));
  const challengeDisabled=!livingMembers().length||!!pendingRewardChoice||!unlocked||finalArea||!regionHasChallenge;
  // Champion Road 2 has the Pokémon League instead of a trainer/gym challenge.
- $('trainerChallenge').hidden=(area==='championRoad2'&&hallOfFame.length===0)||(area==='mountSilver'&&hallOfFame.length>0&&redHallOfFame.length===0);
- $('trainerChallenge').disabled=area==='championRoad2'||(hallOfFame.length>0?false:challengeDisabled);
+ $('trainerChallenge').hidden=(area==='championRoad2'&&!(hallOfFame.length>0&&blueCleared))||(area==='mountSilver'&&(hallOfFame.length>0&&blueCleared)&&redHallOfFame.length===0);
+ $('trainerChallenge').disabled=area==='championRoad2'||((hallOfFame.length>0&&blueCleared)?false:challengeDisabled);
  const redButton=$('redChallenge');
- redButton.hidden=area!=='mountSilver'||!hallOfFame.length||redHallOfFame.length>0;
+ redButton.hidden=area!=='mountSilver'||!(hallOfFame.length>0&&blueCleared)||redHallOfFame.length>0;
  redButton.disabled=progress.level<90||!livingMembers().length||!!pendingRewardChoice||animating;
  $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
- $('trainerButtonTitle').textContent=hallOfFame.length?'🗺️ 지역 이동':'도전';
- $('leagueEnter').hidden=area!=='championRoad2'||hallOfFame.length>0;
- $('leagueEnter').disabled=area!=='championRoad2'||hallOfFame.length>0||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
+ $('trainerButtonTitle').textContent=(hallOfFame.length>0&&blueCleared)?'🗺️ 지역 이동':'도전';
+ $('leagueEnter').hidden=area!=='championRoad2'||(hallOfFame.length>0&&blueCleared);
+ $('leagueEnter').disabled=area!=='championRoad2'||(hallOfFame.length>0&&blueCleared)||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
  $('leagueRecords').hidden=false; // Always show both Hall of Fame tabs, even before first victory.
- $('trainerChallenge').classList.toggle('adventure-ready',hallOfFame.length>0||unlocked&&!challengeDisabled);
- $('trainerChallenge').classList.toggle('adventure-locked',hallOfFame.length===0&&(!unlocked||finalArea));
- if(hallOfFame.length===0)$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
- $('trainerButtonNote').textContent=hallOfFame.length>0?'지역 이동 버튼에서 선택':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'석영고원 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 석영고원 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
- if(area==='rocketBase'&&hallOfFame.length>0){
+ $('trainerChallenge').classList.toggle('adventure-ready',(hallOfFame.length>0&&blueCleared)||unlocked&&!challengeDisabled);
+ $('trainerChallenge').classList.toggle('adventure-locked',!(hallOfFame.length>0&&blueCleared)&&(!unlocked||finalArea));
+ if(!(hallOfFame.length>0&&blueCleared))$('trainerButtonTitle').textContent=!regionHasChallenge?'🏅 현재 지역 도전 완료':finalArea?'🏅 관장 도전 완료':trainerKind==='blue'||trainerKind==='greenReturn'||trainerKind==='greenThird'||trainerKind==='greenFourth'||trainerKind==='greenFifth'?'⚔ 그린에게 도전':trainerKind==='brock'?'🪨 웅에게 도전':trainerKind==='misty'?'💧 이슬이에게 도전':trainerKind==='erika'?'🌸 민화에게 도전':trainerKind==='koga'?'☠️ 독수에게 도전':trainerKind==='sabrina'?'🔮 초련에게 도전':trainerKind==='giovanni'?'🌍 비주기에게 도전':trainerKind==='blaine'?'🔥 강연에게 도전':'⚡ 마티즈에게 도전';
+ $('trainerButtonNote').textContent=(hallOfFame.length>0&&blueCleared)?'지역 이동 버튼에서 선택':!regionHasChallenge?'도전하려면 최신 지역 '+(mapRegion(latestMapRegion())?.[1]||'')+'(으)로 돌아가야 합니다.':finalArea?(area==='championRoad2'?'석영고원 탐험':'관장 도전 완료'):!unlocked?'Lv.'+targetLevel+'에 해금':!livingMembers().length?'치료 후 재도전':pendingRewardChoice?'보상 선택 후 도전':trainerKind==='greenFifth'?'승리하면 석영고원 개방':trainerKind==='misty'?'승리하면 호수공원 개방':(trainerKind==='greenReturn'||trainerKind==='greenFourth')?'승리해도 지역은 그대로':trainerKind==='greenThird'?'승리하면 무지개시티 개방':trainerKind==='erika'?'승리하면 자전거도로 개방':trainerKind==='koga'?'승리하면 노랑시티 개방':trainerKind==='giovanni'?'승리하면 챔피언로드 개방':trainerKind==='blaine'?'승리하면 이상한 숲 개방':trainerKind==='sabrina'?'승리하면 바다 개방':trainerKind==='surge'?'승리하면 공동묘지 개방':'승리하면 '+(trainerKind==='blue'?'숲':'동굴')+' 개방';
+ if(area==='rocketBase'&&(hallOfFame.length>0&&blueCleared)){
   const rocketKind=nextRocketTrainerKind();
   const rocketTrainer=rocketKind?TRAINERS[rocketKind]:null;
   const rocketLevelReady=!!rocketTrainer&&teamMembers().some(m=>m.level>=rocketTrainer.level);
