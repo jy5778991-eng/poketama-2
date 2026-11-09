@@ -46,7 +46,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
    const ticket=item.id==='inheritanceTicket';
    const unique=!ticket&&(item.category==='key'||item.unique);
-   const stockLimit=ticket?inheritanceTicketLimit:unique?1:99;
+   const stockLimit=ticket?inheritanceTicketLimit:['eviolite','sitrusBerry'].includes(item.id)?5:unique?1:99;
    const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
    const locked=ticket&&!inheritanceTicketUnlocked;
    const price=ticket?inheritanceTicketPrice:item.price;
