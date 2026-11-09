@@ -1711,6 +1711,14 @@ function choosePermanentTarget(choice,autoMember=null){
   {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
  ]);
 }
+function tmSelectionOptions(targets,actionFor){
+ const eligible=new Set(targets.map(m=>m.key));
+ return teamMembers().map(m=>({
+  member:m,tmStatus:eligible.has(m.key)?'가능':'불가능',
+  disabled:!eligible.has(m.key),
+  action:()=>actionFor(m)
+ }));
+}
 function completeInstantRecoveryReward(choice,details){
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice)+(details?' · '+details:''));
  injured=!livingMembers().length;
@@ -1730,7 +1738,7 @@ function claimRewardChoice(index){
   if(!targets.length){alert(extraTmLabel(kind)+'을 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('📀 '+extraTmLabel(kind),'기술을 가르칠 포켓몬을 선택해. 사용 즉시 소모돼.',[
-   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:async()=>{
+   ...tmSelectionOptions(targets,m=>async()=>{
     if(!pendingRewardChoice||!extraTmTargets(kind).some(x=>x.key===m.key)){showRewardChoices();return;}
     const moves=recallMemberMoves(m);
     if(!moves.includes(cfg.moveId)){
@@ -1745,7 +1753,7 @@ function claimRewardChoice(index){
     if(!extraTmLearned[kind].includes(m.key))extraTmLearned[kind].push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }})),
+   }),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
@@ -1755,7 +1763,7 @@ function claimRewardChoice(index){
   if(!targets.length){alert('기술머신02를 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('📀 기술머신02.메가톤킥','기술을 가르칠 포켓몬을 선택해. 사용 즉시 소모돼.',[
-   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:async()=>{
+   ...tmSelectionOptions(targets,m=>async()=>{
     if(!pendingRewardChoice||!tm02Targets().some(x=>x.key===m.key)){showRewardChoices();return;}
     const moves=recallMemberMoves(m);
     if(!moves.includes('megaKick')){
@@ -1770,7 +1778,7 @@ function claimRewardChoice(index){
     if(!tm02Learned.includes(m.key))tm02Learned.push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }})),
+   }),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
@@ -1780,7 +1788,7 @@ function claimRewardChoice(index){
   if(!targets.length){alert('기술머신01을 가르칠 수 있는 미습득 포켓몬이 없어.');showRewardChoices();return;}
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('📀 기술머신01.메가톤펀치','기술을 가르칠 포켓몬을 선택해. 사용 즉시 소모돼.',[
-   ...targets.map(m=>({text:m.name+' Lv.'+m.level,action:async()=>{
+   ...tmSelectionOptions(targets,m=>async()=>{
     if(!pendingRewardChoice||!tm01Targets().some(x=>x.key===m.key)){showRewardChoices();return;}
     const moves=recallMemberMoves(m);
     if(!moves.includes('megaPunch')){
@@ -1795,7 +1803,7 @@ function claimRewardChoice(index){
     if(!tm01Learned.includes(m.key))tm01Learned.push(m.key);
     if(m.starter)updateBattleMoves();
     completeInstantRecoveryReward(choice,m.name+' 습득');
-   }})),
+   }),
    {text:'취소',action:showRewardChoices}
   ]);
   return;
@@ -2412,6 +2420,7 @@ function partyOverlay(title,description,choices){
   button.style.cssText='min-height:48px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold;font-size:16px;padding:8px';
   if(option.member){
    button.classList.add('recovery-target-option');
+   if(option.tmStatus)button.classList.add('tm-target-option');
    if(option.showExp)button.classList.add('exp-target-option');
    const m=option.member,hp=memberHp(m),max=memberMaxHp(m);
    const sprite=document.createElement('img');sprite.className='recovery-target-sprite';sprite.src=staticImage(m.dex,false);sprite.alt='';
@@ -2426,7 +2435,15 @@ function partyOverlay(title,description,choices){
    const status=document.createElement('span');status.className='recovery-target-count';
    status.textContent=exp?('EXP '+(m.level>=100?'MAX':earned+' / '+needed)):'HP '+hp+'/'+max+(hp===0?' · 기절':'');
    if(!exp&&hp===0)status.classList.add('recovery-target-fainted');
-   details.append(name,gauge,status);button.append(sprite,details);
+   if(option.tmStatus){
+    const eligibility=document.createElement('span');
+    eligibility.className='tm-target-status';
+    eligibility.textContent=option.tmStatus;
+    details.append(name,eligibility);
+    button.append(sprite,details);
+   }else{
+    details.append(name,gauge,status);button.append(sprite,details);
+   }
   }else button.textContent=option.text;
   button.disabled=option.disabled===true;
   if(button.disabled){button.style.opacity='0.45';button.style.cursor='not-allowed';if(option.reason)button.title=option.reason;}
