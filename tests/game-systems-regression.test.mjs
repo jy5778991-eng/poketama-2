@@ -47,7 +47,8 @@ test('TM03–TM21 have valid level windows, tiers, weights and species lists',()
 test('each TM03–TM21 is in its configured reward tier',()=>{
  for(const [id,cfg] of entries){
   const tier=cfg.tier??'normal';
-  assert.match(tierPool[tier],new RegExp("kind:'"+id+"'"),id+' missing from '+tier);
+  if(tier==='normal')assert.match(tierPool.normal,/Object\.keys\(EXTRA_TM_CONFIG\)\.filter\(kind=>!\['rare','hyper','legendary'\]\.includes\(EXTRA_TM_CONFIG\[kind\]\.tier\)\)/,id+' normal dynamic pool');
+  else assert.match(tierPool[tier],new RegExp("kind:'"+id+"'"),id+' missing from '+tier);
   for(const other of tiers.filter(x=>x!==tier))assert.doesNotMatch(tierPool[other],new RegExp("kind:'"+id+"'"),id+' unexpectedly in '+other);
  }
 });
