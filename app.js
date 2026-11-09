@@ -1448,7 +1448,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유 시 불꽃 타입 포켓몬의 공격력이 15% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5%p 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='mysticWater')return '💧 신비의 물방울 · 보유 시 물 타입 포켓몬의 방어력이 10% 증가한다. (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='silverPowder')return '✨ 은빛가루 · 보유하고 있는 벌레 포켓몬의 방어력이 15%, 공격력이 10% 증가한다. (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='silverPowder')return '✨ 은빛가루 · 보유시 벌레 포켓몬의 방어력이 15%, 공격력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='sharpBeak')return '🪶 예리한 부리 · 보유 시 비행 타입 포켓몬의 공격력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='magnet')return '🧲 자석 · 보유 시 전기 타입 포켓몬의 공격력이 10%, 스피드가 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
@@ -1466,7 +1466,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
  if(choice.kind==='heal')return choice.full?'❤️ 즉시 HP 100% 회복':(choice.icon||'🧪')+' 즉시 HP '+choice.amount+' 회복';
  const item=SHOP_ITEMS.find(x=>x.id===choice.id);
- return (item?.icon||'🎁')+' '+(item?.name||'아이템')+' ×'+choice.quantity;
+ return (item?.icon||'🎁')+' '+(item?.name||'아이템')+(choice.quantity>1?' ×'+choice.quantity:'')+(item?.description?' · '+item.description:'');
 }
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
