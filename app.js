@@ -1223,7 +1223,7 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=[trainerFighter('꼬마돌',74,11,{hp:40,attack:80,defense:75,speed:20}),trainerFighter('롱스톤',95,12,{hp:35,attack:45,defense:123,speed:70})];
   battleOpponent='brock';
  }else if(kind==='misty'){
-  enemies=[trainerFighter('별가사리',120,15,{hp:30,attack:70,defense:55,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,17,{hp:60,attack:100,defense:85,speed:115},['waterPulse','swift'])];
+  enemies=[trainerFighter('별가사리',120,15,{hp:30,attack:70,defense:55,speed:85},['tackle','waterGun']),trainerFighter('아쿠스타',121,17,{hp:60,attack:100,defense:85,speed:115},['tackle','waterGun','bubbleBeam'])];
   // 아쿠스타: Oran Berry is both displayed and active in battle.
   {const ace=enemies[enemies.length-1];ace.oranBerryEnabled=true;ace.heldItemCounts={...(ace.heldItemCounts||{}),oranBerry:1};}
   battleOpponent='misty';
