@@ -7,7 +7,7 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261109-zapdos-forest';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261109-slot-prices-v2';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261109-inheritance-ticket-help';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -3370,7 +3370,7 @@ function showInheritanceChoices(){
  const button=(label,fn)=>{const el=document.createElement('button');el.type='button';el.textContent=label;el.style.cssText='min-height:44px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold';el.onclick=fn;return el;};
  const close=()=>overlay.remove();
  const redraw=()=>{
-  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
+  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n계승권은 리셋해도 소모되지 않습니다.\n보유한 계승권 수만큼 아이템을 선택해 다음 회차로 가져갈 수 있습니다.\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
   info.style.whiteSpace='pre-line';list.replaceChildren();
   for(const item of items){
    const count=selected.filter(id=>id===item.id).length;
