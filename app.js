@@ -1378,7 +1378,13 @@ function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null,conf
   const skip=$('learnMoveSkip');skip.hidden=!allowSkip;
   skip.textContent=confirmRecall?'교체 취소':'새 기술을 배우지 않는다';
   skip.onclick=()=>finish(null);
+  // TM reward dialogs must appear above the battle/reward overlays.
+  layer.style.zIndex='100010';
+  layer.style.position='fixed';
+  layer.style.inset='0';
   layer.hidden=false;
+  layer.removeAttribute('hidden');
+  document.body.append(layer);
  });
 }
 function showLearnedMoveNotice(name,id){
