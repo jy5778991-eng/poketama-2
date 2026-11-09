@@ -1,4 +1,4 @@
-import {MOVES} from './moves.js?v=20261109-growl-tm20';
+import {MOVES} from './moves.js?v=20261110-tm99';
 // Extracted from the original app.js; save data and game rules stay compatible.
 export const STARTERS=[
 {id:'eevee',name:'이브이',form:'이브이',dex:133,baby:133,base:{hp:55,attack:55,defense:58,speed:55},moves:['tackle','quickAttack','bite','swift'],emoji:'🦊'},
