@@ -1221,7 +1221,7 @@ function reset(kind='wild',recordDiscovery=true){
   const n=Number(kind.slice(6));
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
   if(n>=0&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
-  if(n===4){const rival=rivalForm(blueChoice,75);enemies.push(trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id)))}
+  if(n===4){const rival=rivalForm(blueChoice,75);const ace=trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id));ace.sitrusBerryEnabled=true;ace.focusSashEnabled=true;ace.focusSashCount=4;ace.focusSashChance=0.20;ace.focusSashUsed=false;ace.heldItemCounts={...(ace.heldItemCounts||{}),sitrusBerry:1,focusSash:4};enemies.push(ace)}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
   const rivalPokemon=rivalForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
