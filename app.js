@@ -3297,12 +3297,13 @@ function beginNewAdventure(id,fixedIV){
  for(const k of Object.keys(activeBoosts))activeBoosts[k]=[];
  inventory={...START_INVENTORY};
  inventory.inheritanceTicketPurchases=Math.max(0,Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
- // Inheritance is paid for with tickets from the previous life; key items never carry over.
+ // Tickets are permanent across resets; selected items carry over only when backed by tickets.
  try{
   const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
   const wanted=JSON.parse(localStorage.getItem(INHERITANCE_PENDING_KEY)||'[]');
   const maxTickets=Math.min(20,3+hallOfFameEntries('first').length+hallOfFameEntries('second').length);
   const budget=Math.min(maxTickets,Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
+  inventory.inheritanceTicket=budget;
   const safeCounts={};
   if(Array.isArray(wanted))for(const itemId of wanted.slice(0,budget)){
    const item=SHOP_ITEMS.find(x=>x.id===itemId&&x.id!=='inheritanceTicket');
@@ -3525,7 +3526,7 @@ function setup(){
  }
  const egg=document.createElement('button');egg.type='button';egg.className='starter starter-egg';egg.dataset.id='egg';
  egg.innerHTML='<img alt="" src="'+document.getElementById('starterEggImage').src+'"><span>포켓몬 알</span>';
- egg.onclick=()=>{beginNewAdventure((()=>{const weights={venusaur:19,charizard:19,blastoise:19,raichu:15,butterfree:12,gengar:9,snorlax:5.5,dragonite:1.5};let roll=Math.random()*100;for(const [id,weight] of Object.entries(weights)){roll-=weight;if(roll<0)return id;}return 'venusaur';})(),false);if(!needsStarterSelection)recordEggHatch();};
+ egg.onclick=()=>{beginNewAdventure((()=>{const weights={venusaur:16,charizard:16,blastoise:16,raichu:11,eevee:11,butterfree:9,gengar:7,gyarados:7,snorlax:5.5,dragonite:1.5};let roll=Math.random()*100;for(const [id,weight] of Object.entries(weights)){roll-=weight;if(roll<0)return id;}return 'venusaur';})(),false);if(!needsStarterSelection)recordEggHatch();};
  box.append(egg);
  $('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
