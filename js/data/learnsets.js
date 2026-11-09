@@ -47,7 +47,7 @@ export const FAMILY_LEARNSETS={
   {"level":50,"id":"earthquake"}
  ],
  "onix": [{level:1,id:'tackle'}, {level:20,id:'rockThrow'}, {level:26,id:'ironDefense'}, {level:32,id:'rockSlide'}, {level:40,id:'crunch'}, {level:48,id:'earthquake'}, {level:56,id:'agility'}, {level:64,id:'doubleEdge'}],
- "staryu": [{level:1,id:'tackle'}, {level:10,id:'waterGun'}, {level:17,id:'bubbleBeam'}, {level:25,id:'swift'}, {level:36,id:'hpRecover'}, {level:40,id:'surf'}, {level:55,id:'hydroPump'}, {level:57,id:'psychic'}],
+ "staryu": [{level:1,id:'tackle'}, {level:10,id:'waterGun'}, {level:17,id:'bubbleBeam'}, {level:25,id:'swift'}, {level:36,id:'hpRecover'}, {level:40,id:'surf'}, {level:55,id:'hydroPump'}, {level:49,id:'lightScreen'}, {level:65,id:'psychic'}],
  "voltorb": [
   {"level":1,"id":"tackle"},
   {"level":10,"id":"thunderShock"},
