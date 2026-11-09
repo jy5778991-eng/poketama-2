@@ -119,3 +119,16 @@ test('rare and hyper EV reward amounts are 8 and 24',()=>{
  assert.match(tierPool.rare,/kind:'ev',stat,amount:8,icon:'💊'/);
  assert.match(tierPool.hyper,/kind:'ev',stat,amount:24,icon:'💊'/);
 });
+
+test('four EV vitamins cost 8000, are in healing shop, and have a usable EV target flow',()=>{
+ const items=readFileSync(new URL('../js/data/items.js',import.meta.url),'utf8');
+ const inventory=readFileSync(new URL('../js/inventory.js',import.meta.url),'utf8');
+ for(const [id,name,stat] of [['vitaminHp','맥스업','hp'],['vitaminAttack','타우린','attack'],['vitaminDefense','사포닌','defense'],['vitaminSpeed','알칼로이드','speed']]){
+  assert.match(items,new RegExp('"id":"'+id+'","name":"'+name+'","price":8000'));
+  assert.match(items,new RegExp('"category":"heal","evStat":"'+stat+'","evAmount":8'));
+ }
+ assert.match(app,/function chooseVitaminTarget\(item\)/);
+ assert.match(app,/100-ev\[stat\],240-Object\.values\(ev\)/);
+ assert.match(inventory,/item\.evStat\?chooseVitaminTarget:chooseRecoveryTarget/);
+ assert.match(inventory,/\(inventory\[item\.id\]\|\|0\)\+1/);
+});
