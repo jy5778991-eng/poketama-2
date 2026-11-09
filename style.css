@@ -309,3 +309,13 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 .party-summary-name-row{display:flex;align-items:center;flex-wrap:wrap;gap:4px;min-width:0}
 .party-summary-name-row strong{margin-right:2px}
 .party-summary-held-icon{display:inline-flex;width:18px;height:18px;object-fit:contain;flex:0 0 18px;vertical-align:middle;font-size:15px;align-items:center;justify-content:center}
+
+/* Trainer replacement: faint, throw from the opponent's side, then materialize. */
+#battleScreen .sprite.enemy.party-fainted{animation:enemy-party-faint .5s ease-in forwards}
+#battleScreen .sprite.enemy.party-sprite-hidden{opacity:0!important}
+#battleScreen .sprite.enemy.party-entering{animation:party-appear .44s ease-out both}
+#battleScreen .arena .enemy-replacement-pokeball{left:82%;top:28%}
+#battleScreen .arena .enemy-replacement-pokeball.replacement-pokeball-throw{animation:enemy-party-ball-throw .57s ease-out forwards}
+@keyframes enemy-party-faint{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(26px) scale(.7)}}
+@keyframes enemy-party-ball-throw{0%{opacity:1;transform:translate(0,0) rotate(45deg) scale(.65)}55%{opacity:1;transform:translate(-110%, 70%) rotate(-180deg) scale(1.15)}83%{opacity:1;transform:translate(-185%, 100%) rotate(-330deg) scale(1)}100%{opacity:1;transform:translate(-210%, 110%) rotate(-360deg) scale(1.2)}}
+@media(prefers-reduced-motion:reduce){#battleScreen .sprite.enemy.party-fainted,#battleScreen .sprite.enemy.party-entering,#battleScreen .arena .enemy-replacement-pokeball.replacement-pokeball-throw{animation-duration:.01ms}}
