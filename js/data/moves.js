@@ -5,6 +5,7 @@ export const MOVES = Object.freeze({
   sing:{name:'노래하기',accuracy:0.6,priority:0,inflict:'sleep'},
   charm:{name:'애교부리기',accuracy:1,priority:0,lowerTargetAttack:2},
   growl:{name:'울음소리',accuracy:1,priority:0,lowerTargetAttack:1},
+  honeClaws:{name:'손톱갈기',accuracy:1,priority:0,boosts:{attack:1},target:'self'},
   takeDown:{name:'돌진',power:90,accuracy:0.85,priority:0,recoilDamageFraction:0.10},
   megaKick:{name:'메가톤킥',power:110,accuracy:0.75,priority:0},
   tackle40:{name:'몸통박치기',power:25,accuracy:1,priority:0},
