@@ -1839,7 +1839,7 @@ function claimRewardChoice(index){
   }
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
-   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(heldCount(choice.id,m.key)>0?' · '+heldCount(choice.id,m.key)+'개 장착 중':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id)||(choice.id==='eviolite'&&!EVOLVABLE_DEX.has(m.dex)),action:()=>{
+   ...teamMembers().filter(m=>heldCount(choice.id,m.key)<heldItemPerPokemonLimit(choice.id)&&(choice.id!=='eviolite'||EVOLVABLE_DEX.has(m.dex))).map(m=>({member:m,showHeldItems:true,action:()=>{
     if(!pendingRewardChoice)return;
     inventory[choice.id]++;
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
@@ -2497,7 +2497,23 @@ function partyOverlay(title,description,choices){
     details.append(name,eligibility);
     button.append(sprite,details);
    }else{
-    details.append(name,gauge,status);button.append(sprite,details);
+    if(option.showHeldItems){
+     const hpRow=document.createElement('span');hpRow.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;width:100%';
+     const icons=document.createElement('span');icons.style.cssText='display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0';
+     for(const id of HELD_ITEMS){
+      const count=heldCount(id,m.key);if(!count)continue;
+      const held=SHOP_ITEMS.find(i=>i.id===id);
+      const slot=document.createElement('span');slot.style.cssText='display:inline-flex;align-items:center;gap:1px;position:relative';
+      slot.title=(held?.name||id)+' '+count+'개';
+      const icon=document.createElement('img');icon.src=itemSpriteUrl(id);icon.alt=held?.name||id;icon.width=20;icon.height=20;icon.style.cssText='width:20px;height:20px;object-fit:contain;image-rendering:pixelated';
+      icon.onerror=()=>{icon.replaceWith(document.createTextNode(held?.icon||'🎒'));};
+      slot.append(icon);
+      if(count>1){const quantity=document.createElement('small');quantity.textContent=String(count);quantity.style.cssText='font-size:11px;font-weight:bold';slot.append(quantity);}
+      icons.append(slot);
+     }
+     hpRow.append(status,icons);details.append(name,gauge,hpRow);
+    }else details.append(name,gauge,status);
+    button.append(sprite,details);
    }
   }else button.textContent=option.text;
   button.disabled=option.disabled===true;
