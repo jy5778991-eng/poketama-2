@@ -2784,10 +2784,10 @@ function offerCapturedCompanion(){
      {text:'교체 확정',action:()=>recruit(i)},{text:'취소',action:chooseReplacement}
     ]);
    }})),
-   {text:'동료 교체 취소',action:()=>{}}
+   {text:'뒤로가기',action:showCaptureChoice}
   ]);
  };
- partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 추가 슬롯A를 해금한 뒤 가능해.'),[
+ const showCaptureChoice=()=>partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 추가 슬롯A를 해금한 뒤 가능해.'),[
   {text:'동료로 영입',disabled:!unlocked,reason:'포켓몬 추가 슬롯A 해금 필요',action:()=>{
    const hasSameFamily=teamMembers().some(m=>m.starter?teamFamily(m.dex)===family:m.family===family);
    if(!hasSameFamily&&1+companions.length<limit){recruit(null);return;}
@@ -2796,6 +2796,7 @@ function offerCapturedCompanion(){
   }},
   {text:'도감에만 등록',action:()=>{}}
  ]);
+ showCaptureChoice();
 }
 function checkPartyTypeAchievements(){
  // Credit pre-existing cleared saves and archived champion records, too.
