@@ -164,7 +164,8 @@ function rewardWeight(choice,context){
   const iv=m.starter?playerIVs:companions.find(c=>c.family===m.family)?.ivs;
   return iv&&EV_STATS.every(stat=>iv[stat]>=16);
  });
- if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?3:7);
+ if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?5:7);
+ if(choice.kind==='power')return 5;
  if(choice.kind==='rareCandy')return 4;
  if(choice.kind==='tm01')return tm01Targets().length?1:0;
  if(choice.kind==='tm02')return tm02Targets().length?1:0;
