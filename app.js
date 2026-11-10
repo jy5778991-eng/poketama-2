@@ -893,6 +893,10 @@ async function processPartyGrowth(events){
       const before={dex:member.dex,name:member.name},after={dex:evo[0],name:evo[2]};
       await showEvolutions([{before,after,level}]);
       member.dex=evo[0];member.name=evo[2];
+      // The evolution dialog closes before a companion's new species is committed.
+      // Normalize equipped items again after the actual species change.
+      normalizeHeldItems();
+      renderStatPanel();
       appendAdventureLog('🌟 '+before.name+' → '+after.name+' 진화!');
      }
      const known=learnsetForDex(member.dex)||[];
