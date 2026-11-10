@@ -69,6 +69,7 @@
 
 /* New-adventure selection and safe reset */
 header{display:flex;align-items:center;justify-content:center;gap:14px}
+.game-header-actions{display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:center}
 .game-reset-button{font-size:13px;padding:7px 12px;border:1px solid #a4b4cc;border-radius:9px;background:#fff;color:#405675;font-weight:700}
 .game-reset-button:disabled{opacity:.4}
 .starter-selection-overlay:not([hidden]){position:fixed;inset:0;z-index:12000;display:flex;justify-content:center;align-items:center;background:#12223ce6;padding:18px;overflow-y:auto}
