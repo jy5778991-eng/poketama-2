@@ -183,7 +183,7 @@ export function moveDescription(id){
  boosts(m.boosts,'자신 ');
  boosts(m.boostsOnHit,'자신 ');
  if(m.boostOnHit)effects.push('명중 시 '+Math.round((m.boostChance??1)*100)+'% 확률로 공격·방어·스피드 상승');
- if(m.boostOnKnockout)effects.push('상대 기절 시 능력치 상승');
+ if(m.boostOnKnockout)effects.push('상대 기절 시 공격 3랭크 증가');
  if(m.critMultiplier>1)effects.push('급소 확률 '+m.critMultiplier+'배');
  if(m.inflict)effects.push((STATUS_LABELS[m.inflict]||m.inflict)+' '+Math.round((m.inflictChance??1)*100)+'% 확률');
  if(m.triStatus)effects.push('마비·화상·얼음 중 하나 발생 가능');
