@@ -4,10 +4,10 @@ import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10'
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-thaw-message';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261109-growl-moves';
 
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261109-zapdos-forest';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-berry-descriptions';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-doll-white-flute';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -205,6 +205,8 @@ function rewardWeight(choice,context){
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:4;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
   if(id==='quickClaw')return inventory.quickClaw>=5?0:1;
+  if(id==='clefairyDoll')return inventory.clefairyDoll>=4?0:1;
+  if(id==='whiteFlute')return inventory.whiteFlute>=1?0:1;
    if(id==='shellBell')return inventory.shellBell>=4?0:1;
    if(id==='leftovers')return inventory.leftovers>=4?0:2;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
@@ -243,8 +245,8 @@ function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  const pool={
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm22',icon:'📀'},{kind:'tm05',icon:'📀'},{kind:'tm06',icon:'📀'},{kind:'tm07',icon:'📀'},{kind:'tm08',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'tm20',icon:'📀'},{kind:'tm21',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'item',id:'oranBerry',quantity:1,icon:'🍊'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:8,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
- hyper:[{kind:'tm09',icon:'📀'},{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'maxReviveReward',icon:'🌟'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:24,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'eviolite',quantity:1,icon:'🪨'},{kind:'item',id:'sitrusBerry',quantity:1,icon:'🍊'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ hyper:[{kind:'tm09',icon:'📀'},{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'maxReviveReward',icon:'🌟'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:24,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'eviolite',quantity:1,icon:'🪨'},{kind:'item',id:'sitrusBerry',quantity:1,icon:'🍊'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'clefairyDoll',quantity:1,icon:'🧸'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
+ legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'whiteFlute',quantity:1,icon:'🎶'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -484,7 +486,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
  const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
  const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(21,value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(21,value):i.id==='clefairyDoll'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0),Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
@@ -1205,7 +1207,7 @@ function reset(kind='wild',recordDiscovery=true){
  battleRoster=new Map();
  const s=STARTERS.find(x=>x.id===chosen);
  const form=getForm(chosen,progress.level);
- const wild=kind==='wild'?pickEncounter(area,!!trainerClears.rocketGiovanni):null;
+ const wild=kind==='wild'?pickEncounter(area,!!trainerClears.rocketGiovanni,inventory.whiteFlute>=1):null;
  const cap=area==='grass'?7:area==='forest'?13:area==='cave'?19:area==='lake'?24:area==='cemetery'?27:area==='town'?31:area==='road'?37:area==='city'?44:area==='sea'?48:area==='volcano'?52:area==='strangeForest'?57:area==='championRoad'?62:area==='championRoad2'?75:area==='palletTown'?80:area==='rocketBase'?90:area==='farawayIsland'?90:area==='mountSilver'?100:46;
  const level=Math.max(1,Math.min(cap,leaderMember().level-Math.floor(Math.random()*6)));
  wildEnemy=wild?{...wild,level}:null;
@@ -1591,9 +1593,9 @@ function showRewardChoices(){
  pendingRewardChoice.choices.forEach((choice,index)=>{
   const card=document.createElement('div');
   card.className='reward-choice-item reward-tier-'+choice.tier;
-  const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key';
+  const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key'&&choice.id!=='clefairyDoll';
   const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||unique&&(choice.id==='expShare'?inventory.expShare>=4:inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||(choice.kind==='item'&&choice.id==='clefairyDoll'&&inventory.clefairyDoll>=4)||unique&&(choice.id==='expShare'?inventory.expShare>=4:inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -1977,12 +1979,12 @@ function claimRewardChoice(index){
   storedHp=choice.full?maxHp:Math.min(maxHp,currentHp+choice.amount);
  }else if(choice.kind==='item'&&Object.hasOwn(inventory,choice.id)){
   const item=SHOP_ITEMS.find(item=>item.id===choice.id);
-  if(item?.category==='key'&&choice.id!=='expShare'){
+  if(item?.category==='key'&&!['expShare','clefairyDoll'].includes(choice.id)){
    if(inventory[choice.id]===1 || (choice.id==='partySlotB'&&inventory.partySlotA!==1 || false)){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
-  }else inventory[choice.id]=Math.min(choice.id==='expShare'?4:choice.id==='masterBall'?2:choice.id==='quickBall'?1:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
+  }else inventory[choice.id]=Math.min(choice.id==='expShare'?4:choice.id==='masterBall'?2:choice.id==='quickBall'?1:choice.id==='clefairyDoll'?4:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
  }else return;
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
@@ -2151,7 +2153,7 @@ function chooseRecoveryTarget(item){
  }})),{text:'취소',action:()=>{}}]);
 }
 const INHERITANCE_PRICE_STEPS=[10000,20000,30000,30000,40000,40000,50000,50000,70000,100000,120000,120000,140000,150000,160000];
-const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry']);
+const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry','clefairyDoll']);
 function inheritanceItemEligible(item){return !!item&&item.id!=='inheritanceTicket'&&(HELD_ITEMS.includes(item.id)||item.category==='key');}
 function inheritanceItemCost(id){return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
 function inheritanceSelectionCost(ids){return ids.reduce((sum,id)=>sum+inheritanceItemCost(id),0);}
@@ -2163,7 +2165,7 @@ function sanitizeInheritanceSelection(wanted,available,budget){
   const item=SHOP_ITEMS.find(x=>x.id===id);
   if(!inheritanceItemEligible(item))continue;
   const count=counts[id]||0,held=Math.max(0,Number(available?.[id])||0);
-  const ceiling=HELD_MAX[id]??(item.category==='key'&&id!=='expShare'?1:id==='expShare'?4:99);
+  const ceiling=HELD_MAX[id]??(id==='clefairyDoll'||id==='expShare'?4:item.category==='key'?1:99);
   const cost=inheritanceItemCost(id);
   if(count>=held||count>=ceiling||spent+cost>budget)continue;
   result.push(id);counts[id]=count+1;spent+=cost;
@@ -3487,7 +3489,7 @@ function beginNewAdventure(id,fixedIV){
   const safeSelection=sanitizeInheritanceSelection(wanted,old?.inventory,budget);
   const safeCounts={};
   for(const itemId of safeSelection)safeCounts[itemId]=(safeCounts[itemId]||0)+1;
-  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(itemId==='expShare'?4:SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
+  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(['expShare','clefairyDoll'].includes(itemId)?4:SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
   // Only a Destiny Knot actually inherited from the previous run affects the new egg.
   if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;earnAchievement('hatchMaxIV');checkIVAchievement(playerIVs);}
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
@@ -3607,7 +3609,7 @@ function setup(){
   if(animating||battle.ended||!battle.wild||learningBusy)return;
   const tier=wildEnemy?.tier||(LEGENDARY_DEX.has(wildEnemy.dex)?'legendary':HYPER_DEX.has(wildEnemy.dex)?'hyper':RARE_DEX.has(wildEnemy.dex)?'rare':EVOLVED_DEX.has(wildEnemy.dex)?'evolved':'normal');
   const multiplier={normal:1,evolved:0.8,rare:0.7,hyper:0.5,legendary:0.3}[tier]??1;
-  const chance=Math.max(0,Math.min(100,(80+battle.player.level-wildEnemy.level)*multiplier))/100;
+  const chance=Math.max(0,Math.min(100,(80+battle.player.level-wildEnemy.level)*multiplier+4*Math.min(4,inventory.clefairyDoll||0)))/100;
   if(Math.random()<chance){
    setActiveHp(battle.player.hp);
    battleRoster.set(activeBattleKey,battle.player);
