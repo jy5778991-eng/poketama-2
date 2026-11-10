@@ -3474,7 +3474,7 @@ function beginNewAdventure(id,fixedIV){
   const safeSelection=sanitizeInheritanceSelection(wanted,old?.inventory,budget);
   const safeCounts={};
   for(const itemId of safeSelection)safeCounts[itemId]=(safeCounts[itemId]||0)+1;
-  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
+  for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(itemId==='expShare'?4:SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
   // Only a Destiny Knot actually inherited from the previous run affects the new egg.
   if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;earnAchievement('hatchMaxIV');checkIVAchievement(playerIVs);}
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
