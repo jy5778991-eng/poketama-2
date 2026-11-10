@@ -492,8 +492,7 @@ let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
  const recorded=Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldLensOwners;
  return [id,Array.isArray(recorded)?recorded.filter(x=>typeof x==='string').slice(0,inventory[id]):Array(Math.max(0,Math.min(99,Number(inventory[id])||0))).fill('starter')];
 }));
-// Slot B only makes sense when slot A has been unlocked.
-if(inventory.partySlotB)inventory.partySlotA=1;
+// Slot B may be inherited independently, but only activates after slot A is unlocked.
 // Lens B is independent of Lens A.
 const BOOST_INFO={attack:{name:'플러스파워',img:'x-attack'},accuracy:{name:'잘 맞히기',img:'x-accuracy'},critical:{name:'크리티컬 커터',img:'dire-hit'},defense:{name:'디펜드 업',img:'x-defend'}};
 const activeBoosts=Object.fromEntries(Object.keys(BOOST_INFO).map(key=>[key,(Array.isArray(saved?.activeBoosts?.[key])?saved.activeBoosts[key]:key==='attack'&&Number.isInteger(saved?.plusPowerTurns)?[saved.plusPowerTurns]:[]).filter(n=>Number.isInteger(n)&&n>0&&n<=10).slice(0,100)]));
@@ -1496,7 +1495,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='maxReviveReward')return '🌟 기력의덩어리 · 기절한 포켓몬 1마리 선택 · HP 100% 부활 (즉시 사용)';
  if(choice.kind==='sacredAshReward')return '✨ 성스러운 분말 · 모든 포켓몬 HP 100% 부활 및 회복 (즉시 사용)';
  if(choice.kind==='item'&&choice.id==='partySlotA')return '👥 포켓몬 추가 슬롯A · 동료 슬롯 2번째 해금';
- if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 동료 슬롯 3번째 해금';
+ if(choice.kind==='item'&&choice.id==='partySlotB')return '👥 포켓몬 추가 슬롯B · 슬롯A 보유 시 동료 3번째 슬롯 활성화. 슬롯B만 계승하면 슬롯A 획득 전까지 비활성화됩니다.';
  if(choice.kind==='item'&&choice.id==='map')return '🗺️ 지도 · 이미 해금된 지역으로 이동 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
@@ -2465,7 +2464,7 @@ function showPartyManager(selectedKey=null,replacement=false){
  normalizeLivingLead();
  normalizeHeldItems();
  if(animating||learningBusy||pendingRewardChoice)return;
- const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
+ const members=teamMembers(),max=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotA===1&&inventory.partySlotB===1?1:0);
  const layer=document.getElementById('partyActionOverlay');
  if(layer)layer.remove();
  document.getElementById('partySummaryOverlay')?.remove();
@@ -2625,7 +2624,7 @@ async function sendOutReplacement(m){
 }
 function offerCapturedCompanion(){
  const family=teamFamily(wildEnemy.dex);
- const limit=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotB===1?1:0);
+ const limit=1+(inventory.partySlotA===1?1:0)+(inventory.partySlotA===1&&inventory.partySlotB===1?1:0);
  const unlocked=inventory.partySlotA===1;
  const duplicateMessage='같은 포켓몬 종류를 2마리 이상 데리고 다닐 수 없습니다!\n도감 기록은 유지됩니다.';
  const recruit=replaceIndex=>{
@@ -3523,7 +3522,7 @@ function showInheritanceChoices(){
    const count=selected.filter(id=>id===item.id).length;
    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;border:1px solid #ccd4df;border-radius:10px;padding:8px';
    const img=document.createElement('img');img.src=itemSpriteUrl(item.id);img.alt='';img.style.cssText='width:32px;height:32px;object-fit:contain';img.onerror=()=>{img.replaceWith(document.createTextNode(item.icon||'🎁'));};row.append(img);
-   const name=document.createElement('span');name.textContent=item.name+' · 보유 '+inventory[item.id]+'개';name.style.cssText='flex:1;font-size:14px';row.append(name);
+   const name=document.createElement('span');name.textContent=item.name+' · 보유 '+inventory[item.id]+'개'+(item.id==='partySlotB'?' · 슬롯B만 계승 가능. 슬롯A 획득 전까지 비활성화되며, A 획득 시 자동 활성화됩니다.':'');name.style.cssText='flex:1;font-size:14px';row.append(name);
    const minus=button('−',()=>{const at=selected.indexOf(item.id);if(at>=0)selected.splice(at,1);redraw();});minus.disabled=count===0;
    const number=document.createElement('strong');number.textContent=String(count);number.style.minWidth='20px';number.style.textAlign='center';
    const plus=button('+',()=>{if(selected.length<tickets&&count<inventory[item.id])selected.push(item.id);redraw();});plus.disabled=selected.length>=tickets||count>=inventory[item.id];
@@ -3544,7 +3543,8 @@ function requestAdventureReset(){
  const names=selected.map(id=>SHOP_ITEMS.find(x=>x.id===id)?.name||id);
  const counts={};for(const name of names)counts[name]=(counts[name]||0)+1;
  const summary=Object.entries(counts).map(([name,n])=>name+(n>1?' ×'+n:'')).join(', ')||'없음';
- partyOverlay('모험 전체 리셋','남는 일일 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아. 정말 리셋할까?',[
+ const slotBWarning=selected.includes('partySlotB')&&!selected.includes('partySlotA')?'\n⚠️ 슬롯B만 계승하면 슬롯A 획득 전까지 비활성화됩니다.':'';
+ partyOverlay('모험 전체 리셋','남는 일일 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아.'+slotBWarning+'\n정말 리셋할까?',[
   {text:'취소'},
   {text:'리셋 진행',action:chooseInheritanceForReset},
   {text:'계승권',disabled:tickets===0,action:showInheritanceChoices}
