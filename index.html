@@ -126,7 +126,7 @@
 </div>
 <script>
 (function(){
- const runningVersion="20261110-recall-confirm-layer";
+ const runningVersion="20261110-fell-stinger-update30m";
  const notice=document.getElementById('updateNoticeOverlay');
  const later=document.getElementById('updateNoticeLater');
  const apply=document.getElementById('updateNoticeApply');
@@ -172,7 +172,7 @@
   notice.hidden=true;notice.style.display='none';
  });
  apply.addEventListener('click',()=>{location.reload();});
- setInterval(checkUpdate,5*60*1000);
+ setInterval(checkUpdate,30*60*1000);
  // Check the already-detected update at safe times without additional network requests.
  setInterval(offer,1500);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)offer();});
@@ -187,7 +187,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261110-recall-confirm-layer');
+ await import('./app.js?v=20261110-fell-stinger-update30m');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
