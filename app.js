@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-tm99';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-tm99';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-berry-healing';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261109-growl-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261109-zapdos-forest';
@@ -1514,10 +1514,10 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='magnet')return '🧲 자석 · 보유 시 전기 타입 포켓몬의 공격력이 10%, 스피드가 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='eviolite')return '🪨 진화의휘석 · 진화할 수 있는 포켓몬만 사용 가능 · 1개당 방어력 +10% · 포켓몬당 최대 3개';
- if(choice.kind==='item'&&choice.id==='oranBerry')return '🍊 오랭열매 · 전투 중 HP가 일정 이하가 되면 HP를 회복하고 1개 소모';
+ if(choice.kind==='item'&&choice.id==='oranBerry')return '🍊 오랭열매 · 전투 중 HP가 25% 미만이 되면 최대 HP의 15%를 회복하고 1개 소모';
  if(choice.kind==='item'&&choice.id==='shellBell')return '🔔 조개껍질방울 · 공격으로 피해를 주면 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='leftovers')return '🍎 먹다남은음식 · 매 턴 HP를 일부 회복';
- if(choice.kind==='item'&&choice.id==='sitrusBerry')return '🍊 자뭉열매 · 전투 중 HP가 50% 이하가 되면 최대 HP의 20%를 회복하고 1개 소모';
+ if(choice.kind==='item'&&choice.id==='sitrusBerry')return '🍊 자뭉열매 · 전투 중 HP가 50% 이하가 되면 최대 HP의 25%를 회복하고 1개 소모';
  if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 명중률 +5%p · 포켓몬당 최대 2개 · 최대 3개 보유';
  if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
