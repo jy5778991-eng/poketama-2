@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261110-rest-description';
+import {moveDescription} from './js/data/moves.js?v=20261110-rest-status-and-volcano';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-wide-lens-ohko';
@@ -1098,7 +1098,7 @@ const MAP_REGIONS=[
  ['mountSilver','🏔️ 은빛산',()=>currentRunLeagueWon,null]
 ];
 const mapRegion=key=>MAP_REGIONS.find(r=>r[0]===key);
-let volcanoAutoVisited=!!(saved?.volcanoAutoVisited||area==='volcano'||(sabrinaCleared&&progress.level>=48));
+let volcanoAutoVisited=!!(saved?.volcanoAutoVisited||area==='volcano');
 const latestMapRegion=()=>currentRunLeagueWon?'palletTown':greenFifthCleared?'championRoad2':giovanniCleared?'championRoad':blaineCleared?'strangeForest':sabrinaCleared?(area==='volcano'||(progress.level>=48&&!blaineCleared)?'volcano':'sea'):kogaCleared?'city':erikaCleared?'road':greenThirdCleared?'town':surgeCleared?'cemetery':mistyCleared?'lake':brockCleared?'cave':blueCleared?'forest':'grass';
 function wildRewardLevelCap(){
  // Fixed absolute cap per region. The lake and city change only after their corresponding rival wins.
@@ -1132,11 +1132,13 @@ let pendingTrainerIntro=null;
 let challengeNotified=Array.isArray(saved?.challengeNotified)?saved.challengeNotified.filter(k=>CHALLENGE_ORDER.includes(k)):[];
 function showChallengeUnlockNotice(){
  const kind=nextTrainerKind();
- if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro)return;
+ const volcanoUnlocked=kind==='blaine'&&sabrinaCleared&&!blaineCleared&&progress.level>=48;
+ const isVolcanoDiscovery=volcanoUnlocked&&area==='sea';
+ if(!kind||(!isVolcanoDiscovery&&!(REGION_TRAINERS[area]||[]).includes(kind))||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro||pendingRewardChoice)return;
  challengeNotified.push(kind);
  saveProgress();
  const name=TRAINERS[kind].name;
- $('challengeUnlockTitle').textContent=name+'에게 도전 가능!';
+ $('challengeUnlockTitle').textContent=volcanoUnlocked?'🌋 화산 지역 개방! '+name+'에게 도전 가능!':name+'에게 도전 가능!';
  $('challengeUnlockOverlay').hidden=false;
 }
 
