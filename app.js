@@ -980,13 +980,23 @@ async function showEvolutions(evolutions){
  for(const evolution of evolutions){
   const layer=$('evolutionOverlay'),art=document.querySelector('.evolution-art'),image=$('evolutionSprite'),fallback=$('evolutionFallback');
   const load=(form)=>{fallback.hidden=true;image.hidden=false;image.onerror=()=>{image.hidden=true;fallback.hidden=false};image.src=animatedImage(form.dex)};
+  layer.style.zIndex='1000200';$('evolutionConfirm').hidden=true;
   art.classList.remove('evolved');$('evolutionName').textContent=evolution.before.name;
   $('evolutionMessage').textContent='포켓몬이 진화하고 있어!';load(evolution.before);layer.hidden=false;
   await pause(2400);
   art.classList.add('evolved');load(evolution.after);
   $('evolutionName').textContent=evolution.after.name;
   $('evolutionMessage').textContent=evolution.before.name+' → '+evolution.after.name+' 진화 성공! (LV '+evolution.level+')';
-  await pause(2600);layer.hidden=true;
+  await pause(2600);
+  // Keep the completed evolution on top until the player confirms it.
+  const confirm=$('evolutionConfirm');
+  confirm.hidden=false;
+  await new Promise(resolve=>{
+   confirm.addEventListener('click',resolve,{once:true});
+   confirm.focus();
+  });
+  confirm.hidden=true;
+  layer.hidden=true;
   normalizeHeldItems(); // Free Eviolites immediately after evolution, before saving.
   // A Pokémon obtained by evolving a caught/owned Pokémon counts as caught in the Pokédex.
   if(Number.isInteger(evolution.after.dex)&&evolution.after.dex>0&&evolution.after.dex<=1025){
