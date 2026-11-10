@@ -173,6 +173,7 @@ function rewardWeight(choice,context){
  if(choice.kind==='tm02')return tm02Targets().length?1:0;
  if(EXTRA_TM_CONFIG[choice.kind])return extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].tier==='legendary'?3:(EXTRA_TM_CONFIG[choice.kind].weight??1)):0;
  if(choice.kind==='cash'){
+  if(choice.tier==='legendary')return 5;
   // Reduce money rewards as the highest party level rises; never below weight 2.
   if(lv>=70)return 2;
   if(lv>=60)return choice.tier==='normal'?2:3;
@@ -209,15 +210,15 @@ function rewardWeight(choice,context){
   if(id==='quickClaw')return inventory.quickClaw>=5?0:1;
   if(id==='clefairyDoll')return inventory.clefairyDoll>=4?0:1;
   if(id==='whiteFlute')return inventory.whiteFlute>=1?0:1;
-   if(id==='shellBell')return inventory.shellBell>=4?0:1;
-   if(id==='leftovers')return inventory.leftovers>=4?0:2;
-   if(id==='scopeLens')return inventory.scopeLens>=5?0:2;
-   if(id==='expShare')return inventory.expShare>=4?0:4;
+   if(id==='shellBell')return inventory.shellBell>=4?0:2;
+   if(id==='leftovers')return inventory.leftovers>=4?0:4;
+   if(id==='scopeLens')return inventory.scopeLens>=5?0:4;
+   if(id==='expShare')return inventory.expShare>=4?0:6;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:7;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]===1?0:members.some(m=>[104,105].includes(m.dex))?7:1;
   if(id==='map')return inventory.map!==1?1:0;
-  if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
+  if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?6:0;
   if(id==='lightBall')return inventory.lightBall===1?0:members.some(m=>[172,25,26].includes(m.dex))?6:0;
   if(id==='beedrillite')return inventory.beedrillite===1?0:members.some(m=>m.dex===15)?7:1;
   if(id==='charcoal')return inventory.charcoal>=1?0:4;
