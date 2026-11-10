@@ -1848,6 +1848,15 @@ function claimRewardChoice(index){
     if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showHallOfFame();}
     renderHome();showChallengeUnlockNotice();
    }})),
+   {text:'🎒 가방',action:()=>{
+    if(!pendingRewardChoice)return;
+    if(inventory[choice.id]>=HELD_MAX[choice.id]){alert('최대 보유 수량에 도달했어.');showRewardChoices();return;}
+    inventory[choice.id]++;
+    appendAdventureLog('🎁 '+item.name+' 획득 · 가방에 보관');
+    pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
+    if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showHallOfFame();}
+    renderHome();showChallengeUnlockNotice();
+   }},
    {text:'취소',action:showRewardChoices}
   ]);return;
  }
