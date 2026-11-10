@@ -76,6 +76,8 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const use=document.createElement('button');use.type='button';use.className='shop-buy';
    use.textContent='대상 선택';
    use.disabled=!inventory[item.id];
+   use.classList.toggle('item-missing',!inventory[item.id]);
+   if(!inventory[item.id])use.style.opacity='0.45';
    use.onclick=()=>{if(inventory[item.id]>0)(item.evStat?chooseVitaminTarget:chooseRecoveryTarget)?.(item);};
    row.append(use);
   }
