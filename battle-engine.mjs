@@ -70,7 +70,7 @@ function applyConfusion(target,b,turns=null){
 function canAct(p,b){
   const sleepBlocked=message=>{say(b,message);emit(b,{type:'sleepBlocked',side:sideOf(b,p)});return false;};
   const sleepWoke=()=>{p.status=null;say(b,`${p.name}이(가) 잠에서 깨어났다!`);emit(b,{type:'statusCleared',side:sideOf(b,p),status:'sleep'});};
-  if(p.status?.type==='freeze'){const n=p.status.freezeActions||0;const chance=n===0?0:n>=4?1:0.2;if(roll(b.rng)<chance){p.status=null;say(b,`${p.name}의 얼음이 풀렸다!`);}else{p.status.freezeActions=n+1;say(b,`${p.name}은(는) 꽁꽁 얼어있다!`);return false;}}
+  if(p.status?.type==='freeze'){const n=p.status.freezeActions||0;const chance=n===0?0:n>=4?1:0.2;if(roll(b.rng)<chance){p.status=null;say(b,`${p.name}의 얼음이 풀렸다!`);emit(b,{type:'statusCleared',side:sideOf(b,p),status:'freeze'});}else{p.status.freezeActions=n+1;say(b,`${p.name}은(는) 꽁꽁 얼어있다!`);return false;}}
   if(p.status?.type==='sleep') {
     const n=p.status.sleepBlockedActions;
     if(p.status.fromRest){if(n<2){p.status.sleepBlockedActions=n+1;return sleepBlocked(`${p.name}은(는) 잠들어 행동할 수 없다.`);}sleepWoke();return true;}
