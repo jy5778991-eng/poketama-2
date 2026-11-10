@@ -1,13 +1,13 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-tm99';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-thaw-message';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-wide-lens-ohko';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261109-growl-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-white-flute-description';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-wide-lens-ohko';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -825,7 +825,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.focusSashUsed=false;
   trainer.revivalSeedEnabled=!!rocketHeld.revivalSeed;
   trainer.revivalSeedUsed=false;
-  trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05*(rocketHeld.wideLens||0);
+  trainer.wideLensAccuracyBuff=.05*(rocketHeld.wideLens||0); trainer.accuracyBuff=(trainer.accuracyBuff||0)+trainer.wideLensAccuracyBuff;
   trainer.critBuff=(trainer.critBuff||0)+.03*(rocketHeld.scopeLens||0);
   if(rocketHeld.magnet&&ELECTRIC_TYPE_DEX.has(dex))trainer.speedBuffMultiplier=(trainer.speedBuffMultiplier||1)*1.05;
   trainer.leftoversEnabled=!!rocketHeld.leftovers;
@@ -833,7 +833,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  }
  if(battleKind==='giovanni'&&(dex===51||dex===112)){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),wideLens:1};
-  trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
+  trainer.wideLensAccuracyBuff=(trainer.wideLensAccuracyBuff||0)+.05; trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
  }
  if(battleKind==='koga'&&(dex===89||dex===110)){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:3};trainer.leftoversEnabled=true;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
@@ -1520,7 +1520,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='shellBell')return '🔔 조개껍질방울 · 공격으로 피해를 주면 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='leftovers')return '🍎 먹다남은음식 · 매 턴 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='sitrusBerry')return '🍊 자뭉열매 · 전투 중 HP가 50% 이하가 되면 최대 HP의 25%를 회복하고 1개 소모';
- if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 명중률 +5%p · 포켓몬당 최대 2개 · 최대 3개 보유';
+ if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 기술 명중률 +5%p (일격필살기는 +2.5%p) · 포켓몬당 최대 2개 장착 · 최대 3개 보유';
  if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
@@ -2274,7 +2274,7 @@ const EVOLVABLE_DEX=new Set([
  133,172,25,446,35,39,30,33,61,90,120,42,95,123
 ]);
 function makeMemberFighter(m){normalizeHeldItems();const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
-player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
+player.wideLensAccuracyBuff=0.05*heldCount('wideLens',m.key); player.accuracyBuff=0.1*boostCount('accuracy')+player.wideLensAccuracyBuff+(grassSeedBonus(m)?0.05:0);
 player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
  player.sitrusBerryEnabled=hasHeld('sitrusBerry',m.key)&&inventory.sitrusBerry>0;player.oranBerryEnabled=hasHeld('oranBerry',m.key)&&inventory.oranBerry>0;
  return player;}
@@ -2370,7 +2370,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'%p':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'%p (일격필살기 +'+count*2.5+'%p)':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
@@ -2852,7 +2852,7 @@ async function act(a){
   const m=activeMember();
   battle.player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');
   battle.player.speedBuffMultiplier=1+magnetSpeedBonus(m);
-  battle.player.accuracyBuff=0.1*boostCount('accuracy')+(0.05*heldCount('wideLens',m.key))+(grassSeedBonus(m)?0.05:0);
+  battle.player.wideLensAccuracyBuff=0.05*heldCount('wideLens',m.key); battle.player.accuracyBuff=0.1*boostCount('accuracy')+battle.player.wideLensAccuracyBuff+(grassSeedBonus(m)?0.05:0);
   battle.player.quickClawCount=heldCount('quickClaw',m.key);
   battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
   battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
