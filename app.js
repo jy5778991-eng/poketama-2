@@ -214,7 +214,7 @@ function rewardWeight(choice,context){
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:4;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]!==1&&members.some(m=>[104,105].includes(m.dex))?4:0;
-  if(id==='map')return inventory.map!==1?2:0;
+  if(id==='map')return inventory.map!==1?1:0;
   if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
   if(id==='charcoal')return inventory.charcoal>=1?0:2;
