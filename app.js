@@ -1400,6 +1400,10 @@ function resolveMoveChoice(newId,{allowSkip=true,source='level',member=null,conf
      {text:'예',action:()=>finish(oldId)},
      {text:'아니요',action:()=>{}}
     ]);
+    // The replacement picker is z-index 100010; keep confirmation above it.
+    // Choosing "아니요" closes only the confirmation, leaving the picker available.
+    const confirmLayer=document.getElementById('partyActionOverlay');
+    if(confirmLayer)confirmLayer.style.zIndex='100011';
    };choices.append(btn);
   }
   const skip=$('learnMoveSkip');skip.hidden=!allowSkip;
