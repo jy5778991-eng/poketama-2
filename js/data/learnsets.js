@@ -79,7 +79,7 @@ export const FAMILY_LEARNSETS={
  "koffing": [{level:1,id:'tackle'}, {level:18,id:'poisonGas'}, {level:30,id:'toxic'}, {level:36,id:'selfDestruct'}, {level:40,id:'sludgeBomb'}, {level:55,id:'explosion'}, {level:70,id:'gunkShot'}],
  "diglett": [{"level":1,"id":"scratch"},{"level":10,"id":"sandAttack"},{"level":20,"id":"dig"},{"level":32,"id":"slash"},{"level":40,"id":"earthquake"},{"level":52,"id":"fissure"}],
  "kangaskhan": [{"level":1,"id":"tackle"},{"level":10,"id":"scratch"},{"level":25,"id":"bite"},{"level":30,"id":"bodySlam"},{"level":35,"id":"powerUpPunch"},{"level":40,"id":"crunch"},{"level":65,"id":"gigaImpact"}],
- "meowth": [{level:1,id:'scratch'}, {level:15,id:'quickAttack'}, {level:16,id:'furySwipes'}, {level:22,id:'bite'}, {level:30,id:'screech'}, {level:40,id:'slash'}, {level:55,id:'suckerPunch'}],
+ "meowth": [{level:1,id:'scratch'}, {level:15,id:'quickAttack'}, {level:16,id:'furySwipes'}, {level:22,id:'bite'}, {level:30,id:'screech'}, {level:32,id:'payDay'}, {level:40,id:'slash'}, {level:55,id:'suckerPunch'}],
  "nidoranM": [{"level":1,"id":"tackle40"},{"level":8,"id":"poisonSting15"},{"level":15,"id":"hornAttack50"},{"level":30,"id":"poisonJab"},{"level":48,"id":"earthquake"},{"level":52,"id":"thrash"},{"level":68,"id":"hornDrill"}],
  "rhyhorn": [{"level":1,"id":"tackle40"},{"level":20,"id":"rockThrow"},{"level":26,"id":"rockTomb"},{"level":45,"id":"earthquake"},{"level":52,"id":"hornDrill"},{"level":60,"id":"slash"}],
  "vulpix": [{"level":1,"id":"ember"},{"level":18,"id":"quickAttack"},{"level":30,"id":"lightScreen"},{"level":40,"id":"flamethrower"},{"level":55,"id":"fireBlast"},{"level":60,"id":"solarBeam"}],
