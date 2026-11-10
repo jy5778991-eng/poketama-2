@@ -112,7 +112,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   gigaDrain: {name:"기가드레인", accuracy:1.0, priority:0, power:75, drain:0.5,pp:15},
   tackle: {name:'몸통박치기',power:25,accuracy:1,priority:0},
   flamethrower: {name:'화염방사', power:90, accuracy:1, priority:0},
-  bodySlam: {name:'누르기',power:95,accuracy:1,priority:0,inflict:'paralysis',inflictChance:0.2},
+  bodySlam: {name:'누르기',power:85,accuracy:1,priority:0,inflict:'paralysis',inflictChance:0.2},
   flail: {name:'바둥바둥', power:85, accuracy:1, priority:0, hpScale:'low'},
   rest: {name:'잠자기',accuracy:1,priority:0,rest:true,target:'self',pp:8,description:'자신의 HP와 상태이상을 모두 회복하고 잠든다. 이미 잠든 상태에서는 실패한다.'},
   dragonPulse: {name:'용의파동',power:80,accuracy:1,priority:0},
