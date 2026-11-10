@@ -46,7 +46,7 @@ fellStinger:{name:'마지막일침',power:50,accuracy:1,priority:0,boostOnKnocko
 
  icicleSpear:{name:'고드름침',power:30,accuracy:1,priority:0,multiHit:{min:2,max:5}},
 blizzard:{name:'눈보라',power:120,accuracy:0.75,priority:0,inflict:'freeze',inflictChance:0.1},
-bulletPunch:{name:'불릿펀치',power:60,accuracy:1,priority:1},
+bulletPunch:{name:'불릿펀치',power:70,accuracy:1,priority:1},
 megaDrain:{name:'메가드레인',power:60,accuracy:1,priority:0,drain:0.5,pp:15},
 absorb:{name:'흡수',power:30,accuracy:1,priority:0,drain:0.5},
 poisonGas:{name:'독가스',power:40,accuracy:1,priority:0},
