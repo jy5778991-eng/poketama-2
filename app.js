@@ -484,7 +484,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
  const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
  const value=migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(20,value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(21,value):i.category==='key'?Math.min(1,value):value];
 }));
 inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0),Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
@@ -2137,8 +2137,28 @@ function chooseRecoveryTarget(item){
   normalizeLivingLead();saveProgress();renderHome();renderInventory();
  }})),{text:'취소',action:()=>{}}]);
 }
-function inheritanceTicketLimit(){return Math.min(20,3+hallOfFameEntries('first').length+hallOfFameEntries('second').length);}
-function inheritanceTicketPrice(){const purchased=Math.max(0,Number(inventory.inheritanceTicketPurchases??inventory.inheritanceTicket)||0);return Math.min(300000,50000*(Math.floor((purchased+1)/2)+1));}
+const INHERITANCE_PRICE_STEPS=[10000,20000,30000,30000,40000,40000,50000,50000,70000,100000,120000,120000,140000,150000,160000];
+const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry']);
+function inheritanceItemEligible(item){return !!item&&item.id!=='inheritanceTicket'&&(HELD_ITEMS.includes(item.id)||item.category==='key');}
+function inheritanceItemCost(id){return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
+function inheritanceSelectionCost(ids){return ids.reduce((sum,id)=>sum+inheritanceItemCost(id),0);}
+function inheritanceCapacity(){return Math.min(21,5+2*(hallOfFameEntries('first').length+hallOfFameEntries('second').length));}
+function sanitizeInheritanceSelection(wanted,available,budget){
+ const result=[],counts={};let spent=0;
+ if(!Array.isArray(wanted))return result;
+ for(const id of wanted){
+  const item=SHOP_ITEMS.find(x=>x.id===id);
+  if(!inheritanceItemEligible(item))continue;
+  const count=counts[id]||0,held=Math.max(0,Number(available?.[id])||0);
+  const ceiling=HELD_MAX[id]??(item.category==='key'&&id!=='expShare'?1:id==='expShare'?4:99);
+  const cost=inheritanceItemCost(id);
+  if(count>=held||count>=ceiling||spent+cost>budget)continue;
+  result.push(id);counts[id]=count+1;spent+=cost;
+ }
+ return result;
+}
+function inheritanceTicketLimit(){return inheritanceCapacity();}
+function inheritanceTicketPrice(){const purchased=Math.max(0,Number(inventory.inheritanceTicketPurchases??inventory.inheritanceTicket)||0);return INHERITANCE_PRICE_STEPS[Math.min(purchased,INHERITANCE_PRICE_STEPS.length-1)];}
 function buyInheritanceTicket(){
  if(!hallOfFame.length)return;
  const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
@@ -3449,18 +3469,11 @@ function beginNewAdventure(id,fixedIV){
  try{
   const old=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
   const wanted=JSON.parse(localStorage.getItem(INHERITANCE_PENDING_KEY)||'[]');
-  const maxTickets=Math.min(20,3+hallOfFameEntries('first').length+hallOfFameEntries('second').length);
-  const budget=Math.min(maxTickets,Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
+  const budget=Math.min(inheritanceCapacity(),Math.max(0,Number(old?.inventory?.inheritanceTicket)||0));
   inventory.inheritanceTicket=budget;
+  const safeSelection=sanitizeInheritanceSelection(wanted,old?.inventory,budget);
   const safeCounts={};
-  if(Array.isArray(wanted))for(const itemId of wanted.slice(0,budget)){
-   const item=SHOP_ITEMS.find(x=>x.id===itemId&&x.id!=='inheritanceTicket');
-   if(!item)continue;
-   const available=Number.isInteger(old?.inventory?.[itemId])?old.inventory[itemId]:0;
-   const ceiling=HELD_MAX[itemId]??(item.category==='key'?1:99);
-   if((safeCounts[itemId]||0)>=available||(safeCounts[itemId]||0)>=ceiling)continue;
-   safeCounts[itemId]=(safeCounts[itemId]||0)+1;
-  }
+  for(const itemId of safeSelection)safeCounts[itemId]=(safeCounts[itemId]||0)+1;
   for(const [itemId,count] of Object.entries(safeCounts))inventory[itemId]=Math.min(HELD_MAX[itemId]??(SHOP_ITEMS.find(x=>x.id===itemId)?.category==='key'?1:99),(inventory[itemId]||0)+count);
   // Only a Destiny Knot actually inherited from the previous run affects the new egg.
   if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;earnAchievement('hatchMaxIV');checkIVAchievement(playerIVs);}
@@ -3494,18 +3507,11 @@ const INHERITANCE_CHOICE_KEY='poketama-2-inheritance-choice-v1';
 function validInheritanceChoices(){
  let wanted=[];
  try{wanted=JSON.parse(localStorage.getItem(INHERITANCE_CHOICE_KEY)||'[]');}catch(e){}
- if(!Array.isArray(wanted))wanted=[];
- const limit=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- const counts={};
- return wanted.filter(id=>{
-  const item=SHOP_ITEMS.find(x=>x.id===id&&x.id!=='inheritanceTicket');
-  if(!item||!inventory[id]||((counts[id]||0)>=inventory[id]))return false;
-  counts[id]=(counts[id]||0)+1;return true;
- }).slice(0,limit);
+ return sanitizeInheritanceSelection(wanted,inventory,Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit()));
 }
 function showInheritanceChoices(){
  const tickets=Math.min(inventory.inheritanceTicket||0,inheritanceTicketLimit());
- const items=SHOP_ITEMS.filter(item=>(HELD_ITEMS.includes(item.id)||item.category==='key')&&item.id!=='inheritanceTicket'&&(inventory[item.id]||0)>0);
+ const items=SHOP_ITEMS.filter(item=>inheritanceItemEligible(item)&&(inventory[item.id]||0)>0);
  let selected=validInheritanceChoices();
  const prior=document.getElementById('inheritanceChoiceOverlay');if(prior)prior.remove();
  const overlay=document.createElement('div');overlay.id='inheritanceChoiceOverlay';
@@ -3518,16 +3524,16 @@ function showInheritanceChoices(){
  const button=(label,fn)=>{const el=document.createElement('button');el.type='button';el.textContent=label;el.style.cssText='min-height:44px;border:2px solid #697e9d;border-radius:10px;background:#f3f6fb;color:#283c5a;font-weight:bold';el.onclick=fn;return el;};
  const close=()=>overlay.remove();
  const redraw=()=>{
-  info.textContent='계승권 '+tickets+'장 · 선택 '+selected.length+'/'+tickets+'개\n계승권은 리셋해도 소모되지 않습니다.\n보유한 계승권 수만큼 아이템을 선택해 다음 회차로 가져갈 수 있습니다.\n게임 중 언제든 변경할 수 있고, 리셋할 때만 적용돼.';
+  info.textContent='계승권 보유 '+tickets+'장 · 필요 '+inheritanceSelectionCost(selected)+'장 / '+tickets+'장 · 아이템 '+selected.length+'개 선택\n아이템마다 필요 계승권 수량이 다릅니다. 아래에서 1개당 비용을 확인하세요.\n계승권 자체는 리셋해도 소모되지 않으며 아이템 계승 한도를 정합니다.\n선택은 언제든 변경할 수 있고 리셋할 때 적용됩니다.';
   info.style.whiteSpace='pre-line';list.replaceChildren();
   for(const item of items){
    const count=selected.filter(id=>id===item.id).length;
    const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;border:1px solid #ccd4df;border-radius:10px;padding:8px';
    const img=document.createElement('img');img.src=itemSpriteUrl(item.id);img.alt='';img.style.cssText='width:32px;height:32px;object-fit:contain';img.onerror=()=>{img.replaceWith(document.createTextNode(item.icon||'🎁'));};row.append(img);
-   const name=document.createElement('span');name.textContent=item.name+' · 보유 '+inventory[item.id]+'개'+(item.id==='partySlotB'?' · 슬롯B만 계승 가능. 슬롯A 획득 전까지 비활성화되며, A 획득 시 자동 활성화됩니다.':'');name.style.cssText='flex:1;font-size:14px';row.append(name);
+   const name=document.createElement('span');name.textContent=item.name+' · 1개당 계승권 '+inheritanceItemCost(item.id)+'장 · 보유 '+inventory[item.id]+'개'+(item.id==='partySlotB'?' · 슬롯B만 계승 가능. 슬롯A 획득 전까지 비활성화되며, A 획득 시 자동 활성화됩니다.':'');name.style.cssText='flex:1;font-size:14px';row.append(name);
    const minus=button('−',()=>{const at=selected.indexOf(item.id);if(at>=0)selected.splice(at,1);redraw();});minus.disabled=count===0;
    const number=document.createElement('strong');number.textContent=String(count);number.style.minWidth='20px';number.style.textAlign='center';
-   const plus=button('+',()=>{if(selected.length<tickets&&count<inventory[item.id])selected.push(item.id);redraw();});plus.disabled=selected.length>=tickets||count>=inventory[item.id];
+   const plus=button('+',()=>{if(inheritanceSelectionCost(selected)+inheritanceItemCost(item.id)<=tickets&&count<inventory[item.id])selected.push(item.id);redraw();});plus.disabled=inheritanceSelectionCost(selected)+inheritanceItemCost(item.id)>tickets||count>=inventory[item.id];
    row.append(minus,number,plus);list.append(row);
   }
   if(!items.length){const empty=document.createElement('p');empty.textContent='보유 중인 계승 가능 아이템이 없어.';list.append(empty);}
@@ -3545,8 +3551,9 @@ function requestAdventureReset(){
  const names=selected.map(id=>SHOP_ITEMS.find(x=>x.id===id)?.name||id);
  const counts={};for(const name of names)counts[name]=(counts[name]||0)+1;
  const summary=Object.entries(counts).map(([name,n])=>name+(n>1?' ×'+n:'')).join(', ')||'없음';
+ const requiredTickets=inheritanceSelectionCost(selected);
  const slotBWarning=selected.includes('partySlotB')&&!selected.includes('partySlotA')?'\n⚠️ 슬롯B만 계승하면 슬롯A 획득 전까지 비활성화됩니다.':'';
- partyOverlay('모험 전체 리셋','남는 일일 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 '+tickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아.'+slotBWarning+'\n정말 리셋할까?',[
+ partyOverlay('모험 전체 리셋','남는 일일 리셋 횟수: '+(RESET_LIMIT-used)+'/20\n포켓몬, 레벨, 돈, 아이템, 배지, 스토리가 초기화돼.\n도감 · 업적 · 명예의전당은 영구 유지돼.\n계승권 보유 '+tickets+'장 · 필요 '+requiredTickets+'장: '+summary+'\n그 외 아이템은 계승되지 않아.'+slotBWarning+'\n정말 리셋할까?',[
   {text:'취소'},
   {text:'리셋 진행',action:chooseInheritanceForReset},
   {text:'계승권',disabled:tickets===0,action:showInheritanceChoices}
