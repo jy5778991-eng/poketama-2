@@ -2876,6 +2876,12 @@ async function act(a){
   if(a.type==='ball')lastCaptureBall=a.itemId;battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a);
   // The engine now revives either side immediately after the lethal action.
   // Consume the player's held seed once, without cancelling the opponent's turn.
+  if(battle.events.some(ev=>ev.type==='heal'&&ev.side==='player'&&ev.heldItem==='oranBerry')){
+   inventory.oranBerry=Math.max(0,inventory.oranBerry-1);
+   const berryIndex=battleItemHolders.oranBerry.indexOf(activeBattleKey);
+   if(berryIndex>=0)battleItemHolders.oranBerry.splice(berryIndex,1);
+   appendAdventureLog('🍊 '+activeMember().name+' 오랭열매 발동!');
+  }
   if(battle.events.some(ev=>ev.type==='heal'&&ev.side==='player'&&ev.heldItem==='sitrusBerry')){
    inventory.sitrusBerry=Math.max(0,inventory.sitrusBerry-1);
    const berryIndex=battleItemHolders.sitrusBerry.indexOf(activeBattleKey);
