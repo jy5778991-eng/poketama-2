@@ -46,16 +46,44 @@ export function pokemonCatchMultiplier(dex,_legacyRare=false,encounterTier=null)
 export function pokemonCatchChance(hpFraction,pokemonMultiplier,ballMultiplier=1){
  return Math.max(0,Math.min(1,((300-200*Math.max(0,Math.min(1,hpFraction)))/300)*pokemonMultiplier*ballMultiplier));
 }
-export const pickEncounter=(area,rocketBossCleared=false)=>{
+// The White Flute doubles already-unlocked legendary encounter weights. The
+// extra weight comes from the most common non-legendary species; tied leaders
+// share the reduction equally. No new encounter is unlocked by this effect.
+export function encounterWeights(area,rocketBossCleared=false,whiteFlute=false){
  const entries=ENCOUNTERS[area]?.length?ENCOUNTERS[area]:ENCOUNTERS.lake;
- // The Faraway Island encounter weights intentionally total 102; draw using
- // their actual sum so every species, including Mew at the end, is reachable.
- const roll=Math.random()*(area==='farawayIsland'?entries.reduce((sum,e)=>sum+e.weight,0):100);
- let total=0;
- return entries.find(e=>{
-  let weight=e.weight;
-  if(area==='rocketBase'&&rocketBossCleared){if(e.dex===150)weight=10;else if(e.dex===132)weight=2.5;}
-  total+=weight;
-  return total>roll;
- })||entries.at(-1);
+ const weights=entries.map(e=>Math.max(0,area==='rocketBase'&&rocketBossCleared?(e.dex===150?10:e.dex===132?2.5:e.weight):e.weight));
+ if(!whiteFlute)return weights;
+ const legendary=entries.map((e,i)=>((e.tier==='legendary'||LEGENDARY_DEX.has(e.dex))&&weights[i]>0)?i:-1).filter(i=>i>=0);
+ const extra=legendary.reduce((sum,i)=>sum+weights[i],0);
+ if(extra<=0)return weights;
+ const normal=weights.map((w,i)=>({w,i})).filter(({w,i})=>w>0&&!legendary.includes(i));
+ if(!normal.length)return weights;
+ // Prefer precisely the highest-weight species; divide evenly on a tie.
+ // If its weight cannot cover the increase, continue down to the next tier
+ // to keep all encounter weights nonnegative and preserve the total.
+ normal.sort((a,b)=>b.w-a.w||a.i-b.i);
+ let remaining=extra;
+ while(remaining>1e-9&&normal.length){
+  const largest=normal[0].w;
+  const tied=normal.filter(x=>Math.abs(x.w-largest)<1e-9);
+  const share=Math.min(remaining/tied.length,largest);
+  for(const item of tied){weights[item.i]-=share;item.w-=share;remaining-=share;}
+  normal.sort((a,b)=>b.w-a.w||a.i-b.i);
+  if(normal[0]?.w<=1e-9)break;
+ }
+ const allocated=extra-Math.max(0,remaining);
+ const ratio=allocated/extra;
+ for(const i of legendary)weights[i]+=weights[i]*ratio;
+ return weights;
+}
+export const pickEncounter=(area,rocketBossCleared=false,whiteFlute=false)=>{
+ const entries=ENCOUNTERS[area]?.length?ENCOUNTERS[area]:ENCOUNTERS.lake;
+ const weights=encounterWeights(area,rocketBossCleared,whiteFlute);
+ const totalWeight=weights.reduce((sum,w)=>sum+w,0);
+ let roll=Math.random()*totalWeight;
+ for(let i=0;i<entries.length;i++){
+  if(roll<weights[i])return entries[i];
+  roll-=weights[i];
+ }
+ return entries.find((e,i)=>weights[i]>0)||entries[0];
 };
