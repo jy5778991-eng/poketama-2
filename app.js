@@ -1131,10 +1131,12 @@ function rivalForm(id,level){
 function chooseRivalStarter(playerId){const pool=RIVAL_POOL.filter(p=>p.id!==playerId);return pool[Math.floor(Math.random()*pool.length)].id;}
 let battlePlayerLevelStart=1;
 let pendingTrainerIntro=null;
+// Prevent challenge notifications from covering evolution and move-learning screens.
+let resolvingBattleNotifications=false;
 let challengeNotified=Array.isArray(saved?.challengeNotified)?saved.challengeNotified.filter(k=>CHALLENGE_ORDER.includes(k)):[];
 function showChallengeUnlockNotice(){
  const kind=nextTrainerKind();
- if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||area!==latestMapRegion()||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro||pendingRewardChoice)return;
+ if(!kind||!(REGION_TRAINERS[area]||[]).includes(kind)||area!==latestMapRegion()||!teamMembers().some(m=>m.level>=TRAINERS[kind].level)||challengeNotified.includes(kind)||animating||learningBusy||pendingTrainerIntro||resolvingBattleNotifications||!$('evolutionOverlay').hidden||!$('learnMoveOverlay').hidden||!$('challengeUnlockOverlay').hidden)return;
  challengeNotified.push(kind);
  saveProgress();
  const name=TRAINERS[kind].name;
@@ -3045,11 +3047,15 @@ async function act(a){
    ]);
   }
   if(battle.ended){
-   showMenu('main');
-   renderHome();showScreen(leagueStage===null?'home':'league');
-   if(pendingPartyGrowth.length){const events=pendingPartyGrowth.splice(0);await processPartyGrowth(events);}
-   if(pendingLevelUp){const levels=pendingLevelUp;pendingLevelUp=null;playHomeLevelUp(levels.previous,levels.current);}
-   if(learnQueue.length)await processLearnQueue(learnQueue);
+   resolvingBattleNotifications=true;
+   try{
+    showMenu('main');
+    renderHome();showScreen(leagueStage===null?'home':'league');
+    if(pendingPartyGrowth.length){const events=pendingPartyGrowth.splice(0);await processPartyGrowth(events);}
+    if(pendingLevelUp){const levels=pendingLevelUp;pendingLevelUp=null;playHomeLevelUp(levels.previous,levels.current);}
+    if(learnQueue.length)await processLearnQueue(learnQueue);
+   }finally{resolvingBattleNotifications=false;}
+   // Evolutions and move learning resolve first; then challenge unlock, then rewards.
    showChallengeUnlockNotice();
    if($('challengeUnlockOverlay').hidden)showRewardChoices();
   }
