@@ -839,7 +839,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),wideLens:1};
   trainer.wideLensAccuracyBuff=(trainer.wideLensAccuracyBuff||0)+.05; trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
  }
- if(battleKind==='koga'&&(dex===89||dex===110)){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:3};trainer.leftoversEnabled=true;}
+ if(battleKind==='koga'&&(dex===89||dex===110)){const count=dex===89?2:4;trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:count};trainer.leftoversEnabled=true;trainer.leftoversCount=count;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
  if(battleKind==='surge'){trainer.hardClawCount=1;trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.1;} // Lt. Surge: each Pokemon carries one Hard Claw (+10% Attack)
  if(battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex))trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.15; // Charcoal: Fire-type Attack +15%
