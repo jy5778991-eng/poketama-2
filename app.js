@@ -806,7 +806,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   if(battleKind==='rocketGiovanni'){
    if(dex===112)return {quickClaw:5,revivalSeed:1,wideLens:1};
    if(dex===15)return {hardClaw:3,focusSash:5,revivalSeed:1,scopeLens:1};
-   if(dex===150)return {hardClaw:3,focusSash:3,scopeLens:1};
+   if(dex===150)return {hardClaw:3,focusSash:6,sitrusBerry:1,scopeLens:2};
    if(dex===34||dex===31)return {hardClaw:3};
   }
   return null;
