@@ -961,7 +961,7 @@ function awardExperience(){
  appendAdventureLog('💰 야생 배틀 보상 '+baseMoney+'원 획득');
  // Pallet Town remains a wild-battle training area, but offers no random reward rolls.
  // Rocket Base, Faraway Island, and other areas keep their regular reward rules.
- pendingRewardChoice=(capped||area==='palletTown')?null:{choices:drawThreeRewards(wildEnemy.level),rerolls:0,gym:false};
+ pendingRewardChoice=(capped||area==='palletTown')?null:{choices:null,rerolls:0,gym:false};
  if(capped)messages.push('도전 단계 성장 상한 도달! 야생 경험치와 랜덤 보상은 지급되지 않아.');
  const evolutions=[];
  const learnQueue=[];
@@ -1070,7 +1070,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+trainerMoney+'원 획득');
   lastBattleReward={exp:gained,money:trainerMoney};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:drawThreeRewards(level,rewardCountBeforeVictory,!!GYM_BADGES[battleKind]),rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
+  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:null,rewardCount:rewardCountBeforeVictory,rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
  }else{
   if(battle.result==='defeat')earnAchievement('firstLoss');if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -1575,19 +1575,6 @@ function showRewardDescription(choice){
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
- // Rewards are rolled before final post-battle HP synchronization and level-up.
- // If every living party member is now at full HP, replace stale healing
- // choices with cash of the SAME tier instead of offering an unusable reward.
- if(!teamMembers().some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m))){
-  let changed=false;
-  pendingRewardChoice.choices=pendingRewardChoice.choices.map(choice=>{
-   if(choice.kind!=='heal')return choice;
-   changed=true;
-   const multiplier={normal:1,rare:3,hyper:10,legendary:30}[choice.tier]??1;
-   return {kind:'cash',amount:bonusCashForWin()*multiplier,icon:'💰',tier:choice.tier};
-  });
-  if(changed)saveProgress();
- }
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
@@ -2978,6 +2965,16 @@ async function act(a){
     const currentMax=memberMaxHp(activeMember());
     const adjustedHp=hpBefore<=0?0:Math.min(currentMax,hpBefore+Math.max(0,currentMax-maxBefore));
     setActiveHp(adjustedHp);
+    // Roll rewards ONLY after combat HP and post-EXP maximum HP have been
+    // synchronized. Healing rewards must have zero weight when nobody needs HP.
+    if(pendingRewardChoice&&!Array.isArray(pendingRewardChoice.choices)){
+     pendingRewardChoice.choices=drawThreeRewards(
+      battleKind==='wild'?wildEnemy.level:Math.max(...teamMembers().map(m=>m.level)),
+      pendingRewardChoice.rewardCount??rewardChoiceCount(),
+      pendingRewardChoice.gym
+     );
+     delete pendingRewardChoice.rewardCount;
+    }
     saveProgress();
     // Party level-up animations are processed by processPartyGrowth.
     if(reward?.evolutions?.length)await showEvolutions(reward.evolutions);
