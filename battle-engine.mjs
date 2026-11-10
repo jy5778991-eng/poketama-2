@@ -87,13 +87,13 @@ function restoreTransform(f){if(!f?.transformOriginal)return;const o=f.transform
 function activateOranBerry(b,fighter){
  if(!fighter.oranBerryEnabled||fighter.hp<=0||fighter.hp>=fighter.stats.hp*0.25)return;
  fighter.oranBerryEnabled=false;
- const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.10)));
+ const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.15)));
  if(amount>0){fighter.hp+=amount;say(b,`${fighter.name}의 오랭열매 발동! HP ${amount} 회복!`);emit(b,{type:'heal',side:sideOf(b,fighter),amount,hp:fighter.hp,heldItem:'oranBerry'});}
 }
 function activateSitrusBerry(b,fighter){
  if(!fighter.sitrusBerryEnabled||fighter.hp<=0||fighter.hp>Math.floor(fighter.stats.hp/2))return;
  fighter.sitrusBerryEnabled=false;
- const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.20)));
+ const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.25)));
  if(amount>0){
   fighter.hp+=amount;
   say(b,`${fighter.name}의 자뭉열매 발동! HP ${amount} 회복!`);
