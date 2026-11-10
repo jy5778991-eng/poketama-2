@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-percent-label';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-ev-reset-berries';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261110-dim-empty-heal';
+import {renderInventoryView} from './js/inventory.js?v=20261110-ev-reset-berries';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -2143,6 +2143,42 @@ function requestBattleRevive(){
  {text:'취소',action:()=>{}}
  ]);
 }
+function chooseEvResetTarget(item){
+ if(screen==='battle'||animating||learningBusy||pendingRewardChoice)return;
+ if((inventory[item.id]||0)<1)return;
+ const getEV=m=>m.starter?playerEVs:companions.find(c=>c.family===m.family)?.evs;
+ const targets=teamMembers().filter(m=>{const ev=getEV(m);return ev&&EV_STATS.some(stat=>(ev[stat]||0)>0);});
+ if(!targets.length){alert('초기화할 노력치가 있는 포켓몬이 없어.');return;}
+ const applyReset=(m,stat=null)=>{
+  if((inventory[item.id]||0)<1||screen==='battle'||animating)return;
+  const ev=getEV(m);if(!ev)return;
+  const stats=stat?[stat]:EV_STATS;
+  const oldMaxHp=memberMaxHp(m),oldHp=memberHp(m);
+  let removed=0;
+  for(const key of stats){
+   const decrease=Math.min(ev[key]||0,stat?20:Infinity);
+   ev[key]-=decrease;
+   removed+=decrease;
+  }
+  if(!removed){alert('감소시킬 노력치가 없어.');return;}
+  inventory[item.id]--;
+  const newMaxHp=memberMaxHp(m);
+  if(newMaxHp<oldMaxHp)setMemberHp(m,Math.min(oldHp,newMaxHp));
+  appendAdventureLog(item.icon+' '+m.name+' '+item.name+' 사용 · '+(stat?STAT_LABELS[stat]+' 노력치 -'+removed:'모든 노력치 초기화 (-'+removed+')'));
+  saveProgress();renderHome();renderInventory();
+ };
+ partyOverlay(item.icon+' '+item.name,item.evReset==='all'?'모든 노력치를 0으로 초기화할 포켓몬을 선택해.':'노력치를 20 감소시킬 포켓몬을 선택해.',[
+  ...targets.map(m=>({member:m,action:()=>{
+   if(item.evReset==='all'){applyReset(m);return;}
+   const ev=getEV(m);
+   partyOverlay(item.icon+' '+m.name+' 노력치 선택','20 감소시킬 노력치를 선택해. 현재 노력치가 0인 항목은 선택할 수 없어.',[
+    ...EV_STATS.map(stat=>({text:STAT_LABELS[stat]+' '+(ev?.[stat]||0)+' → '+Math.max(0,(ev?.[stat]||0)-20),disabled:!(ev?.[stat]>0),action:()=>applyReset(m,stat)})),
+    {text:'취소',action:()=>chooseEvResetTarget(item)}
+   ]);
+  }})),
+  {text:'취소',action:()=>{}}
+ ]);
+}
 function chooseVitaminTarget(item){
  const stat=item.evStat,amount=item.evAmount||8;
  const targets=teamMembers().filter(m=>{const ev=m.starter?playerEVs:companions.find(c=>c.family===m.family)?.evs;return ev&&ev[stat]<100&&Object.values(ev).reduce((sum,n)=>sum+n,0)<240;});
@@ -2208,7 +2244,7 @@ function buyInheritanceTicket(){
 }
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,chooseVitaminTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:showInheritanceChoices,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,chooseVitaminTarget,chooseEvResetTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:showInheritanceChoices,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';/* Preserve the user's page scroll position when switching between home and battle. */if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
