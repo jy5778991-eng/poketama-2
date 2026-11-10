@@ -7,7 +7,7 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-eviolite13-max3';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-beedrillite-key';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -219,6 +219,7 @@ function rewardWeight(choice,context){
   if(id==='map')return inventory.map!==1?1:0;
   if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?4:0;
   if(id==='lightBall')return inventory.lightBall!==1&&members.some(m=>[172,25,26].includes(m.dex))?4:0;
+  if(id==='beedrillite')return inventory.beedrillite!==1&&members.some(m=>m.dex===15)?1:0;
   if(id==='charcoal')return inventory.charcoal>=1?0:2;
   if(id==='miracleSeed')return inventory.miracleSeed>=1?0:2;
   if(id==='mysticWater')return inventory.mysticWater>=1?0:2;
@@ -248,7 +249,7 @@ function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm22',icon:'📀'},{kind:'tm05',icon:'📀'},{kind:'tm06',icon:'📀'},{kind:'tm07',icon:'📀'},{kind:'tm08',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'tm20',icon:'📀'},{kind:'tm21',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'item',id:'oranBerry',quantity:1,icon:'🍊'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:8,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'tm09',icon:'📀'},{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'tm24',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'maxReviveReward',icon:'🌟'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:24,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'eviolite',quantity:1,icon:'🪨'},{kind:'item',id:'sitrusBerry',quantity:1,icon:'🍊'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'clefairyDoll',quantity:1,icon:'🧸'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'whiteFlute',quantity:1,icon:'🎶'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'beedrillite',quantity:1,icon:'💎'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'whiteFlute',quantity:1,icon:'🎶'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -1548,6 +1549,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='sharpBeak')return '🪶 예리한 부리 · 보유 시 비행 타입 포켓몬의 공격력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='magnet')return '🧲 자석 · 보유 시 전기 타입 포켓몬의 공격력이 10%, 스피드가 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='thickClub')return '🦴 굵은뼈 · 보유 시 탕구리·텅구리 공격력 2배 (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='beedrillite')return '💎 독침붕나이트 · 보유 시 독침붕의 공격력과 스피드 각각 40% 증가 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='eviolite')return '🪨 진화의휘석 · 진화할 수 있는 포켓몬만 사용 가능 · 1개당 방어력 +10% · 포켓몬당 최대 3개';
  if(choice.kind==='item'&&choice.id==='oranBerry')return '🍊 오랭열매 · 전투 중 HP가 25% 미만이 되면 최대 HP의 15%를 회복하고 1개 소모';
  if(choice.kind==='item'&&choice.id==='shellBell')return '🔔 조개껍질방울 · 공격으로 피해를 주면 HP를 일부 회복';
@@ -1575,7 +1577,7 @@ function rewardImageName(choice){
  if(choice.kind==='maxReviveReward')return 'max-revive';
  if(choice.kind==='sacredAshReward')return 'sacred-ash';
  if(choice.kind==='power')return {attack:'x-attack',accuracy:'x-accuracy',critical:'dire-hit',defense:'x-defend'}[choice.effect||'attack'];
- if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',memoryMushroom:'tiny-mushroom',hardClaw:'razor-claw',quickClaw:'quick-claw',focusSash:'focus-sash',revivalSeed:'revive',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
+ if(choice.kind==='item')return {partySlotA:'upgrade',partySlotB:'upgrade',map:'town-map',memoryMushroom:'tiny-mushroom',hardClaw:'razor-claw',quickClaw:'quick-claw',focusSash:'focus-sash',revivalSeed:'revive',lightBall:'light-ball',secretSwitch:'secret-key',oldSeaMap:'old-sea-map',beedrillite:'beedrillite',pokeBall:'poke-ball',greatBall:'great-ball',ultraBall:'ultra-ball',masterBall:'master-ball'}[choice.id];
  if(choice.kind==='heal')return choice.full?'max-potion':choice.amount<=20?'potion':choice.amount<=60?'super-potion':'hyper-potion';
  return null;
 }
@@ -2346,11 +2348,11 @@ function memberBase(m){
 function memberMaxHp(m){return calculateStats(memberBase(m),m.level,m.starter?playerIVs:m.ivs,m.starter?playerEVs:m.evs||{}).hp;}
 function leaderHp(){const m=leaderMember(),max=memberMaxHp(m),hp=m.starter?storedHp:companions.find(x=>x.family===m.family)?.hp;return hp==null?max:Math.max(0,Math.min(max,hp));}
 function setLeaderHp(hp){const m=leaderMember();if(m.starter)storedHp=hp;else{const entry=companions.find(x=>x.family===m.family);if(entry)entry.hp=hp;}}
-function attackItemMultiplier(m){return 1+(inventory.sharpBeak===1&&FLYING_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.silverPowder===1&&BUG_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.thickClub===1&&[104,105].includes(m.dex)?1:0)+(inventory.lightBall===1&&[172,25,26].includes(m.dex)?0.5:0)+(inventory.charcoal===1&&FIRE_TYPE_DEX.has(m.dex)?0.15:0)+0.1*heldCount('hardClaw',m.key);}
+function attackItemMultiplier(m){return 1+(inventory.sharpBeak===1&&FLYING_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.silverPowder===1&&BUG_TYPE_DEX.has(m.dex)?0.1:0)+(inventory.thickClub===1&&[104,105].includes(m.dex)?1:0)+(inventory.lightBall===1&&[172,25,26].includes(m.dex)?0.5:0)+(inventory.beedrillite===1&&m.dex===15?0.4:0)+(inventory.charcoal===1&&FIRE_TYPE_DEX.has(m.dex)?0.15:0)+0.1*heldCount('hardClaw',m.key);}
 function grassSeedBonus(m){return inventory.miracleSeed===1&&GRASS_TYPE_DEX.has(m.dex);}
 function waterDropBonus(m){return inventory.mysticWater===1&&WATER_TYPE_DEX.has(m.dex);}
 function bugPowderBonus(m){return inventory.silverPowder===1&&BUG_TYPE_DEX.has(m.dex);}
-function magnetSpeedBonus(m){return inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.05:0;}
+function magnetSpeedBonus(m){return (inventory.magnet===1&&ELECTRIC_TYPE_DEX.has(m.dex)?0.05:0)+(inventory.beedrillite===1&&m.dex===15?0.4:0);}
 // Eviolite applies only to species that still have an obtainable evolution.
 const EVOLVABLE_DEX=new Set([
  ...Object.keys(WILD_EVOLUTIONS).map(Number),
