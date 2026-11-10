@@ -7,7 +7,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
-  ?'일반 아이템 최대 99개 · 중요 아이템은 1개만 보유 가능'
+  ?'일반 아이템 최대 99개 · 삐삐인형은 4개까지 보유 가능'
   :'기력의조각은 기절한 동료 부활 · 포켓몬 센터는 기절한 동료가 있을 때 이용';
  document.querySelectorAll('[data-item-category]').forEach(button=>{
   const selected=button.dataset.itemCategory===inventoryCategory;
@@ -26,7 +26,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  for(const item of items){
   const row=document.createElement('div');row.className='shop-item-row';
   const info=document.createElement('div');info.className='shop-item-info';
-  const name=document.createElement('strong');const icon=document.createElement('img');icon.className='shop-item-sprite';icon.src=itemSpriteUrl(item.id);icon.alt='';icon.loading='lazy';icon.onerror=()=>{const fallback=document.createElement('span');fallback.textContent=item.icon||'🎁';icon.replaceWith(fallback);};name.append(icon,document.createTextNode(' '+item.name+(inventoryMode==='bag'&&(heldItems.includes(item.id)||item.id==='expShare'||item.id==='inheritanceTicket'||!(item.category==='key'||item.unique))?' ×'+(inventory[item.id]||0):'')));
+  const name=document.createElement('strong');const icon=document.createElement('img');icon.className='shop-item-sprite';icon.src=itemSpriteUrl(item.id);icon.alt='';icon.loading='lazy';icon.onerror=()=>{const fallback=document.createElement('span');fallback.textContent=item.icon||'🎁';icon.replaceWith(fallback);};name.append(icon,document.createTextNode(' '+item.name+(inventoryMode==='bag'&&(heldItems.includes(item.id)||item.id==='expShare'||item.id==='inheritanceTicket'||item.id==='clefairyDoll'||!(item.category==='key'||item.unique))?' ×'+(inventory[item.id]||0):'')));
   const description=document.createElement('small');
   description.textContent=inventoryMode==='shop'?item.description+' · 보유 '+(inventory[item.id]||0)+'개':item.description;
   if(item.id==='inheritanceTicket')description.textContent+=' · 한도 '+inheritanceTicketLimit+'장';
@@ -46,7 +46,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
    const ticket=item.id==='inheritanceTicket';
    const unique=!ticket&&(item.category==='key'||item.unique);
-   const stockLimit=ticket?inheritanceTicketLimit:['eviolite','sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
+   const stockLimit=ticket?inheritanceTicketLimit:item.id==='clefairyDoll'?4:['eviolite','sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
    const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
    const locked=ticket&&!inheritanceTicketUnlocked;
    const price=ticket?inheritanceTicketPrice:item.price;
@@ -56,7 +56,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    buy.onclick=()=>{
     if(ticket){onInheritanceTicketBuy?.();return;}
     if(inventory[item.id]>=stockLimit||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<price)return;
-    progress.money-=price;inventory[item.id]=unique?1:(inventory[item.id]||0)+1;
+    progress.money-=price;inventory[item.id]=item.id==='clefairyDoll'?(inventory[item.id]||0)+1:unique?1:(inventory[item.id]||0)+1;
     saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy,onInheritanceTicketUse});
    };
    row.append(buy);
