@@ -83,7 +83,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   thunder: {name:'번개',accuracy:0.85,priority:0,power:110},
   thrash: {name:'난동부리기',accuracy:1,priority:0,power:120,lockedTurns:true},
   roost: {name:'날개쉬기',accuracy:1,priority:0,healMaxHp:0.5,target:'self',pp:8},
-  sleepTalk: {name:'잠꼬대',accuracy:1,priority:0,sleepTalk:true,target:'self'},
+  sleepTalk: {name:'잠꼬대',accuracy:1,priority:0,sleepTalk:true,target:'self',description:'잠든 상태에서 자신의 기술 중 하나를 무작위로 사용한다. 잠꼬대가 선택되면 실패한다.'},
   bellyDrum: {name:'배북',accuracy:1,priority:0,bellyDrum:true,target:'self'},
   hydroPump: {name:"하이드로펌프", accuracy:0.8, priority:0, power:110},
   suckerPunch: {name:"기습", accuracy:1.0, priority:1, power:70},
