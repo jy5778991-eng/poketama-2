@@ -1828,6 +1828,14 @@ function claimRewardChoice(index){
  if(choice.kind==='item'&&HELD_ITEMS.includes(choice.id)){
   if(inventory[choice.id]>=HELD_MAX[choice.id]){alert('최대 보유 수량에 도달했어.');showRewardChoices();return;}
   const item=SHOP_ITEMS.find(i=>i.id===choice.id);
+  // Consumable berries can be claimed into the bag when every party member already holds one.
+  if(['sitrusBerry','oranBerry'].includes(choice.id)&&teamMembers().every(m=>heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id))){
+   inventory[choice.id]++;
+   appendAdventureLog('🎁 '+item.name+' 획득 · 장착 가능한 포켓몬이 없어 가방에 보관');
+   pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
+   if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showHallOfFame();}
+   renderHome();showChallengeUnlockNotice();return;
+  }
   $('rewardChoiceOverlay').hidden=true;
   partyOverlay('🎁 '+item.name,item.name+'을(를) 누구에게 줄까?',[
    ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level+(heldCount(choice.id,m.key)>0?' · '+heldCount(choice.id,m.key)+'개 장착 중':''),disabled:heldCount(choice.id,m.key)>=heldItemPerPokemonLimit(choice.id)||(choice.id==='eviolite'&&!EVOLVABLE_DEX.has(m.dex)),action:()=>{
