@@ -164,7 +164,7 @@ function rewardWeight(choice,context){
   const iv=m.starter?playerIVs:companions.find(c=>c.family===m.family)?.ivs;
   return iv&&EV_STATS.every(stat=>iv[stat]>=16);
  });
- if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?5:7);
+ if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?5:lv<70?6:7);
  if(choice.kind==='power')return 5;
  if(choice.kind==='rareCandy')return 4;
  if(choice.kind==='tm01')return tm01Targets().length?1:0;
@@ -239,7 +239,7 @@ function pickWeightedReward(candidates,context){
 }
 function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  const base=bonusCashForWin(),lv=Math.max(...teamMembers().map(m=>m.level));
- const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
+ const members=teamMembers(),needsHealing=members.some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m)),hasFainted=members.some(m=>memberHp(m)===0);
  const pool={
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm22',icon:'📀'},{kind:'tm05',icon:'📀'},{kind:'tm06',icon:'📀'},{kind:'tm07',icon:'📀'},{kind:'tm08',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'tm20',icon:'📀'},{kind:'tm21',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'item',id:'oranBerry',quantity:1,icon:'🍊'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:8,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
@@ -1573,6 +1573,19 @@ function showRewardDescription(choice){
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
  if(!pendingRewardChoice){layer.hidden=true;return;}
+ // Rewards are rolled before final post-battle HP synchronization and level-up.
+ // If every living party member is now at full HP, replace stale healing
+ // choices with cash of the SAME tier instead of offering an unusable reward.
+ if(!teamMembers().some(m=>memberHp(m)>0&&memberHp(m)<memberMaxHp(m))){
+  let changed=false;
+  pendingRewardChoice.choices=pendingRewardChoice.choices.map(choice=>{
+   if(choice.kind!=='heal')return choice;
+   changed=true;
+   const multiplier={normal:1,rare:3,hyper:10,legendary:30}[choice.tier]??1;
+   return {kind:'cash',amount:bonusCashForWin()*multiplier,icon:'💰',tier:choice.tier};
+  });
+  if(changed)saveProgress();
+ }
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
