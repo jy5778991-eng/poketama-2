@@ -1,6 +1,6 @@
-import {moveDescription} from './js/data/moves.js?v=20261110-bulletpunch70';
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
+import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261110-meowth-payday32';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261110-meowth-payday32';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-original-secondary-forecast';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
