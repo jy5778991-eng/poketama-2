@@ -96,6 +96,7 @@ powerUpPunch:{name:'그로우펀치',power:40,accuracy:1,priority:0,boostsOnHit:
   razorLeaf: {name:"잎날가르기", accuracy:0.95, priority:0, power:55, critMultiplier:3},
   synthesis: {name:"광합성", accuracy:1.0, priority:0, healMaxHp:0.5, target:"self",pp:8},
   scratch: {name:"할퀴기", accuracy:1.0, priority:0, power:30},
+  payDay: {name:'고양이돈받기',power:90,accuracy:0.95,priority:0},
   ember: {name:"불꽃세례", accuracy:1.0, priority:0, power:45},
   fireFang: {name:"불꽃엄니", accuracy:0.95, priority:0, power:65,inflict:"burn",inflictChance:0.1},
   airSlash: {name:"에어슬래시", accuracy:0.95, priority:0, power:75},
