@@ -1,9 +1,9 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261109-ev-vitamins-8000';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261110-ev-reset-berries';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
 // Isolated bag/shop renderer. Mutations are committed through callbacks from app.js.
-export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,onHeldSelect,onMapUse,partyMembers=[],expShareActive=false,onExpShareToggle,inheritanceTicketLimit=3,inheritanceTicketUnlocked=false,inheritanceTicketPrice=20000,onInheritanceTicketBuy,onInheritanceTicketUse}){
+export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,chooseEvResetTarget,onHeldSelect,onMapUse,partyMembers=[],expShareActive=false,onExpShareToggle,inheritanceTicketLimit=3,inheritanceTicketUnlocked=false,inheritanceTicketPrice=20000,onInheritanceTicketBuy,onInheritanceTicketUse}){
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
@@ -57,7 +57,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
     if(ticket){onInheritanceTicketBuy?.();return;}
     if(inventory[item.id]>=stockLimit||(item.id==='partySlotB'&&!inventory.partySlotA)||progress.money<price)return;
     progress.money-=price;inventory[item.id]=item.id==='clefairyDoll'?(inventory[item.id]||0)+1:unique?1:(inventory[item.id]||0)+1;
-    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy,onInheritanceTicketUse});
+    saveProgress();renderHome();renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems,progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp,chooseRecoveryTarget,chooseVitaminTarget,chooseEvResetTarget,onHeldSelect,inheritanceTicketLimit,inheritanceTicketUnlocked,inheritanceTicketPrice,onInheritanceTicketBuy,onInheritanceTicketUse});
    };
    row.append(buy);
   }else if(item.category==='key'){
@@ -78,7 +78,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    use.disabled=!inventory[item.id];
    use.classList.toggle('item-missing',!inventory[item.id]);
    if(!inventory[item.id])use.style.opacity='0.45';
-   use.onclick=()=>{if(inventory[item.id]>0)(item.evStat?chooseVitaminTarget:chooseRecoveryTarget)?.(item);};
+   use.onclick=()=>{if(inventory[item.id]>0)(item.evReset?chooseEvResetTarget:item.evStat?chooseVitaminTarget:chooseRecoveryTarget)?.(item);};
    row.append(use);
   }
   list.append(row);
