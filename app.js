@@ -147,7 +147,7 @@ function evolutionRewardWeight(choice){
  return maxExtra>=10?10:maxExtra>=6?6:maxExtra>=4?4:2;
 }
 function rewardChoiceCount(){return giovanniCleared?5:erikaCleared?4:3;}
-// Rewards roll a fixed tier first (74/20.4/4.8/0.8), then use weights within that tier.
+// Reward tier odds depend on the number of choices; gym rewards double rare/hyper/legendary odds.
 // Every reward has a base weight of 4. Unmet eligibility conditions set it to 0.
 function rewardWeight(choice,context){
  const {needsHealing,hasFainted,members,lv}=context;
@@ -250,7 +250,10 @@ function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
-  const roll=Math.random()*100,tier=gym?(roll<48?'normal':roll<88.8?'rare':roll<98.4?'hyper':'legendary'):(roll<74?'normal':roll<94.4?'rare':roll<99.2?'hyper':'legendary');
+  const odds=count<=3?{rare:20.4,hyper:5,legendary:1}:count===4?{rare:20.4,hyper:4.9,legendary:0.9}:{rare:20.4,hyper:4.8,legendary:0.8};
+  const rare=gym?odds.rare*2:odds.rare,hyper=gym?odds.hyper*2:odds.hyper,legendary=gym?odds.legendary*2:odds.legendary;
+  const normal=100-rare-hyper-legendary;
+  const roll=Math.random()*100,tier=roll<normal?'normal':roll<normal+rare?'rare':roll<normal+rare+hyper?'hyper':'legendary';
   const choice=pickWeightedReward(pool[tier].map(c=>({...c,tier})),context);
   if(!choice)throw new Error('해당 등급에 선택 가능한 보상이 없습니다: '+tier);
   return {tier,...choice};
