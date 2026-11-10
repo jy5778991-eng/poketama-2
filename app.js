@@ -173,7 +173,7 @@ function rewardWeight(choice,context){
  if(choice.kind==='tm02')return tm02Targets().length?1:0;
  if(EXTRA_TM_CONFIG[choice.kind])return extraTmTargets(choice.kind).length?(EXTRA_TM_CONFIG[choice.kind].tier==='legendary'?3:(EXTRA_TM_CONFIG[choice.kind].weight??1)):0;
  if(choice.kind==='cash'){
-  if(choice.tier==='legendary')return 5;
+  if(choice.tier==='legendary')return 4;
   // Reduce money rewards as the highest party level rises; never below weight 2.
   if(lv>=70)return 2;
   if(lv>=60)return choice.tier==='normal'?2:3;
@@ -213,12 +213,12 @@ function rewardWeight(choice,context){
    if(id==='shellBell')return inventory.shellBell>=4?0:2;
    if(id==='leftovers')return inventory.leftovers>=4?0:4;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:4;
-   if(id==='expShare')return inventory.expShare>=4?0:6;
+   if(id==='expShare')return inventory.expShare>=4?0:7;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:7;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
   if(id==='thickClub')return inventory[id]===1?0:members.some(m=>[104,105].includes(m.dex))?7:1;
   if(id==='map')return inventory.map!==1?1:0;
-  if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?6:0;
+  if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?7:0;
   if(id==='lightBall')return inventory.lightBall===1?0:members.some(m=>[172,25,26].includes(m.dex))?6:0;
   if(id==='beedrillite')return inventory.beedrillite===1?0:members.some(m=>m.dex===15)?7:1;
   if(id==='charcoal')return inventory.charcoal>=1?0:4;
@@ -250,7 +250,7 @@ function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  normal:[{kind:'tm01',icon:'📀'},{kind:'tm02',icon:'📀'},...Object.keys(EXTRA_TM_CONFIG).filter(kind=>!['rare','hyper','legendary'].includes(EXTRA_TM_CONFIG[kind].tier)).map(kind=>({kind,icon:'📀'})),{kind:'cash',amount:base,icon:'💰'},{kind:'heal',healType:'potion',amount:20,icon:'🧪'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'item',id:'pokeBall',quantity:5,icon:'🔴'},{kind:'expCandy',multiplier:6,icon:'🍬'},...['attack','accuracy','critical','defense'].map(effect=>({kind:'power',effect,turns:10,icon:{attack:'⚔️',accuracy:'🎯',critical:'✂️',defense:'🛡️'}[effect]}))],
  rare:[{kind:'tm22',icon:'📀'},{kind:'tm05',icon:'📀'},{kind:'tm06',icon:'📀'},{kind:'tm07',icon:'📀'},{kind:'tm08',icon:'📀'},{kind:'tm10',icon:'📀'},{kind:'tm16',icon:'📀'},{kind:'tm20',icon:'📀'},{kind:'tm21',icon:'📀'},{kind:'cash',amount:base*3,icon:'💰'},{kind:'heal',healType:'superPotion',amount:60,icon:'💊'},{kind:'heal',healType:'hyperPotion',amount:120,icon:'💉'},{kind:'heal',healType:'fullRestore',full:true,icon:'❤️'},{kind:'reviveShardReward',icon:'💎'},{kind:'maxReviveReward',icon:'🌟'},{kind:'item',id:'greatBall',quantity:5,icon:'🔵'},{kind:'item',id:'memoryMushroom',quantity:1,icon:'🍄'},{kind:'item',id:'oranBerry',quantity:1,icon:'🍊'},{kind:'expCandy',multiplier:12,icon:'🍬'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:8,icon:'💊'})),{kind:'item',id:'partySlotA',quantity:1,icon:'👥'},{kind:'evolution',id:'linkCord',icon:'🔗'},...EVOLUTION_REWARD_ITEMS.map(item=>({kind:'evolution',id:item.id,icon:item.icon}))],
  hyper:[{kind:'tm09',icon:'📀'},{kind:'tm12',icon:'📀'},{kind:'tm13',icon:'📀'},{kind:'tm14',icon:'📀'},{kind:'tm15',icon:'📀'},{kind:'tm17',icon:'📀'},{kind:'tm24',icon:'📀'},{kind:'cash',amount:base*10,icon:'💰'},{kind:'item',id:'ultraBall',quantity:5,icon:'🟡'},{kind:'item',id:'quickBall',quantity:1,icon:'🔵'},{kind:'rareCandy',icon:'🍬'},{kind:'expCandy',multiplier:20,icon:'🍬'},{kind:'maxReviveReward',icon:'🌟'},{kind:'sacredAshReward',icon:'✨'},...['hp','attack','defense','speed'].map(stat=>({kind:'ev',stat,amount:24,icon:'💊'})),{kind:'item',id:'partySlotB',quantity:1,icon:'👥'},{kind:'item',id:'focusSash',quantity:1,icon:'🎗️'},{kind:'item',id:'eviolite',quantity:1,icon:'🪨'},{kind:'item',id:'wideLens',quantity:1,icon:'🔍'},{kind:'item',id:'sitrusBerry',quantity:1,icon:'🍊'},{kind:'item',id:'hardClaw',quantity:1,icon:'🐾'},{kind:'item',id:'quickClaw',quantity:1,icon:'🐾'},{kind:'item',id:'clefairyDoll',quantity:1,icon:'🧸'},{kind:'item',id:'map',quantity:1,icon:'🗺️'}],
- legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*30,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'beedrillite',quantity:1,icon:'💎'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'whiteFlute',quantity:1,icon:'🎶'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
+ legendary:[{kind:'tm23',icon:'📀'},{kind:'candyBundle',icon:'🍬'},{kind:'tm11',icon:'📀'},{kind:'tm18',icon:'📀'},{kind:'tm19',icon:'📀'},{kind:'goldCap',icon:'🥇'},{kind:'cash',amount:base*50,icon:'💰'},{kind:'item',id:'revivalSeed',quantity:1,icon:'🌱'},{kind:'item',id:'masterBall',quantity:1,icon:'🟣'},{kind:'silverCap',icon:'🥈'},{kind:'item',id:'secretSwitch',quantity:1,icon:'🔘'},{kind:'item',id:'oldSeaMap',quantity:1,icon:'🗺️'},{kind:'item',id:'lightBall',quantity:1,icon:'⚡'},{kind:'item',id:'beedrillite',quantity:1,icon:'💎'},{kind:'item',id:'thickClub',quantity:1,icon:'🦴'},{kind:'item',id:'charcoal',quantity:1,icon:'🔥'},{kind:'item',id:'miracleSeed',quantity:1,icon:'🌱'},{kind:'item',id:'mysticWater',quantity:1,icon:'💧'},{kind:'item',id:'silverPowder',quantity:1,icon:'✨'},{kind:'item',id:'sharpBeak',quantity:1,icon:'🪶'},{kind:'item',id:'magnet',quantity:1,icon:'🧲'},{kind:'item',id:'shellBell',quantity:1,icon:'🐚'},{kind:'item',id:'leftovers',quantity:1,icon:'🍎'},{kind:'item',id:'scopeLens',quantity:1,icon:'🎯'},{kind:'item',id:'whiteFlute',quantity:1,icon:'🎶'},{kind:'item',id:'expShare',quantity:1,icon:'📖'}]
  };
  const context={members,needsHealing,hasFainted,lv};
  return Array.from({length:count},()=>{
@@ -2231,7 +2231,7 @@ function chooseRecoveryTarget(item){
 const INHERITANCE_PRICE_STEPS=[10000,20000,30000,30000,40000,40000,50000,50000,70000,100000,120000,120000,140000,150000,160000];
 const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry','clefairyDoll']);
 function inheritanceItemEligible(item){return !!item&&item.id!=='inheritanceTicket'&&(HELD_ITEMS.includes(item.id)||item.category==='key');}
-function inheritanceItemCost(id){return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
+function inheritanceItemCost(id){if(id==='beedrillite')return 2;return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
 function inheritanceSelectionCost(ids){return ids.reduce((sum,id)=>sum+inheritanceItemCost(id),0);}
 function inheritanceCapacity(){return Math.min(21,5+2*(hallOfFameEntries('first').length+hallOfFameEntries('second').length));}
 function sanitizeInheritanceSelection(wanted,available,budget){
