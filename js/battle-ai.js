@@ -93,6 +93,9 @@ function chooseRedMove(enemy,opponent,rng,usable){
 // Reversing a stage (via an opponent move) makes the corresponding tactic more likely again.
 // After +2 self-boost or -2 opponent-debuff, rapidly diminish further setup attempts.
 const STAGE_TACTIC_CHANCE=[.38,.31,.12,.045,.015,.004,0];
+// Damaging moves with rank-change effects use the same diminishing preference
+// as pure setup/debuff moves. Their ordinary damage score remains unaffected.
+const stageEffectPreference=progress=>STAGE_TACTIC_CHANCE[Math.min(6,Math.max(0,progress))]/STAGE_TACTIC_CHANCE[0];
 const battleSpeed=f=>Math.max(1,Math.floor((f?.stats?.speed||1)*stageMultiplier(f?.stages?.speed||0)*(f?.status?.type==='paralysis'?.5:1)*(f?.speedBuffMultiplier||1)));
 const speedAlreadyAhead=(enemy,opponent)=>!!opponent&&battleSpeed(enemy)>=battleSpeed(opponent);
 const stageValue=(fighter,stat)=>Math.max(-6,Math.min(6,fighter?.stages?.[stat]??0));
@@ -185,7 +188,7 @@ function secondaryForecast(move,enemy,opponent,hp){
   const nextStage=Math.min(6,oldStage+move.boostsOnHit.attack);
   const increase=stageMultiplier(nextStage)/stageMultiplier(oldStage)-1;
   // Compare future offensive damage with and without the +Attack stage.
-  bonus+=Math.min(userAttack*.85,userAttack*increase*horizon*.55)*hitChance*lowHpPenalty;
+  bonus+=Math.min(userAttack*.85,userAttack*increase*horizon*.55)*hitChance*lowHpPenalty*stageEffectPreference(Math.max(0,oldStage));
  }
  if(move.lowerTargetAccuracy&&stageValue(opponent,'accuracy')>-6){
   const oldAccuracy=stageValue(opponent,'accuracy');
@@ -195,7 +198,7 @@ function secondaryForecast(move,enemy,opponent,hp){
   const newNet=stageValue(enemy,'evasion')-newAccuracy;
   const accuracyFactor=net=>net>=0?3/(3+net):(3-net)/3;
   const avoided=Math.max(0,1-accuracyFactor(newNet)/accuracyFactor(oldNet));
-  bonus+=Math.min(userAttack*.80,targetAttack*avoided*horizon*.65)*hitChance*lowHpPenalty;
+  bonus+=Math.min(userAttack*.80,targetAttack*avoided*horizon*.65)*hitChance*lowHpPenalty*stageEffectPreference(Math.max(0,-oldAccuracy));
  }
  if(move.lowerTargetSpeedChance&&stageValue(opponent,'speed')>-6&&battleSpeed(enemy)<battleSpeed(opponent)){
   const nextSpeedStage=Math.max(-6,stageValue(opponent,'speed')-1);
@@ -203,7 +206,7 @@ function secondaryForecast(move,enemy,opponent,hp){
   const speedFlip=battleSpeed(enemy)>=futureSpeed;
   // Reversing turn order can prevent an incoming hit when our next attack KOs.
   const nearKo=userAttack>=opponent.hp*.65;
-  bonus+=Math.min(userAttack*.65,targetAttack*(speedFlip?(nearKo?.48:.25):.055)*horizon)*hitChance*lowHpPenalty;
+  bonus+=Math.min(userAttack*.65,targetAttack*(speedFlip?(nearKo?.48:.25):.055)*horizon)*hitChance*lowHpPenalty*stageEffectPreference(Math.max(0,-stageValue(opponent,'speed')));
  }
  return bonus;
 }
