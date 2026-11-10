@@ -922,6 +922,8 @@ function addPartyExperience(amount,enemyName,cap=null){
    }
    if(progress.level===100)progress.exp=0;
    if(progress.level>oldLevel){
+    // The active battler's HP is adjusted after combat; bench starters need it here.
+    if(member.key!==activeBattleKey)preserveLevelUpHp(member,beforeMax,beforeHp);
     pendingPartyGrowth.push({key:member.key,name:getForm(chosen,progress.level).name,before:oldLevel,after:progress.level,starter:true});
    }
   }else{
