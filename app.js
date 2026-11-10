@@ -1,4 +1,4 @@
-import {moveDescription} from './js/data/moves.js?v=20261110-bodyslam85';
+import {moveDescription} from './js/data/moves.js?v=20261110-bulletpunch70';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261109-spearow-gust10';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261110-original-secondary-forecast';
@@ -11,7 +11,7 @@ import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteU
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
+import {BASE_STATS} from './js/data/base-stats.js?v=20261110-scizor-def115-speed55';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
 import {renderInventoryView} from './js/inventory.js?v=20261110-beedrillite-key';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
