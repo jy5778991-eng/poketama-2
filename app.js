@@ -1505,12 +1505,12 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='secretSwitch')return '🔘 비밀 스위치 · 로켓단 비밀기지 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='oldSeaMap')return '🗺️ 오래된해도 · 환상의 섬 이동 해금 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='revivalSeed')return '🌱 부활의 씨앗 · 포켓몬에게 장착하면 배틀 중 HP 0이 될 때 즉시 풀피로 부활 · 발동 시 소모';
- if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 1개당 생존 확률 +5%p · 포켓몬당 최대 6개 · 최대 6개 보유 · 발동 시 HP 1 생존 (배틀당 1회)';
+ if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 1개당 생존 확률 +5% · 포켓몬당 최대 6개 · 최대 6개 보유 · 발동 시 HP 1 생존 (배틀당 1회)';
  if(choice.kind==='item'&&choice.id==='hardClaw')return '단단한 발톱 · 1개당 공격력 +10%, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='item'&&choice.id==='quickClaw')return '🐾 선제공격손톱 · 1개당 4% 확률로 선제공격 · 포켓몬당 최대 5개 · 최대 5개 보유';
  if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유 시 불꽃 타입 포켓몬의 공격력이 15% 증가한다. (중요 아이템)';
- if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5%p 증가한다. (중요 아이템)';
+ if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='mysticWater')return '💧 신비의 물방울 · 보유 시 물 타입 포켓몬의 방어력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='silverPowder')return '✨ 은빛가루 · 보유시 벌레 포켓몬의 방어력이 15%, 공격력이 10% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='sharpBeak')return '🪶 예리한 부리 · 보유 시 비행 타입 포켓몬의 공격력이 10% 증가한다. (중요 아이템)';
@@ -1521,12 +1521,12 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='shellBell')return '🔔 조개껍질방울 · 공격으로 피해를 주면 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='leftovers')return '🍎 먹다남은음식 · 매 턴 HP를 일부 회복';
  if(choice.kind==='item'&&choice.id==='sitrusBerry')return '🍊 자뭉열매 · 전투 중 HP가 50% 이하가 되면 최대 HP의 25%를 회복하고 1개 소모';
- if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 기술 명중률 +5%p (일격필살기는 +2.5%p) · 포켓몬당 최대 2개 장착 · 최대 3개 보유';
- if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%p, 포켓몬당 최대 3개 · 최대 5개 보유';
+ if(choice.kind==='item'&&choice.id==='wideLens')return '🔍 광각렌즈 · 1개당 기술 명중률 +5% (일격필살기는 +2.5%) · 포켓몬당 최대 2개 장착 · 최대 3개 보유';
+ if(choice.kind==='item'&&choice.id==='scopeLens')return '🎯 초점렌즈 · 1개당 급소 확률 +3%, 포켓몬당 최대 3개 · 최대 5개 보유';
  if(choice.kind==='silverCap')return '🥈 은색 병뚜껑 · 원하는 스탯의 개체값을 최대로 강화';
  if(choice.kind==='ev')return ({hp:'HP',attack:'공격',defense:'방어',speed:'스피드'}[choice.stat]||'능력치')+' 기초포인트가 '+(choice.amount||10)+' 오른다.';
  if(choice.kind==='exp')return '🍬 경험치 +'+choice.amount+' 즉시 획득';
- if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 10턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%p',critical:'급소 확률 +15%p',defense:'방어력 +20%'}[choice.effect||'attack']);
+ if(choice.kind==='power')return (choice.icon||'✨')+' '+(BOOST_INFO[choice.effect||'attack']?.name||'플러스파워')+' · 10턴 '+({attack:'공격력 +20%',accuracy:'명중률 +10%',critical:'급소 확률 +15%',defense:'방어력 +20%'}[choice.effect||'attack']);
  if(choice.kind==='cash')return '💰 추가 상금 +'+choice.amount.toLocaleString('ko-KR')+'원';
  if(choice.kind==='heal')return choice.full?'❤️ 즉시 HP 100% 회복':(choice.icon||'🧪')+' 즉시 HP '+choice.amount+' 회복';
  const item=SHOP_ITEMS.find(x=>x.id===choice.id);
@@ -2205,7 +2205,7 @@ function renderPowerStatus(){
    const chip=document.createElement('span');chip.className='boost-chip';
    const img=document.createElement('img');
    img.src='https://play.pokemonshowdown.com/sprites/itemicons/'+info.img+'.png';img.alt=info.name;img.onerror=()=>{img.replaceWith(document.createTextNode(key==='defense'?'🛡️':'✨'));};
-   const txt=document.createElement('span');txt.textContent='+'+(durations.length*({attack:20,accuracy:10,critical:15,defense:20}[key]))+(key==='accuracy'||key==='critical'?'%p':'%')+' · '+durations.join('/')+'턴';
+   const txt=document.createElement('span');txt.textContent='+'+(durations.length*({attack:20,accuracy:10,critical:15,defense:20}[key]))+(key==='accuracy'||key==='critical'?'%':'%')+' · '+durations.join('/')+'턴';
    chip.title=info.name+' · '+durations.length+'중첩 · 개별 남은 턴 '+durations.join(', ');
    chip.append(img,txt);el.append(chip);
   }
@@ -2371,7 +2371,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'%p (일격필살기 +'+count*2.5+'%p)':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%p':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
