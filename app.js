@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-vitamin5000-berry-desc';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-eviolite13-max3';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261104-species-stats269';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261110-ev-reset-berries';
+import {renderInventoryView} from './js/inventory.js?v=20261110-eviolite13-max3';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -23,7 +23,7 @@ const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
 const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry','oranBerry'];
-const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:5,sitrusBerry:5,oranBerry:5};
+const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:3,sitrusBerry:5,oranBerry:5};
 const STACKABLE_HELD_ITEMS=['wideLens','hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw','eviolite'];
 function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
@@ -198,7 +198,7 @@ function rewardWeight(choice,context){
   if(id==='partySlotA')return inventory.partySlotA!==1?6:0;
   if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?6:0;
   if(id==='wideLens')return choice.tier==='legendary'&&inventory.wideLens<3?2:0;
-  if(id==='eviolite')return inventory.eviolite<5&&members.some(m=>EVOLVABLE_DEX.has(m.dex))?2:0;
+  if(id==='eviolite')return inventory.eviolite<3&&members.some(m=>EVOLVABLE_DEX.has(m.dex))?3:0;
   if(id==='sitrusBerry')return inventory.sitrusBerry<5?3:0;
    if(id==='oranBerry')return inventory.oranBerry<5?4:0;
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
@@ -534,7 +534,7 @@ function permanentItemStatMultipliers(m){
  return {
   hp:1,
   attack:attackItemMultiplier(m),
-  defense:1+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0),
+  defense:1+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.13*heldCount('eviolite',m.key):0),
   speed:1+magnetSpeedBonus(m)
  };
 }
@@ -1294,7 +1294,7 @@ function reset(kind='wild',recordDiscovery=true){
    if(held.sitrusBerry)mon.sitrusBerryEnabled=true;
    if(held.shellBell){mon.shellBell=true;mon.shellBellCount=held.shellBell;}
    if(held.scopeLens)mon.critBuff=(mon.critBuff||0)+0.03*held.scopeLens;
-   if(held.eviolite)mon.defenseBuffMultiplier=(mon.defenseBuffMultiplier||1)*(1+0.10*held.eviolite);
+   if(held.eviolite)mon.defenseBuffMultiplier=(mon.defenseBuffMultiplier||1)*(1+0.13*held.eviolite);
    if(held.hardClaw){mon.hardClawCount=held.hardClaw;mon.attackBuffMultiplier=(mon.attackBuffMultiplier||1)+0.10*held.hardClaw;}
    if(held.quickClaw)mon.quickClawCount=held.quickClaw;
    if(held.focusSash){mon.focusSashEnabled=true;mon.focusSashCount=held.focusSash;mon.focusSashChance=0.05*held.focusSash;mon.focusSashUsed=false;}
@@ -2351,7 +2351,7 @@ const EVOLVABLE_DEX=new Set([
 ]);
 function makeMemberFighter(m){normalizeHeldItems();const s=STARTERS.find(x=>x.id===chosen),form=getForm(chosen,progress.level);const player=m.starter?fighter(s,playerIVs,progress.level,BASE_STATS[form.dex],form.name,playerMoves):makeCompanionFighter(m);player.dex=m.dex;player.hp=memberHp(m);player.attackBuffMultiplier=attackItemMultiplier(m)+0.2*boostCount('attack');player.speedBuffMultiplier=1+magnetSpeedBonus(m);
 player.wideLensAccuracyBuff=0.05*heldCount('wideLens',m.key); player.accuracyBuff=0.1*boostCount('accuracy')+player.wideLensAccuracyBuff+(grassSeedBonus(m)?0.05:0);
-player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
+player.shellBellCount=heldCount('shellBell',m.key);player.leftoversCount=heldCount('leftovers',m.key);player.shellBell=player.shellBellCount>0;player.leftoversEnabled=player.leftoversCount>0;player.revivalSeedEnabled=hasHeld('revivalSeed',m.key)&&inventory.revivalSeed>0;player.revivalSeedUsed=false;player.focusSashEnabled=hasHeld('focusSash',m.key);player.quickClawCount=heldCount('quickClaw',m.key);player.focusSashChance=0.05*heldCount('focusSash',m.key);player.focusSashUsed=false;player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.13*heldCount('eviolite',m.key):0);
  player.sitrusBerryEnabled=hasHeld('sitrusBerry',m.key)&&inventory.sitrusBerry>0;player.oranBerryEnabled=hasHeld('oranBerry',m.key)&&inventory.oranBerry>0;
  return player;}
 function normalizeHeldItems(){
@@ -2774,7 +2774,7 @@ function offerCapturedCompanion(){
    {text:'동료 교체 취소',action:()=>{}}
   ]);
  };
- partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 프렌들리숍에서 추가 슬롯A를 해금한 뒤 가능해.'),[
+ partyOverlay('🔴 포획 성공!',wildEnemy.name+' Lv.'+wildEnemy.level+(unlocked?'을(를) 동료로 영입할까?':'을(를) 잡았어! 동료 영입은 추가 슬롯A를 해금한 뒤 가능해.'),[
   {text:'동료로 영입',disabled:!unlocked,reason:'포켓몬 추가 슬롯A 해금 필요',action:()=>{
    const hasSameFamily=teamMembers().some(m=>m.starter?teamFamily(m.dex)===family:m.family===family);
    if(!hasSameFamily&&1+companions.length<limit){recruit(null);return;}
@@ -2947,7 +2947,7 @@ async function act(a){
   battle.player.wideLensAccuracyBuff=0.05*heldCount('wideLens',m.key); battle.player.accuracyBuff=0.1*boostCount('accuracy')+battle.player.wideLensAccuracyBuff+(grassSeedBonus(m)?0.05:0);
   battle.player.quickClawCount=heldCount('quickClaw',m.key);
   battle.player.focusSashChance=0.05*heldCount('focusSash',m.key);battle.player.critBuff=0.15*boostCount('critical')+(0.03*heldCount('scopeLens',m.key));battle.player.shellBellCount=heldCount('shellBell',m.key);battle.player.leftoversCount=heldCount('leftovers',m.key);battle.player.shellBell=battle.player.shellBellCount>0;battle.player.leftoversEnabled=battle.player.leftoversCount>0;
-  battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.1*heldCount('eviolite',m.key):0);
+  battle.player.defenseBuffMultiplier=1+0.2*boostCount('defense')+(grassSeedBonus(m)?0.1:0)+(waterDropBonus(m)?0.10:0)+(bugPowderBonus(m)?0.15:0)+(EVOLVABLE_DEX.has(m.dex)?0.13*heldCount('eviolite',m.key):0);
   if(a.type==='revive'){
    const target=teamMembers().find(m=>m.key===a.targetKey);
    if(!target||target.key===activeBattleKey||!reviveMember(target))return;
