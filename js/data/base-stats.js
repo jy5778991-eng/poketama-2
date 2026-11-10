@@ -159,7 +159,7 @@ const BASE_STAT_ROWS={
  197:[110,65,130,65],
  200:[60,85,73,85],
  208:[75,85,153,30],
- 212:[70,130,90,65],
+ 212:[70,130,115,55],
  446:[135,85,63,5]
 };
 export const BASE_STATS=Object.freeze(Object.fromEntries(
