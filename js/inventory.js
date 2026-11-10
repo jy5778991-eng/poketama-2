@@ -1,4 +1,4 @@
-import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261110-vitamin5000-berry-desc';
+import {SHOP_ITEMS,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './data/items.js?v=20261110-eviolite13-max3';
 import {getForm} from './data/pokemon.js';
 import {calculateStats} from '../battle-engine.mjs?v=20261102-shell-scope-exp191';
 
@@ -46,7 +46,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
    const ticket=item.id==='inheritanceTicket';
    const unique=!ticket&&(item.category==='key'||item.unique);
-   const stockLimit=ticket?inheritanceTicketLimit:item.id==='clefairyDoll'?4:['eviolite','sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
+   const stockLimit=ticket?inheritanceTicketLimit:item.id==='clefairyDoll'?4:item.id==='eviolite'?3:['sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
    const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
    const locked=ticket&&!inheritanceTicketUnlocked;
    const price=ticket?inheritanceTicketPrice:item.price;
