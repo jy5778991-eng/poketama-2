@@ -60,4 +60,6 @@ export const availableMoves=(id,level)=>(id==='eevee'&&eeveeForm?[...MOVE_LEARNS
 export const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
 // Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
 export const migrateMoves=(id,level)=>availableMoves(id,level).slice(-4).map(m=>m.id);
-export const isValidMoves=(id,level,moves)=>Array.isArray(moves)&&moves.length>=1&&moves.length<=4&&new Set(moves).size===moves.length&&moves.every(m=>availableMoves(id,level).some(x=>x.id===m)&&MOVES[m]);
+// Previously this rejected TM and recalled moves, replacing the entire saved moveset on reload.
+// Validate the existence of each move instead; how it was taught is handled at learning time.
+export const isValidMoves=(id,level,moves)=>Array.isArray(moves)&&moves.length>=1&&moves.length<=4&&new Set(moves).size===moves.length&&moves.every(m=>typeof m==='string'&&Object.hasOwn(MOVES,m));
