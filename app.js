@@ -2978,7 +2978,7 @@ function renderHome(){
  $('startBattle').disabled=!livingMembers().length||!!pendingRewardChoice;
  const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
  $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
- $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원'+(lastBattleReward?' (+'+lastBattleReward.money.toLocaleString('ko-KR')+')':'');
+ $('homeMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  renderCaptures();
  const maxHp=memberMaxHp(leader);
  const hp=leaderHp();
