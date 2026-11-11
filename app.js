@@ -378,10 +378,9 @@ function showMoneyHistory(){
  overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','돈 수입과 지출 기록');
  const panel=document.createElement('section');panel.className='party-summary-panel';
  panel.style.cssText='width:min(520px,100%);max-height:88vh;overflow:auto';
- const heading=document.createElement('h2');heading.textContent='💰 돈 변동 기록';
- const balance=document.createElement('p');balance.style.fontWeight='900';balance.textContent='현재 보유금 '+progress.money.toLocaleString('ko-KR')+'원';
+ const heading=document.createElement('h2');heading.textContent='💰 보유금 '+progress.money.toLocaleString('ko-KR')+'원';
  const notice=document.createElement('p');notice.style.cssText='font-size:12px;color:#60748e;line-height:1.5';
- notice.textContent='기록 기능 추가 이후의 최신 150건 · 원인 미확인 변동도 별도 표시';
+ notice.textContent='원인 미확인 변동도 별도 표시';
  const entries=document.createElement('div');entries.style.cssText='display:grid;gap:8px;text-align:left';
  if(!moneyHistory.length){const none=document.createElement('p');none.textContent='아직 기록된 수입·지출이 없어.';entries.append(none);}
  for(const event of [...moneyHistory].reverse()){
@@ -397,7 +396,7 @@ function showMoneyHistory(){
   item.append(head,detail);entries.append(item);
  }
  const close=document.createElement('button');close.className='party-summary-close';close.type='button';close.textContent='닫기';close.onclick=()=>overlay.remove();
- panel.append(heading,balance,notice,entries,close);overlay.append(panel);document.body.append(overlay);close.focus();
+ panel.append(heading,notice,entries,close);overlay.append(panel);document.body.append(overlay);close.focus();
 }
 
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
