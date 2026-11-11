@@ -2129,6 +2129,8 @@ function restoreHistoricalAchievements(){
 }
 function renderCollection(){
  restoreHistoricalAchievements();
+ const refreshBar=$('achievementRefreshBar');
+ if(refreshBar){refreshBar.hidden=collectionTab!=='achievements';refreshBar.style.display=refreshBar.hidden?'none':'flex';}
  let old={};try{old=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
  const a=old.achievements||{};
  const permanentHall=Array.isArray(old.hallOfFame)?old.hallOfFame:[];
@@ -3890,7 +3892,18 @@ function setup(){
  });}catch(e){alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));}});
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
- document.querySelectorAll('[data-collection-tab]').forEach(button=>button.addEventListener('click',()=>{collectionTab=button.dataset.collectionTab;renderCollection();}));
+ document.querySelectorAll('[data-collection-tab]').forEach(button=>button.addEventListener('click',()=>{collectionTab=button.dataset.collectionTab;$('achievementRefreshStatus').textContent='';renderCollection();}));
+ $('achievementRefresh').addEventListener('click',()=>{
+  if(collectionTab!=='achievements')return;
+  const previous=new Set(achievementData.earned);
+  checkDexAchievements();
+  restoreHistoricalAchievements();
+  const newlyEarned=achievementData.earned.filter(id=>!previous.has(id));
+  renderCollection();
+  $('achievementRefreshStatus').textContent=newlyEarned.length
+   ?'갱신 완료! 새 업적 '+newlyEarned.length+'개 달성'
+   :'갱신 완료 · 새로 달성한 업적 없음';
+ });
  $('openShop').addEventListener('click',()=>showShopTab('shop'));
  $('openBag').addEventListener('click',()=>showShopTab('bag'));
  $('closeShop').addEventListener('click',()=>{$('shopScreen').hidden=true;if(leagueStage!==null){renderLeague();showScreen('league')}else showScreen('home')});
