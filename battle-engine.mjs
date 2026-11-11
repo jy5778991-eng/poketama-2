@@ -243,10 +243,10 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   if(pAction.type==='run'&&!b.wild)throw new Error('Run attempts are only allowed in wild battles');
   const start=b.log.length;b.events=[];b.turn++;say(b,`── 턴 ${b.turn} ──`);for(const key of ['player','enemy'])if(b.shields[key]>0)b.shields[key]--;
   const order=[{fighter:p,target:e,action:pAction,player:true},{fighter:e,target:p,action:eAction,player:false}];
-  // Trigger independently of normal speed order: +4 percentage points per claw.
+  // Trigger independently of normal speed order: +5 percentage points per claw.
   for(const entry of order){
-    const count=Math.min(5,Math.max(0,entry.fighter.quickClawCount||0));
-    entry.quickClawTriggered=entry.action.type==='move'&&count>0&&roll(b.rng)<0.04*count;
+    const count=Math.min(4,Math.max(0,entry.fighter.quickClawCount||0));
+    entry.quickClawTriggered=entry.action.type==='move'&&count>0&&roll(b.rng)<0.05*count;
     entry.orderPriority=entry.action.priority+(entry.quickClawTriggered?1:0);
   }
   order.sort((a,z)=>z.orderPriority-a.orderPriority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
