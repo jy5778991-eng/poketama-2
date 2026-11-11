@@ -3397,12 +3397,25 @@ function advanceRedEnding(){
  $('redEndingOverlay').hidden=true;
  redCeremonyPending=false;saveProgress();showHallOfFame();
 }
+// Persist a self-contained snapshot of item loadouts and the move-management
+// catalogue when a Hall of Fame entry is created. Earlier entries are untouched.
 function hallPartySnapshot(){
  return teamMembers().slice(0,3).map(m=>{
   const ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
+  const equippedMoves=[...(m.starter?playerMoves:m.moves||[])];
+  const heldItems=Object.fromEntries(HELD_ITEMS.map(id=>[id,heldCount(id,m.key)]).filter(([,count])=>count>0));
+  const usedMachines=[
+   ...(tm01Learned.includes(m.key)?[{id:'tm01',moveId:'megaPunch'}]:[]),
+   ...(tm02Learned.includes(m.key)?[{id:'tm02',moveId:'megaKick'}]:[]),
+   ...Object.entries(EXTRA_TM_CONFIG).filter(([kind])=>extraTmLearned[kind]?.includes(m.key)).map(([kind,cfg])=>({id:kind,moveId:cfg.moveId}))
+  ];
+  // Available/recallable moves reflect the in-game move-management catalogue.
+  // These are not claimed to be a chronological record of learning actions.
+  const availableMoves=recallLearnable(m).map(entry=>({id:entry.id,level:entry.level??null,tmLabel:entry.tmLabel??null}));
   return {name:m.name,dex:m.dex,level:m.level,
    hp:memberMaxHp(m),exp:m.starter?progress.exp:m.exp||0,
-   ivs:{...ivs},evs:{...evs},moves:[...(m.starter?playerMoves:m.moves||[])],
+   ivs:{...ivs},evs:{...evs},moves:equippedMoves,
+   heldItems,moveManagement:{availableMoves,usedMachines,equippedMoves:[...equippedMoves]},
    stats:calculateStats(memberBase(m),m.level,ivs,evs)};
  });
 }
@@ -3489,7 +3502,23 @@ function showArchivedHallParty(record,selectedIndex=0){
   pic.onerror=()=>{pic.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/'+m.dex+'.png';pic.onerror=()=>{pic.style.visibility='hidden';};};
   const data=document.createElement('div');data.className='party-summary-info';
   const name=document.createElement('strong');name.textContent=(i===0?'★ ':'')+m.name+'　Lv.'+(m.level||'?');
-  data.append(name,meter('HP',m.stats?.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
+  const nameRow=document.createElement('div');nameRow.className='party-summary-name-row';nameRow.append(name);
+  // Only use the archived loadout, never the current team's equipment.
+  for(const [id,quantity] of Object.entries(m.heldItems||{})){
+   if(!HELD_ITEMS.includes(id)||!Number.isInteger(quantity)||quantity<=0)continue;
+   const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;
+   const heldIcon=document.createElement('img');heldIcon.className='party-summary-held-icon';
+   heldIcon.src=itemSpriteUrl(id);heldIcon.alt=item.name;
+   heldIcon.title=item.name+' '+quantity+'개';heldIcon.loading='lazy';
+   heldIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=heldIcon.title;heldIcon.replaceWith(fallback);};
+   nameRow.append(heldIcon);
+   if(quantity>1){
+    const count=document.createElement('small');count.textContent=String(quantity);
+    count.title=item.name+' 장착 수량';count.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';
+    nameRow.append(count);
+   }
+  }
+  data.append(nameRow,meter('HP',m.stats?.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
   button.append(pic,data);
   button.onclick=()=>showArchivedHallParty(record,i);
   cards.append(button);
