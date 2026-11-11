@@ -1,6 +1,6 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261110-meowth-payday32';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261110-meowth-payday32';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-leftovers3';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
@@ -3447,7 +3447,9 @@ function mapTravelProblem(key){
  return '';
 }
 function showMap(){
- if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||leagueCeremonyPending||redCeremonyPending)return;
+ if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||redCeremonyPending)return;
+ // A completed League victory must not permanently lock the map if the ceremony flag survives after the reward is handled.
+ if(currentRunLeagueWon&&leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();}
  selectedMapDestination=area;
  $('mapLocationText').textContent='현재 위치: '+(mapRegion(area)?.[1]||area);
  const list=$('mapDestinations');list.replaceChildren();
@@ -3468,7 +3470,7 @@ function showMap(){
 }
 function confirmMapTravel(){
  const dest=selectedMapDestination;
- if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||leagueCeremonyPending||redCeremonyPending||dest===area)return;
+ if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||redCeremonyPending||dest===area)return;
  const problem=mapTravelProblem(dest);
  if(problem){alert(problem);return;}
  area=dest;saveProgress();$('mapOverlay').hidden=true;renderHome();showScreen('home');
@@ -4012,6 +4014,6 @@ function setup(){
   const resetButton=$('gameResetButton');
   if(resetButton)resetButton.before(noticeButton);
  }
- noticeButton.addEventListener('click',()=>partyOverlay('📢 공지사항','• 현재 개발과 업데이트가 진행 중인 라이브 서비스 게임입니다.\n• 최신 업데이트를 적용하려면 수시로 새로고침(F5)을 눌러 주세요.\n• 플레이 기록은 자동 저장되며, 현재 이용 중인 브라우저의 사이트 데이터에 보관됩니다. 브라우저의 사이트 데이터나 저장 데이터를 삭제하면 게임 기록도 사라질 수 있습니다.',[{text:'확인'}]));$('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{renderHome();showScreen('home')});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
+ noticeButton.addEventListener('click',()=>partyOverlay('📢 공지사항','• 현재 개발과 업데이트가 진행 중인 라이브 서비스 게임입니다.\n• 최신 업데이트를 적용하려면 수시로 새로고침(F5)을 눌러 주세요.\n• 플레이 기록은 자동 저장되며, 현재 이용 중인 브라우저의 사이트 데이터에 보관됩니다. 브라우저의 사이트 데이터나 저장 데이터를 삭제하면 게임 기록도 사라질 수 있습니다.',[{text:'확인'}]));$('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{showScreen('home');renderHome();});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(redCeremonyPending&&!pendingRewardChoice)showRedEnding();}
 setup();
 window.__poketamaReady=true;
