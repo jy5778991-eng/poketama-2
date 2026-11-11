@@ -327,3 +327,55 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
 #partyActionButtons .tm-target-option .recovery-target-details{display:flex;flex:1;flex-direction:column;gap:3px}
 #partyActionButtons .tm-target-option .tm-target-status{font-size:13px;color:#25734b;font-weight:700}
 #partyActionButtons .tm-target-option:disabled .tm-target-status{color:#8c5961}
+
+/* Opponent header: speed left, opponent centered, turn right, on one row. */
+#battleScreen .trainer-label.battle-heading-row{
+ display:grid;
+ grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);
+ align-items:center;
+ column-gap:6px;
+ min-height:38px;
+ padding:0 8px;
+}
+#battleScreen .battle-heading-row #speedToggle{
+ grid-column:1;
+ justify-self:start;
+ min-width:0;
+ max-width:100%;
+ padding:7px 8px;
+}
+#battleScreen .battle-heading-opponent{
+ grid-column:2;
+ min-width:0;
+ display:flex;
+ align-items:center;
+ justify-content:center;
+ gap:7px;
+}
+#battleScreen .battle-heading-opponent #trainerName{
+ min-width:0;
+ text-align:center;
+ overflow-wrap:anywhere;
+}
+#battleScreen .battle-heading-row .battle-turn-counter{
+ position:static;
+ grid-column:3;
+ justify-self:end;
+ transform:none;
+ margin:0;
+}
+@media(max-width:520px){
+ #battleScreen .trainer-label.battle-heading-row{
+  grid-template-columns:minmax(0,1fr) minmax(0,1.35fr) minmax(0,1fr);
+  column-gap:4px;
+  padding:0 4px;
+ }
+ #battleScreen .battle-heading-row #speedToggle{
+  font-size:10px;
+  padding:6px 4px;
+ }
+ #battleScreen .battle-heading-opponent{gap:3px}
+ #battleScreen .battle-heading-opponent #trainerName{font-size:12px}
+ #battleScreen .battle-heading-opponent img{max-width:38px;max-height:44px}
+ #battleScreen .battle-heading-row .battle-turn-counter{padding:4px 5px;font-size:10px}
+}
