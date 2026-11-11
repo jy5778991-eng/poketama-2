@@ -2950,7 +2950,7 @@ function renderHome(){
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!currentRunLeagueWon||redHallOfFame.length>0;
  redButton.disabled=progress.level<90||!livingMembers().length||!!pendingRewardChoice||animating;
- $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'피카츄 Lv.99 외 5마리';
+ $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'Lv.90에 해금';
  $('trainerButtonTitle').textContent=currentRunLeagueWon?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2'||currentRunLeagueWon;
  $('leagueEnter').disabled=area!=='championRoad2'||currentRunLeagueWon||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
