@@ -171,7 +171,7 @@
   notice.hidden=true;notice.style.display='none';
  });
  apply.addEventListener('click',()=>{location.reload();});
- setInterval(checkUpdate,30*60*1000);
+ setInterval(checkUpdate,60*60*1000);
  // Check the already-detected update at safe times without additional network requests.
  setInterval(offer,1500);
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)offer();});
