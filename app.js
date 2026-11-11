@@ -730,7 +730,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  if(options.redCharizard)trainer.redAiMode='charizard';
  if(options.redVenusaur)trainer.redAiMode='venusaur';
  if(options.redBlastoise)trainer.redAiMode='blastoise';
- // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
+ // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
  trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
@@ -2472,7 +2472,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*5+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*5+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*5+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
