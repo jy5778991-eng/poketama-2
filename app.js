@@ -2084,7 +2084,7 @@ function restoreHistoricalAchievements(){
  mark('eevees',[133,134,135,136].every(d=>historicCaught.has(d)));
  mark('eevees2',[133,134,135,136,196,197].every(d=>historicCaught.has(d)));
  // Recover only from evidence of an actual Eevee evolution, not a wild capture.
- mark('eeveeMajor',(chosen==='eevee'&&!!getEeveeForm())||adventureLog.some(line=>/이브이\\s*→\\s*(샤미드|쥬피썬더|부스터|에브이|블래키).*진화/.test(line)));
+ mark('eeveeMajor',(chosen==='eevee'&&!!getEeveeForm())||adventureLog.some(line=>/이브이\s*→\s*(샤미드|쥬피썬더|부스터|에브이|블래키).*진화/.test(line)));
  mark('dna',[150,151].every(d=>historicCaught.has(d)));
  mark('zapdos',historicCaught.has(145));
  mark('moltres',historicCaught.has(146));
