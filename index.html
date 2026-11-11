@@ -44,7 +44,7 @@
       <button id="startBattle" type="button" class="home-action primary-action adventure-wild">⚔ 야생 배틀 <small>레벨업 · 상금 · 포획</small></button>
       <button type="button" id="trainerChallenge" class="home-action adventure-trainer"><span id="trainerButtonTitle">🔒 그린에게 도전</span><small id="trainerButtonNote">Lv.5에 해금</small></button>
       <button type="button" id="leagueEnter" class="home-action" hidden>🏆 포켓몬 리그 도전 <small>Lv.67에 해금</small></button>
-      <button type="button" id="redChallenge" class="home-action adventure-trainer" hidden disabled>👑 레드에게 도전 <small id="redChallengeNote">Lv.90에 해금</small></button>
+      <button type="button" id="redChallenge" class="home-action adventure-trainer" hidden disabled>👑 레드에게 도전 <small id="redChallengeNote">Lv.85에 해금</small></button>
     </div>
 
     
@@ -186,7 +186,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261111-lorelei-held-items-balance');
+ await import('./app.js?v=20261111-rocket-reset-red85');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
