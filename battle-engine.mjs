@@ -289,7 +289,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
     // A Pokemon knocked out by residual damage cannot recover.
     for(const fighter of [p,e]){
       if(fighter.hp<=0||!fighter.leftoversEnabled)continue;
-      const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.02*(fighter.leftoversCount??1))));
+      const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.03*(fighter.leftoversCount??1))));
       if(amount>0){fighter.hp+=amount;say(b,`${fighter.name}은(는) 먹다남은음식으로 HP ${amount} 회복!`);emit(b,{type:'heal',side:sideOf(b,fighter),amount,hp:fighter.hp,heldItem:'leftovers'});}
     }
     settle(b);}
