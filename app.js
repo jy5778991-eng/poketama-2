@@ -1,13 +1,13 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261110-meowth-payday32';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261110-meowth-payday32';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-shellbell-4pct';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-quickclaw-5pct';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-shellbell-4pct';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-quickclaw-5pct';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -23,9 +23,9 @@ const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
 const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry','oranBerry'];
-const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:3,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:3,sitrusBerry:5,oranBerry:5};
+const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:3,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:4,eviolite:3,sitrusBerry:5,oranBerry:5};
 const STACKABLE_HELD_ITEMS=['wideLens','hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw','eviolite'];
-function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?3:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
+function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?3:id==='leftovers'?3:id==='quickClaw'?4:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -207,7 +207,7 @@ function rewardWeight(choice,context){
   if(id==='focusSash')return inventory.focusSash>=6?0:1;
   if(id==='revivalSeed')return inventory.revivalSeed>=1?0:7;
   if(id==='hardClaw')return inventory.hardClaw>=5?0:1;
-  if(id==='quickClaw')return inventory.quickClaw>=5?0:1;
+  if(id==='quickClaw')return inventory.quickClaw>=4?0:1;
   if(id==='clefairyDoll')return inventory.clefairyDoll>=4?0:1;
   if(id==='whiteFlute')return inventory.whiteFlute>=1?0:1;
    if(id==='shellBell')return inventory.shellBell>=3?0:2;
@@ -797,8 +797,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=2;
   trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.20;
   if(dex===112){
-   trainer.heldItemCounts={...trainer.heldItemCounts,quickClaw:5,focusSash:4};
-   trainer.quickClawCount=5;
+   trainer.heldItemCounts={...trainer.heldItemCounts,quickClaw:4,focusSash:4};
+   trainer.quickClawCount=4;
    trainer.focusSashEnabled=true;
    trainer.focusSashCount=4;
    trainer.focusSashChance=0.05*trainer.focusSashCount;
@@ -815,7 +815,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   if(battleKind==='rocketApollo')return {...{leftovers:4},...(dex===169?{hardClaw:2}:{})};
   if(battleKind==='rocketAthena')return {...{shellBell:2,magnet:1},...(dex===197?{leftovers:2}:{})};
   if(battleKind==='rocketGiovanni'){
-   if(dex===112)return {quickClaw:5,revivalSeed:1,wideLens:1};
+   if(dex===112)return {quickClaw:4,revivalSeed:1,wideLens:1};
    if(dex===15)return {hardClaw:3,focusSash:5,revivalSeed:1,scopeLens:1};
    if(dex===150)return {hardClaw:3,focusSash:6,sitrusBerry:1,scopeLens:2};
    if(dex===34||dex===31)return {hardClaw:3};
@@ -1339,6 +1339,19 @@ function reset(kind='wild',recordDiscovery=true){
   if(openingPenalty<1)for(const stat of ['attack','defense','speed'])wildStats[stat]=Math.max(1,Math.floor(wildStats[stat]*openingPenalty));
   const enemy=createFighter({id:'wild-'+wild.dex,name:wild.name,level,friendship:50,stats:wildStats,moveIds:recentWildMoves(wild.dex,level)});enemy.dex=wild.dex;enemy.rare=wild.rare;enemy.catchMultiplier=pokemonCatchMultiplier(wild.dex,wild.rare,wild.tier);enemies=[enemy];
  }
+ // NPCs follow player per-Pokemon equipment limits, including later reductions.
+ if(kind!=='wild')for(const enemy of enemies){
+  if(!enemy.heldItemCounts)continue;
+  for(const [id,rawCount] of Object.entries(enemy.heldItemCounts)){
+   if(!HELD_ITEMS.includes(id))continue;
+   enemy.heldItemCounts[id]=Math.min(HELD_MAX[id]??99,heldItemPerPokemonLimit(id),Math.max(0,Number(rawCount)||0));
+  }
+  enemy.quickClawCount=enemy.heldItemCounts.quickClaw||0;
+  enemy.shellBellCount=enemy.heldItemCounts.shellBell||0;
+  enemy.shellBell=enemy.shellBellCount>0;
+  enemy.leftoversCount=enemy.heldItemCounts.leftovers||0;
+  enemy.leftoversEnabled=enemy.leftoversCount>0;
+ }
  player.hp=leaderHp();
  battleRoster.set(leader.key,player);
  battle=createBattle(player,enemies,{items:0,balls:0,wild:kind==='wild'}); // Held Focus Sash effects live on each Pokémon's fighter.
@@ -1541,7 +1554,7 @@ function rewardChoiceText(choice){
  if(choice.kind==='item'&&choice.id==='revivalSeed')return '🌱 부활의 씨앗 · 포켓몬에게 장착하면 배틀 중 HP 0이 될 때 즉시 풀피로 부활 · 발동 시 소모';
  if(choice.kind==='item'&&choice.id==='focusSash')return '🎗️ 기합의띠 · 1개당 생존 확률 +5% · 포켓몬당 최대 6개 · 최대 6개 보유 · 발동 시 HP 1 생존 (배틀당 1회)';
  if(choice.kind==='item'&&choice.id==='hardClaw')return '단단한 발톱 · 1개당 공격력 +10%, 포켓몬당 최대 3개 · 최대 5개 보유';
- if(choice.kind==='item'&&choice.id==='quickClaw')return '🐾 선제공격손톱 · 1개당 4% 확률로 선제공격 · 포켓몬당 최대 5개 · 최대 5개 보유';
+ if(choice.kind==='item'&&choice.id==='quickClaw')return '🐾 선제공격손톱 · 1개당 5% 확률로 선제공격 · 포켓몬당 최대 4개 · 최대 4개 보유';
  if(choice.kind==='item'&&choice.id==='lightBall')return '⚡ 전기구슬 · 보유 시 피츄·피카츄·라이츄 공격력 1.5배 (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='charcoal')return '🔥 목탄 · 보유 시 불꽃 타입 포켓몬의 공격력이 15% 증가한다. (중요 아이템)';
  if(choice.kind==='item'&&choice.id==='miracleSeed')return '🌱 기적의 씨 · 보유 시 풀 타입 포켓몬의 방어력이 10% 증가하고 명중률이 5% 증가한다. (중요 아이템)';
@@ -2459,7 +2472,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*4+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*5+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*3+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*3+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
