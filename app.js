@@ -1794,9 +1794,17 @@ function tmSelectionOptions(targets,actionFor,kind){
   const canLearn=eligible.has(m.key);
   const speciesCompatible=compatible.has(m.dex);
   const levelValid=m.level>=minLevel&&m.level<=maxLevel;
+  // Some species are intentionally excluded from a TM because they learn
+  // that same move naturally. Until its natural learn level, show the actual
+  // reason ("레벨부족") instead of misleading "불가능".
+  const moveId=cfg?.moveId;
+  const naturalLearnLevel=moveId?(m.starter
+   ?(m.dex===197?([...(learnsetForDex(m.dex)||[])].find(entry=>entry.id===moveId)?.level):availableMoves(chosen,100).find(entry=>entry.id===moveId)?.level)
+   :(learnsetForDex(m.dex)||[]).find(entry=>entry.id===moveId)?.level):undefined;
+  const awaitingNaturalMove=Number.isInteger(naturalLearnLevel)&&m.level<naturalLearnLevel;
   return {
    member:m,
-   tmStatus:canLearn?'가능':speciesCompatible&&!levelValid?'레벨부족':'불가능',
+   tmStatus:canLearn?'가능':(speciesCompatible&&!levelValid||awaitingNaturalMove)?'레벨부족':'불가능',
    disabled:!canLearn,
    action:actionFor(m)
   };
