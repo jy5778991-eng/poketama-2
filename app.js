@@ -1350,7 +1350,7 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
   // Elite Four held items by exact team slot (including duplicate species).
   const eliteItems=[
-   [{leftovers:2},{sitrusBerry:1},{},{scopeLens:1},{leftovers:2}],
+   [{leftovers:2},{focusSash:6,shellBell:2},{leftovers:2},{scopeLens:1},{quickClaw:4,focusSash:6}],
    [{eviolite:2},{shellBell:3},{shellBell:3},{},{quickClaw:3}],
    [{shellBell:2},{eviolite:2},{eviolite:2},{hardClaw:2},{shellBell:2}],
    [{focusSash:4},{eviolite:2},{eviolite:2},{hardClaw:2},{hardClaw:1}]
@@ -1367,7 +1367,7 @@ function reset(kind='wild',recordDiscovery=true){
    if(held.quickClaw)mon.quickClawCount=held.quickClaw;
    if(held.focusSash){mon.focusSashEnabled=true;mon.focusSashCount=held.focusSash;mon.focusSashChance=0.05*held.focusSash;mon.focusSashUsed=false;}
   });
-  if(n>=0&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
+  if(n>=1&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
   if(n===4){const rival=rivalForm(blueChoice,75);const ace=trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id));ace.sitrusBerryEnabled=true;ace.focusSashEnabled=true;ace.focusSashCount=4;ace.focusSashChance=0.20;ace.focusSashUsed=false;ace.heldItemCounts={...(ace.heldItemCounts||{}),sitrusBerry:1,focusSash:4};enemies.push(ace)}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
