@@ -1,7 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-leftovers3';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-focus-band-sash';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
@@ -552,14 +552,15 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const oldLensCount=(Math.max(0,saved?.inventory?.wideLensA||0)+Math.max(0,saved?.inventory?.wideLensB||0));
  const migratedLens=i.id==='wideLens'&&!Number.isInteger(saved?.inventory?.wideLens)?Math.min(3,oldLensCount):null;
  const migratedBand=i.id==='focusBand'&&!Number.isInteger(saved?.inventory?.focusBand)?Math.min(6,Math.max(0,Number(saved?.inventory?.focusSash)||0)):null;
- const value=migratedBand!==null?migratedBand:migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
+ const migratedSash=i.id==='focusSash'&&!Number.isInteger(saved?.inventory?.focusBand)?0:null;
+  const value=migratedSash!==null?migratedSash:migratedBand!==null?migratedBand:migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
  return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(21,value):i.id==='clefairyDoll'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0),Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
  const oldLensOwners=id==='wideLens'?[...(Array.isArray(saved?.battleItemHolders?.wideLensA)?saved.battleItemHolders.wideLensA:[]),...(Array.isArray(saved?.battleItemHolders?.wideLensB)?saved.battleItemHolders.wideLensB:[])]:null;
  const oldBandOwners=id==='focusBand'&&Array.isArray(saved?.battleItemHolders?.focusSash)?saved.battleItemHolders.focusSash:null;
- const recorded=Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldBandOwners||oldLensOwners;
+ const recorded=id==='focusSash'&&!Number.isInteger(saved?.inventory?.focusBand)?null:Array.isArray(saved?.battleItemHolders?.[id])?saved.battleItemHolders[id]:oldBandOwners||oldLensOwners;
  return [id,Array.isArray(recorded)?recorded.filter(x=>typeof x==='string').slice(0,inventory[id]):Array(Math.max(0,Math.min(99,Number(inventory[id])||0))).fill('starter')];
 }));
 // Slot B may be inherited independently, but only activates after slot A is unlocked.
