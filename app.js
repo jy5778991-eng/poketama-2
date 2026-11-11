@@ -733,7 +733,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:2,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:2,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
  if(options.redPikachu||options.redLapras){trainer.wideLensAccuracyBuff=0.10;if(options.redLapras)trainer.accuracyBuff=(trainer.accuracyBuff||0)+0.10;}
  if(battleKind==='brock'&&dex===95)trainer.oranBerryEnabled=true;
  if(options.redPikachu){
@@ -812,7 +812,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  }
  // Rocket commanders and boss: actual held-item combat effects, not just HUD labels.
  const rocketItems=()=>{
-  if(battleKind==='rocketApollo')return {...{leftovers:3},...(dex===169?{hardClaw:2}:{})};
+  if(battleKind==='rocketApollo')return {...(dex===169||dex===45?{}:{leftovers:2}),...(dex===169?{hardClaw:2}:{})};
   if(battleKind==='rocketAthena')return {...{shellBell:2,magnet:1},...(dex===197?{leftovers:2}:{})};
   if(battleKind==='rocketGiovanni'){
    if(dex===112)return {quickClaw:4,revivalSeed:1,wideLens:1};
@@ -844,7 +844,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),wideLens:1};
   trainer.wideLensAccuracyBuff=(trainer.wideLensAccuracyBuff||0)+.05; trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
  }
- if(battleKind==='koga'&&(dex===89||dex===110)){const count=3;trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:count};trainer.leftoversEnabled=true;trainer.leftoversCount=count;}
+ if(battleKind==='koga'&&(dex===89||dex===110)){const count=dex===89?2:3;trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:count};trainer.leftoversEnabled=true;trainer.leftoversCount=count;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
  if(battleKind==='surge'){trainer.hardClawCount=1;trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.1;} // Lt. Surge: each Pokemon carries one Hard Claw (+10% Attack)
  if(battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex))trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.15; // Charcoal: Fire-type Attack +15%
@@ -1286,7 +1286,7 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
   // Elite Four held items by exact team slot (including duplicate species).
   const eliteItems=[
-   [{leftovers:3},{sitrusBerry:1},{},{scopeLens:1},{leftovers:3}],
+   [{leftovers:2},{sitrusBerry:1},{},{scopeLens:1},{leftovers:2}],
    [{eviolite:2},{shellBell:3},{shellBell:3},{},{quickClaw:3}],
    [{shellBell:2},{eviolite:2},{eviolite:2},{hardClaw:2},{shellBell:2}],
    [{focusSash:4},{eviolite:2},{eviolite:2},{hardClaw:2},{hardClaw:1}]
