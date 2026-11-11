@@ -3399,11 +3399,29 @@ function advanceRedEnding(){
 }
 // Persist a self-contained snapshot of item loadouts and the move-management
 // catalogue when a Hall of Fame entry is created. Earlier entries are untouched.
+// Battle-effective permanent key items are passive, not held equipment.
+// Snapshot only the effects applicable to this specific Pokemon.
+function hallPassiveItems(m){
+ const dex=m.dex;
+ const applicable={
+  lightBall:[172,25,26].includes(dex),
+  thickClub:[104,105].includes(dex),
+  beedrillite:dex===15,
+  charcoal:FIRE_TYPE_DEX.has(dex),
+  miracleSeed:GRASS_TYPE_DEX.has(dex),
+  mysticWater:WATER_TYPE_DEX.has(dex),
+  silverPowder:BUG_TYPE_DEX.has(dex),
+  sharpBeak:FLYING_TYPE_DEX.has(dex),
+  magnet:ELECTRIC_TYPE_DEX.has(dex)
+ };
+ return Object.fromEntries(Object.entries(applicable).filter(([id,works])=>works&&inventory[id]>=1).map(([id])=>[id,1]));
+}
 function hallPartySnapshot(){
  return teamMembers().slice(0,3).map(m=>{
   const ivs=m.starter?playerIVs:m.ivs,evs=m.starter?playerEVs:m.evs||{};
   const equippedMoves=[...(m.starter?playerMoves:m.moves||[])];
   const heldItems=Object.fromEntries(HELD_ITEMS.map(id=>[id,heldCount(id,m.key)]).filter(([,count])=>count>0));
+  const passiveItems=hallPassiveItems(m);
   const usedMachines=[
    ...(tm01Learned.includes(m.key)?[{id:'tm01',moveId:'megaPunch'}]:[]),
    ...(tm02Learned.includes(m.key)?[{id:'tm02',moveId:'megaKick'}]:[]),
@@ -3415,7 +3433,7 @@ function hallPartySnapshot(){
   return {name:m.name,dex:m.dex,level:m.level,
    hp:memberMaxHp(m),exp:m.starter?progress.exp:m.exp||0,
    ivs:{...ivs},evs:{...evs},moves:equippedMoves,
-   heldItems,moveManagement:{availableMoves,usedMachines,equippedMoves:[...equippedMoves]},
+   heldItems,passiveItems,moveManagement:{availableMoves,usedMachines,equippedMoves:[...equippedMoves]},
    stats:calculateStats(memberBase(m),m.level,ivs,evs)};
  });
 }
@@ -3517,6 +3535,17 @@ function showArchivedHallParty(record,selectedIndex=0){
     count.title=item.name+' 장착 수량';count.style.cssText='font-size:11px;font-weight:bold;margin-left:-4px';
     nameRow.append(count);
    }
+  }
+  // Passive key items are shown beside held items, as they applied at the
+  // time of this Hall of Fame snapshot. Old archives stay unchanged.
+  for(const [id,quantity] of Object.entries(m.passiveItems||{})){
+   if(!Number.isInteger(quantity)||quantity<=0)continue;
+   const item=SHOP_ITEMS.find(x=>x.id===id&&x.category==='key');if(!item)continue;
+   const passiveIcon=document.createElement('img');passiveIcon.className='party-summary-held-icon';
+   passiveIcon.src=itemSpriteUrl(id);passiveIcon.alt=item.name;
+   passiveIcon.title=item.name+' · 중요 아이템 보유 효과';passiveIcon.loading='lazy';
+   passiveIcon.onerror=()=>{const fallback=document.createElement('span');fallback.className='party-summary-held-icon';fallback.textContent=item.icon||'🎁';fallback.title=passiveIcon.title;passiveIcon.replaceWith(fallback);};
+   nameRow.append(passiveIcon);
   }
   data.append(nameRow,meter('HP',m.stats?.hp,m.stats?.hp,'hp'),meter('EXP',m.exp,m.level>=100?0:levelNeed(m.level),'exp'));
   button.append(pic,data);
