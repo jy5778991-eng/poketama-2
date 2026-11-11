@@ -1,13 +1,13 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261110-meowth-payday32';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261110-meowth-payday32';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-sitrus30';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-leftovers3';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-scope4-sitrus30';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-leftovers3';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -264,7 +264,7 @@ function drawThreeRewards(level,count=rewardChoiceCount(),gym=false){
  });
 }
 function rewardRerollCost(count){
- const cost=(progress.level*16+100)*2**count;
+ const cost=(progress.level*15+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
 function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,volcanoAutoMoveVersion:1,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,currentRunLeagueWon,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
@@ -812,7 +812,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  }
  // Rocket commanders and boss: actual held-item combat effects, not just HUD labels.
  const rocketItems=()=>{
-  if(battleKind==='rocketApollo')return {...{leftovers:4},...(dex===169?{hardClaw:2}:{})};
+  if(battleKind==='rocketApollo')return {...{leftovers:3},...(dex===169?{hardClaw:2}:{})};
   if(battleKind==='rocketAthena')return {...{shellBell:2,magnet:1},...(dex===197?{leftovers:2}:{})};
   if(battleKind==='rocketGiovanni'){
    if(dex===112)return {quickClaw:4,revivalSeed:1,wideLens:1};
@@ -844,7 +844,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),wideLens:1};
   trainer.wideLensAccuracyBuff=(trainer.wideLensAccuracyBuff||0)+.05; trainer.accuracyBuff=(trainer.accuracyBuff||0)+.05;
  }
- if(battleKind==='koga'&&(dex===89||dex===110)){const count=dex===89?3:4;trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:count};trainer.leftoversEnabled=true;trainer.leftoversCount=count;}
+ if(battleKind==='koga'&&(dex===89||dex===110)){const count=3;trainer.heldItemCounts={...(trainer.heldItemCounts||{}),leftovers:count};trainer.leftoversEnabled=true;trainer.leftoversCount=count;}
  if(battleKind==='sabrina'){trainer.heldItemCounts={...(trainer.heldItemCounts||{}),quickClaw:4};trainer.quickClawCount=4;}
  if(battleKind==='surge'){trainer.hardClawCount=1;trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.1;} // Lt. Surge: each Pokemon carries one Hard Claw (+10% Attack)
  if(battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex))trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.15; // Charcoal: Fire-type Attack +15%
@@ -2472,7 +2472,7 @@ function manageHeldItem(id){
    const label=document.createElement('div');
    const name=document.createElement('strong');name.textContent=member.name+' Lv.'+member.level;label.append(name);
    const detail=document.createElement('div');detail.style.cssText='font-size:12px;color:#526782;margin-top:3px';
-   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*5+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*5+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*2+'% 회복':count?'장착 중':'미장착';label.append(detail);
+   detail.textContent=id==='eviolite'?(EVOLVABLE_DEX.has(member.dex)?'방어력 +'+count*10+'%':'진화가 불가능하여 장착 불가'):id==='sitrusBerry'?'HP 50% 이하 시 20% 회복 · 소모':id==='wideLens'?'명중률 +'+count*5+'% (일격필살기 +'+count*2.5+'%)':id==='quickClaw'?'선제공격 확률 '+count*5+'%':id==='hardClaw'?'공격력 +'+count*10+'%':id==='scopeLens'?'급소율 +'+count*4+'%':id==='focusSash'?'생존 확률 '+count*5+'%':id==='shellBell'?'피해량의 '+count*5+'% 회복':id==='leftovers'?'턴 종료 시 최대 HP '+count*3+'% 회복':count?'장착 중':'미장착';label.append(detail);
    const controls=document.createElement('div');controls.style.cssText='display:flex;align-items:center;gap:9px';
    const button=(symbol,disabled,action)=>{
     const el=document.createElement('button');el.type='button';el.textContent=symbol;
