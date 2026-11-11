@@ -1370,9 +1370,9 @@ function reset(kind='wild',recordDiscovery=true){
   // Elite Four held items by exact team slot (including duplicate species).
   const eliteItems=[
    [{leftovers:2},{focusBand:2,focusSash:1,shellBell:2},{leftovers:2},{scopeLens:1},{quickClaw:4,focusBand:4,focusSash:1}],
-   [{eviolite:2},{shellBell:3},{shellBell:3},{},{quickClaw:3}],
-   [{shellBell:2},{eviolite:2},{eviolite:2},{hardClaw:2},{shellBell:2}],
-   [{focusBand:6},{eviolite:2},{eviolite:2},{hardClaw:2},{hardClaw:1}]
+   [{eviolite:3},{shellBell:3},{shellBell:3},{eviolite:3},{quickClaw:3,focusSash:1}],
+   [{shellBell:2,focusSash:1},{eviolite:3},{eviolite:3},{hardClaw:2,focusBand:4},{shellBell:2,focusSash:1}],
+   [{focusBand:6,leftovers:2},{eviolite:3},{eviolite:3},{hardClaw:2,focusSash:1},{hardClaw:1,focusSash:1}]
   ];
   if(n>=0&&n<4)enemies.forEach((mon,i)=>{
    const held=eliteItems[n][i]||{};
