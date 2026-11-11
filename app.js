@@ -2337,7 +2337,7 @@ function chooseRecoveryTarget(item){
  }})),{text:'취소',action:()=>{}}]);
 }
 const INHERITANCE_PRICE_STEPS=[10000,20000,30000,30000,40000,40000,50000,50000,70000,100000,120000,120000,140000,150000,160000];
-const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry','clefairyDoll']);
+const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBerry','clefairyDoll','partySlotA']);
 function inheritanceItemEligible(item){return !!item&&item.id!=='inheritanceTicket'&&(HELD_ITEMS.includes(item.id)||item.category==='key');}
 function inheritanceItemCost(id){if(id==='beedrillite')return 2;return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
 function inheritanceSelectionCost(ids){return ids.reduce((sum,id)=>sum+inheritanceItemCost(id),0);}
