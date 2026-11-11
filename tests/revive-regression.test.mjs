@@ -40,3 +40,28 @@ test('defeat cannot stand when a revived reserve is alive',()=>{
  assert.match(section,/teamMembers\(\)\.filter\(m=>m\.key!==activeBattleKey&&memberHp\(m\)>0\)/);
  assert.match(section,/if\(battle\.result!=='victory'\)\{battle\.ended=false;battle\.result=null;\}/);
 });
+
+test('faint and revive clear every cached stat rank before re-entry',()=>{
+ const fighter={hp:0,stages:{attack:3,defense:-2,speed:4,evasion:2,accuracy:-1},status:{type:'poison'},confusionTurns:2,lockedMove:{id:'thrash'}};
+ const battleRoster=new Map([['companion-dragon',fighter]]);
+ const companions=[{family:'dragon',hp:0}];
+ const context={battleRoster,companions,inventory:{revive:1},memberMaxHp:()=>100,memberHp:m=>companions[0].hp,appendAdventureLog:()=>{}};
+ vm.runInNewContext([extract('resetFighterStages'),extract('resetFighterAfterFaint'),extract('setMemberHp'),extract('reviveMember')].join('\n')+';globalThis.reviveMember=reviveMember;globalThis.resetFighterAfterFaint=resetFighterAfterFaint;',context);
+ const member={key:'companion-dragon',family:'dragon',starter:false,name:'테스트'};
+ context.resetFighterAfterFaint(fighter);
+ assert.deepEqual(Object.values(fighter.stages),[0,0,0,0,0]);
+ assert.equal(fighter.status,null);
+ fighter.stages.attack=6;
+ assert.equal(context.reviveMember(member),true);
+ assert.equal(fighter.hp,50);
+ assert.deepEqual(Object.values(fighter.stages),[0,0,0,0,0]);
+});
+test('ordinary switch and post-faint replacement keep ranks at zero',()=>{
+ const start=source.indexOf('function requestBattleSwitch(');
+ const switchSection=source.slice(start,source.indexOf('function makeCompanionFighter',start));
+ assert.match(switchSection,/resetFighterStages\(battle\.player\)/);
+ const replacement=extract('sendOutReplacement');
+ assert.match(replacement,/battle\.player\.hp=memberHp\(m\)/);
+ const faintSection=source.slice(source.indexOf('if(battle.player.hp===0){',source.indexOf('async function act(')));
+ assert.match(faintSection,/resetFighterAfterFaint\(battle\.player\)/);
+});
