@@ -638,7 +638,23 @@ async function playEvents(events){const pokemonName=side=>(side==='enemy'?'상�
     await pause(1500);
     arrows.remove();
   }else await pause(220);
-}else if(ev.type==='moveFailed'){addDetail('하지만 실패했다!');await pause(600);}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.heldItem==='sitrusBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 자뭉열매 발동!');}else if(ev.heldItem==='oranBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 오랭열매 발동!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);if(ev.side==='enemy'&&['oranBerry','sitrusBerry','revivalSeed'].includes(ev.heldItem))renderEnemyHeldItems(animatingEnemy??battle.enemies[battle.enemyIndex]);$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
+}else if(ev.type==='moveFailed'){addDetail('하지만 실패했다!');await pause(600);}else if(ev.type==='fieldEffect'){if(battleEffectDisplay){if(ev.effect==='lightScreen')battleEffectDisplay.shields[ev.side]=battle.shields[ev.side];if(ev.effect==='aquaRing')battleEffectDisplay.rings[ev.side]=true;}renderBattleEffects();await pause(350);}else if(ev.type==='focusSash'){currentMove=null;tell(pokemonName(ev.side)+'의 기합의띠 발동!','HP 1로 버텼다!');await pause(600);}else if(ev.type==='heal'){if(ev.heldItem==='revivalSeed'){currentMove=null;tell(pokemonName(ev.side)+'의 부활의 씨앗 발동!');}else if(ev.heldItem==='leftovers'){currentMove=null;tell(pokemonName(ev.side)+'의 먹다남은음식!');}else if(ev.heldItem==='sitrusBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 자뭉열매 발동!');}else if(ev.heldItem==='oranBerry'){currentMove=null;tell(pokemonName(ev.side)+'의 오랭열매 발동!');}else if(ev.item)tell('회복 아이템 사용!');else if(!lastTitle)tell('HP 회복!');if(!(currentMove?.id==='rest'&&currentMove.side===ev.side))addDetail(pokemonName(ev.side)+' HP '+ev.amount+' 회복');if(!ev.item)await playMoveImpact(ev.side,'synthesis');popup(ev.side,ev.amount,false,true);await pause(400);displayHp(ev.side,ev.hp);await pause(700);if(['oranBerry','sitrusBerry','revivalSeed'].includes(ev.heldItem)){
+  // Only hide the spent item after its heal has been shown, not when
+  // the engine calculates the whole turn before animation.
+  if(heldIconTimeline){
+   if(ev.side==='enemy'&&heldIconTimeline.enemyDisplay){
+    const visible=heldIconTimeline.enemyDisplay;
+    visible.heldItemCounts[ev.heldItem]=Math.max(0,(visible.heldItemCounts[ev.heldItem]||0)-1);
+    if(ev.heldItem==='oranBerry')visible.oranBerryEnabled=false;
+    if(ev.heldItem==='sitrusBerry')visible.sitrusBerryEnabled=false;
+    if(ev.heldItem==='revivalSeed')visible.revivalSeedUsed=true;
+   }else if(ev.side==='player'){
+    heldIconTimeline.playerCounts[ev.heldItem]=Math.max(0,(heldIconTimeline.playerCounts[ev.heldItem]||0)-1);
+   }
+  }
+  if(ev.side==='enemy')renderEnemyHeldItems(animatingEnemy??battle.enemies[battle.enemyIndex]);
+  else render();
+ }$(ev.side+'Popup').classList.remove('visible');}else if(ev.type==='capture'){tell('몬스터볼을 던졌다!');await playCaptureSequence(ev.success);}else if(ev.type==='miss'){addDetail(pokemonName(ev.side)+'의 공격이 빗나갔다!');await pause(1300);}}if(!events.length&&battle?.log?.length){const note=battle.log.at(-1);if(note)showBattleActionMessage(note,'');}}
 
 
 // Wild capture plays before any later enemy attack events. The result always follows the engine's roll.
@@ -2954,12 +2970,16 @@ function renderBattleStatus(side,fighter){
  }
  statusElement.style.color=status==='burn'?'#c75e32':status==='freeze'?'#278ac9':status==='poison'?'#985ac0':status==='sleep'?'#438fe1':status==='paralysis'?'#b98906':'';
 }
+// Battle actions resolve before their animations play. Preserve the pre-action
+// equipment display until each consumable's healing animation finishes.
+let heldIconTimeline=null;
 function renderEnemyHeldItems(enemy){
  const host=$('enemyHeldItemIcons');if(!host)return;
  host.replaceChildren();
- if(!enemy?.heldItemCounts)return;
- for(const [id,quantity] of Object.entries(enemy.heldItemCounts)){
-  if(quantity<=0||(id==='oranBerry'&&!enemy.oranBerryEnabled)||(id==='sitrusBerry'&&!enemy.sitrusBerryEnabled)||(id==='revivalSeed'&&enemy.revivalSeedUsed)||(id==='lightBall'&&![172,25,26].includes(enemy.dex))||(id==='thickClub'&&![104,105].includes(enemy.dex))||(id==='charcoal'&&!FIRE_TYPE_DEX.has(enemy.dex))||(id==='miracleSeed'&&!GRASS_TYPE_DEX.has(enemy.dex))||(id==='mysticWater'&&!WATER_TYPE_DEX.has(enemy.dex))||(id==='silverPowder'&&!BUG_TYPE_DEX.has(enemy.dex))||(id==='sharpBeak'&&!FLYING_TYPE_DEX.has(enemy.dex))||(id==='magnet'&&!ELECTRIC_TYPE_DEX.has(enemy.dex)))continue;
+ const visibleEnemy=heldIconTimeline?.enemy===enemy?heldIconTimeline.enemyDisplay:enemy;
+ if(!visibleEnemy?.heldItemCounts)return;
+ for(const [id,quantity] of Object.entries(visibleEnemy.heldItemCounts)){
+  if(quantity<=0||(id==='oranBerry'&&!visibleEnemy.oranBerryEnabled)||(id==='sitrusBerry'&&!visibleEnemy.sitrusBerryEnabled)||(id==='revivalSeed'&&visibleEnemy.revivalSeedUsed)||(id==='lightBall'&&![172,25,26].includes(enemy.dex))||(id==='thickClub'&&![104,105].includes(enemy.dex))||(id==='charcoal'&&!FIRE_TYPE_DEX.has(enemy.dex))||(id==='miracleSeed'&&!GRASS_TYPE_DEX.has(enemy.dex))||(id==='mysticWater'&&!WATER_TYPE_DEX.has(enemy.dex))||(id==='silverPowder'&&!BUG_TYPE_DEX.has(enemy.dex))||(id==='sharpBeak'&&!FLYING_TYPE_DEX.has(enemy.dex))||(id==='magnet'&&!ELECTRIC_TYPE_DEX.has(enemy.dex)))continue;
   const item=SHOP_ITEMS.find(entry=>entry.id===id);
   if(!item)continue;
   const el=document.createElement('span');el.className='player-held-item-icon';el.style.position='relative';
@@ -2970,7 +2990,7 @@ function renderEnemyHeldItems(enemy){
   el.title=item.name+(quantity>1?' '+quantity+'개':'');host.append(el);
  }
 }
-function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){if(!activeBattleKey||!hasHeld(id,activeBattleKey))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}for(const [id,dexes] of [['lightBall',[172,25,26]],['thickClub',[104,105]],['charcoal',FIRE_TYPE_DEX],['miracleSeed',GRASS_TYPE_DEX],['mysticWater',WATER_TYPE_DEX],['silverPowder',BUG_TYPE_DEX],['sharpBeak',FLYING_TYPE_DEX],['magnet',ELECTRIC_TYPE_DEX]]){if(!inventory[id]||!(dexes instanceof Set?dexes.has(battle.player?.dex):dexes.includes(battle.player?.dex)))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);el.title=item.name+' · 중요 아이템 보유 효과';heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
+function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.replaceChildren();for(const id of HELD_ITEMS){const shownHeldCount=heldIconTimeline?.playerKey===activeBattleKey?heldIconTimeline.playerCounts[id]||0:heldCount(id,activeBattleKey);if(!activeBattleKey||shownHeldCount<=0)continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);if(STACKABLE_HELD_ITEMS.includes(id)&&heldCount(id,activeBattleKey)>1){const count=document.createElement('small');count.className='held-item-quantity';count.textContent=String(heldCount(id,activeBattleKey));count.style.cssText='position:absolute;right:-5px;bottom:-5px;font-size:10px;line-height:12px;font-weight:900;background:#fff;color:#263e59;border-radius:3px;min-width:10px;text-align:center';el.style.position='relative';el.append(count);}el.title=item.name+(STACKABLE_HELD_ITEMS.includes(id)?' '+heldCount(id,activeBattleKey)+'개':'');heldHost.append(el);}for(const [id,dexes] of [['lightBall',[172,25,26]],['thickClub',[104,105]],['charcoal',FIRE_TYPE_DEX],['miracleSeed',GRASS_TYPE_DEX],['mysticWater',WATER_TYPE_DEX],['silverPowder',BUG_TYPE_DEX],['sharpBeak',FLYING_TYPE_DEX],['magnet',ELECTRIC_TYPE_DEX]]){if(!inventory[id]||!(dexes instanceof Set?dexes.has(battle.player?.dex):dexes.includes(battle.player?.dex)))continue;const item=SHOP_ITEMS.find(x=>x.id===id);if(!item)continue;const el=document.createElement('span');el.className='player-held-item-icon';const img=document.createElement('img');img.src=itemSpriteUrl(id);img.alt='';img.width=16;img.height=16;img.onerror=()=>{el.textContent=item.icon||'?';};el.append(img);el.title=item.name+' · 중요 아이템 보유 효과';heldHost.append(el);}}renderPowerStatus();renderBattleEffects();const switchButton=$('commandSwitch');if(switchButton)switchButton.disabled=animating||battle.ended||teamMembers().filter(m=>m.key!==activeBattleKey&&memberHp(m)>0).length===0;const p=battle.player,e=animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1);renderEnemyHeldItems(e);
  $('commandFight').disabled=animating||battle.ended;
  $('commandBall').disabled=animating||battle.ended||!battle.wild;
  $('commandHeal').disabled=animating||battle.ended;
@@ -2991,6 +3011,14 @@ async function act(a){
  let needsReplacement=false;
  const previousHp={player:battle.player.hp,enemy:(battle.enemies[battle.enemyIndex]??battle.enemies.at(-1)).hp};
  animatingEnemy=battle.enemies[battle.enemyIndex];
+ heldIconTimeline={
+  playerKey:activeBattleKey,
+  playerCounts:Object.fromEntries(HELD_ITEMS.map(id=>[id,heldCount(id,activeBattleKey)])),
+  enemy:animatingEnemy,
+  enemyDisplay:animatingEnemy?{
+   ...animatingEnemy,heldItemCounts:{...(animatingEnemy.heldItemCounts||{})}
+  }:null
+ };
  try{
   animating=true;
   // Consume one item only after the engine accepts the player's turn.
@@ -3140,7 +3168,7 @@ async function act(a){
   }
  }catch(err){alert(err.message);console.error(err);}
  finally{
-  battleEffectDisplay=null;animatingEnemy=null;
+  battleEffectDisplay=null;animatingEnemy=null;heldIconTimeline=null;
   if(battle&&!battle.ended){setActiveHp(battle.player.hp);battleRoster.set(activeBattleKey,battle.player);saveProgress();}
   animating=false;
   render();
