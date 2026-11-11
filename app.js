@@ -810,7 +810,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusBand:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusBand:6,scopeLens:3}:options.redLapras?{leftovers:2,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusBand:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:2,focusBand:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusBand:6,focusSash:1,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusBand:6,scopeLens:3}:options.redLapras?{leftovers:2,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusBand:6,focusSash:1,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:2,focusBand:6,focusSash:1,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
  if(options.redPikachu||options.redLapras){trainer.wideLensAccuracyBuff=0.10;if(options.redLapras)trainer.accuracyBuff=(trainer.accuracyBuff||0)+0.10;}
  if(battleKind==='brock'&&dex===95)trainer.oranBerryEnabled=true;
  if(options.redPikachu){
@@ -868,16 +868,18 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.hardClawCount=3;
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
+ // Boss Focus Sash: full-HP direct lethal damage survival, once per battle.
+ if(options.redPikachu||options.redCharizard||options.redBlastoise){trainer.focusSashEnabled=true;trainer.focusSashUsed=false;}
  // Gym boss held items: retain distinct per-Pokemon effects and the existing Red setup.
  if(battleKind==='giovanni'){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),hardClaw:2};
   trainer.hardClawCount=2;
   trainer.attackBuffMultiplier=(trainer.attackBuffMultiplier||1)+0.20;
   if(dex===112){
-   trainer.heldItemCounts={...trainer.heldItemCounts,quickClaw:4,focusBand:4};
+   trainer.heldItemCounts={...trainer.heldItemCounts,quickClaw:4,focusBand:6};
    trainer.quickClawCount=4;
    trainer.focusBandEnabled=true;
-   trainer.focusBandCount=4;
+   trainer.focusBandCount=6;
    trainer.focusBandChance=0.05*trainer.focusBandCount;
    trainer.focusBandUsed=false;
   }
@@ -893,7 +895,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   if(battleKind==='rocketAthena')return {...{shellBell:2,magnet:1},...(dex===197?{leftovers:2}:{})};
   if(battleKind==='rocketGiovanni'){
    if(dex===112)return {quickClaw:4,revivalSeed:1,wideLens:1};
-   if(dex===15)return {hardClaw:3,focusBand:5,revivalSeed:1,scopeLens:1};
+   if(dex===15)return {hardClaw:3,focusBand:5,focusSash:1,revivalSeed:1,scopeLens:1};
    if(dex===150)return {hardClaw:3,focusBand:6,sitrusBerry:1,scopeLens:2};
    if(dex===34||dex===31)return {hardClaw:3};
   }
@@ -909,6 +911,8 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.focusBandEnabled=trainer.focusBandCount>0;
   trainer.focusBandChance=.05*trainer.focusBandCount;
   trainer.focusBandUsed=false;
+  trainer.focusSashEnabled=(rocketHeld.focusSash||0)>0;
+  trainer.focusSashUsed=false;
   trainer.revivalSeedEnabled=!!rocketHeld.revivalSeed;
   trainer.revivalSeedUsed=false;
   trainer.wideLensAccuracyBuff=.05*(rocketHeld.wideLens||0); trainer.accuracyBuff=(trainer.accuracyBuff||0)+trainer.wideLensAccuracyBuff;
@@ -1365,10 +1369,10 @@ function reset(kind='wild',recordDiscovery=true){
   enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
   // Elite Four held items by exact team slot (including duplicate species).
   const eliteItems=[
-   [{leftovers:2},{focusBand:6,shellBell:2},{leftovers:2},{scopeLens:1},{quickClaw:4,focusBand:6}],
+   [{leftovers:2},{focusBand:2,focusSash:1,shellBell:2},{leftovers:2},{scopeLens:1},{quickClaw:4,focusBand:4,focusSash:1}],
    [{eviolite:2},{shellBell:3},{shellBell:3},{},{quickClaw:3}],
    [{shellBell:2},{eviolite:2},{eviolite:2},{hardClaw:2},{shellBell:2}],
-   [{focusBand:4},{eviolite:2},{eviolite:2},{hardClaw:2},{hardClaw:1}]
+   [{focusBand:6},{eviolite:2},{eviolite:2},{hardClaw:2},{hardClaw:1}]
   ];
   if(n>=0&&n<4)enemies.forEach((mon,i)=>{
    const held=eliteItems[n][i]||{};
@@ -1381,9 +1385,10 @@ function reset(kind='wild',recordDiscovery=true){
    if(held.hardClaw){mon.hardClawCount=held.hardClaw;mon.attackBuffMultiplier=(mon.attackBuffMultiplier||1)+0.10*held.hardClaw;}
    if(held.quickClaw)mon.quickClawCount=held.quickClaw;
    if(held.focusBand){mon.focusBandEnabled=true;mon.focusBandCount=held.focusBand;mon.focusBandChance=0.05*held.focusBand;mon.focusBandUsed=false;}
+   if(held.focusSash){mon.focusSashEnabled=true;mon.focusSashUsed=false;}
   });
   if(n>=1&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
-  if(n===4){const rival=rivalForm(blueChoice,75);const ace=trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id));ace.sitrusBerryEnabled=true;ace.focusBandEnabled=true;ace.focusBandCount=4;ace.focusBandChance=0.20;ace.focusBandUsed=false;ace.heldItemCounts={...(ace.heldItemCounts||{}),sitrusBerry:1,focusBand:4};enemies.push(ace)}
+  if(n===4){const rival=rivalForm(blueChoice,75);const ace=trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id));ace.sitrusBerryEnabled=true;ace.focusBandEnabled=true;ace.focusBandCount=4;ace.focusBandChance=0.20;ace.focusBandUsed=false;ace.focusSashEnabled=true;ace.focusSashUsed=false;ace.heldItemCounts={...(ace.heldItemCounts||{}),sitrusBerry:1,focusBand:4,focusSash:1};enemies.push(ace)}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
   const rivalPokemon=rivalForm(blueChoice,62),rivalMoves=availableMoves(blueChoice,62).slice(-4).map(m=>m.id);
