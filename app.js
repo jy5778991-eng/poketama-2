@@ -1,13 +1,13 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261110-meowth-payday32';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261110-meowth-payday32';
-import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-enemy-berry-consumption';
+import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-shellbell-4pct';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261110-beedrillite-key';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-shellbell-4pct';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
@@ -23,9 +23,9 @@ const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
 const HELD_ITEMS=['wideLens','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry','oranBerry'];
-const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:4,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:3,sitrusBerry:5,oranBerry:5};
+const HELD_MAX={wideLens:3,focusSash:6,hardClaw:5,shellBell:3,leftovers:4,scopeLens:5,revivalSeed:1,quickClaw:5,eviolite:3,sitrusBerry:5,oranBerry:5};
 const STACKABLE_HELD_ITEMS=['wideLens','hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw','eviolite'];
-function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?4:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
+function heldItemPerPokemonLimit(id){return id==='focusSash'?6:id==='shellBell'?3:id==='leftovers'?3:id==='quickClaw'?5:id==='wideLens'?2:['hardClaw','scopeLens','eviolite'].includes(id)?3:1;}
 const TM01_DEX=new Set([25,26,8,9,35,36,107,34,31,149,115,76,39,40,56,57,61,62,66,67,68,80,104,105,113,112,143,150,151]);
 let tm01Learned=Array.isArray(readSave()?.tm01Learned)?readSave().tm01Learned.filter(k=>typeof k==='string'):[];
 // TM02: initial agreed kick-compatible species plus Mewtwo/Mew. Only eligible level 28+ party members can roll or use it.
@@ -210,7 +210,7 @@ function rewardWeight(choice,context){
   if(id==='quickClaw')return inventory.quickClaw>=5?0:1;
   if(id==='clefairyDoll')return inventory.clefairyDoll>=4?0:1;
   if(id==='whiteFlute')return inventory.whiteFlute>=1?0:1;
-   if(id==='shellBell')return inventory.shellBell>=4?0:2;
+   if(id==='shellBell')return inventory.shellBell>=3?0:2;
    if(id==='leftovers')return inventory.leftovers>=4?0:4;
    if(id==='scopeLens')return inventory.scopeLens>=5?0:4;
    if(id==='expShare')return inventory.expShare>=4?0:7;
@@ -733,7 +733,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +9 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.03*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:4,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:4}:options.redBlastoise?{shellBell:4,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusSash:6,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusSash:6,scopeLens:3}:options.redLapras?{leftovers:3,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusSash:6,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:3,focusSash:6,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
  if(options.redPikachu||options.redLapras){trainer.wideLensAccuracyBuff=0.10;if(options.redLapras)trainer.accuracyBuff=(trainer.accuracyBuff||0)+0.10;}
  if(battleKind==='brock'&&dex===95)trainer.oranBerryEnabled=true;
  if(options.redPikachu){
