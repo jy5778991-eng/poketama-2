@@ -104,10 +104,14 @@ function activateSitrusBerry(b,fighter){
 }
 function applyAttackDamage(b,target,damage){
  const hp=target.hp;
- if(hp>0&&damage>=hp&&target.focusSashEnabled&&!target.focusSashUsed&&roll(b.rng)<(target.focusSashChance??0.3)){
+ if(hp>0&&damage>=hp&&hp===target.stats.hp&&target.focusSashEnabled&&!target.focusSashUsed){
   target.focusSashUsed=true;target.hp=1;
   say(b,target.name+'의 기합의띠 발동! HP 1로 버텼다!');
   emit(b,{type:'focusSash',side:sideOf(b,target)});
+ }else if(hp>0&&damage>=hp&&target.focusBandEnabled&&!target.focusBandUsed&&roll(b.rng)<(target.focusBandChance??0.3)){
+  target.focusBandUsed=true;target.hp=1;
+  say(b,target.name+'의 기합의머리띠 발동! HP 1로 버텼다!');
+  emit(b,{type:'focusBand',side:sideOf(b,target)});
  }else target.hp=Math.max(0,hp-damage);
  return hp-target.hp;
 }
