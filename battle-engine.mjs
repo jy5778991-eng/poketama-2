@@ -95,7 +95,7 @@ function activateSitrusBerry(b,fighter){
  if(!fighter.sitrusBerryEnabled||fighter.hp<=0||fighter.hp>Math.floor(fighter.stats.hp/2))return;
  fighter.sitrusBerryEnabled=false;
  if(fighter.heldItemCounts?.sitrusBerry>0)fighter.heldItemCounts.sitrusBerry--;
- const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.25)));
+ const amount=Math.min(fighter.stats.hp-fighter.hp,Math.max(1,Math.floor(fighter.stats.hp*0.30)));
  if(amount>0){
   fighter.hp+=amount;
   say(b,`${fighter.name}의 자뭉열매 발동! HP ${amount} 회복!`);
