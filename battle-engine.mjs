@@ -153,7 +153,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
       const hits=move.multiHit.min+Math.floor(roll(b.rng)*(move.multiHit.max-move.multiHit.min+1));let landed=0;
       for(let i=0;i<hits&&isAlive(target);i++){
         const {damage,critical}=damageRoll(user,target,{...move,power:Math.round(scaledPower)},{rng:b.rng});
-        const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
+        const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;landed++;if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.04*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}
         if(i>0)emit(b,{type:'move',side:sideOf(b,user),name:move.name,multiHit:true});
         emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateOranBerry(b,target);activateSitrusBerry(b,target);activateOranBerry(b,target);
         say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
@@ -164,7 +164,7 @@ function executeMove(b,user,target,moveId,fromSleepTalk=false){
     const actual=applyAttackDamage(b,target,damage);damageDealt+=actual;
     emit(b,{type:'damage',side:sideOf(b,target),amount:actual,hp:target.hp,critical});activateSitrusBerry(b,target);activateOranBerry(b,target);activateSitrusBerry(b,target);activateOranBerry(b,target);
     if(move.drain){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*move.drain)));user.hp+=healed;say(b,`${user.name} HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}
-    if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.03*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
+    if(user.shellBell&&actual>0){const healed=Math.min(user.stats.hp-user.hp,Math.max(1,Math.floor(actual*0.04*(user.shellBellCount??1))));if(healed>0){user.hp+=healed;say(b,`${user.name} 조개껍질방울 HP +${healed}`);emit(b,{type:'heal',side:sideOf(b,user),amount:healed,hp:user.hp});}}say(b,`${target.name}에게 ${actual} 피해${critical?' (급소!)':''}`);
     }
   }
   if(move.boostOnHit&&roll(b.rng)<(move.boostChance??1)){for(const [stat,n] of Object.entries(move.boostOnHit)){const before=user.stages[stat]||0;user.stages[stat]=clamp(before+n,-RULES.stageLimit,RULES.stageLimit);if(before!==user.stages[stat])emit(b,{type:'statChange',side:sideOf(b,user),stat,change:user.stages[stat]-before});}say(b,`${user.name}의 능력치가 상승했다!`);}
