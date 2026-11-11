@@ -50,11 +50,13 @@ test('faint and revive clear every cached stat rank before re-entry',()=>{
  const member={key:'companion-dragon',family:'dragon',starter:false,name:'테스트'};
  context.resetFighterAfterFaint(fighter);
  assert.deepEqual(Object.values(fighter.stages),[0,0,0,0,0]);
+ assert.equal(fighter.stages.accuracy,0,'Sand Attack accuracy -1 must reset to 0');
  assert.equal(fighter.status,null);
  fighter.stages.attack=6;
  assert.equal(context.reviveMember(member),true);
  assert.equal(fighter.hp,50);
  assert.deepEqual(Object.values(fighter.stages),[0,0,0,0,0]);
+ assert.equal(fighter.stages.accuracy,0,'Sand Attack accuracy -1 must reset to 0');
 });
 test('ordinary switch and post-faint replacement keep ranks at zero',()=>{
  const start=source.indexOf('function requestBattleSwitch(');
@@ -64,4 +66,15 @@ test('ordinary switch and post-faint replacement keep ranks at zero',()=>{
  assert.match(replacement,/battle\.player\.hp=memberHp\(m\)/);
  const faintSection=source.slice(source.indexOf('if(battle.player.hp===0){',source.indexOf('async function act(')));
  assert.match(faintSection,/resetFighterAfterFaint\(battle\.player\)/);
+});
+
+test('Shell Bell healing scales by 5% per copy and NPCs are capped at three',()=>{
+ const engine=readFileSync(new URL('../battle-engine.mjs',import.meta.url),'utf8');
+ const items=readFileSync(new URL('../js/data/items.js',import.meta.url),'utf8');
+ assert.equal(engine.split('actual*0.05*(user.shellBellCount??1)').length-1,2);
+ assert.match(items,/실제 피해의 5% HP 회복 · 최대 3개 보유 · 포켓몬당 최대 3개 장착/);
+ assert.match(source,/shellBell:3/);
+ assert.match(source,/id==='shellBell'\?3/);
+ assert.match(source,/enemy\.heldItemCounts\[id\]=Math\.min\(HELD_MAX\[id\]\?\?99,heldItemPerPokemonLimit\(id\)/);
+ assert.match(source,/enemy\.shellBellCount=enemy\.heldItemCounts\.shellBell\|\|0/);
 });
