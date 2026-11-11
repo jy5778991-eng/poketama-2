@@ -54,8 +54,8 @@ let gengarEvolved=false;
 export const setGengarEvolved=value=>{gengarEvolved=!!value;};
 export const getGengarEvolved=()=>gengarEvolved;
 export const getForm=(id,level)=>id==='eevee'&&eeveeForm?EEVEE_FORMS[eeveeForm]:id==='gengar'&&gengarEvolved?EVOLUTIONS.gengar.at(-1):id==='raichu'&&raichuEvolved?EVOLUTIONS.raichu.at(-1):[...EVOLUTIONS[id]].reverse().find(form=>level>=form.level);
-export {MOVE_LEARNSETS} from './learnsets.js?v=20261110-meowth-payday32';
-import {MOVE_LEARNSETS} from './learnsets.js?v=20261110-meowth-payday32';
+export {MOVE_LEARNSETS} from './learnsets.js?v=20261111-snorlax-no-defensecurl';
+import {MOVE_LEARNSETS} from './learnsets.js?v=20261111-snorlax-no-defensecurl';
 export const availableMoves=(id,level)=>(id==='eevee'&&eeveeForm?[...MOVE_LEARNSETS.eevee,...MOVE_LEARNSETS[eeveeForm]]:MOVE_LEARNSETS[id]).filter(m=>m.level<=level);
 export const initialMoves=id=>MOVE_LEARNSETS[id].filter(m=>m.level===1).map(m=>m.id);
 // Keep a legacy save playable: choose four latest unlocked moves if a save has no moves field.
