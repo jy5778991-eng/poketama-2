@@ -3874,7 +3874,7 @@ function setup(){
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
- $('leagueEnter').addEventListener('click',()=>{if(!greenFifthCleared||hallOfFame.length>0||progress.level<67||!livingMembers().length||pendingRewardChoice)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
+ $('leagueEnter').addEventListener('click',()=>{if(area!=='championRoad2'||currentRunLeagueWon||progress.level<67||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
  $('leagueNext').addEventListener('click',async()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle');await playTrainerSummon(kind);});
  $('leagueParty').addEventListener('click',()=>showPartyManager());
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
