@@ -6,7 +6,7 @@ export const STARTER_LEARNSETS={
  vaporeon:[{level:32,id:'iceBeam'},{level:48,id:'aquaRing'},{level:56,id:'acidArmor'},{level:64,id:'hydroPump'}],
  espeon:[{level:25,id:'confusion'},{level:30,id:'psybeam'},{level:44,id:'calmMind'},{level:52,id:'lightScreen'},{level:55,id:'psychic'},{level:70,id:'morningSun'}],
  umbreon:[{level:25,id:'bite'},{level:32,id:'snarl'},{level:34,id:'toxic'},{level:40,id:'curse'},{level:48,id:'confuseRay'},{level:44,id:'darkPulse'},{level:55,id:'moonlight'}],
- snorlax: [{level:1,id:'tackle'}, {level:9,id:'defenseCurl'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:68,id:'bellyDrum'}],
+ snorlax: [{level:1,id:'tackle'}, {level:16,id:'rockSmash'}, {level:25,id:'rest'}, {level:30,id:'headbutt'}, {level:41,id:'bodySlam'}, {level:50,id:'sleepTalk'}, {level:68,id:'bellyDrum'}],
  gyarados: [{level:1,id:'tackle'}, {level:20,id:'bite'}, {level:28,id:'iceFang'}, {level:40,id:'waterfall'}, {level:45,id:'dragonDance'}, {level:52,id:'hydroPump'}, {level:62,id:'hyperBeam'}, {level:76,id:'thrash'}],
  gengar: [{level:1,id:'lick'}, {level:20,id:'nightShade'}, {level:28,id:'hypnosis'}, {level:38,id:'shadowBall'}, {level:48,id:'sludgeBomb'}, {level:55,id:'dreamEater'}, {level:66,id:'confuseRay'}],
  dragonite: [{level:1,id:'tackle'}, {level:11,id:'wrap'}, {level:29,id:'dragonBreath'}, {level:36,id:'thunderWave'}, {level:51,id:'dragonPulse'}, {level:60,id:'outrage'}, {level:70,id:'extremeSpeed'}, {level:82,id:'roost'}],
