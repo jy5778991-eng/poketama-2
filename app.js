@@ -267,7 +267,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*15+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){recordMoneyChange();if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,volcanoAutoMoveVersion:1,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,currentRunLeagueWon,currentRunRedWon,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){recordMoneyChange();if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,volcanoAutoMoveVersion:1,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,currentRunLeagueWon,currentRunRedWon,redHallOfFame,trainerClears,rocketResetMigrationV1:true,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -405,6 +405,17 @@ let currentRunLeagueWon=saved?.currentRunLeagueWon===true||(saved?.currentRunLea
 let hallOfFame=Array.isArray(saved?.hallOfFame)?saved.hallOfFame.slice(-100):[];
 let redHallOfFame=Array.isArray(saved?.redHallOfFame)?saved.redHallOfFame.slice(-100):[]; let currentRunRedWon=saved?.currentRunRedWon===true;
 let trainerClears={...(saved?.trainerClears&&typeof saved.trainerClears==='object'?saved.trainerClears:{})};
+// Repair Rocket flags inherited from the most recent pre-reset save; keep permanent records.
+if(saved&&!saved.rocketResetMigrationV1){
+ try{
+  const previous=JSON.parse(localStorage.getItem(SAVE_KEY+'-before-reset')||'null');
+  if(previous?.trainerClears){
+   for(const kind of ['rocketApollo','rocketAthena','rocketGiovanni']){
+    if(previous.trainerClears[kind]===true&&trainerClears[kind]===true)delete trainerClears[kind];
+   }
+  }
+ }catch(error){console.warn('로켓단 진행 상태 복구 확인 실패',error);}
+}
 let leagueCeremonyPending=!!saved?.leagueCeremonyPending;
 let redCeremonyPending=!!saved?.redCeremonyPending;
 let redEndingPage=0;
@@ -2949,8 +2960,8 @@ function renderHome(){
  $('trainerChallenge').disabled=area==='championRoad2'||(currentRunLeagueWon?false:challengeDisabled);
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!currentRunLeagueWon||currentRunRedWon;
- redButton.disabled=progress.level<90||!livingMembers().length||!!pendingRewardChoice||animating;
- $('redChallengeNote').textContent=progress.level<90?'Lv.90에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'Lv.90에 해금';
+ redButton.disabled=progress.level<85||!livingMembers().length||!!pendingRewardChoice||animating;
+ $('redChallengeNote').textContent=progress.level<85?'Lv.85에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'Lv.85에 해금';
  $('trainerButtonTitle').textContent=currentRunLeagueWon?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2'||currentRunLeagueWon;
  $('leagueEnter').disabled=area!=='championRoad2'||currentRunLeagueWon||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
@@ -3764,6 +3775,7 @@ function beginNewAdventure(id,fixedIV){
  blueCleared=false;brockCleared=false;mistyCleared=false;greenReturnCleared=false;surgeCleared=false;
  greenThirdCleared=false;greenFourthCleared=false;greenFifthCleared=false;
  erikaCleared=false;kogaCleared=false;sabrinaCleared=false;blaineCleared=false;giovanniCleared=false;
+ trainerClears={}; // Boss and trainer victories reset each adventure.
  leagueStage=null;currentRunLeagueWon=false;currentRunRedWon=false;leagueCeremonyPending=false;redCeremonyPending=false;
  blueChoice=chooseRivalStarter(id);rivalEeveeEvolution=null;injured=false;healingDay=todayKST();freeHealsUsed=0;
  playerIVs=fixedIV?{hp:4,attack:4,defense:4,speed:4}:randomIVs();if(!fixedIV){if(EV_STATS.some(k=>playerIVs[k]===16))earnAchievement('hatchMaxIV');if(EV_STATS.some(k=>playerIVs[k]===0))earnAchievement('hatchMinIV');checkIVAchievement(playerIVs);}
@@ -3872,7 +3884,7 @@ function setup(){
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
- $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!currentRunLeagueWon||currentRunRedWon||progress.level<90||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='./assets/red-animated.webp?v=20261106-animated-red';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
+ $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!currentRunLeagueWon||currentRunRedWon||progress.level<85||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='./assets/red-animated.webp?v=20261106-animated-red';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
