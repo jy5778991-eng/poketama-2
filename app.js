@@ -13,7 +13,7 @@ import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-u
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261110-nine-species-rebalance';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261110-beedrillite-key';
+import {renderInventoryView} from './js/inventory.js?v=20261111-money-ledger';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -267,7 +267,7 @@ function rewardRerollCost(count){
  const cost=(progress.level*15+100)*2**count;
  return Number.isSafeInteger(cost)&&cost>0?cost:Infinity;
 }
-function saveProgress(){if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,volcanoAutoMoveVersion:1,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,currentRunLeagueWon,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
+function saveProgress(){recordMoneyChange();if(typeof needsStarterSelection!=='undefined'&&needsStarterSelection)return;if(saveReadFailed){console.error('기존 저장 데이터를 읽지 못해 덮어쓰기를 차단했습니다.');return;}try{localStorage.setItem(SAVE_KEY,JSON.stringify({id:chosen,eeveeForm:getEeveeForm(),gengarEvolved:getGengarEvolved(),raichuEvolved:getRaichuEvolved(),level:progress.level,exp:progress.exp,money:progress.money,ivs:playerIVs,evs:playerEVs,moves:playerMoves,companions,partyOrder,adventureLog,captures:capturedPokemon,caughtSpecies:[...caughtSpecies],seenPokemon:[...seenPokemon],lastBattleReward,lastPartyExp,expFormulaVersion:3,inventory,expShareActive,tm01Learned,tm02Learned,extraTmLearned,battleItemHolders,storedHp,pendingRewardChoice,challengeNotified,plusPowerTurns:activeBoosts.attack.length?Math.max(...activeBoosts.attack):0,activeBoosts,area,volcanoAutoVisited,volcanoAutoMoveVersion:1,blueCleared,brockCleared,mistyCleared,greenReturnCleared,surgeCleared,greenThirdCleared,greenFourthCleared,greenFifthCleared,erikaCleared,kogaCleared,sabrinaCleared,blaineCleared,giovanniCleared,leagueStage,hallOfFame,currentRunLeagueWon,redHallOfFame,trainerClears,leagueCeremonyPending,redCeremonyPending,blueChoice,rivalEeveeEvolution,injured,healingDay,freeHealsUsed,developerFlagsManual}));}catch(e){console.warn('저장할 수 없습니다.',e);}}
 
 
 const ACHIEVEMENT_KEY='poketama-2-achievements-v1';
@@ -356,6 +356,50 @@ setGengarEvolved(saved?.gengarEvolved===true || (saved?.gengarEvolved===undefine
 setRaichuEvolved(saved?.raichuEvolved===true || (saved?.raichuEvolved===undefined&&saved?.id==='raichu'&&saved?.level>=30));
 let animatingEnemy=null; // Keep the defeated opponent's HP denominator until hit animation finishes.
 let progress={level:saved?.level||1,exp:saved?.exp||0,money:saved?.money??1000};
+const MONEY_HISTORY_KEY='poketama-2-money-history-v1';
+let moneyHistory=(()=>{
+ try{const rows=JSON.parse(localStorage.getItem(MONEY_HISTORY_KEY)||'[]');
+  return Array.isArray(rows)?rows.filter(row=>row&&Number.isFinite(row.before)&&Number.isFinite(row.after)&&typeof row.reason==='string').slice(-150):[];
+ }catch{return [];}
+})();
+let moneyLastBalance=progress.money;
+function recordMoneyChange(reason='원인 확인 필요 · 미분류 잔액 변동'){
+ const before=moneyLastBalance,after=progress.money;
+ if(!Number.isFinite(before)||!Number.isFinite(after)||before===after)return;
+ moneyHistory.push({at:new Date().toISOString(),before,after,delta:after-before,reason});
+ moneyHistory=moneyHistory.slice(-150);moneyLastBalance=after;
+ try{localStorage.setItem(MONEY_HISTORY_KEY,JSON.stringify(moneyHistory));}
+ catch(err){console.warn('돈 기록 저장 실패',err);}
+}
+function showMoneyHistory(){
+ recordMoneyChange();
+ document.getElementById('moneyHistoryOverlay')?.remove();
+ const overlay=document.createElement('div');overlay.id='moneyHistoryOverlay';overlay.className='party-summary-overlay';
+ overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','돈 수입과 지출 기록');
+ const panel=document.createElement('section');panel.className='party-summary-panel';
+ panel.style.cssText='width:min(520px,100%);max-height:88vh;overflow:auto';
+ const heading=document.createElement('h2');heading.textContent='💰 돈 변동 기록';
+ const balance=document.createElement('p');balance.style.fontWeight='900';balance.textContent='현재 보유금 '+progress.money.toLocaleString('ko-KR')+'원';
+ const notice=document.createElement('p');notice.style.cssText='font-size:12px;color:#60748e;line-height:1.5';
+ notice.textContent='기록 기능 추가 이후의 최신 150건 · 원인 미확인 변동도 별도 표시';
+ const entries=document.createElement('div');entries.style.cssText='display:grid;gap:8px;text-align:left';
+ if(!moneyHistory.length){const none=document.createElement('p');none.textContent='아직 기록된 수입·지출이 없어.';entries.append(none);}
+ for(const event of [...moneyHistory].reverse()){
+  const item=document.createElement('div');item.style.cssText='padding:10px;border:1px solid #ccdaeb;border-radius:9px;background:#f7faff';
+  const head=document.createElement('div');head.style.cssText='display:flex;justify-content:space-between;gap:12px;align-items:center';
+  const reason=document.createElement('strong');reason.textContent=event.reason;reason.style.fontSize='13px';
+  const amount=document.createElement('strong');amount.textContent=(event.delta>0?'+':'')+event.delta.toLocaleString('ko-KR')+'원';
+  amount.style.cssText='white-space:nowrap;color:'+(event.delta>=0?'#1d7b4c':'#b83240');
+  head.append(reason,amount);
+  const detail=document.createElement('small');detail.style.cssText='display:block;margin-top:5px;font-size:11px;color:#60748e';
+  const date=new Date(event.at);
+  detail.textContent=(Number.isNaN(date.getTime())?'시간 미상':date.toLocaleString('ko-KR'))+' · '+event.before.toLocaleString('ko-KR')+' → '+event.after.toLocaleString('ko-KR')+'원';
+  item.append(head,detail);entries.append(item);
+ }
+ const close=document.createElement('button');close.className='party-summary-close';close.type='button';close.textContent='닫기';close.onclick=()=>overlay.remove();
+ panel.append(heading,balance,notice,entries,close);overlay.append(panel);document.body.append(overlay);close.focus();
+}
+
 let wildEnemy=null, rewardClaimed=false, menuPage='main';
 let leagueStage=Number.isInteger(saved?.leagueStage)&&saved.leagueStage>=0&&saved.leagueStage<5?saved.leagueStage:null;
 let currentRunLeagueWon=saved?.currentRunLeagueWon===true||(saved?.currentRunLeagueWon===undefined&&!!saved?.giovanniCleared&&Array.isArray(saved?.hallOfFame)&&saved.hallOfFame.length>0);
@@ -434,7 +478,7 @@ function healInjury(){
   refreshHealingDay();
   const actualFee=freeHealsUsed<10?0:pokemonCenterFee(teamMembers());
   if(progress.money<actualFee){alert('포켓몬 센터 이용료가 부족해!');return;}
-  if(actualFee)progress.money-=actualFee;else freeHealsUsed++;achievementData.centerUses++;saveAchievements();if(actualFee)earnAchievement('paidHeal');if(freeHealsUsed===10)earnAchievement('free10');if(achievementData.centerUses>=200)earnAchievement('center200');
+  if(actualFee){progress.money-=actualFee;recordMoneyChange('포켓몬센터 유료 치료');}else freeHealsUsed++;achievementData.centerUses++;saveAchievements();if(actualFee)earnAchievement('paidHeal');if(freeHealsUsed===10)earnAchievement('free10');if(achievementData.centerUses>=200)earnAchievement('center200');
   injured=false;storedHp=null;
   for(const m of companions)m.hp=null;
   appendAdventureLog('🏥 포켓몬 센터에서 HP를 모두 회복했다!'+(actualFee?' ('+actualFee+'원)':' (무료)'));
@@ -989,7 +1033,7 @@ function awardExperience(){
  const bonusMoney=bonusCashForWin(wildEnemy.level);
  lastBattleReward={exp:gained,money:baseMoney};
  const messages=['+'+gained+' EXP 획득!','기본 상금 +'+baseMoney+'원 획득!'];
- progress.money+=baseMoney;checkMoneyAchievement();
+ progress.money+=baseMoney;recordMoneyChange('야생 배틀 승리 상금');checkMoneyAchievement();
  appendAdventureLog('💰 야생 배틀 보상 '+baseMoney+'원 획득');
  // Pallet Town remains a wild-battle training area, but offers no random reward rolls.
  // Rocket Base, Faraway Island, and other areas keep their regular reward rules.
@@ -1110,7 +1154,7 @@ function finishTrainerBattle(){
   trainerExpEarned=gained;
   if(gained>0)addPartyExperience(gained,finalEnemy?.name||'마지막 포켓몬',rewardLevelCap);
   const trainerMoney=scaledBattleReward(baseCashForWin(level),TRAINER_MONEY_REWARD_MULTIPLIER);
-  progress.money+=trainerMoney;checkMoneyAchievement();
+  progress.money+=trainerMoney;recordMoneyChange('트레이너 승리 상금');checkMoneyAchievement();
   appendAdventureLog('💰 트레이너 승리 보상 '+trainerMoney+'원 획득');
   lastBattleReward={exp:gained,money:trainerMoney};
   lastPartyExp={...battleExpEarned};
@@ -1686,7 +1730,7 @@ function rerollRewards(){
  if(!pendingRewardChoice)return;
  const cost=rewardRerollCost(pendingRewardChoice.rerolls);
  if(!Number.isFinite(cost)||progress.money<cost)return;
- progress.money-=cost;
+ progress.money-=cost;recordMoneyChange('랜덤보상 리롤 '+(pendingRewardChoice.rerolls+1)+'회차');
  achievementData.rerolls=(achievementData.rerolls||0)+1;
  saveAchievements();
  if(achievementData.rerolls>=50)earnAchievement('reroll50');
@@ -2053,7 +2097,7 @@ function claimRewardChoice(index){
  }else if(choice.kind==='power'){
   activeBoosts[BOOST_INFO[choice.effect]?choice.effect:'attack'].push(10);
  }else if(choice.kind==='cash'){
-  progress.money+=choice.amount;checkMoneyAchievement();
+  progress.money+=choice.amount;recordMoneyChange('랜덤보상 돈 획득');checkMoneyAchievement();
   if(lastBattleReward)lastBattleReward.money+=choice.amount;
  }else if(choice.kind==='heal'){
   const maxHp=calculateStats(BASE_STATS[getForm(chosen,progress.level).dex],progress.level,playerIVs,playerEVs).hp;
@@ -2318,14 +2362,14 @@ function buyInheritanceTicket(){
  if(!hallOfFame.length)return;
  const limit=inheritanceTicketLimit(),owned=inventory.inheritanceTicket||0,price=inheritanceTicketPrice();
  if(owned>=limit||progress.money<price)return;
- progress.money-=price;inventory.inheritanceTicket=owned+1;inventory.inheritanceTicketPurchases=Math.max(0,Number(inventory.inheritanceTicketPurchases??owned)||0)+1;
+ progress.money-=price;recordMoneyChange('계승권 구매');inventory.inheritanceTicket=owned+1;inventory.inheritanceTicketPurchases=Math.max(0,Number(inventory.inheritanceTicketPurchases??owned)||0)+1;
  localStorage.setItem('poketama-2-ticket-purchases-v1',String(inventory.inheritanceTicketPurchases));
  appendAdventureLog('🎫 계승권 '+inventory.inheritanceTicket+'/'+limit+'장 구매 ('+price.toLocaleString('ko-KR')+'원)');
  saveProgress();renderHome();renderInventory();
 }
 function renderInventory(){
  normalizeHeldItems();
- return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,chooseVitaminTarget,chooseEvResetTarget,onHeldSelect:manageHeldItem,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:showInheritanceChoices,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
+ return renderInventoryView({$,inventoryMode,inventoryCategory,inventory,battleItemHolders,heldItems:HELD_ITEMS,partyMembers:teamMembers(),expShareActive,onExpShareToggle:()=>{if(!inventory.expShare)return;expShareActive=!expShareActive;saveProgress();renderInventory();},progress,chosen,playerIVs,storedHp,saveProgress,renderHome,setStoredHp:hp=>{storedHp=hp;},chooseRecoveryTarget,chooseVitaminTarget,chooseEvResetTarget,onHeldSelect:manageHeldItem,onMoneyChange:recordMoneyChange,inheritanceTicketLimit:inheritanceTicketLimit(),inheritanceTicketUnlocked:hallOfFame.length>0,inheritanceTicketPrice:inheritanceTicketPrice(),onInheritanceTicketBuy:buyInheritanceTicket,onInheritanceTicketUse:showInheritanceChoices,onMapUse:()=>{ $('shopScreen').hidden=true;showScreen('home');showMap(); }});
 }
 function showScreen(next){if(animating||learningBusy)return;screen=next;const logPanel=document.getElementById('adventureLogPanel');if(logPanel)logPanel.hidden=next!=='home';$('homeScreen').hidden=next!=='home';$('battleScreen').hidden=next!=='battle';$('leagueScreen').hidden=next!=='league';/* Preserve the user's page scroll position when switching between home and battle. */if(next==='home')showChallengeUnlockNotice();}
 const BATTLE_RANK_LABELS={attack:'공격',defense:'방어',speed:'스피드',accuracy:'명중',evasion:'회피'};
@@ -3345,7 +3389,7 @@ function applyDeveloperChanges(e){
  giovanniCleared=clearSelections.giovanni;
  greenFifthCleared=clearSelections.greenFifth;
  developerFlagsManual=true;
- progress.money=warp.money;
+ progress.money=warp.money;recordMoneyChange('개발자모드 보유금 변경');
  if(levelChanged){
   if(selectedPokemon.starter){
    progress.level=targetLevel;
@@ -3740,7 +3784,7 @@ function beginNewAdventure(id,fixedIV){
   // Only a Destiny Knot actually inherited from the previous run affects the new egg.
   if(!fixedIV&&safeCounts.destinyKnot>0){const guaranteed=STAT_KEYS[Math.floor(Math.random()*STAT_KEYS.length)];playerIVs[guaranteed]=16;earnAchievement('hatchMaxIV');checkIVAchievement(playerIVs);}
  }catch(e){console.warn('계승 아이템 확인 실패',e);}
- tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:1000};
+ tm01Learned=[];tm02Learned=[];extraTmLearned=Object.fromEntries(Object.keys(EXTRA_TM_CONFIG).map(key=>[key,[]]));expShareActive=false;battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>[id,[]]));progress={level:1,exp:0,money:1000};recordMoneyChange('새 모험 시작 · 보유금 초기화');
  registerOwnedStarter(id,1,null,false,false);
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');localStorage.removeItem(INHERITANCE_PENDING_KEY);
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
@@ -3926,6 +3970,7 @@ function setup(){
   for(const r of red){if(!STARTERS.some(st=>st.id===r?.starter)||!Array.isArray(r.party)||r.party.length!==3)continue;const party=r.party.map(p=>({name:String(p.name||'포켓몬').slice(0,32),dex:Number(p.dex)||0,level:Number(p.level)}));if(!party.every(p=>Number.isInteger(p.level)&&p.level>=1&&p.level<=100))continue;const sum=party.reduce((n,p)=>n+p.level,0),current=bestRed.get(r.starter);if(!current||sum<current.sum)bestRed.set(r.starter,{starter:r.starter,party,sum});}
   return {dexCount:caught.size,achievementCount:achievementData.earned.length,hall:[...best.values()].map(({starter,party})=>({starter,party})),hall2:[...bestRed.values()].map(({starter,party})=>({starter,party}))};
  });}catch(e){alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));}});
+ $('homeMoney').addEventListener('click',showMoneyHistory);
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
  document.querySelectorAll('[data-collection-tab]').forEach(button=>button.addEventListener('click',()=>{collectionTab=button.dataset.collectionTab;$('achievementRefreshStatus').textContent='';renderCollection();}));
