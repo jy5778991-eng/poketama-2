@@ -35,7 +35,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
    const owners=[...new Set(holders)].map(key=>{
     const name=partyMembers.find(m=>m.key===key)?.name;
     const count=holders.filter(k=>k===key).length;
-    return name?(['hardClaw','scopeLens','focusSash','shellBell','leftovers','quickClaw','eviolite'].includes(item.id)?name+' '+count+'개':name):null;
+    return name?(['hardClaw','scopeLens','focusBand','shellBell','leftovers','quickClaw','eviolite'].includes(item.id)?name+' '+count+'개':name):null;
    }).filter(Boolean);
    const status=document.createElement('small');status.className='bag-held-status';
    status.textContent='장착 '+holders.length+'개 · 미장착 '+Math.max(0,(inventory[item.id]||0)-holders.length)+'개'+(owners.length?' · '+owners.join(' · '):'');
