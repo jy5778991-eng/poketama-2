@@ -379,3 +379,6 @@ header{display:flex;align-items:center;justify-content:center;gap:14px}
  #battleScreen .battle-heading-opponent img{max-width:38px;max-height:44px}
  #battleScreen .battle-heading-row .battle-turn-counter{padding:4px 5px;font-size:10px}
 }
+
+/* The original PokeAPI Beedrillite sprite has generous internal padding; enlarge only its rendered art. */
+img[src*="/sprites/items/beedrillite.png"]{transform:scale(1.45);transform-origin:center;}
