@@ -125,11 +125,11 @@
 </div>
 <script>
 (function(){
- const runningVersion="20261110-nine-species-rebalance";
+ const runningVersion="20261112-umbreon-bite-dedup";
  const notice=document.getElementById('updateNoticeOverlay');
  const later=document.getElementById('updateNoticeLater');
  const apply=document.getElementById('updateNoticeApply');
- const blockers=['battleScreen','rewardChoiceOverlay','evolutionOverlay','learnMoveOverlay','challengeUnlockOverlay','partyOverlay','trainerIntroOverlay','leagueScreen','trainerIntroOverlay','captureSuccessNotice','leagueRecordOverlay','leagueCeremonyOverlay','redEndingOverlay','starterSelectionOverlay','developerOverlay'];
+ const blockers=['battleScreen','rewardChoiceOverlay','evolutionOverlay','learnMoveOverlay','challengeUnlockOverlay','partyOverlay','trainerIntroOverlay','leagueScreen','trainerIntroOverlay','captureSuccessNotice','partyActionOverlay','partySummaryOverlay','leagueRecordOverlay','leagueCeremonyOverlay','redEndingOverlay','starterSelectionOverlay','developerOverlay'];
  let pendingVersion=null;
  let dismissedVersion=null;
  let checking=false;
@@ -170,7 +170,10 @@
   dismissedVersion=pendingVersion;
   notice.hidden=true;notice.style.display='none';
  });
- apply.addEventListener('click',()=>{location.reload();});
+ apply.addEventListener('click',()=>{
+   if(!isSafe()){notice.hidden=true;notice.style.display='none';return;}
+   location.reload();
+  });
  setInterval(checkUpdate,60*60*1000);
  // Check the already-detected update at safe times without additional network requests.
  setInterval(offer,1500);
