@@ -193,9 +193,9 @@ function rewardWeight(choice,context){
   if(choice.healType==='fullRestore')return [0,1,3,3][stage];
   return 4;
  }
- if(choice.kind==='reviveShardReward')return members.length>=2&&hasFainted?4:0;
- if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?(choice.tier==='hyper'?6:1):0;
- if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?2:0;
+ if(choice.kind==='reviveShardReward')return members.length>=2&&hasFainted?3:0;
+ if(choice.kind==='maxReviveReward')return members.length>=2&&hasFainted?(choice.tier==='hyper'?3:1):0;
+ if(choice.kind==='sacredAshReward')return members.length>=2&&hasFainted?1:0;
  if(choice.kind==='candyBundle')return members.length>=2?8:0;
  if(choice.kind==='ev')return allPartyEVsMax?0:2;
  if(choice.kind==='goldCap')return allPartyIVsMax?0:2;
@@ -1843,7 +1843,7 @@ function choosePermanentTarget(choice,autoMember=null){
    if(after>before)pendingPartyGrowth.push({key:m.key,name:m.name,before,after,starter:m.starter,family:m.family});
    appendAdventureLog('🍬 '+m.name+' 경험치 +'+choice.amount);
   }
-  if(['rareCandy','expCandy','exp'].includes(choice.kind))preserveLevelUpHp(m,beforeMax,beforeHp);checkLevelAchievement();
+  if(['rareCandy','expCandy','exp'].includes(choice.kind)||(choice.kind==='ev'&&choice.stat==='hp'))preserveLevelUpHp(m,beforeMax,beforeHp);checkLevelAchievement();
   pendingRewardChoice=null;saveProgress();renderHome();
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
  };
@@ -2341,8 +2341,9 @@ function chooseVitaminTarget(item){
    if(!ev)return;
    const gain=Math.min(amount,100-ev[stat],240-Object.values(ev).reduce((sum,n)=>sum+n,0));
    if(gain<=0){alert('노력치가 이미 최대야.');return;}
+   const beforeMax=stat==='hp'?memberMaxHp(m):0,beforeHp=stat==='hp'?memberHp(m):0;
    ev[stat]+=gain;inventory[item.id]--;checkEVAchievement(ev);
-   if(m.starter&&storedHp!==null){const max=calculateStats(BASE_STATS[getForm(chosen,progress.level).dex],progress.level,playerIVs,playerEVs).hp;storedHp=Math.min(max,storedHp);}
+   if(stat==='hp')preserveLevelUpHp(m,beforeMax,beforeHp);
    appendAdventureLog('💊 '+m.name+' '+item.name+' 노력치 +'+gain);
    saveProgress();renderHome();renderInventory();
   }})),{text:'취소',action:()=>{}}]);
