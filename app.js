@@ -1,17 +1,17 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
-import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
-import {recentWildMoves} from './js/data/learnsets.js?v=20261111-snorlax-no-defensecurl';
+import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261112-kingdra';
+import {recentWildMoves} from './js/data/learnsets.js?v=20261112-kingdra';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261111-damage12';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261110-persist-tm-moves';
 
-import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261110-white-flute';
+import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261112-kingdra';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
 import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261111-focus-band-sash';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
-import {BASE_STATS} from './js/data/base-stats.js?v=20261110-nine-species-rebalance';
+import {BASE_STATS} from './js/data/base-stats.js?v=20261112-kingdra';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
 import {renderInventoryView} from './js/inventory.js?v=20261111-money-ledger';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
@@ -19,7 +19,7 @@ const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
 const GRASS_TYPE_DEX=new Set([1,2,3,43,44,45,46,47,69,70,71,102,103,114]);
 const FLYING_TYPE_DEX=new Set([6,12,16,17,18,21,22,41,42,83,84,85,123,130,142,144,145,146,149,169]);
-const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99,116,117,118,119,120,121,129,130,131,134,138,139,140,141]);
+const WATER_TYPE_DEX=new Set([7,8,9,54,55,60,61,62,72,73,79,80,86,87,90,91,98,99,116,117,118,119,120,121,129,130,131,134,230,138,139,140,141]);
 const BUG_TYPE_DEX=new Set([10,11,12,13,14,15,46,47,48,49,123,127,212]);
 const ELECTRIC_TYPE_DEX=new Set([25,26,81,82,100,101,125,135,145,172]);
 const HELD_ITEMS=['wideLens','focusBand','focusSash','hardClaw','shellBell','leftovers','scopeLens','revivalSeed','quickClaw','eviolite','sitrusBerry','oranBerry'];
@@ -106,7 +106,8 @@ const EVOLUTION_REWARD_ITEMS=[
  {id:'moonStone',name:'달의돌',icon:'🌕'},
  {id:'leafStone',name:'리프의돌',icon:'🍃'},
  {id:'metalCoat',name:'금속코트',icon:'🔩'},
- {id:'sootheBell',name:'평온의 방울',icon:'🔔'}
+ {id:'sootheBell',name:'평온의 방울',icon:'🔔'},
+ {id:'dragonFang',name:'용의이빨',icon:'🐉'}
 ];
 const STONE_WILD_EVOLUTIONS={
  moonStone:{30:{dex:31,name:'니드퀸'},33:{dex:34,name:'니드킹'},35:{dex:36,name:'픽시'},39:{dex:40,name:'푸크린'}},
@@ -114,10 +115,12 @@ const STONE_WILD_EVOLUTIONS={
  waterStone:{61:{dex:62,name:'강챙이'},90:{dex:91,name:'파르셀'},120:{dex:121,name:'아쿠스타'}},
  metalCoat:{95:{dex:208,name:'강철톤'},123:{dex:212,name:'핫삼'}},
  sootheBell:{42:{dex:169,name:'크로뱃'}},
+ dragonFang:{117:{dex:230,name:'킹드라'}},
  fireStone:{58:{dex:59,name:'윈디'},37:{dex:38,name:'나인테일'}}
 };
 function eligibleEvolutionTargets(choice){
  return teamMembers().filter(member=>{
+  if(choice.id==='dragonFang')return member.dex===117&&member.level>=33;
   if(choice.id==='linkCord')return member.level>=(member.dex===93?26:30)&&!!TRADE_EVOLUTIONS[member.dex];
   if(choice.id==='thunderStone'&&member.dex===25&&member.level>=24)return true;
   if(choice.id==='sootheBell')return member.dex===42&&member.level>=36;
@@ -132,6 +135,7 @@ function eligibleEvolutionTargets(choice){
 // Minimum level required for each evolution reward and species.
 const EVOLUTION_REWARD_LEVELS={
  linkCord:{93:26,64:30,67:30,75:30},
+ dragonFang:{117:33},
  thunderStone:{25:24,133:22},
  sootheBell:{42:36},
  metalCoat:{95:34,123:40},
@@ -337,7 +341,7 @@ const LEAGUE_TEAMS=[
 [['쥬레곤',87,64,90,70,88,70],['파르셀',91,65,50,95,133,70],['야도란',80,65,95,100,95,30],['루주라',124,66,65,115,75,95],['라프라스',131,67,130,85,88,60]],
 [['롱스톤',95,65,35,45,123,70],['홍수몬',107,67,50,105,95,76],['시라소몬',106,67,50,120,92,87],['롱스톤',95,68,35,45,123,70],['괴력몬',68,69,90,130,83,55]],
 [['팬텀',94,68,60,130,68,110],['골뱃',42,68,75,80,73,90],['고우스트',93,69,45,115,50,95],['아보크',24,70,60,95,74,80],['팬텀',94,71,60,130,68,110]],
-[['갸라도스',130,69,95,125,90,81],['신뇽',148,70,61,84,68,70],['신뇽',148,70,61,84,68,70],['프테라',142,72,80,105,70,130],['망나뇽',149,73,91,134,98,80]],
+[['갸라도스',130,69,95,125,90,81],['신뇽',148,70,61,84,68,70],['킹드라',230,70,80,100,100,85],['프테라',142,72,80,105,70,130],['망나뇽',149,73,91,134,98,80]],
 [['피죤투',18,71,83,80,73,101],['후딘',65,72,55,135,80,120],['코뿌리',112,72,105,130,93,40],['갸라도스',130,73,95,125,90,81],['윈디',59,74,90,110,80,95]]];
 const saved=readSave();
 let adventureLog=Array.isArray(saved?.adventureLog)?saved.adventureLog.filter(x=>typeof x==='string').slice(-100):[];
@@ -574,7 +578,7 @@ const EV_STATS=['hp','attack','defense','speed'];
 let pendingRewardChoice=null;
 if(saved?.pendingRewardChoice){
  const p=saved.pendingRewardChoice;
- if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','reviveShardReward','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution','tm01','tm02',...Object.keys(EXTRA_TM_CONFIG)].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&Number.isInteger(x.multiplier)&&[6,7,10,11,12,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone','metalCoat','sootheBell'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10,30,40].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||x.kind==='tm01'||x.kind==='tm02'||!!EXTRA_TM_CONFIG[x.kind]||Number.isSafeInteger(x.amount)&&x.amount>=0))){
+ if(Array.isArray(p.choices)&&p.choices.length>=3&&p.choices.length<=5&&p.choices.every(x=>x&&REWARD_TIERS[x.tier]&&['cash','heal','item','exp','power','ev','silverCap','reviveShardReward','maxReviveReward','sacredAshReward','ppAid','rareCandy','ppMax','goldCap','expCandy','candyBundle','evolution','tm01','tm02',...Object.keys(EXTRA_TM_CONFIG)].includes(x.kind)&&(x.kind==='item'?SHOP_ITEMS.some(item=>item.id===x.id)&&Number.isInteger(x.quantity)&&x.quantity>0&&x.quantity<=10:x.kind==='expCandy'&&Number.isInteger(x.multiplier)&&[6,7,10,11,12,20].includes(x.multiplier)||x.kind==='candyBundle'||x.kind==='evolution'&&['linkCord','thunderStone','waterStone','fireStone','dawnStone','duskStone','moonStone','leafStone','metalCoat','sootheBell','dragonFang'].includes(x.id)||x.kind==='ev'&&EV_STATS.includes(x.stat)&&[2,10,30,40].includes(x.amount)||x.kind==='power'&&(!x.effect||['attack','accuracy','critical','defense'].includes(x.effect))||x.full===true||x.kind==='tm01'||x.kind==='tm02'||!!EXTRA_TM_CONFIG[x.kind]||Number.isSafeInteger(x.amount)&&x.amount>=0))){
   pendingRewardChoice={choices:p.choices.map(c=>['ppAid','ppMax'].includes(c.kind)?{tier:c.tier,kind:'cash',amount:(100+16*(saved?.level||1))*(c.tier==='hyper'?10:1),icon:'💰'}:c.kind==='expCandy'?{...c,tier:c.tier==='hyper'?'hyper':c.tier==='rare'?'rare':'normal',multiplier:c.tier==='hyper'?20:c.tier==='rare'?12:6,size:undefined}:c.kind==='rareCandy'?{...c,tier:'hyper'}:c.kind==='ev'&&c.tier==='hyper'&&c.amount===40?{...c,amount:30}:c.kind==='candyBundle'?{...c,tier:'legendary'}:c),rerolls:Number.isInteger(p.rerolls)&&p.rerolls>=0?Math.min(p.rerolls,100):0,gym:!!p.gym};
  }else if(Number.isInteger(p.bonusCash)&&p.bonusCash>=0&&Array.isArray(p.items)){
   // Convert older unfinished reward screens without losing the player's selection.
@@ -1366,13 +1370,13 @@ function reset(kind='wild',recordDiscovery=true){
   ];battleOpponent='red';
  }else if(kind.startsWith('league')){
   const n=Number(kind.slice(6));
-  enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},['tackle','bite']));
+  enemies=LEAGUE_TEAMS[n].map(([name,dex,lv,hp,attack,defense,speed])=>trainerFighter(name,dex,lv,{hp,attack,defense,speed},dex===230?['dragonDance','smokescreen','dragonPulse','hydroPump']:['tackle','bite'],dex===230?{fixedMoves:true}:{}));
   // Elite Four held items by exact team slot (including duplicate species).
   const eliteItems=[
    [{leftovers:2},{focusBand:2,focusSash:1,shellBell:2},{leftovers:2},{scopeLens:1},{quickClaw:4,focusBand:4,focusSash:1}],
    [{eviolite:3},{shellBell:3},{shellBell:3},{eviolite:3},{quickClaw:3,focusSash:1}],
    [{shellBell:2,focusSash:1},{eviolite:3},{eviolite:3},{hardClaw:2,focusBand:4},{shellBell:2,focusSash:1}],
-   [{focusBand:6,leftovers:2},{eviolite:3},{eviolite:3},{hardClaw:2,focusSash:1},{hardClaw:1,focusSash:1}]
+   [{focusBand:6,leftovers:2},{eviolite:3},{sitrusBerry:1,focusSash:1,scopeLens:2},{hardClaw:2,focusSash:1},{hardClaw:1,focusSash:1}]
   ];
   if(n>=0&&n<4)enemies.forEach((mon,i)=>{
    const held=eliteItems[n][i]||{};
@@ -1380,7 +1384,7 @@ function reset(kind='wild',recordDiscovery=true){
    if(held.leftovers){mon.leftoversEnabled=true;mon.leftoversCount=held.leftovers;}
    if(held.sitrusBerry)mon.sitrusBerryEnabled=true;
    if(held.shellBell){mon.shellBell=true;mon.shellBellCount=held.shellBell;}
-   if(held.scopeLens)mon.critBuff=(mon.critBuff||0)+0.04*held.scopeLens;
+   if(held.scopeLens){mon.scopeLensCount=held.scopeLens;mon.critBuff=(mon.critBuff||0)+0.04*held.scopeLens;}
    if(held.eviolite)mon.defenseBuffMultiplier=(mon.defenseBuffMultiplier||1)*(1+0.13*held.eviolite);
    if(held.hardClaw){mon.hardClawCount=held.hardClaw;mon.attackBuffMultiplier=(mon.attackBuffMultiplier||1)+0.10*held.hardClaw;}
    if(held.quickClaw)mon.quickClawCount=held.quickClaw;
@@ -1668,7 +1672,7 @@ function rewardChoiceText(choice){
 // Pokemon item sprites for the selectable reward cards.
 function rewardImageName(choice){
   if(choice.kind==='expCandy')return choice.multiplier===20?'exp-candy-l':choice.multiplier===12?'exp-candy-m':'exp-candy-s';
- if(choice.kind==='evolution')return choice.id==='linkCord'?'linking-cord':({thunderStone:'thunder-stone',waterStone:'water-stone',fireStone:'fire-stone',dawnStone:'dawn-stone',duskStone:'dusk-stone',moonStone:'moon-stone',leafStone:'leaf-stone'})[choice.id]||null;
+ if(choice.kind==='evolution')return choice.id==='linkCord'?'linking-cord':({dragonFang:'dragon-fang',thunderStone:'thunder-stone',waterStone:'water-stone',fireStone:'fire-stone',dawnStone:'dawn-stone',duskStone:'dusk-stone',moonStone:'moon-stone',leafStone:'leaf-stone'})[choice.id]||null;
  if(choice.kind==='candyBundle')return 'rare-candy';
  if(choice.kind==='rareCandy')return 'rare-candy';
   if(choice.kind==='goldCap')return 'gold-bottle-cap';
