@@ -42,7 +42,7 @@ export const EEVEE_FORMS={
  flareon:{level:22,name:'부스터',dex:136,base:{hp:65,attack:130,defense:110,speed:65}},
  vaporeon:{level:22,name:'샤미드',dex:134,base:{hp:130,attack:110,defense:78,speed:65}},
  espeon:{level:22,name:'에브이',dex:196,base:{hp:65,attack:130,defense:78,speed:110}},
- umbreon:{level:22,name:'블래키',dex:197,base:{hp:110,attack:65,defense:130,speed:65}}
+ umbreon:{level:22,name:'블래키',dex:197,base:{hp:100,attack:65,defense:130,speed:65}}
 };
 let eeveeForm=null;
 export const setEeveeForm=id=>{eeveeForm=EEVEE_FORMS[id]?id:null;};
