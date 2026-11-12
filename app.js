@@ -170,6 +170,8 @@ function rewardWeight(choice,context){
   const iv=m.starter?playerIVs:companions.find(c=>c.family===m.family)?.ivs;
   return iv&&EV_STATS.every(stat=>iv[stat]>=16);
  });
+ // Candy and EXP rewards have no value if every current party member is Lv.100.
+ if(['expCandy','rareCandy','candyBundle','exp'].includes(choice.kind)&&members.length>0&&members.every(m=>m.level>=100))return 0;
  if(choice.kind==='expCandy')return choice.multiplier===20?7:choice.multiplier===12?6:(lv<30?5:lv<70?6:7);
  if(choice.kind==='power')return 5;
  if(choice.kind==='rareCandy')return 4;
