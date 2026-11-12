@@ -203,6 +203,12 @@ function rewardWeight(choice,context){
  if(choice.kind==='evolution')return evolutionRewardWeight(choice);
  if(choice.kind==='item'){
   const id=choice.id;
+  const exclusiveItemWeight=(eligibleDex,missingWeight)=>{
+   const matchingLevels=members.filter(m=>eligibleDex.includes(m.dex)).map(m=>m.level);
+   if(!matchingLevels.length)return missingWeight;
+   const matchingLevel=Math.max(...matchingLevels);
+   return matchingLevel>=80?12:matchingLevel>=60?10:matchingLevel>=50?8:matchingLevel>=40?7:6;
+  };
   if(id==='partySlotA')return inventory.partySlotA!==1?6:0;
   if(id==='partySlotB')return inventory.partySlotA===1&&inventory.partySlotB!==1?6:0;
   if(id==='wideLens')return choice.tier==='hyper'&&inventory.wideLens<3?1:0;
@@ -222,11 +228,11 @@ function rewardWeight(choice,context){
    if(id==='expShare')return inventory.expShare>=4?0:7;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:7;
    if(id==='quickBall')return inventory.quickBall>=1?0:3;
-  if(id==='thickClub')return inventory[id]===1?0:members.some(m=>[104,105].includes(m.dex))?7:1;
+  if(id==='thickClub')return inventory[id]===1?0:exclusiveItemWeight([104,105],1);
   if(id==='map')return inventory.map!==1?1:0;
   if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?7:0;
-  if(id==='lightBall')return inventory.lightBall===1?0:members.some(m=>[172,25,26].includes(m.dex))?6:0;
-  if(id==='beedrillite')return inventory.beedrillite===1?0:members.some(m=>m.dex===15)?7:1;
+  if(id==='lightBall')return inventory.lightBall===1?0:exclusiveItemWeight([172,25,26],0);
+  if(id==='beedrillite')return inventory.beedrillite===1?0:exclusiveItemWeight([15],1);
   if(id==='charcoal')return inventory.charcoal>=1?0:4;
   if(id==='miracleSeed')return inventory.miracleSeed>=1?0:4;
   if(id==='mysticWater')return inventory.mysticWater>=1?0:4;
