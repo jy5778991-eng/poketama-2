@@ -1,4 +1,4 @@
-import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261105-faraway-island337';
+import {DEX_CATALOG,pokemonCatchChance,pokemonCatchMultiplier} from './data/areas.js?v=20261112-kingdra';
 import {RIVAL_POOL} from './data/trainers.js?v=20261023-06';
 import {getForm,STARTERS,EVOLUTIONS,EEVEE_FORMS} from './data/pokemon.js';
 import {staticImage} from './sprites.js';
