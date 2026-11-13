@@ -13,7 +13,7 @@ import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-u
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261112-umbreon-hp100';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261111-money-ledger';
+import {renderInventoryView} from './js/inventory.js?v=20261113-ticket-limit-description';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
