@@ -79,13 +79,13 @@ async function showHallParty(item){
  }else content.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 3마리 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
 }
 
-function openModal(snapshot){
+function openModal(snapshot,{onboarding=false}={}){
  if(overlay){overlay.remove();overlay=null;}
  overlay=el('div','online-ranking-overlay');overlay.setAttribute('role','dialog');overlay.setAttribute('aria-modal','true');overlay.setAttribute('aria-label','온라인 랭킹');
  const panel=el('section','online-ranking-panel');
  const head=el('div','online-ranking-head');head.append(el('h2','','📡 통신 · 랭킹'));
  const close=el('button','online-ranking-close','✕');close.type='button';close.setAttribute('aria-label','닫기');close.onclick=()=>{document.querySelector('.online-ranking-party-overlay')?.remove();overlay.remove();overlay=null;};head.append(close);panel.append(head);
- panel.append(el('p','online-ranking-intro','한번 정한 닉네임은 변경할 수 없습니다. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송됩니다.'));
+ panel.append(el('p','online-ranking-intro',onboarding?'🎉 첫 모험을 시작했어! 트레이너 닉네임을 등록하면 온라인 랭킹에 참여할 수 있어. 연결이 안 돼도 게임은 계속할 수 있고, 나중에 랭킹 버튼에서 재시도할 수 있어.':'한번 정한 닉네임은 변경할 수 없습니다. 아래 업데이트 버튼을 누를 때만 내 기록이 서버로 전송됩니다.'));
  const tabs=el('div','online-ranking-tabs');
  for(const [key,label] of [['dex','도감'],['achievements','업적'],['hall','명예의 전당'],['hall2','명예의전당2']]){
   const b=el('button','',label);b.type='button';b.onclick=()=>{tab=key;refresh(snapshot);};b.dataset.tab=key;tabs.append(b);
@@ -105,7 +105,7 @@ function openModal(snapshot){
  form.append(el('h3','','내 정보 업데이트하기'));
  const name=el('input');name.id='onlineRankingName';name.placeholder='첫 참여 시 닉네임 (2~12자)';name.maxLength=12;name.value=localStorage.getItem(NAME_KEY)||'';name.setAttribute('aria-label','트레이너 닉네임');form.append(name);
  form.append(el('p','online-ranking-help','도감 등록 수, 완료 업적 수, 스타팅별 명예의 전당 3마리 최저 평균 레벨을 전송해. 평균이 같으면 서버에 먼저 등록한 기록이 우선이야.'));
- const send=el('button','online-ranking-submit','내 정보 업데이트하기');send.type='button';send.onclick=()=>upload(snapshot,send);form.append(send);panel.append(form);
+ const send=el('button','online-ranking-submit',onboarding?'닉네임 등록하고 모험 시작하기':'내 정보 업데이트하기');send.type='button';send.onclick=()=>upload(snapshot,send,{onboarding});form.append(send);if(onboarding)panel.insertBefore(form,tabs);else panel.append(form);
  const n=el('p','online-ranking-notice','');n.setAttribute('role','status');panel.append(n);overlay.append(panel);document.body.append(overlay);
  refresh(snapshot);
 }
@@ -152,7 +152,7 @@ async function refresh(snapshot){
   });
  }catch(e){if(!overlay||requestId!==rankingRequestId)return;board.replaceChildren(el('p','online-ranking-empty','순위를 불러오지 못했어.'));notice(e.message||'네트워크 오류',true);}
 }
-async function upload(getSnapshot,button){
+async function upload(getSnapshot,button,{onboarding=false}={}){
  const name=overlay?.querySelector('#onlineRankingName')?.value.trim()||'';
  if(name.length<2||name.length>12){notice('닉네임은 2~12자로 입력해줘.',true);return;}
  if(!configured()){notice('서버 연결이 완료되기 전에는 업로드할 수 없어. 기록은 기기에 그대로 보관돼.',true);return;}
@@ -170,8 +170,9 @@ async function upload(getSnapshot,button){
   localStorage.setItem(NAME_KEY,name);
   if(overlay)overlay.querySelector('#onlineRankingName').readOnly=true;
   notice(hall2Error?'기본 기록은 저장됐지만 명예의전당2는 서버 SQL 적용이 필요해: '+hall2Error.message:'업데이트 완료! 서버에 저장한 기록으로 순위를 다시 불러왔어.',!!hall2Error);
+  if(onboarding){overlay?.remove();overlay=null;return;}
   await refresh(getSnapshot);
  }catch(e){notice(e.code==='23505'?'이미 사용 중인 닉네임이야. 다른 이름을 선택해줘.':e.message||'업데이트 실패',true);}
  finally{button.disabled=false;}
 }
-export function openOnlineRanking(getSnapshot){openModal(getSnapshot);}
+export function openOnlineRanking(getSnapshot,options){openModal(getSnapshot,options);}
