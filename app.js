@@ -3817,6 +3817,7 @@ function showStarterSelection(){
  $('starterSelectionOverlay').hidden=false;
  $('gameResetButton').disabled=needsStarterSelection;
 }
+let openRanking=()=>{};
 function beginNewAdventure(id,fixedIV){
  if(!needsStarterSelection||animating||learningBusy)return;
  const isFirstAdventure=!saved&&!adventureResetPending;
@@ -4019,7 +4020,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- async function openRanking(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261113-first-starter-onboarding');openOnlineRanking(()=>{
+ openRanking=async function(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261113-first-starter-onboarding');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
