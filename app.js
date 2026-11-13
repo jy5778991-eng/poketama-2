@@ -2995,7 +2995,7 @@ function renderHome(){
  $('redChallengeNote').textContent=progress.level<85?'Lv.85에 해금':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'Lv.85에 해금';
  $('trainerButtonTitle').textContent=currentRunLeagueWon?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2'||currentRunLeagueWon;
- $('leagueEnter').disabled=area!=='championRoad2'||currentRunLeagueWon||progress.level<67||!livingMembers().length||!!pendingRewardChoice;
+ $('leagueEnter').disabled=area!=='championRoad2'||currentRunLeagueWon||!teamMembers().some(m=>m.level>=67)||!livingMembers().length||!!pendingRewardChoice;
  $('leagueRecords').hidden=false; // Always show both Hall of Fame tabs, even before first victory.
  $('trainerChallenge').classList.toggle('adventure-ready',currentRunLeagueWon||unlocked&&!challengeDisabled);
  $('trainerChallenge').classList.toggle('adventure-locked',!currentRunLeagueWon&&(!unlocked||finalArea));
@@ -3919,7 +3919,7 @@ function setup(){
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
- $('leagueEnter').addEventListener('click',()=>{if(area!=='championRoad2'||currentRunLeagueWon||progress.level<67||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
+ $('leagueEnter').addEventListener('click',()=>{if(area!=='championRoad2'||currentRunLeagueWon||!teamMembers().some(m=>m.level>=67)||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;leagueStage=0;saveProgress();renderLeague();showScreen('league')});
  $('leagueNext').addEventListener('click',async()=>{if(leagueStage===null||!livingMembers().length||pendingRewardChoice||animating||learningBusy)return;const kind='league'+leagueStage;battlePlayerLevelStart=progress.level;reset(kind);showScreen('battle');await playTrainerSummon(kind);});
  $('leagueParty').addEventListener('click',()=>showPartyManager());
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
