@@ -3819,6 +3819,7 @@ function showStarterSelection(){
 }
 function beginNewAdventure(id,fixedIV){
  if(!needsStarterSelection||animating||learningBusy)return;
+ const isFirstAdventure=!saved&&!adventureResetPending;
  if(!STARTERS.some(x=>x.id===id))return;
  // Preserve the old save until the user has deliberately selected a new starter.
  chosen=id;setEeveeForm(null);setGengarEvolved(false);setRaichuEvolved(false);
@@ -3854,6 +3855,8 @@ function beginNewAdventure(id,fixedIV){
  needsStarterSelection=false;adventureResetPending=false;localStorage.removeItem('poketama-2-reset-pending-v1');localStorage.removeItem(INHERITANCE_PENDING_KEY);
  $('starterSelectionOverlay').hidden=true;$('gameResetButton').disabled=false;
  saveProgress();reset('wild',false);showScreen('home');showNextAchievement();
+ // Starter choices and random eggs share this first-ever adventure path; resets never prompt.
+ if(isFirstAdventure)void openRanking(true);
 }
 const INHERITANCE_PENDING_KEY='poketama-2-inheritance-pending-v1';
 function finishAdventureReset(selected){
@@ -4016,7 +4019,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- $('openCommunication').addEventListener('click',async()=>{try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261109-hall2');openOnlineRanking(()=>{
+ async function openRanking(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261113-first-starter-onboarding');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
@@ -4034,7 +4037,8 @@ function setup(){
   const bestRed=new Map();
   for(const r of red){if(!STARTERS.some(st=>st.id===r?.starter)||!Array.isArray(r.party)||r.party.length!==3)continue;const party=r.party.map(p=>({name:String(p.name||'포켓몬').slice(0,32),dex:Number(p.dex)||0,level:Number(p.level)}));if(!party.every(p=>Number.isInteger(p.level)&&p.level>=1&&p.level<=100))continue;const sum=party.reduce((n,p)=>n+p.level,0),current=bestRed.get(r.starter);if(!current||sum<current.sum)bestRed.set(r.starter,{starter:r.starter,party,sum});}
   return {dexCount:caught.size,achievementCount:achievementData.earned.length,hall:[...best.values()].map(({starter,party})=>({starter,party})),hall2:[...bestRed.values()].map(({starter,party})=>({starter,party}))};
- });}catch(e){alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));}});
+ },{onboarding});}catch(e){if(!onboarding)alert('온라인 랭킹을 열지 못했어: '+(e?.message||e));else console.warn('첫 랭킹 등록 안내를 열지 못했어.',e);}}
+ $('openCommunication').addEventListener('click',()=>openRanking());
  $('homeMoney').addEventListener('click',showMoneyHistory);
  $('openCollection').addEventListener('click',()=>showCollection('dex'));
  $('closeCollection').addEventListener('click',()=>{$('collectionScreen').hidden=true;showScreen('home')});
