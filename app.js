@@ -3221,8 +3221,8 @@ async function act(a){
    if(event.side==='player'&&event.type==='quickClaw')earnAchievement('firstQuickClaw');
    if(event.side==='player'&&event.type==='focusBand')earnAchievement('firstFocusBand');
    if(event.side==='enemy'&&event.type==='damage'&&event.critical&&!event.confusionSelfHit)earnAchievement('firstCritical');
-   if(event.side==='enemy'&&event.type==='status'&&event.status==='sleep')earnAchievement('firstSleep');
-   if(event.side==='enemy'&&event.type==='status'&&event.status==='poison')earnAchievement('firstPoison');
+   if(event.side==='enemy'&&event.type==='statusApplied'&&event.status==='sleep')earnAchievement('firstSleep');
+   if(event.side==='enemy'&&event.type==='statusApplied'&&event.status==='poison')earnAchievement('firstPoison');
    if(event.side==='player'&&event.type==='statChange'&&event.change>0){
     battlePositiveStatChanges++;
     if(battlePositiveStatChanges>=3)earnAchievement('threeStatBoosts');
