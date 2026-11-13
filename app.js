@@ -1401,6 +1401,26 @@ function reset(kind='wild',recordDiscovery=true){
    if(held.focusSash){mon.focusSashEnabled=true;mon.focusSashUsed=false;}
   });
   if(n>=1&&n<4&&enemies.length){const last=enemies[enemies.length-1];last.sitrusBerryEnabled=true;last.heldItemCounts={...(last.heldItemCounts||{}),sitrusBerry:1};}
+  if(n===4){
+   // Champion Green's first five Pokémon in team order.
+   const championHeld=[
+    {focusSash:1,quickClaw:4},
+    {focusSash:1},
+    {focusBand:4,leftovers:2},
+    {hardClaw:2,sitrusBerry:1},
+    {hardClaw:2,sitrusBerry:1}
+   ];
+   enemies.forEach((mon,i)=>{
+    const held=championHeld[i]||{};
+    mon.heldItemCounts={...(mon.heldItemCounts||{}),...held};
+    if(held.focusSash){mon.focusSashEnabled=true;mon.focusSashUsed=false;}
+    if(held.quickClaw)mon.quickClawCount=held.quickClaw;
+    if(held.focusBand){mon.focusBandEnabled=true;mon.focusBandCount=held.focusBand;mon.focusBandChance=0.05*held.focusBand;mon.focusBandUsed=false;}
+    if(held.leftovers){mon.leftoversEnabled=true;mon.leftoversCount=held.leftovers;}
+    if(held.hardClaw){mon.hardClawCount=held.hardClaw;mon.attackBuffMultiplier=(mon.attackBuffMultiplier||1)+0.10*held.hardClaw;}
+    if(held.sitrusBerry)mon.sitrusBerryEnabled=true;
+   });
+  }
   if(n===4){const rival=rivalForm(blueChoice,75);const ace=trainerFighter(rival.name,rival.dex,75,rival.base,availableMoves(blueChoice,75).slice(-4).map(m=>m.id));ace.sitrusBerryEnabled=true;ace.focusBandEnabled=true;ace.focusBandCount=4;ace.focusBandChance=0.20;ace.focusBandUsed=false;ace.focusSashEnabled=true;ace.focusSashUsed=false;ace.heldItemCounts={...(ace.heldItemCounts||{}),sitrusBerry:1,focusBand:4,focusSash:1};enemies.push(ace)}
   battleOpponent=kind;
  }else if(kind==='greenFifth'){
