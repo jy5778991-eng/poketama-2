@@ -1751,7 +1751,7 @@ function showRewardDescription(choice){
 }
 function showRewardChoices(){
  const layer=$('rewardChoiceOverlay'),options=$('rewardChoiceOptions');
- if(!pendingRewardChoice){layer.hidden=true;return;}
+ if(!pendingRewardChoice){layer.hidden=true;finishPendingEnding();return;}
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
  pendingRewardChoice.choices.forEach((choice,index)=>{
@@ -1828,7 +1828,7 @@ function showSilverCapStatChoice(member=leaderMember()){
    pendingRewardChoice=null;
    saveProgress();
    $('rewardChoiceOverlay').hidden=true;
-   renderHome();
+   renderHome();finishPendingEnding();
   };
   options.append(b);
  }
@@ -1885,7 +1885,7 @@ function choosePermanentTarget(choice,autoMember=null){
   }
   if(['rareCandy','expCandy','exp'].includes(choice.kind)||(choice.kind==='ev'&&choice.stat==='hp'))preserveLevelUpHp(m,beforeMax,beforeHp);checkLevelAchievement();
   pendingRewardChoice=null;saveProgress();renderHome();
-  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
+  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks).finally(finishPendingEnding);}else finishPendingEnding();
  };
  if(autoMember){applyToMember(autoMember);return;}
  if(choice.kind==='goldCap'){
@@ -1936,7 +1936,7 @@ function completeInstantRecoveryReward(choice,details){
  pendingRewardChoice=null;
  saveProgress();
  $('rewardChoiceOverlay').hidden=true;
- if(redCeremonyPending){showRedEnding();}else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}
+ finishPendingEnding();
  renderHome();
  showChallengeUnlockNotice();
 }
@@ -2027,7 +2027,7 @@ function claimRewardChoice(index){
    inventory[choice.id]++;
    appendAdventureLog('🎁 '+item.name+' 획득 · 장착 가능한 포켓몬이 없어 가방에 보관');
    pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
-   if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}
+   finishPendingEnding();
    renderHome();showChallengeUnlockNotice();return;
   }
   $('rewardChoiceOverlay').hidden=true;
@@ -2038,7 +2038,7 @@ function claimRewardChoice(index){
     if(!equipHeld(choice.id,m.key)){inventory[choice.id]--;showRewardChoices();return;}
     appendAdventureLog('🎁 '+m.name+'에게 '+item.name+' 장착');
     pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
-    if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}
+    finishPendingEnding();
     renderHome();showChallengeUnlockNotice();
    }})),
    {text:'🎒 가방',action:()=>{
@@ -2047,7 +2047,7 @@ function claimRewardChoice(index){
     inventory[choice.id]++;
     appendAdventureLog('🎁 '+item.name+' 획득 · 가방에 보관');
     pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;
-    if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}
+    finishPendingEnding();
     renderHome();showChallengeUnlockNotice();
    }},
    {text:'취소',action:showRewardChoices}
@@ -2144,7 +2144,7 @@ function claimRewardChoice(index){
   }
   appendAdventureLog('🍬 사탕 보따리 · 파티 전원 레벨업');recordCandyConsumed();
   pendingRewardChoice=null;saveProgress();$('rewardChoiceOverlay').hidden=true;renderHome();
-  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
+  if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks).finally(finishPendingEnding);}else finishPendingEnding();
   return;
  }
  if(['silverCap','ev','exp','expCandy','rareCandy','goldCap'].includes(choice.kind)){
@@ -2192,7 +2192,7 @@ function claimRewardChoice(index){
  pendingRewardChoice=null;
  saveProgress();
  $('rewardChoiceOverlay').hidden=true;
- if(redCeremonyPending){showRedEnding();}else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}
+ finishPendingEnding();
  renderHome();
  showChallengeUnlockNotice();
 }
@@ -3566,7 +3566,7 @@ function mapTravelProblem(key){
 function showMap(){
  if(screen!=='home'||leagueStage!==null||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||redCeremonyPending)return;
  // A completed League victory must not permanently lock the map if the ceremony flag survives after the reward is handled.
- if(currentRunLeagueWon&&leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();}
+ if(currentRunLeagueWon&&leagueCeremonyPending){finishPendingEnding();return;}
  selectedMapDestination=area;
  $('mapLocationText').textContent='현재 위치: '+(mapRegion(area)?.[1]||area);
  const list=$('mapDestinations');list.replaceChildren();
@@ -3813,6 +3813,15 @@ function showArchivedHallParty(record,selectedIndex=0){
   details.append(notice);
  }
  panel.append(title,cards,details,footer);overlay.append(panel);document.body.append(overlay);footer.focus();
+}
+// Complete an ending only after reward selection and any growth dialogs.
+function finishPendingEnding(){
+ if(pendingRewardChoice||animating||learningBusy||resolvingBattleNotifications)return;
+ if(redCeremonyPending){
+  if($('redEndingOverlay').hidden)showRedEnding();
+ }else if(leagueCeremonyPending){
+  leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');
+ }
 }
 function showEndingRankingPrompt(kind){
  showHallOfFame(kind);
@@ -4144,6 +4153,6 @@ function setup(){
   const resetButton=$('gameResetButton');
   if(resetButton)resetButton.before(noticeButton);
  }
- noticeButton.addEventListener('click',()=>partyOverlay('📢 공지사항','• 현재 개발과 업데이트가 진행 중인 라이브 서비스 게임입니다.\n• 최신 업데이트를 적용하려면 수시로 새로고침(F5)을 눌러 주세요.\n• 플레이 기록은 자동 저장되며, 현재 이용 중인 브라우저의 사이트 데이터에 보관됩니다. 브라우저의 사이트 데이터나 저장 데이터를 삭제하면 게임 기록도 사라질 수 있습니다.',[{text:'확인'}]));$('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{showScreen('home');renderHome();});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();if(!pendingRewardChoice){if(redCeremonyPending)showRedEnding();else if(leagueCeremonyPending){leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');}}}
+ noticeButton.addEventListener('click',()=>partyOverlay('📢 공지사항','• 현재 개발과 업데이트가 진행 중인 라이브 서비스 게임입니다.\n• 최신 업데이트를 적용하려면 수시로 새로고침(F5)을 눌러 주세요.\n• 플레이 기록은 자동 저장되며, 현재 이용 중인 브라우저의 사이트 데이터에 보관됩니다. 브라우저의 사이트 데이터나 저장 데이터를 삭제하면 게임 기록도 사라질 수 있습니다.',[{text:'확인'}]));$('gameResetButton').addEventListener('click',requestAdventureReset);$('startBattle').addEventListener('click',()=>{if(learningBusy||pendingRewardChoice||!livingMembers().length)return;if(!livingMembers().length){alert('모든 동료가 기절했어! 가방에서 회복약을 사용해줘.');showShopTab('bag');return;}$('homeLevelUp').hidden=true;$('homeLevelUp').classList.remove('playing');reset();showScreen('battle')});$('resultHome').addEventListener('click',()=>{showScreen('home');renderHome();});$('openDeveloper').addEventListener('click',openDeveloper);$('closeDeveloper').addEventListener('click',closeDeveloper);$('developerLogin').addEventListener('submit',unlockDeveloper);$('developerEditor').addEventListener('submit',applyDeveloperChanges);$('developerPokemon').addEventListener('change',updateDeveloperSelectedLevel);$('developerArea').addEventListener('change',updateDeveloperHallControls);$('rewardReroll').addEventListener('click',rerollRewards);/* Do not close on backdrop clicks: dragging a level input outside the dialog can end on the backdrop. */document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('developerOverlay').hidden)closeDeveloper()});saveProgress();if(livingMembers().length)reset('wild',false);else renderHome();showScreen(leagueStage===null?'home':'league');if(needsStarterSelection)showStarterSelection();if(leagueStage!==null)renderLeague();showRewardChoices();finishPendingEnding();}
 setup();
 window.__poketamaReady=true;
