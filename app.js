@@ -1888,6 +1888,17 @@ function choosePermanentTarget(choice,autoMember=null){
   if(pendingPartyGrowth.length){const tasks=pendingPartyGrowth.splice(0);processPartyGrowth(tasks);}
  };
  if(autoMember){applyToMember(autoMember);return;}
+ if(choice.kind==='goldCap'){
+  partyOverlay('🥇 금색 병뚜껑','모든 개체값을 최대로 강화할 포켓몬을 선택해.',[
+   ...teamMembers().map(m=>{
+    const ivs=m.starter?playerIVs:companions.find(x=>x.family===m.family)?.ivs;
+    const maxed=!!ivs&&EV_STATS.every(stat=>ivs[stat]>=16);
+    return {member:m,showIVs:true,disabled:!ivs||maxed,reason:maxed?'모든 개체값 최대 · 선택 불가':'',action:()=>applyToMember(m)};
+   }),
+   {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
+  ]);
+  return;
+ }
  partyOverlay('🎁 보상 적용 대상','보상을 받을 포켓몬 한 마리를 선택해.',[
   ...teamMembers().map(m=>({text:m.name+' Lv.'+m.level,member:['rareCandy','expCandy','exp'].includes(choice.kind)?m:null,showExp:['rareCandy','expCandy','exp'].includes(choice.kind),disabled:['rareCandy','expCandy','exp'].includes(choice.kind)&&m.level>=100,reason:m.level>=100?'최대 레벨':'',action:()=>applyToMember(m)})),
   {text:'취소',action:()=>{$('rewardChoiceOverlay').hidden=false;}}
@@ -2735,7 +2746,20 @@ function partyOverlay(title,description,choices){
    const status=document.createElement('span');status.className='recovery-target-count';
    status.textContent=exp?('EXP '+(m.level>=100?'MAX':earned+' / '+needed)):'HP '+hp+'/'+max+(hp===0?' · 기절':'');
    if(!exp&&hp===0)status.classList.add('recovery-target-fainted');
-   if(option.tmStatus){
+   if(option.showIVs){
+    const ivs=m.starter?playerIVs:companions.find(x=>x.family===m.family)?.ivs;
+    const stats=document.createElement('span');stats.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;text-align:center';
+    const labels={hp:'체력',attack:'공격',defense:'방어',speed:'스피드'};
+    for(const stat of EV_STATS){
+     const cell=document.createElement('span');cell.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px';
+     const label=document.createElement('small');label.textContent=labels[stat];label.style.fontSize='11px';
+     const star=document.createElement('span');star.className='iv-star iv-'+ivTier(ivs?.[stat]??0);star.textContent='★';
+     cell.append(label,star);stats.append(cell);
+    }
+    details.append(name,stats);
+    if(option.reason){const note=document.createElement('small');note.textContent=option.reason;details.append(note);}
+    button.append(sprite,details);
+   }else if(option.tmStatus){
     const eligibility=document.createElement('span');
     eligibility.className='tm-target-status';
     eligibility.textContent=option.tmStatus;
