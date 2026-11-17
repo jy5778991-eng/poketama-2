@@ -1200,7 +1200,7 @@ function finishTrainerBattle(){
   appendAdventureLog('💰 트레이너 승리 보상 '+trainerMoney+'원 획득');
   lastBattleReward={exp:gained,money:trainerMoney};
   lastPartyExp={...battleExpEarned};
-  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:null,rewardCount:rewardCountBeforeVictory,rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
+  pendingRewardChoice=!activeWasCapped&&gained>0?{choices:null,rewardCount:battleKind==='giovanni'?5:rewardCountBeforeVictory,rerolls:0,gym:!!GYM_BADGES[battleKind]}:null;if(Object.keys(GYM_BADGES).every(k=>({brock:brockCleared,misty:mistyCleared,surge:surgeCleared,erika:erikaCleared,koga:kogaCleared,sabrina:sabrinaCleared,blaine:blaineCleared,giovanni:giovanniCleared})[k]))earnAchievement('badges');
  }else{
   if(battle.result==='defeat')earnAchievement('firstLoss');if(battleKind.startsWith('league'))leagueStage=null;
   trainerExpEarned=0;
@@ -1756,6 +1756,7 @@ function showRewardChoices(){
  if(!pendingRewardChoice){layer.hidden=true;finishPendingEnding();return;}
  options.replaceChildren();
  $('rewardChoiceHeading').textContent=pendingRewardChoice.gym?'GYM CLEAR':'BATTLE WIN!';
+ $('gymRewardSubtitle').hidden=!pendingRewardChoice.gym;
  pendingRewardChoice.choices.forEach((choice,index)=>{
   const card=document.createElement('div');
   card.className='reward-choice-item reward-tier-'+choice.tier;
