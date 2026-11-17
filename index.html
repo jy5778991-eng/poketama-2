@@ -107,6 +107,7 @@
 <div id="silverCapOverlay" class="reward-choice-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="silverCapHeading"><div class="reward-choice-box"><strong id="silverCapHeading">🥈 은색 병뚜껑</strong><p>개체값을 최대로 올릴 능력치를 선택해줘. 이미 최대인 능력치는 선택할 수 없어.</p><div id="silverCapOptions" class="silver-cap-options"></div><button type="button" id="silverCapCancel" class="reward-reroll">← 보상 선택으로 돌아가기</button></div></div>
 <div id="rewardChoiceOverlay" class="reward-choice-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="rewardChoiceHeading">
  <div class="reward-choice-box"><strong id="rewardChoiceHeading">BATTLE WIN!</strong>
+ <small id="gymRewardSubtitle" hidden style="font-size:13px;font-weight:normal;text-align:center;margin:0 0 6px">높은 등급 보상 확률이 올라갑니다</small>
  <div id="rewardChoiceOptions" class="reward-choice-options"></div>
  <button id="rewardReroll" type="button" class="reward-reroll">🔄 리롤</button><p id="rewardRerollInfo" class="reward-reroll-info"></p>
  </div>
@@ -189,7 +190,7 @@ const report=(message)=>{
  p.textContent='포케타마 실행 오류 (데이터 삭제 금지)\\n'+message;
 };
 try {
- await import('./app.js?v=20261117-volcano-party-unlock');
+ await import('./app.js?v=20261117-gym-reward-subtitle');
  if(window.__poketamaReady){if(panel())panel().remove();}
  else report('스크립트는 로드됐지만 게임 초기화가 완료되지 않았습니다.');
 } catch(e){
