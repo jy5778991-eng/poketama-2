@@ -1406,6 +1406,7 @@ async function confirmTrainerIntro(){
  if(!kind||animating||learningBusy)return;
  pendingTrainerIntro=null;
  $('trainerIntroOverlay').hidden=true;
+ if(kind==='red'&&currentRunRedWon){renderHome();return;}
  battlePlayerLevelStart=progress.level;
  reset(kind);
  showScreen('battle');
@@ -3173,8 +3174,8 @@ function renderHome(){
  $('trainerChallenge').disabled=area==='championRoad2'||(currentRunLeagueWon?false:challengeDisabled);
  const redButton=$('redChallenge');
  redButton.hidden=area!=='mountSilver'||!currentRunLeagueWon;
- redButton.disabled=!teamMembers().some(m=>m.level>=85)||!livingMembers().length||!!pendingRewardChoice||animating;
- $('redChallengeNote').textContent=!teamMembers().some(m=>m.level>=85)?'파티 중 Lv.85 이상 필요':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':currentRunRedWon?'재도전 가능':'도전 가능';
+ redButton.disabled=currentRunRedWon||!teamMembers().some(m=>m.level>=85)||!livingMembers().length||!!pendingRewardChoice||animating;
+ $('redChallengeNote').textContent=currentRunRedWon?'도전 완료':!teamMembers().some(m=>m.level>=85)?'파티 중 Lv.85 이상 필요':!livingMembers().length?'포켓몬 센터 이용 후 도전':pendingRewardChoice?'보상 선택 후 도전':'도전 가능';
  $('trainerButtonTitle').textContent=currentRunLeagueWon?'🗺️ 지역 이동':'도전';
  $('leagueEnter').hidden=area!=='championRoad2'||currentRunLeagueWon;
  $('leagueEnter').disabled=area!=='championRoad2'||currentRunLeagueWon||!teamMembers().some(m=>m.level>=67)||!livingMembers().length||!!pendingRewardChoice;
@@ -4137,7 +4138,7 @@ function setup(){
  if(saveReadFailed){alert('기존 저장 데이터를 읽는 데 실패했어. 데이터 보호를 위해 자동 저장을 중단했어. 브라우저 데이터를 삭제하지 말고 저장 데이터 확인이 필요해.');return;}
  if(!blueChoice||blueChoice===chosen){blueChoice=chooseRivalStarter(chosen);saveProgress();}
  $('trainerChallenge').addEventListener('click',challengeTrainer);
- $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!currentRunLeagueWon||!teamMembers().some(m=>m.level>=85)||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||redCeremonyPending)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='./assets/red-animated.webp?v=20261106-animated-red';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
+ $('redChallenge').addEventListener('click',()=>{if(area!=='mountSilver'||!currentRunLeagueWon||currentRunRedWon||!teamMembers().some(m=>m.level>=85)||!livingMembers().length||pendingRewardChoice||animating||learningBusy||pendingTrainerIntro||redCeremonyPending)return;pendingTrainerIntro='red';$('trainerIntroName').textContent='레드';$('trainerIntroText').textContent='전설의 트레이너 레드가 승부를 걸어왔다!';$('trainerIntroImage').hidden=false;$('trainerIntroFallback').hidden=true;$('trainerIntroImage').onerror=()=>{$('trainerIntroImage').hidden=true;$('trainerIntroFallback').hidden=false;};$('trainerIntroImage').src='./assets/red-animated.webp?v=20261106-animated-red';$('trainerIntroOverlay').hidden=false;$('trainerIntroConfirm').focus();});
  $('openMap').addEventListener('click',showMap);
  $('mapCancel').addEventListener('click',()=>{$('mapOverlay').hidden=true});
  $('mapConfirm').addEventListener('click',confirmMapTravel);
