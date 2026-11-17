@@ -172,7 +172,7 @@ function rewardWeight(choice,context){
  });
  // Candy and EXP rewards have no value if every current party member is Lv.100.
  if(['expCandy','rareCandy','candyBundle','exp'].includes(choice.kind)&&members.length>0&&members.every(m=>m.level>=100))return 0;
- if(choice.kind==='expCandy')return 7; // S, M, L each have fixed selection weight 7.
+ if(choice.kind==='expCandy')return choice.multiplier===28?14:6; // S/M: 6, L: 14.
  if(choice.kind==='power')return 5;
  if(choice.kind==='rareCandy')return 4;
  if(choice.kind==='tm01')return tm01Targets().length?1:0;
@@ -1070,7 +1070,7 @@ function awardExperience(){
  const cap=wildRewardLevelCap();
  const capped=wildRewardCapped(activeMember());
  const rewardMultiplier=wildHasAdvancedReward(wildEnemy)?WILD_ADVANCED_REWARD_MULTIPLIER:1;
- const gained=capped?0:scaledBattleReward(12+wildEnemy.level*6,rewardMultiplier);
+ const gained=capped?0:scaledBattleReward(12+wildEnemy.level*7,rewardMultiplier);
  const baseMoney=scaledBattleReward(baseCashForWin(wildEnemy.level),rewardMultiplier);
  const bonusMoney=bonusCashForWin(wildEnemy.level);
  lastBattleReward={exp:gained,money:baseMoney};
@@ -1192,7 +1192,7 @@ function finishTrainerBattle(){
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
   // Award trainer EXP exactly once, on victory, based on the final opposing Pokemon.
   // Keep the pre-victory region cap even if this victory advances to the next area.
-  gained=activeWasCapped?0:scaledBattleReward(12+level*6,TRAINER_EXP_REWARD_MULTIPLIER);
+  gained=activeWasCapped?0:scaledBattleReward(12+level*7,TRAINER_EXP_REWARD_MULTIPLIER);
   trainerExpEarned=gained;
   if(gained>0)addPartyExperience(gained,finalEnemy?.name||'마지막 포켓몬',rewardLevelCap);
   const trainerMoney=scaledBattleReward(baseCashForWin(level),TRAINER_MONEY_REWARD_MULTIPLIER);
