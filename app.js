@@ -650,7 +650,9 @@ function renderStatPanel(){
  }));
 }
 
-const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/battleSpeed));
+// Trial playback uplift; set to 1 to restore original timing.
+const BASE_BATTLE_SPEED=1.1;
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms/(battleSpeed*BASE_BATTLE_SPEED)));
 function displayHp(side,hp){const f=side==='player'?battle.player:(animatingEnemy??battle.enemies[battle.enemyIndex]??battle.enemies.at(-1));displayHpBar(side,hp,f);shownHp[side]=hp;}
 // Battle-only decorative effects; damage and status outcomes remain authoritative in the engine.
 function moveEffectType(id=''){
