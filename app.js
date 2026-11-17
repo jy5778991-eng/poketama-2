@@ -7,13 +7,13 @@ import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,m
 import {ENCOUNTERS,DEX_CATALOG,pokemonCatchMultiplier,pokemonCatchChance,pickEncounter,LEGENDARY_DEX,RARE_DEX,HYPER_DEX,EVOLVED_DEX} from './js/data/areas.js?v=20261112-kingdra';
 import {RIVAL_POOL,TRAINERS} from './js/data/trainers.js?v=20261104-mew2-rocketlevels259';
 import {BADGE_IMAGES} from './js/data/badge-images.js?v=20261024-01';
-import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261113-ticket-limit-description';
+import {SHOP_ITEMS,START_INVENTORY,ITEM_CATEGORY_LABELS,itemCategory,itemSpriteUrl} from './js/data/items.js?v=20261117-ticket-cap20';
 import {SAVE_KEY,levelNeed,validCaptured,validIVs,readSave} from './js/storage.js?v=20261029-growth-moves59';
 import {visualSprite,displayHpBar,animateClass,popup,sprite} from './js/battle-ui.js?v=20261029-recallstar117';
 import {staticImage,animatedImage} from './js/sprites.js';
 import {BASE_STATS} from './js/data/base-stats.js?v=20261112-umbreon-hp100';
 import {renderCollectionView} from './js/collection.js?v=20261105-dex-cap335';
-import {renderInventoryView} from './js/inventory.js?v=20261117-exp-share-shop';
+import {renderInventoryView} from './js/inventory.js?v=20261117-ticket-cap20';
 import {resolveDeveloperWarp} from './js/developer.js?v=20261026-hall-dev46';
 const $=id=>document.getElementById(id);
 const FIRE_TYPE_DEX=new Set([4,5,6,37,38,58,59,77,78,126,136,146]);
@@ -686,7 +686,7 @@ let inventory=Object.fromEntries(SHOP_ITEMS.map(i=>{
  const migratedBand=i.id==='focusBand'&&!Number.isInteger(saved?.inventory?.focusBand)?Math.min(6,Math.max(0,Number(saved?.inventory?.focusSash)||0)):null;
  const migratedSash=i.id==='focusSash'&&!Number.isInteger(saved?.inventory?.focusBand)?0:null;
   const value=migratedSash!==null?migratedSash:migratedBand!==null?migratedBand:migratedLens!==null?migratedLens:Number.isInteger(saved?.inventory?.[i.id])&&saved.inventory[i.id]>=0&&saved.inventory[i.id]<=99?saved.inventory[i.id]:(START_INVENTORY[i.id]??0);
- return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(21,value):i.id==='clefairyDoll'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
+ return [i.id,HELD_MAX[i.id]?Math.min(HELD_MAX[i.id],value):i.id==='expShare'?Math.min(4,value):i.id==='inheritanceTicket'?Math.min(20,value):i.id==='clefairyDoll'?Math.min(4,value):i.category==='key'?Math.min(1,value):value];
 }));
 inventory.inheritanceTicketPurchases=Math.max(inventory.inheritanceTicket,Math.min(999,Number(saved?.inventory?.inheritanceTicketPurchases)||0),Math.min(999,Number(localStorage.getItem('poketama-2-ticket-purchases-v1'))||0));
 let battleItemHolders=Object.fromEntries(HELD_ITEMS.map(id=>{
@@ -2543,7 +2543,7 @@ const INHERITANCE_ONE_TICKET_ITEMS=new Set(['revivalSeed','oranBerry','sitrusBer
 function inheritanceItemEligible(item){return !!item&&item.id!=='inheritanceTicket'&&(HELD_ITEMS.includes(item.id)||item.category==='key');}
 function inheritanceItemCost(id){if(id==='beedrillite')return 2;return INHERITANCE_ONE_TICKET_ITEMS.has(id)||HELD_ITEMS.includes(id)?1:2;}
 function inheritanceSelectionCost(ids){return ids.reduce((sum,id)=>sum+inheritanceItemCost(id),0);}
-function inheritanceCapacity(){return Math.min(21,5+2*(hallOfFameEntries('first').length+hallOfFameEntries('second').length));}
+function inheritanceCapacity(){return Math.min(20,5+2*hallOfFameEntries('first').length+hallOfFameEntries('second').length);}
 function sanitizeInheritanceSelection(wanted,available,budget){
  const result=[],counts={};let spent=0;
  if(!Array.isArray(wanted))return result;
