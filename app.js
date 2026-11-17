@@ -3943,8 +3943,15 @@ function finishPendingEnding(){
   leagueCeremonyPending=false;saveProgress();showEndingRankingPrompt('first');
  }
 }
+let endingRankingAfterHall=false;
 function showEndingRankingPrompt(kind){
+ endingRankingAfterHall=true;
  showHallOfFame(kind);
+}
+function closeHallOfFame(){
+ $('leagueRecordOverlay').hidden=true;
+ if(!endingRankingAfterHall)return;
+ endingRankingAfterHall=false;
  partyOverlay('축하합니다!','새로운 명예의전당 기록이 등록되었습니다.\n랭킹에 최신 기록을 반영해 보세요!',[
   {text:'업데이트하기',action:()=>{$('leagueRecordOverlay').hidden=true;showScreen('home');renderHome();void openRanking();}},
   {text:'나중에 하기'}
@@ -4139,7 +4146,7 @@ function setup(){
  $('leagueParty').addEventListener('click',()=>showPartyManager());
  $('leagueBag').addEventListener('click',()=>showShopTab('bag'));
  $('leagueRecords').addEventListener('click',showHallOfFame);
- $('leagueRecordClose').addEventListener('click',()=>{$('leagueRecordOverlay').hidden=true});document.querySelectorAll('[data-hall-tab]').forEach(button=>button.addEventListener('click',()=>showHallOfFame(button.dataset.hallTab)));
+ $('leagueRecordClose').addEventListener('click',closeHallOfFame);document.querySelectorAll('[data-hall-tab]').forEach(button=>button.addEventListener('click',()=>showHallOfFame(button.dataset.hallTab)));
  $('redEndingNext').addEventListener('click',advanceRedEnding);
  $('challengeUnlockConfirm').addEventListener('click',()=>{$('challengeUnlockOverlay').hidden=true;if(pendingRewardChoice)showRewardChoices();});
  $('trainerIntroConfirm').addEventListener('click',confirmTrainerIntro);
