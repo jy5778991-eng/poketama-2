@@ -611,7 +611,7 @@ function healInjury(){
   meter.append(label,track,value);info.append(name,meter);card.append(img,info);cards.append(card);
  }
  const description=document.createElement('p');description.className='pokemon-center-description';
- description.textContent='모든 포켓몬을 최고 컨디션으로 만듭니다. 사용하시겠습니까?';
+ description.textContent='모든 포켓몬을 최고 컨디션으로 만듭니다. 사용하시겠습니까?'+(freeHealsUsed>=10?'(일일 무료 모두 소진)':'');
  const actions=document.createElement('div');actions.className='pokemon-center-actions';
  const confirm=document.createElement('button');confirm.type='button';confirm.className='party-summary-lead';
  confirm.textContent=fee?'유료 사용 ('+fee.toLocaleString('ko-KR')+'원)':'무료 사용 ('+(10-freeHealsUsed)+'/10)';
@@ -3202,7 +3202,7 @@ function renderHome(){
  $('injuryBandage').hidden=!!livingMembers().length;
  $('healButton').hidden=false;
  $('healButton').setAttribute('aria-disabled','false');
- $('healButtonNote').textContent=freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'유료';
+ $('healButtonNote').textContent=freeHealsUsed<10?'무료 '+(10-freeHealsUsed)+'/10회 남음':'유료 (일일 무료 소진)';
  $('startBattle').disabled=!livingMembers().length||!!pendingRewardChoice;
  const leader=leaderMember(),s=STARTERS.find(x=>x.id===chosen),form=leader.starter?getForm(chosen,progress.level):{dex:leader.dex,name:leader.name};
  $('homeName').textContent=leader.name;$('homeLevel').textContent='LV '+leader.level;
