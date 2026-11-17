@@ -1,6 +1,7 @@
 import {moveDescription} from './js/data/moves.js?v=20261110-payday90';
 import {learnsetForDex,FAMILY_BY_DEX,ADDITIONAL_FAMILY_BY_DEX,STARTER_FAMILY_BY_DEX} from './js/data/learnsets.js?v=20261112-umbreon-learn-levels';
 import {recentWildMoves} from './js/data/learnsets.js?v=20261112-umbreon-learn-levels';
+import {chooseEnemyMove} from './js/battle-ai.js?v=20261117-finisher-priority';
 import {calculateStats,createFighter,createBattle,takeTurn,MOVES} from './battle-engine.mjs?v=20261117-finisher-priority';
 import {STARTERS,EVOLUTIONS,getForm,MOVE_LEARNSETS,availableMoves,initialMoves,migrateMoves,isValidMoves,EEVEE_FORMS,setEeveeForm,getEeveeForm,setGengarEvolved,getGengarEvolved,setRaichuEvolved,getRaichuEvolved} from './js/data/pokemon.js?v=20261112-umbreon-hp100';
 
@@ -944,7 +945,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
  // Red's entire team carries three Scope Lenses: +12 percentage points critical hit chance.
  if(options.redPikachu||options.redSnorlax||options.redLapras||options.redVenusaur||options.redCharizard||options.redBlastoise){trainer.scopeLensCount=3;trainer.critBuff=0.04*trainer.scopeLensCount;}
  // Reflect trainer-held item effects in the opponent HP panel.
- trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusBand:6,focusSash:1,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusBand:6,scopeLens:3}:options.redLapras?{leftovers:2,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusBand:6,focusSash:1,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:2,focusBand:6,focusSash:1,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
+ trainer.heldItemCounts=options.redPikachu?{lightBall:1,hardClaw:3,wideLens:2,scopeLens:3,focusBand:6,focusSash:1,revivalSeed:1,magnet:1}:options.redSnorlax?{leftovers:3,focusBand:6,scopeLens:3}:options.redLapras?{leftovers:2,shellBell:3,wideLens:2,scopeLens:3,mysticWater:1,focusSash:1}:options.redVenusaur?{leftovers:3,hardClaw:3,scopeLens:3,miracleSeed:1}:options.redCharizard?{hardClaw:3,focusBand:6,focusSash:1,scopeLens:3,charcoal:1,sharpBeak:1,revivalSeed:1,shellBell:3}:options.redBlastoise?{shellBell:3,leftovers:2,focusBand:6,focusSash:1,hardClaw:3,scopeLens:3,mysticWater:1}:battleKind==='blaine'&&FIRE_TYPE_DEX.has(dex)?{charcoal:1}:battleKind==='surge'?{hardClaw:1}:battleKind==='brock'&&dex===95?{oranBerry:1}:null;
  if(options.redPikachu||options.redLapras){trainer.wideLensAccuracyBuff=0.10;if(options.redLapras)trainer.accuracyBuff=(trainer.accuracyBuff||0)+0.10;}
  if(battleKind==='brock'&&dex===95)trainer.oranBerryEnabled=true;
  if(options.redPikachu){
@@ -1003,7 +1004,7 @@ function trainerFighter(name,dex,level,base,moveIds=['tackle'],options={}){
   trainer.attackBuffMultiplier=1+0.1*trainer.hardClawCount;
  }
  // Boss Focus Sash: full-HP direct lethal damage survival, once per battle.
- if(options.redPikachu||options.redCharizard||options.redBlastoise){trainer.focusSashEnabled=true;trainer.focusSashUsed=false;}
+ if(options.redPikachu||options.redCharizard||options.redBlastoise||options.redLapras){trainer.focusSashEnabled=true;trainer.focusSashUsed=false;}
  // Gym boss held items: retain distinct per-Pokemon effects and the existing Red setup.
  if(battleKind==='giovanni'){
   trainer.heldItemCounts={...(trainer.heldItemCounts||{}),hardClaw:2};
@@ -2814,6 +2815,8 @@ function requestBattleSwitch(){
  if(!others.length){alert('교체할 수 있는 동료가 없어.');return;}
  partyOverlay('🔄 포켓몬 교체','교체는 1턴을 소모해. 상대 포켓몬은 공격할 수 있어.',[...others.map(m=>({text:m.name+' Lv.'+m.level+' · HP '+memberHp(m)+'/'+memberMaxHp(m),action:async()=>{
   if(animating||battle.ended)return;
+  // Lock the enemy action against the outgoing fighter before any switch mutations.
+  const enemySelection=chooseEnemyMove(battle.enemies[battle.enemyIndex],{wild:battle.wild,rng:battle.rng,opponent:battle.player,shields:battle.shields});
   animating=true;
   try{
    setActiveHp(battle.player.hp);
@@ -2827,7 +2830,7 @@ function requestBattleSwitch(){
    },true);
   }finally{animating=false;}
   const newFighter=battleRoster.get(m.key);
-  if(newFighter&&!battle.ended)await act({type:'switch',fighter:newFighter});
+  if(newFighter&&!battle.ended)await act({type:'switch',fighter:newFighter},enemySelection);
  }})),{text:'취소',action:()=>{}}]);
 }
 function makeCompanionFighter(m){const ids=[...new Set((m.moves||recentWildMoves(m.dex,m.level)).filter(id=>MOVES[id]))].slice(-4);return createFighter({id:'companion-'+m.dex,name:m.name,level:m.level,friendship:50,stats:calculateStats(memberBase(m),m.level,m.ivs,m.evs||{}),moveIds:ids.length?ids:['tackle']});}
@@ -3282,7 +3285,7 @@ function render(){const heldHost=$('playerHeldItemIcons');if(heldHost){heldHost.
  if(battle.ended&&!animating)showMenu('main');for(const [f,prefix] of [[p,'player'],[e,'enemy']]){displayHp(prefix,animating?shownHp[prefix]:f.hp);renderBattleStatus(prefix,f);}
 $('turn').textContent=battle.ended&&!animating?(battle.result==='victory'?'WIN!':'LOSE!'):'TURN '+String(battle.turn+1).padStart(2,'0');
 $('moves').replaceChildren(...p.moveIds.map(id=>{const m=MOVES[id],b=document.createElement('button');const remaining=m.pp?(p.pp?.[id]??m.pp):null;b.disabled=animating||battle.ended||(remaining!==null&&remaining<=0);const baseDescription=m.hpScale==='currentRatio'?'위력 --':m.power?'위력 '+m.power:'변화기';const hitRate=m.target==='self'||!Number.isFinite(m.accuracy)?'':' · 명중 '+Math.round(m.accuracy*100)+'%';const description=baseDescription+hitRate;b.innerHTML='<span class="move-name">'+m.name+'</span><span class="move-pp">'+description+(remaining===null?'':' · PP '+remaining+'/'+m.pp)+'</span>';b.addEventListener('click',()=>act({moveId:id}));return b;}),...(p.moveIds.every(id=>MOVES[id].pp&&(p.pp?.[id]??MOVES[id].pp)<=0)?[(()=>{const b=document.createElement('button');b.disabled=animating||battle.ended;b.textContent='발버둥 · PP 없음';b.addEventListener('click',()=>act({moveId:'struggle'}));return b;})()]:[]));$('log').replaceChildren(...battle.log.slice(-15).reverse().map(line=>{const t=document.createElement('p');t.textContent=line;return t;}));renderStatPanel();}
-async function act(a){
+async function act(a,enemySelection){
  if(animating||battle.ended||learningBusy)return;
  let learnQueue=[];
  let needsReplacement=false;
@@ -3320,7 +3323,7 @@ async function act(a){
    setMemberHp(target,hp);
    appendAdventureLog('💊 '+target.name+' HP '+before+' → '+hp);
   }
-  if(a.type==='ball')lastCaptureBall=a.itemId;battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a);
+  if(a.type==='ball')lastCaptureBall=a.itemId;battleEffectDisplay=snapshotBattleEffects();takeTurn(battle,a,enemySelection);
   // The engine now revives either side immediately after the lethal action.
   // Consume the player's held seed once, without cancelling the opponent's turn.
   if(battle.events.some(ev=>ev.type==='heal'&&ev.side==='player'&&ev.heldItem==='oranBerry')){
