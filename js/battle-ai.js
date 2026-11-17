@@ -280,11 +280,44 @@ function chooseTeamStatusTactic(enemy,opponent,rng,usable){
  for(const option of options){if(pick<option.chance)return {moveId:option.id};pick-=option.chance;}
  return {moveId:options[options.length-1].id};
 }
+// Prefer a credible finishing attack over healing or setup. Estimate actual
+// non-critical damage and hit probability without consuming battle RNG.
+function chooseFinishingAttack(enemy,opponent,usable,shields){
+ if(!opponent||opponent.hp<=0||enemy.status?.type==='sleep'||enemy.recharge)return null;
+ const shield=(shields?.player??opponent.sideShieldTurns??0)>1?.5:1;
+ const faster=speedAlreadyAhead(enemy,opponent);
+ const atk=Math.max(1,Math.floor(enemy.stats.attack*stageMultiplier(stageValue(enemy,'attack'))))*(enemy.status?.type==='burn'?.5:1)*(enemy.attackBuffMultiplier||1);
+ const def=Math.max(1,Math.floor(opponent.stats.defense*stageMultiplier(stageValue(opponent,'defense'))))*(opponent.defenseBuffMultiplier||1);
+ const hp=enemy.hp/Math.max(1,enemy.stats.hp);
+ const candidates=[];
+ for(const id of usable){
+  const m=MOVES[id];
+  if(!m.power||m.oneHitKo||m.currentHpFraction||m.selfKo||m.charge||m.chargeTurn||m.requiresTargetSleep&&opponent.status?.type!=='sleep')continue;
+  if(opponent.focusSashEnabled&&!opponent.focusSashUsed&&opponent.hp===opponent.stats.hp&&!m.multiHit)continue;
+  const power=Math.round(m.hpScale==='currentRatio'?150*hp:m.hpScale==='high'?85+50*hp:m.hpScale==='low'?85+50*(1-hp):m.power);
+  const raw=Math.floor((Math.floor(2*enemy.level/5)+2)*power*atk/Math.max(1,def)/50)+2;
+  const hits=m.multiHit?.min||1;
+  const low=Math.max(1,Math.floor(raw*.85*shield*1.2))*hits;
+  const high=Math.max(1,Math.floor(raw*shield*1.2))*hits;
+  if(high<opponent.hp)continue;
+  const net=stageValue(opponent,'evasion')-stageValue(enemy,'accuracy');
+  const factor=net>=0?3/(3+net):(3-net)/3;
+  const accuracy=Math.max(0,Math.min(1,((m.accuracy??1)+(enemy.accuracyBuff||0))*factor));
+  const ko=low>=opponent.hp?1:Math.max(0,Math.min(1,(high-opponent.hp+1)/Math.max(1,high-low+1)));
+  const chance=accuracy*ko;
+  if(chance<.7)continue;
+  candidates.push({id,score:chance+(m.priority>0&&!faster?.35:0)});
+ }
+ candidates.sort((a,b)=>b.score-a.score);
+ return candidates.length?{moveId:candidates[0].id}:null;
+}
 // Exactly two modes: random wild selection and shared tactical trainer selection.
 export function chooseEnemyMove(enemy,{wild=false,rng=Math.random,opponent=null,shields=null}={}){
  const usable=enemy.moveIds.filter(id=>MOVES[id]&&(!MOVES[id].pp||(enemy.pp?.[id]??MOVES[id].pp)>0));
  if(!usable.length)return {moveId:'struggle'};
  if(wild)return {moveId:usable[Math.floor(rng()*usable.length)]};
+ const finisher=chooseFinishingAttack(enemy,opponent,usable,shields);
+ if(finisher)return finisher;
  if(enemy.redAiMode){const chosen=chooseRedMove(enemy,opponent,rng,usable);if(chosen)return chosen;}
  // Party-wide Light Screen is valuable regardless of the user's HP.
  // The engine decrements screen duration at the start of a turn, so 1 remaining expires now.
