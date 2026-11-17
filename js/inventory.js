@@ -7,7 +7,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
  $('shopMoney').textContent='💰 '+progress.money.toLocaleString('ko-KR')+'원';
  $('inventoryScreenTitle').textContent=inventoryMode==='shop'?'🏪 프렌들리숍':'🎒 가방';
  $('inventoryFootnote').textContent=inventoryMode==='shop'
-  ?'일반 아이템 최대 99개 · 삐삐인형은 4개까지 보유 가능'
+  ?'일반 아이템 최대 99개 · 삐삐인형·학습장치는 4개까지 보유 가능'
   :'기력의조각은 기절한 동료 부활 · 포켓몬 센터는 기절한 동료가 있을 때 이용';
  document.querySelectorAll('[data-item-category]').forEach(button=>{
   const selected=button.dataset.itemCategory===inventoryCategory;
@@ -15,7 +15,7 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   button.tabIndex=selected?0:-1;
  });
  const list=$('inventoryItems');list.replaceChildren();
- const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory&&(inventoryMode!=='shop'||!item.notForSale)&&true);
+ const items=SHOP_ITEMS.filter(item=>itemCategory(item)===inventoryCategory&&(inventoryMode!=='shop'||!item.notForSale||item.id==='expShare')&&true);
  if(items.length===0){
   const placeholder=document.createElement('div');placeholder.className='inventory-empty';
   placeholder.textContent=inventoryMode==='shop'
@@ -45,11 +45,12 @@ export function renderInventoryView({$,inventoryMode,inventoryCategory,inventory
   if(inventoryMode==='shop'){
    const buy=document.createElement('button');buy.type='button';buy.className='shop-buy';
    const ticket=item.id==='inheritanceTicket';
-   const unique=!ticket&&(item.category==='key'||item.unique);
-   const stockLimit=ticket?inheritanceTicketLimit:item.id==='clefairyDoll'?4:item.id==='eviolite'?3:['sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
+   const expShare=item.id==='expShare';
+   const unique=!ticket&&!expShare&&(item.category==='key'||item.unique);
+   const stockLimit=ticket?inheritanceTicketLimit:(expShare||item.id==='clefairyDoll')?4:item.id==='eviolite'?3:['sitrusBerry','oranBerry'].includes(item.id)?5:unique?1:99;
    const blockedB=item.id==='partySlotB'&&!inventory.partySlotA;
    const locked=ticket&&!inheritanceTicketUnlocked;
-   const price=ticket?inheritanceTicketPrice:item.price;
+   const price=ticket?inheritanceTicketPrice:expShare?[100000,150000,200000,200000][Math.min(3,Math.max(0,inventory.expShare||0))]:item.price;
    buy.textContent=locked?'리그 제패 후 구매 가능':inventory[item.id]>=stockLimit?'최대 보유':blockedB?'슬롯A 필요':price.toLocaleString('ko-KR')+'원 · 구매';
    buy.disabled=locked||inventory[item.id]>=stockLimit||blockedB||progress.money<price;
    if(locked){buy.classList.add('item-missing');buy.style.opacity='0.45';}
