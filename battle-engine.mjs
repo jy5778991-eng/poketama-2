@@ -256,7 +256,7 @@ export function takeTurn(b,playerSelection,enemySelection=chooseEnemyMove(active
   order.sort((a,z)=>z.orderPriority-a.orderPriority||effectiveStat(z.fighter,'speed')-effectiveStat(a.fighter,'speed')||(roll(b.rng)<0.5?-1:1));
   for(const a of order){
     if(b.ended||!isAlive(a.fighter)||!isAlive(a.target))continue;
-    if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);continue;}
+    if(a.fighter.recharge){a.fighter.recharge=false;say(b,`${a.fighter.name}은(는) 반동으로 이번 턴 움직일 수 없다!`);emit(b,{type:'rechargeBlocked',side:sideOf(b,a.fighter)});continue;}
     if(a.quickClawTriggered){say(b,`⚡ ${a.fighter.name}의 선제공격손톱 발동!`);emit(b,{type:'quickClaw',side:sideOf(b,a.fighter),name:a.fighter.name});}
     if(a.action.type==='run'){
       say(b,'도망가기 실패!');
