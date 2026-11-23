@@ -129,7 +129,7 @@ function eligibleEvolutionTargets(choice){
   if(choice.id==='fireStone'&&((member.dex===58&&member.level>=28)||(member.dex===37&&member.level>=28)))return true;
   if(choice.id==='moonStone')return ([30,33].includes(member.dex)&&member.level>=18)||(member.dex===35&&member.level>=20)||(member.dex===39&&member.level>=20);
   if(choice.id==='leafStone')return ([44,70].includes(member.dex)&&member.level>=26)||(member.dex===102&&member.level>=36);
-  if(choice.id==='waterStone')return (member.dex===61&&member.level>=26)||(member.dex===90&&member.level>=30)||(member.dex===120&&member.level>=25);
+  if(choice.id==='waterStone')return (member.dex===61&&member.level>=26)||(member.dex===90&&member.level>=30)||(member.dex===120&&member.level>=25)||(member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm()));
   return member.dex===133&&member.level>=22&&(!member.starter||!getEeveeForm());
  });
 }
