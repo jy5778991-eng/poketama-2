@@ -47,26 +47,13 @@ begin
   if v_party is null or jsonb_typeof(v_party)<>'array' or jsonb_array_length(v_party) not between 1 and 3 then continue;end if;
   -- Sum only the three recorded levels, never accept a client-supplied average.
   if exists(select 1 from jsonb_array_elements(v_party) as p where
-     coalesce(p->>'level','')!~'^([1-9][0-9]?|100)) then continue;end if;
-  select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party) into v_level_sum from jsonb_array_elements(v_party) as p;
-  insert into public.ranking_hall(user_id,starter,level_sum,party)
-  values(v_uid,v_starter,v_level_sum,v_party)
-  on conflict(user_id,starter) do update set
-   level_sum=excluded.level_sum,party=excluded.party,recorded_at=now()
-  where excluded.level_sum < public.ranking_hall.level_sum;
- end loop;
-end;
-$$; or coalesce(p->>'dex','')!~'^[0-9]{1,4}) then continue;end if;
-  select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party) into v_level_sum from jsonb_array_elements(v_party) as p;
-  insert into public.ranking_hall(user_id,starter,level_sum,party)
-  values(v_uid,v_starter,v_level_sum,v_party)
-  on conflict(user_id,starter) do update set
-   level_sum=excluded.level_sum,party=excluded.party,recorded_at=now()
-  where excluded.level_sum < public.ranking_hall.level_sum;
- end loop;
-end;
-$$; or (p->>'dex')::integer not between 1 and 1025) then continue;end if;
-  select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party) into v_level_sum from jsonb_array_elements(v_party) as p;
+     coalesce(p->>'level','') !~ '^([1-9][0-9]?|100)$'
+     or coalesce(p->>'dex','') !~ '^[0-9]{1,4}$'
+     or case when coalesce(p->>'dex','') ~ '^[0-9]{1,4}$'
+             then (p->>'dex')::integer not between 1 and 1025 else true end
+  ) then continue;end if;
+  select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party)
+    into v_level_sum from jsonb_array_elements(v_party) as p;
   insert into public.ranking_hall(user_id,starter,level_sum,party)
   values(v_uid,v_starter,v_level_sum,v_party)
   on conflict(user_id,starter) do update set
@@ -94,7 +81,19 @@ begin
   if v_party is null or jsonb_typeof(v_party)<>'array' or jsonb_array_length(v_party) not between 1 and 3 then continue;end if;
   if exists(select 1 from jsonb_array_elements(v_party) as p where
    coalesce(p->>'level','')!~'^([1-9][0-9]?|100)$' or coalesce(p->>'dex','')!~'^[0-9]{1,4}$'
-   or (p->>'dex')::integer not between 1 and 1025) then continue;end if;
+   or case when coalesce(p->>'dex','') ~ '^[0-9]{1,4}
+  select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party) into v_level_sum from jsonb_array_elements(v_party) as p;
+  insert into public.ranking_hall2(user_id,starter,level_sum,party)
+  values(v_uid,v_starter,v_level_sum,v_party)
+  on conflict(user_id,starter) do update set
+   level_sum=excluded.level_sum,party=excluded.party,recorded_at=now()
+  where excluded.level_sum < public.ranking_hall2.level_sum;
+ end loop;
+end;
+$$;
+commit;
+
+           then (p->>'dex')::integer not between 1 and 1025 else true end) then continue;end if;
   select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party) into v_level_sum from jsonb_array_elements(v_party) as p;
   insert into public.ranking_hall2(user_id,starter,level_sum,party)
   values(v_uid,v_starter,v_level_sum,v_party)
