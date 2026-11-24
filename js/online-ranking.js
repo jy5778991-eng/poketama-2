@@ -20,7 +20,7 @@ function row(index,name,value,highlight){const r=el('div','online-ranking-row');
 function parseHallParty(value){
  if(typeof value==='string'){try{value=JSON.parse(value);}catch{return null;}}
  if(!Array.isArray(value)&&value&&typeof value==='object')value=value.party||value.members||null;
- if(!Array.isArray(value)||value.length!==3)return null;
+ if(!Array.isArray(value)||value.length<1||value.length>3)return null;
  const members=value.map(p=>({name:String(p?.name||'포켓몬').slice(0,32),dex:Number(p?.dex),level:Number(p?.level)}));
  return members.every(p=>Number.isInteger(p.dex)&&p.dex>0&&p.dex<=1025&&Number.isInteger(p.level)&&p.level>=1&&p.level<=100)?members:null;
 }
@@ -76,7 +76,7 @@ async function showHallParty(item){
    grid.append(cell);
   }
   card.append(title,grid);content.append(card);
- }else content.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 3마리 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
+ }else content.append(el('p','online-ranking-party-unavailable','이 랭킹 기록의 포켓몬 정보는 서버에서 제공되지 않아 표시할 수 없습니다.'));
 }
 
 function openModal(snapshot,{onboarding=false}={}){
@@ -104,7 +104,7 @@ function openModal(snapshot,{onboarding=false}={}){
  const form=el('div','online-ranking-upload');
  form.append(el('h3','','내 정보 업데이트하기'));
  const name=el('input');name.id='onlineRankingName';name.placeholder='첫 참여 시 닉네임 (2~12자)';name.maxLength=12;name.value=localStorage.getItem(NAME_KEY)||'';name.setAttribute('aria-label','트레이너 닉네임');form.append(name);
- form.append(el('p','online-ranking-help','도감 등록 수, 완료 업적 수, 스타팅별 명예의 전당 3마리 최저 평균 레벨을 전송해. 평균이 같으면 서버에 먼저 등록한 기록이 우선이야.'));
+ form.append(el('p','online-ranking-help','도감 등록 수, 완료 업적 수, 스타팅별 명예의 전당 파티(1~3마리)의 최저 평균 레벨을 전송해. 평균이 같으면 서버에 먼저 등록한 기록이 우선이야.'));
  const send=el('button','online-ranking-submit',onboarding?'닉네임 등록하고 모험 시작하기':'내 정보 업데이트하기');send.type='button';send.onclick=()=>upload(snapshot,send,{onboarding});form.append(send);if(onboarding)panel.insertBefore(form,tabs);else panel.append(form);
  const n=el('p','online-ranking-notice','');n.setAttribute('role','status');panel.append(n);overlay.append(panel);document.body.append(overlay);
  refresh(snapshot);
