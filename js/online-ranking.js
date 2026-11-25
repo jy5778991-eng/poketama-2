@@ -163,13 +163,36 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
   if(!session){const signed=await db.auth.signInAnonymously();if(signed.error)throw signed.error;session=signed.data.session;}
   if(!session)throw new Error('트레이너 ID 발급에 실패했어.');
   const record=getSnapshot();
+  const hallCount=record.hall?.length||0,hall2Count=record.hall2?.length||0;
+  if(!hallCount&&!hall2Count)console.warn('명예의전당 랭킹으로 전송할 유효한 파티 기록이 없습니다.');
   const {error}=await db.rpc('upload_ranking',{p_nickname:name,p_dex_count:record.dexCount,p_achievement_count:record.achievementCount,p_hall:record.hall});
   let hall2Error=null;
   if(!error&&record.hall2?.length){const second=await db.rpc('upload_ranking_hall2',{p_hall2:record.hall2});hall2Error=second.error;}
   if(error)throw error;
   localStorage.setItem(NAME_KEY,name);
   if(overlay)overlay.querySelector('#onlineRankingName').readOnly=true;
-  notice(hall2Error?'기본 기록은 저장됐지만 명예의전당2는 서버 SQL 적용이 필요해: '+hall2Error.message:'업데이트 완료! 서버에 저장한 기록으로 순위를 다시 불러왔어.',!!hall2Error);
+  let savedHall=null,savedHall2=null,checkError=null;
+  try{
+   const {data:{user}}=await db.auth.getUser();
+   if(user){
+    const [first,second]=await Promise.all([
+     db.from('ranking_hall').select('starter,level_sum,party').eq('user_id',user.id),
+     db.from('ranking_hall2').select('starter,level_sum,party').eq('user_id',user.id)
+    ]);
+    if(first.error||second.error)checkError=first.error?.message||second.error?.message;
+    else{savedHall=first.data||[];savedHall2=second.data||[];}
+   }
+  }catch(e){checkError=e?.message||String(e);}
+  const sent='전송 대상: 명전1 '+hallCount+'개 / 명전2 '+hall2Count+'개';
+  const stored=savedHall&&savedHall2?' · 서버 저장: 명전1 '+savedHall.length+'개 / 명전2 '+savedHall2.length+'개':'';
+  const missingFirst=savedHall&&record.hall?.filter(x=>!savedHall.some(y=>y.starter===x.starter))||[];
+  const missingSecond=savedHall2&&record.hall2?.filter(x=>!savedHall2.some(y=>y.starter===x.starter))||[];
+  const warning=missingFirst.length||missingSecond.length?' · 일부 기록이 서버에 없어. 랭킹 기록을 확인해줘.':'';
+  notice((hall2Error?'명전2 업로드 오류: '+hall2Error.message+' · ':'')+
+    (checkError?'서버 기록 조회 불가: '+checkError+' · ':'')+
+    (hallCount+hall2Count===0?'전송할 유효한 명예의전당 기록이 없어. · ':'')+
+    '업데이트 요청 완료 · '+sent+stored+warning+
+    ' · 기존 동일 스타팅 최고 기록보다 평균 레벨이 낮을 때만 갱신돼.',!!hall2Error||!!warning);
   if(onboarding){overlay?.remove();overlay=null;return;}
   await refresh(getSnapshot);
  }catch(e){notice(e.code==='23505'?'이미 사용 중인 닉네임이야. 다른 이름을 선택해줘.':e.message||'업데이트 실패',true);}
