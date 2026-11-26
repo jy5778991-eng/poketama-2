@@ -4222,7 +4222,7 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- openRanking=async function(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261126-multi-hall-records');openOnlineRanking(()=>{
+ openRanking=async function(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261126-ranking-fallback');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
