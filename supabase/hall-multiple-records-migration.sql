@@ -83,14 +83,19 @@ begin
    select sum((p->>'level')::integer)::numeric * 3 / jsonb_array_length(v_party)
     into v_sum from jsonb_array_elements(v_party) p;
    if v_second then
-    -- Do not duplicate an existing legacy row when the same victory is uploaded anew.
-    if exists(select 1 from public.ranking_hall2_records
-      where user_id=v_uid and starter=v_starter and party=v_party and record_key like 'legacy:%') then continue;end if;
+    -- Attach the first matching old leaderboard row to its original victory ID.
+    -- Other victories with the same starter and identical party still get own rows.
+    update public.ranking_hall2_records set record_key=v_key
+     where user_id=v_uid and starter=v_starter and party=v_party
+       and record_key like 'legacy:%'
+       and not exists(select 1 from public.ranking_hall2_records where user_id=v_uid and record_key=v_key);
     insert into public.ranking_hall2_records(user_id,record_key,starter,level_sum,party)
     values(v_uid,v_key,v_starter,v_sum,v_party) on conflict (user_id,record_key) do nothing;
    else
-    if exists(select 1 from public.ranking_hall_records
-      where user_id=v_uid and starter=v_starter and party=v_party and record_key like 'legacy:%') then continue;end if;
+    update public.ranking_hall_records set record_key=v_key
+     where user_id=v_uid and starter=v_starter and party=v_party
+       and record_key like 'legacy:%'
+       and not exists(select 1 from public.ranking_hall_records where user_id=v_uid and record_key=v_key);
     insert into public.ranking_hall_records(user_id,record_key,starter,level_sum,party)
     values(v_uid,v_key,v_starter,v_sum,v_party) on conflict (user_id,record_key) do nothing;
    end if;
