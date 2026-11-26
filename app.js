@@ -302,6 +302,8 @@ const ACHIEVEMENTS=[
  ["rocketFan","로켓 좋아","아테나, 아폴로, 로켓단 보스 비주기 모두 격파"],
  ["redSummit","정점","은빛산 정상에서 레드와의 배틀에서 승리"],
  ["hall10","컴까기 장인","명예의 전당 10회"],
+ ["hallTwoParty","둘은 문제아지만 최강","두마리로 명예의 전당 등록"],
+ ["hallSolo","혼자지만 행복해","한마리로 명예의 전당 등록"],
 
  ["firstCompanion","친구야 반가워","동료 포켓몬 최초 영입"],
  ["partyThree","삼총사","파티에 포켓몬 3마리 구성"],
@@ -445,6 +447,11 @@ function earnAchievement(id){
  try{appendAdventureLog('🏆 업적 달성! \''+entry[1]+'\'');}catch(error){console.error('업적 로그 실패',error);}
  try{saveProgress();}catch(error){console.error('업적 진행 저장 실패',error);}
  queueAchievementNotice(id);
+}
+function checkHallPartyCountAchievements(record){
+ const count=Array.isArray(record?.party)?record.party.length:0;
+ if(count===2)earnAchievement('hallTwoParty');
+ if(count===1)earnAchievement('hallSolo');
 }
 function checkLevelAchievement(){const members=teamMembers(),max=Math.max(0,...members.map(m=>m.level));for(const n of [10,20,30,40,50,60,80,100])if(max>=n)earnAchievement('level'+n);for(const n of [50,80,100])if(members.length===3&&members.every(m=>m.level>=n))earnAchievement('partyLevel'+n);}
 function recordHealingItem(){achievementData.healing++;saveAchievements();if(achievementData.healing>=100)earnAchievement('healing100');}
@@ -1296,10 +1303,10 @@ function finishTrainerBattle(){
   if(battleKind==='red'){
    earnAchievement('redSummit');
    const f=getForm(chosen,progress.level);
-   redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;currentRunRedWon=true;
+   redHallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(redHallOfFame.at(-1)?.round||0)+1});redCeremonyPending=true;currentRunRedWon=true;checkHallPartyCountAchievements(redHallOfFame.at(-1));
   }
   if(leagueIndex===4){earnAchievement('champion');earnAchievement('starter:'+chosen);
-   if(teamMembers().some(m=>m.dex===25)&&!teamMembers().some(m=>m.dex===26))earnAchievement('ashPikachu');}if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;currentRunLeagueWon=true;leagueCeremonyPending=true}else leagueStage=leagueIndex+1}
+   if(teamMembers().some(m=>m.dex===25)&&!teamMembers().some(m=>m.dex===26))earnAchievement('ashPikachu');}if(leagueIndex>=0){if(leagueIndex===4){area='palletTown';const f=getForm(chosen,progress.level);hallOfFame.push({date:new Date().toISOString(),pokemon:f.name,dex:f.dex,starter:chosen,level:progress.level,ivs:{...playerIVs},evs:{...playerEVs},moves:[...playerMoves],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});leagueStage=null;currentRunLeagueWon=true;leagueCeremonyPending=true;checkHallPartyCountAchievements(hallOfFame.at(-1))}else leagueStage=leagueIndex+1}
   if(leagueIndex===4&&hallOfFame.length>=10)earnAchievement('hall10');const money=battleKind==='red'?5000:leagueIndex>=0?1800+leagueIndex*350:TRAINERS[battleKind].money;
   const finalEnemy=battle.enemies?.[battle.enemies.length-1];
   const level=finalEnemy?.level??(battleKind==='red'?96:leagueIndex>=0?67+leagueIndex*2:TRAINERS[battleKind].level);
@@ -2362,6 +2369,8 @@ function restoreHistoricalAchievements(){
  const eeveeEvolvedDex=new Set([134,135,136,196,197]);
  const eeveeEvolutionLog=line=>/이브이\s*→\s*(샤미드|쥬피썬더|부스터|에브이|블래키).*진화/.test(line);
  const knownHall=[...hallOfFame,...redHallOfFame,...(Array.isArray(permanent.hallOfFame)?permanent.hallOfFame:[]),...(Array.isArray(permanent.redHallOfFame)?permanent.redHallOfFame:[])];
+ mark('hallTwoParty',knownHall.some(record=>Array.isArray(record?.party)&&record.party.length===2));
+ mark('hallSolo',knownHall.some(record=>Array.isArray(record?.party)&&record.party.length===1));
  const eeveeHallEvidence=knownHall.some(record=>record?.starter==='eevee'&&(
    eeveeEvolvedDex.has(record.dex)||
    (Array.isArray(record.party)&&record.party.some(mon=>eeveeEvolvedDex.has(mon?.dex)))
@@ -3611,6 +3620,7 @@ function applyDeveloperChanges(e){
   const lead=leaderMember(),iv=lead.starter?playerIVs:lead.ivs,ev=lead.starter?playerEVs:lead.evs||{};
   hallOfFame.push({date:new Date().toISOString(),pokemon:lead.name,dex:lead.dex,starter:chosen,level:lead.level,ivs:{...iv},evs:{...ev},moves:[...(lead.starter?playerMoves:lead.moves||[])],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});
   hallOfFame=hallOfFame.slice(-100);
+  checkHallPartyCountAchievements(hallOfFame.at(-1));
   leagueStage=null;leagueCeremonyPending=false;
  }
  // Developer region selection never completes trainers; explicit checkboxes are authoritative.
