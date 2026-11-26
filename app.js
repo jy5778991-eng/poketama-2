@@ -3607,7 +3607,7 @@ function applyDeveloperChanges(e){
  area=warp.area;
  if(targetArea==='palletTown'&&$('developerHallChoice').value==='register'){
   const lead=leaderMember(),iv=lead.starter?playerIVs:lead.ivs,ev=lead.starter?playerEVs:lead.evs||{};
-  hallOfFame.push({date:new Date().toISOString(),pokemon:lead.name,dex:lead.dex,starter:lead.starter?chosen:null,level:lead.level,ivs:{...iv},evs:{...ev},moves:[...(lead.starter?playerMoves:lead.moves||[])],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});
+  hallOfFame.push({date:new Date().toISOString(),pokemon:lead.name,dex:lead.dex,starter:chosen,level:lead.level,ivs:{...iv},evs:{...ev},moves:[...(lead.starter?playerMoves:lead.moves||[])],party:hallPartySnapshot(),round:(hallOfFame.at(-1)?.round||0)+1});
   hallOfFame=hallOfFame.slice(-100);
   leagueStage=null;leagueCeremonyPending=false;
  }
