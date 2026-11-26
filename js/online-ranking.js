@@ -52,10 +52,10 @@ async function showHallParty(item){
   try{
    const db=await client();
    // Older leaderboard views can omit party details. Try optional public records.
-   for(const table of (tab==='hall2'?['ranking_hall2']:['ranking_hall_records','ranking_hall'])){
+   for(const table of (tab==='hall2'?['ranking_hall2_records','ranking_hall2']:['ranking_hall_records','ranking_hall'])){
     const response=await db.from(table).select('*').eq('user_id',item.user_id).eq('starter',item.starter).limit(20);
     if(response.error)continue;
-    const matched=(response.data||[]).filter(r=>Number(r.level_sum)===Number(item.level_sum)
+    const matched=(response.data||[]).filter(r=>(item.record_key&&r.record_key===item.record_key)||Number(r.level_sum)===Number(item.level_sum)
       ||(Array.isArray(r.party)&&r.party.reduce((sum,p)=>sum+Number(p?.level||0),0)===Number(item.level_sum)));
     members=matched.map(hallPartyFromRow).find(Boolean)||null;
     if(members)break;
@@ -104,7 +104,7 @@ function openModal(snapshot,{onboarding=false}={}){
  const form=el('div','online-ranking-upload');
  form.append(el('h3','','내 정보 업데이트하기'));
  const name=el('input');name.id='onlineRankingName';name.placeholder='첫 참여 시 닉네임 (2~12자)';name.maxLength=12;name.value=localStorage.getItem(NAME_KEY)||'';name.setAttribute('aria-label','트레이너 닉네임');form.append(name);
- form.append(el('p','online-ranking-help','도감 등록 수, 완료 업적 수, 스타팅별 명예의 전당 파티(1~3마리)의 최저 평균 레벨을 전송해. 평균이 같으면 서버에 먼저 등록한 기록이 우선이야.'));
+ form.append(el('p','online-ranking-help','도감 등록 수, 완료 업적 수, 명예의전당 모든 회차(1~3마리)를 전송해. 같은 스타팅으로 여러 번 달성해도 각각 별도 랭킹 기록으로 등록돼.'));
  const send=el('button','online-ranking-submit',onboarding?'닉네임 등록하고 모험 시작하기':'내 정보 업데이트하기');send.type='button';send.onclick=()=>upload(snapshot,send,{onboarding});form.append(send);if(onboarding)panel.insertBefore(form,tabs);else panel.append(form);
  const n=el('p','online-ranking-notice','');n.setAttribute('role','status');panel.append(n);overlay.append(panel);document.body.append(overlay);
  refresh(snapshot);
@@ -123,8 +123,8 @@ async function refresh(snapshot){
  if(!configured()){board.replaceChildren(el('p','online-ranking-empty','랭킹 화면 준비 완료 · 서버 설정 후 온라인 순위가 표시돼.'));notice('아직 서버 연결 정보가 등록되지 않았어.',true);return;}
  try{
   const db=await client();let response;
-  if(tab==='hall2')response=await db.from('ranking_hall2_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
-  else if(tab==='hall')response=await db.from('ranking_hall_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  if(tab==='hall2')response=await db.from('ranking_hall2_records_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
+  else if(tab==='hall')response=await db.from('ranking_hall_records_board').select('*').eq('starter',selectedStarter).order('level_sum',{ascending:true}).order('recorded_at',{ascending:true}).limit(100);
   else {
    const tieField=tab==='dex'?'updated_at':'achievement_reached_at';
    response=await db.from('ranking_profiles').select('user_id,nickname,dex_count,achievement_count').order(tab==='dex'?'dex_count':'achievement_count',{ascending:false}).order(tieField,{ascending:true}).limit(100);
@@ -165,10 +165,11 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
   const record=getSnapshot();
   const hallCount=record.hall?.length||0,hall2Count=record.hall2?.length||0;
   if(!hallCount&&!hall2Count)console.warn('명예의전당 랭킹으로 전송할 유효한 파티 기록이 없습니다.');
-  const {error}=await db.rpc('upload_ranking',{p_nickname:name,p_dex_count:record.dexCount,p_achievement_count:record.achievementCount,p_hall:record.hall});
-  let hall2Error=null;
-  if(!error&&record.hall2?.length){const second=await db.rpc('upload_ranking_hall2',{p_hall2:record.hall2});hall2Error=second.error;}
+  // The legacy RPC still owns nickname, Pokédex and achievement statistics.
+  // Hall histories are sent to the new per-victory RPC without starter deduplication.
+  const {error}=await db.rpc('upload_ranking',{p_nickname:name,p_dex_count:record.dexCount,p_achievement_count:record.achievementCount,p_hall:[]});
   if(error)throw error;
+  const {error:hall2Error}=await db.rpc('upload_ranking_all_hall_records',{p_hall:record.hall,p_hall2:record.hall2});
   localStorage.setItem(NAME_KEY,name);
   if(overlay)overlay.querySelector('#onlineRankingName').readOnly=true;
   let savedHall=null,savedHall2=null,checkError=null;
@@ -176,8 +177,8 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
    const {data:{user}}=await db.auth.getUser();
    if(user){
     const [first,second]=await Promise.all([
-     db.from('ranking_hall').select('starter,level_sum,party').eq('user_id',user.id),
-     db.from('ranking_hall2').select('starter,level_sum,party').eq('user_id',user.id)
+     db.from('ranking_hall_records').select('record_key,starter,level_sum,party').eq('user_id',user.id),
+     db.from('ranking_hall2_records').select('record_key,starter,level_sum,party').eq('user_id',user.id)
     ]);
     if(first.error||second.error)checkError=first.error?.message||second.error?.message;
     else{savedHall=first.data||[];savedHall2=second.data||[];}
@@ -188,14 +189,14 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
     (diagnostic.first.ignored.length||diagnostic.second.ignored.length?' · 제외 기록: '+[...diagnostic.first.ignored.map(x=>'명전1 '+x),...diagnostic.second.ignored.map(x=>'명전2 '+x)].join(' / '):'')):'';
   const sent='전송 대상: 명전1 '+hallCount+'개 / 명전2 '+hall2Count+'개';
   const stored=savedHall&&savedHall2?' · 서버 저장: 명전1 '+savedHall.length+'개 / 명전2 '+savedHall2.length+'개':'';
-  const missingFirst=savedHall&&record.hall?.filter(x=>!savedHall.some(y=>y.starter===x.starter))||[];
-  const missingSecond=savedHall2&&record.hall2?.filter(x=>!savedHall2.some(y=>y.starter===x.starter))||[];
-  const warning=missingFirst.length||missingSecond.length?' · 일부 기록이 서버에 없어. 랭킹 기록을 확인해줘.':'';
-  notice((hall2Error?'명전2 업로드 오류: '+hall2Error.message+' · ':'')+
+  const missingFirst=savedHall&&record.hall?.filter(x=>!savedHall.some(y=>y.record_key===x.record_key||y.record_key?.startsWith('legacy:')&&y.starter===x.starter&&JSON.stringify(y.party)===JSON.stringify(x.party)))||[];
+  const missingSecond=savedHall2&&record.hall2?.filter(x=>!savedHall2.some(y=>y.record_key===x.record_key||y.record_key?.startsWith('legacy:')&&y.starter===x.starter&&JSON.stringify(y.party)===JSON.stringify(x.party)))||[];
+  const warning=missingFirst.length||missingSecond.length?' · 일부 기록 미등록: 명전1 '+missingFirst.length+'개 / 명전2 '+missingSecond.length+'개':'';
+  notice((hall2Error?'명전 전체 기록 업로드 오류(SQL 업데이트 필요): '+hall2Error.message+' · ':'')+
     (checkError?'서버 기록 조회 불가: '+checkError+' · ':'')+
     (hallCount+hall2Count===0?'전송할 유효한 명예의전당 기록이 없어. · ':'')+
     '업데이트 요청 완료 · '+sent+detail+stored+warning+
-    ' · 기존 동일 스타팅 최고 기록보다 평균 레벨이 낮을 때만 갱신돼.',!!hall2Error||!!warning);
+    ' · 같은 스타팅의 여러 기록도 각각 등록돼.',!!hall2Error||!!warning);
   if(onboarding){overlay?.remove();overlay=null;return;}
   await refresh(getSnapshot);
  }catch(e){notice(e.code==='23505'?'이미 사용 중인 닉네임이야. 다른 이름을 선택해줘.':e.message||'업데이트 실패',true);}
