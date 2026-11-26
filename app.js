@@ -232,7 +232,7 @@ function rewardWeight(choice,context){
    if(id==='scopeLens')return inventory.scopeLens>=5?0:4;
    if(id==='expShare')return inventory.expShare>=4?0:7;
    if(id==='masterBall')return inventory.masterBall>=2?0:inventory.masterBall===1?2:7;
-   if(id==='quickBall')return inventory.quickBall>=1?0:3;
+   if(id==='quickBall')return inventory.quickBall>=10?0:3;
   if(id==='thickClub')return inventory[id]===1?0:exclusiveItemWeight([104,105],1);
   if(id==='map')return inventory.map!==1?1:0;
   if(['secretSwitch','oldSeaMap'].includes(id))return inventory[id]!==1?7:0;
@@ -1876,7 +1876,7 @@ function showRewardChoices(){
   card.className='reward-choice-item reward-tier-'+choice.tier;
   const unique=choice.kind==='item'&&SHOP_ITEMS.find(item=>item.id===choice.id)?.category==='key'&&choice.id!=='clefairyDoll';
   const held=choice.kind==='item'&&HELD_ITEMS.includes(choice.id);
-  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=1)||(choice.kind==='item'&&choice.id==='clefairyDoll'&&inventory.clefairyDoll>=4)||unique&&(choice.id==='expShare'?inventory.expShare>=4:inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
+  const unavailable=choice.kind==='evolution'&&!eligibleEvolutionTargets(choice).length||held&&inventory[choice.id]>=HELD_MAX[choice.id]||(choice.kind==='item'&&choice.id==='masterBall'&&inventory.masterBall>=2)||(choice.kind==='item'&&choice.id==='quickBall'&&inventory.quickBall>=10)||(choice.kind==='item'&&choice.id==='clefairyDoll'&&inventory.clefairyDoll>=4)||unique&&(choice.id==='expShare'?inventory.expShare>=4:inventory[choice.id]===1||(choice.id==='partySlotB'&&inventory.partySlotA!==1))||['reviveShardReward','maxReviveReward','sacredAshReward'].includes(choice.kind)&&!(teamMembers().length>=2&&teamMembers().some(m=>memberHp(m)===0))||choice.kind==='candyBundle'&&teamMembers().length<2;
   const tag=document.createElement('strong');tag.className='reward-tier-label';tag.textContent=REWARD_TIERS[choice.tier]?.label||'일반';
   const pick=document.createElement('button');pick.type='button';pick.className='reward-pick';
   pick.disabled=unavailable;
@@ -2304,7 +2304,7 @@ function claimRewardChoice(index){
     alert('이미 보유한 중요 아이템이거나 슬롯A가 먼저 필요해. 다른 보상을 선택해줘.');return;
    }
    inventory[choice.id]=1;
-  }else inventory[choice.id]=Math.min(choice.id==='expShare'?4:choice.id==='masterBall'?2:choice.id==='quickBall'?1:choice.id==='clefairyDoll'?4:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
+  }else inventory[choice.id]=Math.min(choice.id==='expShare'?4:choice.id==='masterBall'?2:choice.id==='quickBall'?10:choice.id==='clefairyDoll'?4:HELD_MAX[choice.id]||99,inventory[choice.id]+choice.quantity);
  }else return;
  appendAdventureLog('🎁 랜덤 보상: '+rewardChoiceText(choice));
  pendingRewardChoice=null;
