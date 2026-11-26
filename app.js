@@ -206,6 +206,8 @@ function rewardWeight(choice,context){
  if(choice.kind==='evolution')return evolutionRewardWeight(choice);
  if(choice.kind==='item'){
   const id=choice.id;
+  // No more rewards for a ball type once 99 of that type are owned.
+  if(['pokeBall','greatBall','ultraBall'].includes(id)&&(Number(inventory[id])||0)>=99)return 0;
   const exclusiveItemWeight=(eligibleDex,missingWeight)=>{
    const matchingLevels=members.filter(m=>eligibleDex.includes(m.dex)).map(m=>m.level);
    if(!matchingLevels.length)return missingWeight;
