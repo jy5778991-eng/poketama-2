@@ -4222,13 +4222,13 @@ function setup(){
  $('openParty')?.addEventListener('click',()=>showPartyManager());
  $('badgeStatus')?.addEventListener('click',showBadgeCollection);
  $('adventureLogToggle')?.addEventListener('click',toggleAdventureLog);
- openRanking=async function(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261125-ranking-diagnostics');openOnlineRanking(()=>{
+ openRanking=async function(onboarding=false){try{const {openOnlineRanking}=await import('./js/online-ranking.js?v=20261126-multi-hall-records');openOnlineRanking(()=>{
   restoreHistoricalAchievements();
   let permanent={};
   try{permanent=JSON.parse(localStorage.getItem(PERMANENT_KEY)||'{}')||{};}catch{}
   const caught=new Set([...caughtSpecies,...(Array.isArray(permanent.caughtSpecies)?permanent.caughtSpecies:[])].filter(d=>Number.isInteger(d)&&d>0&&d<=1025));
   const summarizeHall=(records)=>{
-   const best=new Map(),ignored=[];
+   const submissions=[],ignored=[];
    for(const [index,r] of records.entries()){
     const label='제'+(r?.round||index+1)+'회 ('+(Array.isArray(r?.party)?r.party.length:'기록 없음')+'마리)';
     if(!STARTERS.some(st=>st.id===r?.starter)){ignored.push(label+': 스타팅 정보 없음');continue;}
@@ -4237,11 +4237,13 @@ function setup(){
     if(source.length<1||source.length>3){ignored.push(label+': 파티 인원 오류');continue;}
     const party=source.map(p=>({name:String(p?.name||'포켓몬').slice(0,32),dex:Number(p?.dex)||0,level:Number(p?.level)}));
     if(!party.every(p=>Number.isInteger(p.dex)&&p.dex>=1&&p.dex<=1025&&Number.isInteger(p.level)&&p.level>=1&&p.level<=100)){ignored.push(label+': 포켓몬 데이터 오류');continue;}
-    const sum=party.reduce((n,p)=>n+p.level,0)*3/party.length;
-    const current=best.get(r.starter);
-    if(!current||sum<current.sum)best.set(r.starter,{starter:r.starter,party,sum});
+    // A victory gets its own stable ID even when the starter species is repeated.
+    // Deduplication across local and permanent saves occurs in hallOfFameEntries().
+    const key=['v1',r.starter,String(r.date||'undated').slice(0,40),r.round||index+1,
+     party.map(p=>p.dex+':'+p.level).join(',')].join('|');
+    submissions.push({starter:r.starter,party,record_key:key});
    }
-   return {records:[...best.values()].map(({starter,party})=>({starter,party})),count:records.length,ignored};
+   return {records:submissions,count:records.length,ignored};
   };
   const first=summarizeHall(hallOfFameEntries('first'));
   const second=summarizeHall(hallOfFameEntries('second'));
