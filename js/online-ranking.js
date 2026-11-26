@@ -183,6 +183,9 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
     else{savedHall=first.data||[];savedHall2=second.data||[];}
    }
   }catch(e){checkError=e?.message||String(e);}
+  const diagnostic=record.hallDiagnostics;
+  const detail=diagnostic?(' · 보유 명전1 '+diagnostic.first.count+'개 / 명전2 '+diagnostic.second.count+'개'+
+    (diagnostic.first.ignored.length||diagnostic.second.ignored.length?' · 제외 기록: '+[...diagnostic.first.ignored.map(x=>'명전1 '+x),...diagnostic.second.ignored.map(x=>'명전2 '+x)].join(' / '):'')):'';
   const sent='전송 대상: 명전1 '+hallCount+'개 / 명전2 '+hall2Count+'개';
   const stored=savedHall&&savedHall2?' · 서버 저장: 명전1 '+savedHall.length+'개 / 명전2 '+savedHall2.length+'개':'';
   const missingFirst=savedHall&&record.hall?.filter(x=>!savedHall.some(y=>y.starter===x.starter))||[];
@@ -191,7 +194,7 @@ async function upload(getSnapshot,button,{onboarding=false}={}){
   notice((hall2Error?'명전2 업로드 오류: '+hall2Error.message+' · ':'')+
     (checkError?'서버 기록 조회 불가: '+checkError+' · ':'')+
     (hallCount+hall2Count===0?'전송할 유효한 명예의전당 기록이 없어. · ':'')+
-    '업데이트 요청 완료 · '+sent+stored+warning+
+    '업데이트 요청 완료 · '+sent+detail+stored+warning+
     ' · 기존 동일 스타팅 최고 기록보다 평균 레벨이 낮을 때만 갱신돼.',!!hall2Error||!!warning);
   if(onboarding){overlay?.remove();overlay=null;return;}
   await refresh(getSnapshot);
